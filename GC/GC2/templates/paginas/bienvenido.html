@@ -1,49 +1,130 @@
-{% extends "base.html" %}
-{% block titulo %} NOMBRE {% endblock %}
 {% load static %}
-{% block css %}
-<link href="{% static 'css/bienvenido.css' %}" rel="stylesheet">
-{% endblock %}
-{% block Contenido %} {% endblock %}
-{% block main %}>
-<!-- Container principal -->
-    <div class="container">
-        <!-- Texto principal -->
-        <div class="main-text">
-            <h1>Fábrica de Soluciones</h1>
-            <p class="subtitle">"Construye, comparte y crece: el conocimiento es poder cuando se multiplica."</p>
-            <a href="#" class="cta-button">Comenzar Ahora</a>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block titulo %} {% endblock %}</title>
+
+        <!-- Bootstrap CSS -->
+        <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+        <!-- CSS personalizado -->
+        <link rel="stylesheet" href="{% static 'css/bienvenido.css' %}">
+
+        {% block css %}{% endblock %}
+    </head>
+    <body>
+        <div class="header-container">
+            <header class="header-content">
+                <img src="{% static 'img/logo1.png' %}" alt="Logo Sena Blanco" class="header-logo">
+                <div class="header-divider"></div>
+                <h1 class="header-title">NOMBRE</h1>
+            </header>
         </div>
+        <div>
+            <main>
+                <!-- Container principal -->
+                <div class="container">
+                    <!-- Texto principal -->
+                    <div class="main-text">
+                        <h2>Fábrica de Soluciones</h2>
+                        <p class="subtitle">"Construye, comparte y crece: el conocimiento es poder cuando se multiplica."</p>
+                        <a href="#" class="cta-button">Comenzar Ahora</a>
+                    </div>
 
-        <!-- Hub de conocimiento animado -->
-        <div class="knowledge-hub">
-            <div class="hub-container">
-                <!-- Icono central -->
-                <div class="central-icon">⚛</div>
-                
-                <!-- Órbitas -->
-                <div class="orbit orbit-1"></div>
-                <div class="orbit orbit-2"></div>
-                <div class="orbit orbit-3"></div>
-                
-                <!-- Líneas de conexión -->
-                <div class="connection-line line-1"></div>
-                <div class="connection-line line-2"></div>
-                <div class="connection-line line-3"></div>
-                <div class="connection-line line-4"></div>
-                
-                <!-- Nodos de conocimiento -->
-                <div class="knowledge-node node-1" title="Investigación Científica">🔬</div>
-                <div class="knowledge-node node-2" title="Análisis de Datos">📊</div>
-                <div class="knowledge-node node-3" title="Inteligencia Artificial">🧠</div>
-                <div class="knowledge-node node-4" title="Base de Conocimiento">📚</div>
-                <div class="knowledge-node node-5" title="Objetivos y Metas">🎯</div>
-                <div class="knowledge-node node-6" title="Innovación">💡</div>
-                <div class="knowledge-node node-7" title="Crecimiento">📈</div>
-                <div class="knowledge-node node-8" title="Conexiones">🔗</div>
-            </div>
+                    <!-- Hub de conocimiento animado -->
+                    <div class="knowledge-hub">
+                        <div class="hub-container">
+                            <!-- Icono central -->
+                            <div class="central-icon">⚛</div>
+                            
+                            <!-- Órbitas -->
+                            <div class="orbit orbit-1"></div>
+                            <div class="orbit orbit-2"></div>
+                            <div class="orbit orbit-3"></div>
+                            
+                            <!-- Líneas de conexión -->
+                            <div class="connection-line line-1"></div>
+                            <div class="connection-line line-2"></div>
+                            <div class="connection-line line-3"></div>
+                            <div class="connection-line line-4"></div>
+                            
+                            <!-- Nodos de conocimiento -->
+                            <div class="knowledge-node node-1" title="Investigación Científica">🔬</div>
+                            <div class="knowledge-node node-2" title="Análisis de Datos">📊</div>
+                            <div class="knowledge-node node-3" title="Inteligencia Artificial">🧠</div>
+                            <div class="knowledge-node node-4" title="Base de Conocimiento">📚</div>
+                            <div class="knowledge-node node-5" title="Objetivos y Metas">🎯</div>
+                            <div class="knowledge-node node-6" title="Innovación">💡</div>
+                            <div class="knowledge-node node-7" title="Crecimiento">📈</div>
+                            <div class="knowledge-node node-8" title="Conexiones">🔗</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Contenedor secundario -->
+                <div class="secondary-container">
+                    <!-- Partículas de fondo -->
+                    <div class="bg-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        
+                    </div>
+                    <div class="card-container">
+                        <!-- Tarjetas de información -->
+                        <div class="info-card">
+                            <h3>10+</h3>
+                            <p>Investigadores</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>20+</h3>
+                            <p>Instructores</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>90+</h3>
+                            <p>Semilleros.</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>10+</h3>
+                            <p>Proyectos</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>50+</h3>
+                            <p>Sennova</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>10+</h3>
+                            <p>Capacidad Instalada</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>15+</h3>
+                            <p>Proyectos formativos</p>
+                        </div>
+                    </div>
+                </div>
+        
+   
+            </main>
         </div>
-    </div>
+        <div>
+            <footer>
 
-{% endblock %}
+            </footer>
+        </div>
+        
+        <!-- JS de Bootstrap y dependencias -->
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
+
+     
+        
+    </body>
+</html>
