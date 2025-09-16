@@ -1,0 +1,268 @@
+:root {
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 60px;
+    --header-height: 70px;
+}
+
+/* ======= RESET Y BASE ======= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--color-primario);
+    min-height: 100vh;
+    width: 100vw;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ======= HEADER ======= */
+.header-container {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    height: var(--header-height);
+    background: var(--color-primario);
+    box-shadow: 0 2px 4px var(--color-sidebar-shadow);
+    transition: left 0.3s ease, width 0.3s ease;
+    z-index: 1030;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    height: 100%;
+}
+
+.sidebar-icon {
+    font-size: 1rem;
+    font-weight: 200;
+    color: var(--color-text-primary);
+}
+
+/* Ajuste header cuando el sidebar está colapsado */
+body.sidebar-collapsed .header-container {
+    left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* ======= SIDEBAR ======= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--color-sidebar-bg);
+    border-right: 1px solid #dee2e6;
+    box-shadow: 2px 0 10px var(--color-sidebar-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 0.3s ease;
+    z-index: 1055;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+/* ======= CABECERA DEL SIDEBAR ======= */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #dee2e6;
+    background: white;
+    min-height: var(--header-height);
+}
+
+.btn-open {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--color-text-primary);
+    padding: 8px;
+    margin-right: 12px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.btn-open:hover {
+    color: var(--color-nav-active);
+}
+
+.sidebar-title {
+    font-size: 1.20rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    margin-top: 3.1%;
+}
+
+/* Ocultar título cuando colapsado */
+.sidebar.collapsed .sidebar-title {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+/* ======= CENTRAR EL BOTÓN EN COLLAPSED ======= */
+.sidebar.collapsed .sidebar-header {
+  justify-content: center; /* centra el contenido horizontal */
+}
+
+.sidebar.collapsed .btn-open {
+  margin: 0;              /* elimina el margin-right que tenías */
+}
+
+/* ======= NAVEGACIÓN ======= */
+.sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.nav.flex-column {
+    list-style: none;
+    padding: 20px 0;
+}
+
+.nav-item {
+    animation: slideIn 0.3s ease forwards;
+}
+
+.nav-icon {
+    font-size: 1.1rem;
+    margin-right: 12px;
+    flex-shrink: 0;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: margin 0.3s ease;
+}
+
+.nav-text {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-left: 3px solid transparent;
+    position: relative;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background-color: var(--color-nav-hover);
+    color: var(--color-nav-active);
+    border-left-color: var(--color-nav-active);
+    padding-left: 28px;
+}
+
+.nav-link.active {
+    background-color: rgba(57, 169, 0, 0.1);
+    color: var(--color-nav-active);
+    border-left-color: var(--color-nav-active);
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: linear-gradient(
+        to right,
+        var(--color-nav-active) 0%,
+        rgba(57, 169, 0, 0.8) 30%,
+        rgba(57, 169, 0, 0.4) 60%,
+        rgba(57, 169, 0, 0.1) 80%,
+        transparent 100%
+    );
+    opacity: 0;
+    transition: all 0.4s ease;
+    pointer-events: none;
+}
+
+.nav-link.active:hover::after {
+    width: 60px;
+    opacity: 1;
+}
+
+.nav-link.active:hover {
+    box-shadow:
+        inset 3px 0 6px rgba(57, 169, 0, 0.3),
+        inset 6px 0 12px rgba(57, 169, 0, 0.2),
+        inset 12px 0 24px rgba(57, 169, 0, 0.1);
+}
+
+/* Ajustes de colapso en enlaces e íconos */
+.sidebar.collapsed .nav-link {
+    padding-left: 20px;
+}
+
+
+.sidebar.collapsed .nav-text {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+/* ======= CONTENIDO PRINCIPAL ======= */
+.main-content {
+    margin-top: var(--header-height);
+    margin-left: var(--sidebar-width);
+    padding: 30px;
+    min-height: calc(100vh - var(--header-height));
+    transition: margin-left 0.3s ease;
+}
+
+body.sidebar-collapsed .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* ======= ANIMACIONES ======= */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.nav-item:nth-child(1) { animation-delay: 0.1s; }
+.nav-item:nth-child(2) { animation-delay: 0.2s; }
+.nav-item:nth-child(3) { animation-delay: 0.3s; }
+.nav-item:nth-child(4) { animation-delay: 0.4s; }
+.nav-item:nth-child(5) { animation-delay: 0.5s; }
+.nav-item:nth-child(6) { animation-delay: 0.6s; }
+.nav-item:nth-child(7) { animation-delay: 0.7s; }
+
+/* ======= ACCESIBILIDAD ======= */
+.btn-open:focus,
+.nav-link:focus {
+    outline: 2px solid var(--color-nav-active);
+    outline-offset: 2px;
+}
