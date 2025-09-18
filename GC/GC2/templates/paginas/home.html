@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %} NOMBRE {% endblock %}
+{% block css %}
+<link href="{% static 'css/home.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+
+<div class="layout-general">
+    <!-- Contenedor Principal -->
+    <div class="contenedor-principal">
+        <div class="bienvenida">
+            <div class="info">
+                <h3>¡Bienvenido NOMUSUARIO!</h3>
+                <p>Gestiona tus semilleros y proyectos de manera eficiente.</p>
+            </div>
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle">5</h6>
+                        <p class="card-text">Semilleros</p>
+                    </div>    
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle">12</h6>
+                        <p class="card-text">Proyectos</p>
+                    </div>    
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle">3</h6>
+                        <p class="card-text">Activos</p>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor Secundario -->
+    <div class="contenedor-secundario">
+        <div class="grupo">
+            <div class="card">
+                <div class="img-cont">
+                    <img src="https://images.unsplash.com/photo-1561154464-82e9adf32764?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60" alt="Proyecto destacado">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Proyecto Destacado</h5>            
+                </div>
+            </div>
+            <div class="texto-inferior">
+                <p>Este es el texto que aparece debajo de los dos contenedores.</p>
+            </div>
+        </div>
+        
+        
+        <!-- Puedes agregar más cards aquí -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Estadísticas</h5>            
+                <p class="card-text">Revisa el progreso general de todos tus semilleros y proyectos.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
