@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                 ('desc_entre', models.CharField(max_length=250)),
                 ('estado', models.CharField(max_length=45)),
                 ('archivo', models.CharField(max_length=250)),
-                ('cod_pro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.proyecto')),
+                ('cod_pro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='proyecto')),
             ],
         ),
         migrations.CreateModel(
@@ -112,39 +112,39 @@ class Migration(migrations.Migration):
                 ('modalidad', models.CharField(max_length=45)),
                 ('telefono', models.CharField(max_length=45)),
                 ('estado_apre', models.CharField(max_length=45)),
-                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.semillero')),
+                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='semillero')),
             ],
         ),
         migrations.CreateModel(
             name='SemilleroDocumento',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cod_doc', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.documento')),
-                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.semillero')),
+                ('cod_doc', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='documento')),
+                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='semillero')),
             ],
         ),
         migrations.CreateModel(
             name='SemilleroEvento',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cod_eve', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.evento')),
-                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.semillero')),
+                ('cod_eve', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='evento')),
+                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='semillero')),
             ],
         ),
         migrations.CreateModel(
             name='SemilleroProyecto',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cod_pro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.proyecto')),
-                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.semillero')),
+                ('cod_pro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='proyecto')),
+                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='semillero')),
             ],
         ),
         migrations.CreateModel(
             name='SemilleroUsuario',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.semillero')),
-                ('cedula', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='GC2.usuario')),
+                ('cod_sem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='semillero')),
+                ('cedula', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='usuario')),
             ],
         ),
     ]
