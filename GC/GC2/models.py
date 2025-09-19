@@ -20,8 +20,9 @@ class Usuario(models.Model):
     last_login = models.DateTimeField(null=True, blank=True)
     imagen_perfil = models.IntegerField(null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.nom_usu} {self.ape_usu}"
+    class Meta:
+        managed = False
+        db_table = 'usuario'
 
 
 class Semillero(models.Model):
@@ -32,9 +33,9 @@ class Semillero(models.Model):
     objetivo = models.TextField()
     estado = models.CharField(max_length=250)
 
-    def __str__(self):
-        return self.nombre
-
+    class Meta:
+        managed = False
+        db_table = 'semillero'
 
 class Aprendiz(models.Model):
     cedula_apre = models.IntegerField(primary_key=True)
@@ -52,8 +53,9 @@ class Aprendiz(models.Model):
     estado_apre = models.CharField(max_length=45)
     cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+    class Meta:
+        managed = False
+        db_table = 'aprendiz'
 
 
 class Proyecto(models.Model):
@@ -68,9 +70,9 @@ class Proyecto(models.Model):
     estado_pro = models.CharField(max_length=50)
     cod_form = models.IntegerField()
 
-    def __str__(self):
-        return self.nom_pro
-
+    class Meta:
+        managed = False
+        db_table = 'proyecto'
 
 class Documento(models.Model):
     cod_doc = models.IntegerField(primary_key=True)
@@ -80,8 +82,9 @@ class Documento(models.Model):
     tipo = models.CharField(max_length=250)
     archivo = models.CharField(max_length=250)
 
-    def __str__(self):
-        return self.nom_doc
+    class Meta:
+        managed = False
+        db_table = 'documento'
 
 
 class Entregable(models.Model):
@@ -94,8 +97,9 @@ class Entregable(models.Model):
     archivo = models.CharField(max_length=250)
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.nom_entre
+    class Meta:
+        managed = False
+        db_table = 'entregable'
 
 
 class Evento(models.Model):
@@ -106,8 +110,9 @@ class Evento(models.Model):
     modalidad_eve = models.CharField(max_length=250)
     direccion_eve = models.CharField(max_length=250)
 
-    def __str__(self):
-        return self.nom_eve
+    class Meta:
+        managed = False
+        db_table = 'evento'
 
 
 # Tablas intermedias (relaciones ManyToMany)
@@ -115,17 +120,34 @@ class SemilleroDocumento(models.Model):
     cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
     cod_doc = models.ForeignKey(Documento, on_delete=models.CASCADE)
 
+    class Meta:
+        managed = False
+        db_table = 'semillero_documento'
+
 
 class SemilleroEvento(models.Model):
     cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
     cod_eve = models.ForeignKey(Evento, on_delete=models.CASCADE)
+
+    class Meta:
+        managed = False
+        db_table = 'semillero_evento'
 
 
 class SemilleroProyecto(models.Model):
     cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
 
+    class Meta:
+        managed = False
+        db_table = 'semillero_proyecto'
+
 
 class SemilleroUsuario(models.Model):
     cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
     cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+
+    class Meta:
+        managed = False
+        db_table = 'semillero_usuario'
+
