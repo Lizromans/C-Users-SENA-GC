@@ -7,12 +7,14 @@
     --color-text-primary: #212529;
     --color-text-active: #007832;
     --color-text-secondary: #6c757d;
-    --sidebar-width: 15vw;
-    --sidebar-collapsed-width: 4vw;
-    --header-height: 7.2vh;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
     /* Nuevas variables para colores de fondo */
     --color-fondo-principal: #f5f5f5;
     --color-fondo-secundario: #e9ecef;
+    /* Variables para gradiente */
+    --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgba(112, 39, 122, 0.884) 75%);
 }
 
 /* Layout general */
@@ -22,90 +24,131 @@
     align-items: center;
     min-height: calc(100vh - var(--header-height));
     box-sizing: border-box;
-    gap: 3vh;
+    gap: clamp(10px, 1.5vh, 20px);
 }
 
-/* Contenedor principal */
+/* Contenedor principal - con el nuevo gradiente y círculos */
 .contenedor-principal {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    max-width: 80vw;
+    width: 98%;
+    max-width: clamp(700px, 75vw, 1100px);
     height: auto;
     position: relative;
+    background: var(--gradient);
+    border-radius: clamp(12px, 2vw, 20px);
+    padding: clamp(20px, 3vh, 40px);
+    min-height: clamp(300px, 40vh, 450px);
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-/* Sección bienvenida - mantiene el diseño original */
+/* Círculo izquierdo inferior */
+.contenedor-principal::before {
+    content: '';
+    position: absolute;
+    width: clamp(150px, 20vw, 250px);
+    height: clamp(150px, 20vw, 250px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 70%, transparent 100%);
+    left: clamp(-75px, -10vw, -125px);
+    bottom: clamp(-75px, -10vw, -125px);
+    z-index: 1;
+}
+
+/* Círculo derecho superior */
+.contenedor-principal::after {
+    content: '';
+    position: absolute;
+    width: clamp(130px, 20vw, 210px);
+    height: clamp(130px, 20vw, 210px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 70%, transparent 100%);
+    right: clamp(-60px, -7.5vw, -100px);
+    top: clamp(-60px, -7.5vw, -100px);
+    z-index: 1;
+}
+
+/* Sección bienvenida - ahora sin fondo */
 .bienvenida {
-    background-image: url('../img/Frame1.png'); 
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 70vw;
-    height: 50vh; /* Ajustado para mejor proporción */
-    min-height: 400px; /* Altura mínima */
-    border-radius: 19px;
+    background: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
-    align-items: left;
+    align-items: flex-start;
+    justify-content: space-between;
     box-sizing: border-box;
-    padding: 1.5% 3% 3% 3%;
+    padding: clamp(20px, 3vh, 40px);
+    position: relative;
+    z-index: 2;
 }
 
 /* Información dentro de bienvenida */
 .info {
-    padding: 5% 5% 3% 5%;
+    padding: 0;
     z-index: 2;
+    margin-bottom: clamp(20px, 3vh, 40px);
+    width: 100%;
+    max-width: 100%;
 }
 
 .info h3 {
-    font-size: 4rem;
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
     color: var(--color-primario);
     font-weight: 600;
-    font-family: 'Work Sans', sans-serif;
-    margin-bottom: 1rem;
+    margin-bottom: clamp(0.5rem, 1vh, 1rem);
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    word-wrap: break-word;
 }
 
 .info p {
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
     color: var(--color-primario);
     font-weight: 400;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    word-wrap: break-word;
 }
 
 /* Contenedor de tarjetas */
 .card-container {
     display: flex;
-    justify-content: left;
-    gap: 3%;
+    justify-content: flex-start;
+    gap: clamp(10px, 2vw, 20px);
     flex-wrap: wrap;
+    width: 100%;
+    z-index: 2;
+    position: relative;
 }
 
 /* Tarjetas dentro del contenedor principal */
 .bienvenida .card {
-    background-color: transparent;
-    border: 2px solid rgba(255,255,255,0.3);
+    background-color: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.25);
     text-align: center;
-    width: 15vw;
-    min-width: 150px;
-    height: 10vh;
+    width: clamp(120px, 15vw, 200px);
+    min-width: 120px;
+    height: clamp(80px, 12vh, 120px);
     min-height: 80px;
     color: var(--color-primario);
-    font-size: 1.5rem;
-    border-radius: 12px;
+    border-radius: clamp(8px, 1.5vw, 12px);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    flex: 1 1 auto;
+    max-width: 200px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .bienvenida .card:hover {
-    background-color: rgba(255,255,255,0.1);
-    transform: translateY(-2px);
+    background-color: rgba(255,255,255,0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
 .bienvenida .card-body {
-    padding: 1rem;
+    padding: clamp(0.5rem, 1rem, 1.5rem);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -114,40 +157,44 @@
 
 .bienvenida .card-body h6 {
     color: var(--color-primario);
-    font-size: 2rem;
+    font-size: clamp(1.2rem, 2vw, 2rem);
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    margin-bottom: clamp(0.2rem, 0.5rem, 0.7rem);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .bienvenida .card-body p {
     color: var(--color-primario);
-    font-size: 1rem;
+    font-size: clamp(0.7rem, 1.2vw, 1rem);
     margin-bottom: 0;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 /* Contenedor secundario */
 .contenedor-secundario {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 20vw, 300px), 2fr));
+    gap: clamp(1rem, 2vw, 2rem);
     width: 100%;
-    max-width: 80vw;
+    max-width: clamp(600px, 90vw, 1200px);
     background-color: var(--color-fondo-secundario);
-    border-radius: 15px;
-    padding: 2vh 2vw;
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(20px, 3vh, 40px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 /* Tarjetas del contenedor secundario */
 .contenedor-secundario .grupo {
-    background-color:transparent;
-    border-radius: 12px;
+    background-color: white;
+    border-radius: clamp(8px, 1.5vw, 12px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    max-width: 350px;
     overflow: hidden;
     transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .contenedor-secundario .grupo:hover {
@@ -156,53 +203,262 @@
 }
 
 .contenedor-secundario .card {
-    display: flex; /* Esto hace que img-cont y card-body queden lado a lado */
-    flex-direction: row; /* Horizontal */
-    align-items: stretch; /* Para que ambos elementos tengan la misma altura */
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
     border: none;
-}
-
-.contenedor-secundario .img-cont {
-    flex: 0 0 40%; /* No crece ni se encoge, ocupa 40% del ancho */
-    height: auto;
-    min-height: 120px; /* Altura mínima */
-}
-
-.contenedor-secundario .img-cont img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+}
+
+.contenedor-secundario .icon-cont {
+    background: linear-gradient(135deg, #9747FF 0%, #7a35d1 100%);
+    flex: 0 0 clamp(60px, 15%, 90px);
+    height: clamp(60px, 8vh, 90px);
+    margin: clamp(12px, 1.5vh, 20px) 0 0 clamp(15px, 2vw, 25px);
+    border-radius: 7%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Diferentes backgrounds para cada icon-cont usando clases específicas */
+.contenedor-secundario .icon-cont.semilleros {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+.contenedor-secundario .icon-cont.proyectos {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.contenedor-secundario .icon-cont.aprendices {
+    background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+}
+
+.contenedor-secundario .icon-cont.ayuda {
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+.contenedor-secundario .icon-cont.reportes {
+    background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+}
+
+.contenedor-secundario .icon {
+    font-size: clamp(20px, 3vw, 30px);
 }
 
 .contenedor-secundario .card-body {
-    flex: 1; /* Ocupa el resto del espacio disponible */
-    padding: 1.5rem;
+    flex: 1;
+    padding: clamp(1rem, 2vh, 1.5rem);
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centra verticalmente el contenido */
+    justify-content: center;
+    min-width: 0;
 }
 
 .contenedor-secundario .card-title {
     color: var(--color-text-primary);
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.contenedor-secundario .card-text {
-    color: var(--color-text-secondary);
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: 900;
     margin: 0;
+    word-wrap: break-word;
 }
 
 .contenedor-secundario .texto-inferior {
-    padding: 1rem 1.5rem;
-    background-color: white; /* Mismo color que el card */
+    padding: clamp(15px, 2vh, 25px) clamp(20px, 3vw, 40px);
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    align-items: center;
 }
 
 .contenedor-secundario .texto-inferior p {
-    margin: 0;
+    margin: 0 0 clamp(0.8rem, 1.5vh, 1.2rem) 0;
     color: var(--color-text-secondary);
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1.8vw, 1rem);
+    word-wrap: break-word;
 }
+
+.contenedor-secundario .redirigir {
+    background: linear-gradient(135deg, #9747FF 0%, #7a35d1 100%);
+    color: white;
+    font-weight: 600;
+    padding: clamp(0.5rem, 1vh, 0.8rem) clamp(1rem, 2vw, 1.5rem);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: clamp(0.8rem, 1.8vw, 1rem);
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.contenedor-secundario .redirigir:hover {
+    background: linear-gradient(135deg, #7a35d1 0%, #5e2a9f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.contenedor-secundario .redirigir.semilleros {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+.contenedor-secundario .redirigir.proyectos {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.contenedor-secundario .redirigir.aprendices {
+    background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+}
+
+.contenedor-secundario .redirigir.ayuda {
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+.contenedor-secundario .redirigir.reportes {
+    background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+}
+
+/* Contenedor terciario para timeline */
+.contenedor-tres {
+    width: 100%;
+    max-width: clamp(600px, 90vw, 1200px);
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(20px, 3vh, 40px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    margin-top: clamp(10px, 1.5vh, 20px);
+}
+
+.contenedor-tres h2{
+    font-weight: 900;
+    margin: 0 0 clamp(5px, 90vw, 15px)  clamp(10px, 90vw, 20px) ;
+}
+.timeline-section-title {
+    text-align: center;
+    margin-bottom: clamp(1rem, 2vh, 2rem);
+    color: var(--color-text-primary);
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 600;
+}
+
+/* Línea vertical a la izquierda */
+.timeline {
+    position: relative;
+    padding: clamp(1rem, 2vh, 2rem) 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: clamp(28px, 4vw, 48px);
+    top: 2%;
+    bottom: 0;
+    width: clamp(3px, 0.5vw, 4px);
+    background: linear-gradient(135deg, #2196F3 0%, #9C27B0 100%);
+}
+
+/* Elementos de la línea de tiempo */
+.timeline-item {
+    position: relative;
+    margin-bottom: clamp(2rem, 3vh, 3rem);
+    width: 100%;
+}
+
+/* Todo el contenido a la derecha de la línea */
+.timeline-item:nth-child(odd) .timeline-content,
+.timeline-item:nth-child(even) .timeline-content {
+    margin-left: clamp(70px, 8vw, 100px);
+    margin-right: 0;
+    text-align: left;
+}
+
+/* Contenido de cada elemento */
+.timeline-content {
+    background: white;
+    padding: clamp(1rem, 2vh, 1.5rem) clamp(1.5rem, 2vw, 2rem);
+    border-radius: clamp(8px, 1vw, 12px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Todas las flechas apuntan hacia la línea izquierda */
+.timeline-item:nth-child(odd) .timeline-content::after,
+.timeline-item:nth-child(even) .timeline-content::after {
+    content: '';
+    position: absolute;
+    left: clamp(-12px, -1.5vw, -15px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border: clamp(10px, 1.2vw, 15px) solid transparent;
+    border-right: clamp(10px, 1.2vw, 15px) solid white;
+}
+
+/* Marcadores en la línea izquierda */
+.timeline-marker {
+    position: absolute;
+    left: clamp(20px, 3vw, 40px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(16px, 2vw, 20px);
+    height: clamp(16px, 2vw, 20px);
+    background: white;
+    border: clamp(3px, 0.4vw, 4px) solid #2196F3;
+    border-radius: 50%;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover .timeline-marker {
+    width: clamp(20px, 2.5vw, 24px);
+    height: clamp(20px, 2.5vw, 24px);
+    border-color: #9C27B0;
+}
+
+/* Variante con iconos */
+.timeline-marker.with-icon {
+    width: clamp(30px, 4vw, 40px);
+    height: clamp(30px, 4vw, 40px);
+    background: linear-gradient(135deg, #2196F3 0%, #9C27B0 100%);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+}
+
+/* Estilos del contenido */
+.timeline-date {
+    font-size: clamp(0.8rem, 1vw, 0.9rem);
+    color: #666;
+    margin-bottom: clamp(0.3rem, 0.5vh, 0.5rem);
+    font-weight: 500;
+}
+
+.timeline-title-item {
+    font-size: clamp(1.2rem, 2vw, 1.4rem);
+    color: var(--color-text-primary);
+    margin-bottom: clamp(0.6rem, 1vh, 0.8rem);
+    font-weight: 600;
+}
+
+.timeline-description {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    font-size: clamp(0.9rem, 1.2vw, 1rem);
+}
+
+

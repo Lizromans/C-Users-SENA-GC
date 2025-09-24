@@ -9,7 +9,7 @@
 {% block main %}
 
 <div class="layout-general">
-    <!-- Contenedor Principal -->
+    <!-- Contenedor Principal con Gradiente y Círculos -->
     <div class="contenedor-principal">
         <div class="bienvenida">
             <div class="info">
@@ -32,7 +32,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-subtitle">3</h6>
-                        <p class="card-text">Activos</p>
+                        <p class="card-text">Aprendices</p>
                     </div>    
                 </div>
             </div>
@@ -41,28 +41,109 @@
 
     <!-- Contenedor Secundario -->
     <div class="contenedor-secundario">
+        <!-- Opción 1: Usando clases específicas -->
         <div class="grupo">
             <div class="card">
-                <div class="img-cont">
-                    <img src="https://images.unsplash.com/photo-1561154464-82e9adf32764?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60" alt="Proyecto destacado">
+                <div class="icon-cont semilleros">
+                    <span class="icon">🌱</span>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Proyecto Destacado</h5>            
+                    <h5 class="card-title">Gestionar Semilleros</h5>            
                 </div>
             </div>
             <div class="texto-inferior">
-                <p>Este es el texto que aparece debajo de los dos contenedores.</p>
+                <p>Administra tus semilleros de investigación, añade estudiantes y supervisa proyectos activos.</p>
+                <button class="redirigir semilleros"> Ir a Semilleros </button>
             </div>
         </div>
         
-        
-        <!-- Puedes agregar más cards aquí -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Estadísticas</h5>            
-                <p class="card-text">Revisa el progreso general de todos tus semilleros y proyectos.</p>
+        <div class="grupo">
+            <div class="card">
+                <div class="icon-cont proyectos">
+                    <span class="icon">📊</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Proyectos</h5>            
+                </div>
+            </div>
+            <div class="texto-inferior">
+                <p>Supervisa y administra todos los proyectos en desarrollo.</p>
+                <button class="redirigir proyectos"> Ver Proyectos </button>
             </div>
         </div>
+
+        <div class="grupo">
+            <div class="card">
+                <div class="icon-cont aprendices">
+                    <span class="icon">👥</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Miembros</h5>            
+                </div>
+            </div>
+            <div class="texto-inferior">
+                <p>Administra la información de los Miembros y tenla cuando la necesites.</p>
+                <button class="redirigir miembros"> Ver Miembros </button>
+            </div>
+        </div>
+
+        <div class="grupo">
+            <div class="card">
+                <div class="icon-cont reportes">
+                    <span class="icon">📋</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Reportes</h5>            
+                </div>
+            </div>
+            <div class="texto-inferior">
+                <p>Genera reportes de actividad, progreso y resultados de tus semilleros</p>
+                <button class="redirigir reportes"> Ir a Reportes </button>
+            </div>
+        </div>
+
+        <div class="grupo">
+            <div class="card">
+                <div class="icon-cont ayuda">
+                    <span class="icon">❓</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Centro de Ayuda</h5>            
+                </div>
+            </div>
+            <div class="texto-inferior">
+                <p>Accede a papers, documentos y recursos compartidos para tus investigaciones.</p>
+                <button class="redirigir ayuda"> Ir a Centro de Ayuda </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor terceario -->
+    <div class="contenedor-tres">
+        <h2> Actividad Reciente </h2>
+        <div class="timeline">
+            <!-- Elemento 1 -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="timeline-date">Enero 2024</div>
+                    <h3 class="timeline-title-item">Inicio del Proyecto</h3>
+                    <p class="timeline-description">
+                        Se dio inicio al proyecto de gestión de semilleros de investigación con el objetivo de centralizar y organizar toda la información académica.
+                    </p>
+                </div>
+                <div class="timeline-marker"></div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="timeline-date">Enero 2024</div>
+                    <h3 class="timeline-title-item">Inicio del Proyecto</h3>
+                    <p class="timeline-description">
+                        Se dio inicio al proyecto de gestión de semilleros de investigación con el objetivo de centralizar y organizar toda la información académica.
+                    </p>
+                </div>
+                <div class="timeline-marker"></div>
+            </div>
     </div>
 </div>
 

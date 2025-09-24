@@ -7,9 +7,9 @@
     --color-text-primary: #212529;
     --color-text-active: #007832;
     --color-text-secondary: #6c757d;
-    --sidebar-width: 15vw;
-    --sidebar-collapsed-width: 4vw;
-    --header-height: 7.2vh;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
 }
 
 /* ======= RESET Y BASE ======= */
@@ -42,8 +42,8 @@ body {
 .header-content {
     display: flex;
     align-items: center;
-    padding: 15px 20px;
-    height: 100%;
+    padding: clamp(10px, 2%, 20px) clamp(15px, 3%, 25px);
+    height: var(--header-height);
 }
 
 .header-left:first-child {
@@ -64,17 +64,17 @@ body {
 .user-info {
   background-color: #ffffff;
   box-shadow: 0 2px 4px var(--color-sidebar-shadow);
-  border-radius: 35px; /* Bordes suaves */
+  border-radius: 35px;
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  gap: 10px;
+  padding: clamp(7px, 1.6%, 13px) clamp(9px, 3%, 17px);
+  gap: clamp(9px, 1.6%, 13px);
 }
 
 .user-icon {
-  font-size: 2rem;
-  width: 2vw;
-  height: 2vh;
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  width: clamp(28px, 2vw, 48px);
+  height: clamp(28px, 2vh, 48px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -84,24 +84,25 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin-left: clamp(6px, 1.5%, 12px);
 }
 
 .header-right a {
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 1.5vw, 1rem);
   font-weight: 600;
   color: var(--color-text-primary);
   text-decoration: none;
 }
 
 .header-right p {
-  font-size: 0.7rem;
+  font-size: clamp(0.65rem, 1.2vw, 0.8rem);
   font-weight: 400;
   color: var(--color-text-secondary);
   margin: 0;
 }
 
 .sidebar-icon {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
   font-weight: 200;
   color: var(--color-text-primary);
 }
@@ -143,7 +144,7 @@ body.sidebar-collapsed .header-container {
 .sidebar-body{
     display: flex;
     flex-direction: column;
-    height: 100vh; /* altura completa de la ventana */
+    height: 100vh;
     background-color: #f5f5f5;
 }
 
@@ -160,7 +161,7 @@ body.sidebar-collapsed .header-container {
 .sidebar-header {
     display: flex;
     align-items: center;
-    padding: 20px 24px 16px;
+    padding: clamp(15px, 3%, 25px) clamp(18px, 3.5%, 30px) clamp(12px, 2.5%, 20px);
     border-bottom: 1px solid #dee2e6;
     background: white;
     min-height: var(--header-height);
@@ -169,10 +170,10 @@ body.sidebar-collapsed .header-container {
 .btn-open {
     background: none;
     border: none;
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2vw, 1.4rem);
     color: var(--color-text-primary);
-    padding: 8px;
-    margin-right: 12px;
+    padding: clamp(6px, 1.5%, 10px);
+    margin-right: clamp(8px, 2%, 15px);
     cursor: pointer;
     transition: color 0.2s ease;
 }
@@ -182,13 +183,13 @@ body.sidebar-collapsed .header-container {
 }
 
 .sidebar-title {
-    font-size: 1.20rem;
+    font-size: clamp(0.75rem, 1.2vw, 0.95rem);
     font-weight: 600;
     color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     transition: opacity 0.3s ease, transform 0.3s ease;
-    margin-top: 3.1%;
+    margin-top: clamp(2%, 3.1%, 4%);
 }
 
 /* Ocultar título cuando colapsado */
@@ -199,11 +200,11 @@ body.sidebar-collapsed .header-container {
 
 /* ======= CENTRAR EL BOTÓN EN COLLAPSED ======= */
 .sidebar.collapsed .sidebar-header {
-  justify-content: center; /* centra el contenido horizontal */
+  justify-content: center;
 }
 
 .sidebar.collapsed .btn-open {
-  margin: 0;              /* elimina el margin-right que tenías */
+  margin: 0;
 }
 
 /* ======= NAVEGACIÓN ======= */
@@ -214,18 +215,19 @@ body.sidebar-collapsed .header-container {
 
 .nav.flex-column {
     list-style: none;
-    padding: 20px 0;
+    padding: clamp(15px, 3%, 25px) 0;
 }
 
 .nav-item {
     animation: slideIn 0.3s ease forwards;
+    margin-bottom: clamp(4px, 1%, 8px)
 }
 
 .nav-icon {
-    font-size: 1.1rem;
-    margin-right: 12px;
+    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    margin-right: clamp(8px, 2%, 15px);
     flex-shrink: 0;
-    width: 20px;
+    width: clamp(18px, 3%, 25px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -234,16 +236,17 @@ body.sidebar-collapsed .header-container {
 
 .nav-text {
     transition: opacity 0.3s ease, transform 0.3s ease;
+    font-size: clamp(0.7rem, 1.5vw, 1rem);
 }
 
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 12px 24px;
+    padding: clamp(10px, 2%, 15px) clamp(18px, 3.5%, 30px);
     color: var(--color-text-primary);
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 1.5vw, 1.1rem);
     border-left: 3px solid transparent;
     position: relative;
     transition: all 0.3s ease;
@@ -254,7 +257,8 @@ body.sidebar-collapsed .header-container {
     background-color: var(--color-nav-hover);
     color: var(--color-text-active);
     border-left-color: var(--color-nav-active);
-    padding-left: 28px;
+    padding-left: clamp(22px, 4%, 35px);
+    
 }
 
 .nav-link.active {
@@ -285,7 +289,7 @@ body.sidebar-collapsed .header-container {
 }
 
 .nav-link.active:hover::after {
-    width: 60px;
+    width: clamp(50px, 8%, 80px);
     opacity: 1;
 }
 
@@ -298,7 +302,7 @@ body.sidebar-collapsed .header-container {
 
 /* Ajustes de colapso en enlaces e íconos */
 .sidebar.collapsed .nav-link {
-    padding-left: 20px;
+    padding-left: clamp(15px, 3%, 25px);
 }
 
 
@@ -311,7 +315,7 @@ body.sidebar-collapsed .header-container {
 .main-content {
     margin-top: var(--header-height);
     margin-left: var(--sidebar-width);
-    padding: 30px;
+    padding: clamp(20px, 4%, 40px);
     min-height: calc(100vh - var(--header-height));
     transition: margin-left 0.3s ease;
 }
@@ -353,11 +357,11 @@ body.sidebar-collapsed .main-content {
 .nav-link:focus .nav-text,
 .nav-link:active .nav-text,
 .nav-link:visited .nav-text {
-  color: var(--color-text-primary); /* ← evita el azul por defecto */
+  color: var(--color-text-primary);
 }
 
 .nav-link.active .nav-text {
-  color: var(--color-text-active); /* ← verde cuando está activo */
+  color: var(--color-text-active);
 }
 
 
@@ -365,11 +369,11 @@ body.sidebar-collapsed .main-content {
 /* ======= PIE DE PÁGINA DEL SIDEBAR ======= */
 .nav-footer {
     list-style: none;
-    padding: 30px 0;
+    padding: clamp(20px, 4%, 40px) 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: clamp(8px, 1.5%, 12px);
     border-top: 1px solid #ccc;
 } 
 
@@ -382,22 +386,22 @@ body.sidebar-collapsed .main-content {
 .config-btn, .logout-btn {
     display: flex;
     align-items: center;
-    gap: 8px; /* espacio entre ícono y texto */
+    gap: clamp(6px, 1.5%, 10px);
     border: none;
     width: 98vw;
-    height: 5vh;
+    height: clamp(40px, 5vh, 60px);
     background-color: transparent;
     animation: slideIn 0.3s ease forwards;
 }
 
 .config-btn .nav-icon, .logout-btn .nav-icon {
-    margin-left: 1%;
+    margin-left: clamp(3px, 1%, 6px);
 }
 
 .config-btn:hover, .logout-btn:hover {
     background-color: var(--color-nav-hover);
     color: var(--color-text-active);
-    padding-left: 10px;
+    padding-left: clamp(8px, 1.5%, 12px);
 }
 
 .config-btn:active, .logout-btn:active {
@@ -405,7 +409,7 @@ body.sidebar-collapsed .main-content {
     color: var(--color-text-active);
 }
 
-/* MAIN CONTENT */ */
+/* MAIN CONTENT */
 .main-content {
   margin-top: var(--header-height);
   margin-left: var(--sidebar-width);
@@ -423,4 +427,3 @@ main {
   display: flex;
   flex-direction: column;
 }
-
