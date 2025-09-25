@@ -1,0 +1,264 @@
+:root {
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-active: #007832;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
+    /* Nuevas variables para colores de fondo */
+    --color-fondo-principal: #f5f5f5;
+    --color-fondo-secundario: #e9ecef;
+    /* Variables para gradiente */
+    --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
+}
+
+.perfil{
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(30px, 5vw, 60px); /* Espacio entre columnas */
+}
+
+.cont-1{
+    display: flex;
+    flex-direction: column;
+    gap: 5%;
+}
+
+.foto {
+    background-color: var(--color-fondo-secundario);
+    width: clamp(100px, 25vw, 200px);
+    height: clamp(200px, 25vh, 300px);
+    border-radius: 48%;
+    border: 3px solid var(--color-nav-active);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+    position: relative; /* Importante para posicionar el ícono */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.foto:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.foto img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.icon-edit {
+    position: absolute;
+    bottom: clamp(5px, 1vh, 10px);
+    right: clamp(5px, 1vw, 15px);
+    width: clamp(25px, 4vw, 35px);
+    height: clamp(25px, 4vw, 35px);
+    background-color: var(--color-nav-active);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.icon-edit:hover {
+    background-color: var(--color-nav-hover);
+    transform: scale(1.1);
+}
+
+.icon-edit img {
+    width: 60%;
+    height: 60%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    filter: brightness(0) invert(1); /* Para hacer el ícono blanco */
+}
+
+.icon-edit:hover img {
+    filter: brightness(0) saturate(100%) invert(0.4) sepia(1) saturate(5) hue-rotate(80deg);
+}
+
+.card{
+    background-color: var(--color-fondo-secundario);
+    width: clamp(180px, 15vw, 290px);
+    height: fit-content;
+    border-radius: 5%;
+    transition: transform 0.3s ease;
+    border: none;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.card-title{
+    padding: clamp(5px, 0.5vw, 20px) 0 0 clamp(5px, 0.5vw, 20px);
+    font-weight: 600;
+}
+
+.card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-text {
+    font-weight: 500;
+    color: #333;
+}
+
+.text{
+    font-weight: bold;
+    color: #39A900;
+}
+.card-num {
+    font-weight: bold;
+    color: #39A900;
+}
+
+/* INFORMACIÓN DE USUARIO */
+.informacion {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 3vh, 40px);
+}
+
+.titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.titulo img{
+    width: clamp(20px, 20vw, 40px);
+    width: clamp(15px, 20vh, 35px);
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.1));
+}
+
+h6{
+    font-weight: 900;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+}
+
+.seccion:nth-child(1) hr {
+    background-color: #9747FF;
+    margin: clamp(5px, 1vh, 15px) 0;  /* Espaciado responsivo */
+    border-top: 2px solid #9747FF;
+}
+
+.seccion:nth-child(2) hr {
+    background-color: #00304D;
+    margin: clamp(5px, 1vh, 15px) 0;  /* Espaciado responsivo */
+    border-top: 2px solid #00304D;
+}
+
+.seccion:nth-child(3) hr {
+    background-color: #50E5F9;
+    margin: clamp(5px, 1vh, 15px) 0;  /* Espaciado responsivo */
+    border-top: 2px solid #50E5F9;
+}
+
+.seccion:nth-child(4) hr {
+    background-color: #39A900;
+    margin: clamp(5px, 1vh, 15px) 0;  /* Espaciado responsivo */
+    border-top: 2px solid #39A900;
+}
+
+.info-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px; /* Espacio entre columnas */
+}
+
+.info{
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Espacio entre label e input */
+}
+
+label{
+    font-weight: 700;
+}
+
+input[type="text"], input[type="num"], select {
+    border-radius: 8px;
+    border: 2px solid var(--color-fondo-secundario);
+    padding: clamp(2px, 2vw, 4px) clamp(2px, 2vw, 4px) clamp(2px, 2vw, 4px) clamp(2px, 2vw, 4px);
+}
+
+select {
+    border-radius: 8px;
+    border: 2px solid var(--color-fondo-secundario);
+    padding: clamp(2px, 2vw, 4px) clamp(25px, 5vw, 35px) clamp(2px, 2vw, 4px) clamp(10px, 3vw, 15px);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('../img/arrow-down.png'); /* Asegúrate de que la ruta sea correcta */
+    background-repeat: no-repeat;
+    background-position: right clamp(8px, 2vw, 12px) center;
+    background-size: clamp(10px, 2vw, 14px);
+    cursor: pointer;
+}
+
+input[type="text"]:focus, input[type="num"]:focus, select:focus {
+    outline: 2px solid var(--color-nav-active);
+}
+
+.custom-select .option:hover {
+  background-color: var(--color-nav-active);
+  color: #5d4037;
+}
+
+input[disabled]{
+    background-color: #38a90071;
+    border: 2px solid #39A900;
+    border-radius: 10px;
+    width: clamp(150px, 20vw, 250px);
+    color: #007832;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+}
+
+input[disabled]:hover{
+    background-color: #39A900;
+    color: var(--color-nav-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+.informacion:nth-child(1) hr {
+    background-color: var(--color-text-secondary);
+    margin: clamp(5px, 1vh, 15px) 0;  /* Espaciado responsivo */
+    border-top: 2px solid var(--color-text-secondary);
+}
+
+.guardar{
+    background-color: #38a90071;
+    border: 2px solid #39A900;
+    border-radius: 10px;
+    width: clamp(150px, 20vw, 250px);
+    margin-left: clamp(25%, 25vw, 35%);
+    color: #007832;
+    font-weight: 600;
+    transition: transform 0.3s ease;
+}
+
+.guardar:hover{
+    background-color: #39A900;
+    color: var(--color-nav-hover);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}

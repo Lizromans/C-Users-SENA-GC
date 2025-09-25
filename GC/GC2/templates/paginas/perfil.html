@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %} NOMBRE {% endblock %}
+{% block css %}
+<link href="{% static 'css/perfil.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+    <div class="perfil">
+        <div class="cont-1">
+            <div class="foto">
+                <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
+                <div class="icon-edit">
+                    <img src="{% static 'img/edit.png' %}" alt="">
+                </div>
+            </div>
+            <div class="card">
+                <h5 class="card-title">Resumen</h5>
+                <div class="card-body">
+                    <div class="card-row">
+                        <p class="card-text">Estado:</p>
+                        <p class="text">Activo</p>
+                    </div>
+
+                    <div class="card-row">
+                        <p class="card-text">Semilleros:</p>
+                        <p class="card-num">9</p>
+                    </div>
+
+                    <div class="card-row">
+                        <p class="card-text">Proyectos:</p>
+                        <p class="card-num">8</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="informacion">
+            <div class="seccion">
+                <div class="titulo">
+                    <img src="{% static 'img/User.png' %}" alt="Informacion Personal">
+                    <h6>Información Personal</h6>
+                </div>
+                <hr>
+                <div class="info-group">
+                    <div class="info">
+                        <label for="nombre1">Nombres:</label>
+                        <input type="text" id="nombre1" name="nombre1" placeholder="Escribe tu nombre" required>
+                    </div>
+                    <div class="info">
+                        <label for="nombre2">Apellidos:</label>
+                        <input type="text" id="nombre2" name="nombre2" placeholder="Escribe tus Apellidos" required>
+                    </div>
+                    <div class="info">
+                        <label for="nombre1">Cédula:</label>
+                        <input type="num" id="nombre1" name="apellidos" placeholder="Escribe tu numero de documento" required>
+                    </div>
+                    <div class="info">
+                        <label for="nombre2">Correo Personal:</label>
+                        <input type="text" id="nombre2" name="correo1" placeholder="Escribe tu correo electrónico personal" required>
+                    </div>
+                    <div class="info">
+                        <label for="nombre1">Celular:</label>
+                        <input type="num" id="nombre1" name="celular" placeholder="Escribe tu número de celular" required>
+                    </div>
+                    <div class="info">
+                        <label for="nombre2">:</label>
+                        <input type="text" id="nombre2" name="nombre2" placeholder="Escribe tu nombre" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="seccion">
+                <div class="titulo">
+                    <img src="{% static 'img/briefcase.png' %}" alt="Informacion Personal">
+                    <h6>Información Profesional</h6>
+                </div>
+                <hr>
+                <div class="info-group">
+                    <div class="info">
+                        <label for="nombre1">Correo Sena:</label>
+                        <input type="text" id="nombre1" name="correo2" placeholder="Escribe tu correo institucional">
+                    </div>
+                    <div class="info">
+                        <label for="nombre2">Vinculación laboral:</label>
+                        <select id="semillero" name="semillero">
+                            <option value="">-- Seleccione un tipo --</option>
+                            <option value="biotecnologia">Contratista</option>
+                            <option value="robotica">Planta</option>
+                        </select>
+
+                    </div>
+                    <div class="info">
+                        <label for="nombre1">Dependencia/Área:</label>
+                        <input type="text" id="nombre1" name="dependencia" placeholder="Indique su dependencia" required>
+                    </div>
+                    <div class="info">
+                        <label for="nombre2">Rol:</label>
+                        <input type="text" id="nombre2" name="rol" placeholder="Rol">
+                    </div>
+                </div>
+            </div>
+            <div class="seccion">
+                <div class="titulo">
+                    <img src="{% static 'img/microscopio.png' %}" alt="Informacion Personal">
+                    <h6>Información de Semilleros</h6>
+                </div>
+                <hr>
+                <div class="info-group">
+                    <!-- {% for semillero in semilleros %} -->
+                    <div class="info">
+                        <input type="text" value="{{ semillero.siglas }}" disabled>
+                    </div>
+                    <!-- {% empty %}
+                        <p>No estás asociado a ningún semillero.</p>
+                    {% endfor %}-->
+                </div>
+            </div>
+            <div class="seccion">
+                <div class="titulo">
+                    <img src="{% static 'img/project.png' %}" alt="Informacion Personal">
+                    <h6>Información de Proyectos</h6>
+                </div>
+                <hr>
+                <div class="info-group">
+                    <!-- {% for semillero in semilleros %} -->
+                    <div class="info">
+                        <input type="text" value="{{ proyecto.nombre }}" disabled>
+                    </div>
+                    <!-- {% empty %}
+                        <p>No estás asociado a ningún semillero.</p>
+                    {% endfor %}-->
+                </div>
+            </div>
+            <hr>
+            <button class="guardar">Guardar Cambios</button>
+        </div>
+    </div>
+        
+{% endblock %}
