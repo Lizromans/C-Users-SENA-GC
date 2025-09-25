@@ -9,3 +9,6 @@ def base(request):
 
 def home(request):
     return render(request, 'paginas/home.html')
+
+def registro(request):
+    return render(request, 'paginas/registro.html')

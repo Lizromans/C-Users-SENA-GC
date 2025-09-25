@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login y Registro</title>
+  <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+<body>
+  <div class="bg-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+  </div>
+  <div class="container" id="container">
+    <!-- Panel Azul -->
+    <div class="blue-panel" id="bluePanel">
+      <img src="{% static 'img/logo1.png' %}"  alt="Logo SENA">
+      <h2 id="blueTitle">¿Ya tienes cuenta?</h2>
+      <p id="blueText">Inicia sesión para acceder a todas las funcionalidades del sistema</p>
+      <button id="toggleBtn">Iniciar sesión</button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-container" id="formContainer">
+      <h2 id="formTitle">REGISTRO</h2>
+      <input type="text" placeholder="Nombre de usuario">
+      <input type="text" placeholder="Nombre">
+      <input type="text" placeholder="Apellido">
+      <input type="email" placeholder="Correo electrónico">
+      <select>
+        <option>Selecciona tu rol</option>
+        <option>Instructor</option>
+        <option>Aprendiz</option>
+      </select>
+      <input type="password" placeholder="Contraseña">
+      <input type="password" placeholder="Confirmar contraseña">
+      <button>Registrarse</button>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById("container");
+    const toggleBtn = document.getElementById("toggleBtn");
+    const formContainer = document.getElementById("formContainer");
+    const blueTitle = document.getElementById("blueTitle");
+    const blueText = document.getElementById("blueText");
+    const formTitle = document.getElementById("formTitle");
+
+    let isLogin = false;
+
+    toggleBtn.addEventListener("click", () => {
+      container.classList.toggle("active");
+      isLogin = !isLogin;
+
+      if (isLogin) {
+        // Vista login
+        blueTitle.textContent = "¿Eres un usuario nuevo?";
+        blueText.textContent = "Regístrate para acceder al sistema de gestión del conocimiento";
+        toggleBtn.textContent = "Registrarse";
+        formTitle.textContent = "INICIAR SESIÓN";
+        formContainer.innerHTML = `
+          <h2>INICIAR SESIÓN</h2>
+          <select>
+            <option>Selecciona tu rol</option>
+            <option>Instructor</option>
+            <option>Aprendiz</option>
+          </select>
+          <input type="text" placeholder="Usuario">
+          <input type="password" placeholder="Contraseña">
+          <button>Iniciar Sesión</button>
+        `;
+      } else {
+        // Vista registro
+        blueTitle.textContent = "¿Ya tienes cuenta?";
+        blueText.textContent = "Inicia sesión para acceder a todas las funcionalidades del sistema";
+        toggleBtn.textContent = "Iniciar sesión";
+        formTitle.textContent = "REGISTRO";
+        formContainer.innerHTML = `
+          <h2>REGISTRO</h2>
+          <input type="text" placeholder="Nombre de usuario">
+          <input type="text" placeholder="Nombre">
+          <input type="text" placeholder="Apellido">
+          <input type="email" placeholder="Correo electrónico">
+          <select>
+            <option>Selecciona tu rol</option>
+            <option>Instructor</option>
+            <option>Aprendiz</option>
+          </select>
+          <input type="password" placeholder="Contraseña">
+          <input type="password" placeholder="Confirmar contraseña">
+          <button>Registrarse</button>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
