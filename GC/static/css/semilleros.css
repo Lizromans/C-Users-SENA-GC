@@ -1,0 +1,249 @@
+:root{
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-active: #007832;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
+    /* Nuevas variables para colores de fondo */
+    --color-fondo-principal: #f5f5f5;
+    --color-fondo-secundario: #e9ecef;
+    /* Variables para gradiente */
+    --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
+}
+
+.contenedor-titulo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    
+}
+
+.titulo{
+    font-size: clamp(28px, 5vw, 38px);
+    color: var(--color-text-primary);
+    font-weight: 700;
+    margin-bottom: auto;
+}
+
+.buscador {
+    background-color: var(--color-fondo-secundario);
+    width: calc(94vw - var(--sidebar-width));
+    height: clamp(40px, 15vh, 55px);
+    display: grid; /* Volvemos a Grid para control específico */
+    grid-template-columns: 48vw auto; /* OPCIÓN 3: Input fijo de 350px + filtros auto */
+    align-items: center;
+    gap: 15px; /* Espacio entre elementos */
+    border-radius: 10px;
+    padding: 8px;
+}
+
+/* Contenedor del input y botón de búsqueda */
+.input-group {
+    display: flex;
+    width: 100%; /* Ocupa todo el espacio asignado por grid (350px) */
+    border-radius: 8px;
+    overflow: hidden; /* Para que los bordes redondeados funcionen bien */
+}
+
+/* Estilo del input de búsqueda */
+.input-group .form-control {
+    border: none;
+    outline: none;
+    padding: 8px 15px;
+    font-size: clamp(12px, 1.5vw, 16px);
+    background-color: var(--color-primario);
+    flex: 1; /* Ocupa el espacio disponible en el input-group */
+}
+
+/* Estilo del botón de búsqueda */
+.input-group .btn {
+    border: none;
+    background-color: var(--color-fondo-principal);
+    color: white;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.fa-search {
+    color: var(--color-text-primary);
+}
+/* Contenedor de filtros */
+.filtros {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%; /* Ocupa todo el espacio asignado por grid (auto - se adapta) */
+    justify-content: flex-start; /* Alinea los filtros al inicio del espacio disponible */
+}
+
+/* Estilo de los select de filtros */
+.filtros .form-select {
+    background-color: var(--color-primario);
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: clamp(11px, 1.2vw, 14px);
+    min-width: 140px; /* Ancho mínimo para que se vea bien el texto */
+    cursor: pointer;
+}
+
+.filtros .form-select:focus {
+    outline: none;
+    border-color: var(--color-nav-active);
+    box-shadow: 0 0 0 2px rgba(57, 169, 0, 0.2);
+}
+
+/*CONTENEDOR SEMILLEROS*/
+.contenedor-semillero {
+    background-color: var(--color-fondo-secundario);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 20vw, 300px), 2fr));
+    gap: clamp(1rem, 2vw, 2rem);
+    width: 100%;
+    max-width: clamp(600px, 90vw, 1200px);
+    border-radius: clamp(10px, 2vw, 15px);
+    margin-top: clamp(20px, 3vh, 40px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    padding: clamp(20px, 3vh, 40px);
+}
+
+.card-semillero {
+    background-color: var(--color-primario);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-semillero:nth-child(5n+1) {
+    background: linear-gradient(to bottom, rgba(151, 71, 255, 0.6) 0%, rgba(151, 71, 255, 0.6) 5px, var(--color-primario) 5px);
+}
+
+.card-semillero:nth-child(5n+2) {
+    background: linear-gradient(to bottom, rgba(255, 71, 151, 0.6) 0%, rgba(255, 71, 151, 0.6) 5px, var(--color-primario) 5px);
+}
+
+.card-semillero:nth-child(5n+3) {
+    background: linear-gradient(to bottom, rgba(71, 255, 151, 0.6) 0%, rgba(71, 255, 151, 0.6) 5px, var(--color-primario) 5px);
+}
+
+.card-semillero:nth-child(5n+4) {
+    background: linear-gradient(to bottom, rgba(255, 151, 71, 0.6) 0%, rgba(255, 151, 71, 0.6) 5px, var(--color-primario) 5px);
+}
+
+.card-semillero:nth-child(5n+5) {
+    background: linear-gradient(to bottom, rgba(71, 151, 255, 0.6) 0%, rgba(71, 151, 255, 0.6) 5px, var(--color-primario) 5px);
+}
+
+.card-semillero:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-body h4{
+    font-size: clamp(24px, 2vw, 34px);
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.card-body h5{
+    font-size: clamp(18px, 1.5vw, 24px);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.card-body h6{
+    font-size: clamp(14px, 1.2vw, 18px);
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: var(--color-text-secondary);
+    background-color: var(--color-fondo-secundario);
+    border-radius: 20px;
+    width: fit-content;
+    padding: clamp(2px, 0.5vw, 5px) clamp(6px, 1vw, 10px);
+}
+
+.card-info{
+    display: flex;
+    gap: clamp(10px, 2vw, 20px);
+    flex-wrap: wrap;
+    width: 100%;
+    z-index: 2;
+    position: relative;
+}
+.badge.bg-secondary {
+    background-color: var(--color-fondo-secundario)!important; /* Cambia por tu color */
+}
+
+.badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    white-space: pre-line; /* Permite saltos de línea */
+    line-height: 1.2;
+    padding: 8px 12px;
+    margin-bottom: 3%;
+}
+
+/* Primera tarjeta - todos los badges morados */
+.card-semillero:nth-child(1) .badge.bg-secondary {
+    color: #9747ff !important; 
+}
+
+/* Segunda tarjeta - todos los badges rosas */
+.card-semillero:nth-child(2) .badge.bg-secondary {
+    color: #ff4797 !important; 
+}
+
+/* Tercera tarjeta - todos los badges verdes */
+.card-semillero:nth-child(3) .badge.bg-secondary {
+    color: #007832 !important;
+}
+
+/* Cuarta tarjeta - todos los badges naranjas */
+.card-semillero:nth-child(4) .badge.bg-secondary {
+    color: #ff9747 !important; 
+}
+
+/* Quinta tarjeta - todos los badges azules */
+.card-semillero:nth-child(5) .badge.bg-secondary {
+    color: #4797ff !important; 
+}
+
+.btn-primary {
+    background-color:transparent;
+    border-color: var(--color-nav-active);
+    color: var(--color-text-primary);
+    font-weight: 600;
+    padding: 8px 12px;
+    font-size: clamp(12px, 1.5vw, 16px);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: auto; /* Empuja el botón hacia abajo */
+}
+
+.btn.btn-primary {
+    margin-left: auto;
+    display: block;
+    width: fit-content;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-nav-active);
+    color: white;
+    border-color: var(--color-nav-active);
+}

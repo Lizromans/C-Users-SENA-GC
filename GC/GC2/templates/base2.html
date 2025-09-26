@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <!-- CSS personalizado -->
-    <link href="{% static 'css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'css/base2.css' %}" rel="stylesheet">
 
   {% block css %}{% endblock %}
 </head>
@@ -123,6 +123,33 @@
     <!-- Contenido principal -->
     <div class="main-content">
         <main>
+            
+            <!-- Contenedor Principal con Gradiente y Círculos -->
+            <div class="contenedor-principal">
+                <div class="bienvenida">
+                    <div class="card-body">
+                        <h4>Semillero de Biotecnología</h4>
+                        <h5 >Innovación en Biotecnología</h5>
+                        <h6>SM-SI-09</h6>
+                        <p class="card-text">Descubre los avances en biotecnología y su impacto en la salud y el medio ambiente.</p>
+                        <div class="card-info">
+                            <span class="badge bg-secondary">2 
+                                Ciencia</span>
+                            <span class="badge bg-secondary">3 
+                                Tecnología</span>
+                            <span class="badge bg-secondary">3 
+                                Tecnología</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="menu">
+                <a href="" class="menu-button ">
+                    <img src="{% static 'img/Clipboard.png' %}" alt="Icono de Editar" class="icon-button">
+                    Perfil</a>
+                <a href="{" class="menu-button ">Privacidad</a>
+            </div>
+
             {% block main %}{% endblock %}
         </main>
     </div>

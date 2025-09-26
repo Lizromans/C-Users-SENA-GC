@@ -193,7 +193,7 @@ label{
     font-weight: 700;
 }
 
-input[type="text"], input[type="num"], select {
+input[type="text"], input[type="num"] {
     border-radius: 8px;
     border: 2px solid var(--color-fondo-secundario);
     padding: clamp(2px, 2vw, 4px) clamp(2px, 2vw, 4px) clamp(2px, 2vw, 4px) clamp(2px, 2vw, 4px);
