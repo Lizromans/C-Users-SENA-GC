@@ -1,0 +1,123 @@
+:root {
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-active: #007832;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
+    /* Nuevas variables para colores de fondo */
+    --color-fondo-principal: #f5f5f5;
+    --color-fondo-secundario: #e9ecef;
+    /* Variables para gradiente */
+    --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgba(112, 39, 122, 0.884) 75%);
+}
+
+/* Contenedor secundario */
+.resumen {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);    
+    gap: clamp(1rem, 2vw, 2rem);
+    width: 100%;
+    max-width: clamp(600px, 90vw, 1200px);
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(20px, 3vh, 40px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+/* Tarjetas del contenedor secundario */
+.resumen .grupo {
+    background-color: white;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.resumen .grupo:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.resumen .card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border: none;
+    width: 100%;
+}
+
+.resumen .icon-cont {
+    background: linear-gradient(135deg, #9747FF 0%, #7a35d1 100%);
+    flex: 0 0 clamp(60px, 15%, 90px);
+    height: clamp(55px, 7vh, 85px);
+    margin: clamp(10px, 1.5vh, 18px) 0 0 clamp(15px, 2vw, 25px);
+    border-radius: 7%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Diferentes backgrounds para cada icon-cont usando clases específicas */
+.resumen .icon-cont.objetivos {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+.resumen.icon-cont.lineas {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.resumen .icon-cont.progreso {
+    background: linear-gradient(135deg, #054d7a 0%, #00304D 100%);
+}
+
+.resumen img {
+    width: clamp(25px, 2.5vw, 35px);
+    height:clamp(35px, 2.5vh, 45px) ;
+}
+
+.resumen .card-body {
+    flex: 1;
+    padding: clamp(1rem, 2vh, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.resumen .card-title {
+    color: var(--color-text-primary);
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 900;
+    margin: 0;
+    word-wrap: break-word;
+}
+
+.resumen .texto-inferior {
+    padding: clamp(10px, 3vw, 15px) clamp(10px, 3vw, 15px) ;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    align-items: center;
+}
+
+.resumen .texto-inferior p {
+    margin: 0 0 clamp(0.8rem, 1.5vh, 1.2rem) 0;
+    color: var(--color-text-secondary);
+    font-size: clamp(0.8rem, 1.8vw, 1rem);
+    word-wrap: break-word;
+}

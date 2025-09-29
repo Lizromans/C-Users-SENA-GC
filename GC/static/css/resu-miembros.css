@@ -1,0 +1,266 @@
+:root {
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-active: #007832;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
+    /* Nuevas variables para colores de fondo */
+    --color-fondo-principal: #f5f5f5;
+    --color-fondo-secundario: #e9ecef;
+    /* Variables para gradiente */
+    --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgba(112, 39, 122, 0.884) 75%);
+}
+
+/* Contenedor secundario */
+.resumen {
+    display: flex;
+    flex-direction: column;    
+    gap: clamp(1rem, 2vw, 2rem);
+    width: 100%;
+    max-width: clamp(600px, 90vw, 1200px);
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(20px, 3vh, 40px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+.cont-1{
+    display: flex;
+    justify-content: flex-end; /* Cambiado de flex-direction */
+    gap: clamp(10px, 2vw, 20px);
+    transition: background-color 0.3s ease;
+}
+
+.btn{
+    display: flex; /* Añadido */
+    align-items: center; /* Cambiado de justify-items */
+    color: var(--color-primario);
+    font-size: clamp(8px, 1.5vw, 12px);
+    padding: clamp(5px, 1.5vw, 8px) clamp(5px, 2vw, 8px) ;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; 
+    font-weight: 600;
+    width: clamp(70px, 15vw, 140px);
+    height: auto;
+    border: none; /* Añadido para quitar borde de button */
+}
+
+.btn:hover {
+    opacity: 0.9; /* Efecto sutil al pasar el mouse */
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.btn img{
+    width: clamp(15px, 2vw, 25px);
+    height: auto;
+    margin-right: 8px;
+    flex-shrink: 0; /* Añadido para evitar que la imagen se encoja */
+}
+
+/* Botón 1 */
+.btn:nth-child(1){
+    background-color: #39A900 !important; 
+}
+
+/* Botón 2 */
+.btn:nth-child(2){
+    background-color: #9747FF !important; 
+}
+
+/* Botón 3 */
+.btn:nth-child(3) {
+    background-color: #0070B3 !important;
+}
+
+/* CSS Responsivo para Lista de Miembros */
+.contenedor-miembros {
+    background: white;
+    border-radius: clamp(8px, 2vw, 15px);
+    box-shadow: 0 clamp(2px, 0.5vw, 4px) clamp(6px, 1.5vw, 12px) rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%;
+    max-width: clamp(600px, 88vw, 1200px);
+    margin: clamp(10px, 2vw, 20px) 0;
+}
+
+.header-miembros {
+    padding: clamp(15px, 3vw, 20px);
+    display: flex;
+    flex-direction: row;
+    
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+}
+
+.header-miembros h3 {
+    color: #ffffff;
+    margin: 0;
+    font-size: clamp(14px, 2.5vw, 18px);
+    font-weight: 600;
+    margin-top: clamp(-6px, 3vh, -11px);
+}
+
+.header-miembros p{
+    font-size: clamp(8px, 1.5vw, 14px);
+}
+
+.lista-miembros {
+    padding: clamp(10px, 2vw, 15px);
+    max-height: clamp(300px, 50vh, 400px);
+    overflow-y: auto;
+}
+
+.item-miembro {
+    display: flex;
+    align-items: center;
+    padding: clamp(8px, 1.5vw, 12px) clamp(6px, 1vw, 8px);
+    border-radius: clamp(6px, 1vw, 8px);
+    margin-bottom: clamp(6px, 1vw, 8px);
+    transition: background-color 0.2s ease;
+}
+
+.item-miembro:hover {
+    background-color: #f8f9fa;
+}
+
+.avatar-miembro {
+    width: clamp(35px, 6vw, 45px);
+    height: clamp(35px, 6vw, 45px);
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: clamp(12px, 2.5vw, 16px);
+    margin-right: clamp(10px, 2vw, 15px);
+    flex-shrink: 0;
+}
+
+/* Variaciones de color para diferentes miembros */
+.item-miembro:nth-child(1) .avatar-miembro {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.item-miembro:nth-child(2) .avatar-miembro {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.item-miembro:nth-child(3) .avatar-miembro {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.item-miembro:nth-child(4) .avatar-miembro {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.item-miembro:nth-child(5) .avatar-miembro {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.item-miembro:nth-child(6) .avatar-miembro {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.item-miembro:nth-child(7) .avatar-miembro {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.item-miembro:nth-child(8) .avatar-miembro {
+    background: linear-gradient(135deg, #c1dfc4 0%, #deecdd 100%);
+}
+
+.item-miembro:nth-child(n+9) .avatar-miembro {
+    background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+}
+
+.info-miembro {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-miembro h4 {
+    margin: 0;
+    font-size: clamp(14px, 2.2vw, 16px);
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rol-miembro {
+    font-size: clamp(12px, 2vw, 14px);
+    color: #666;
+    display: block;
+    margin-top: clamp(2px, 0.3vw, 3px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.estado-miembro {
+    margin-left: clamp(8px, 1.5vw, 12px);
+    flex-shrink: 0;
+}
+
+.badge-activo {
+    background-color: #28a745;
+    color: white;
+    padding: clamp(3px, 0.5vw, 4px) clamp(6px, 1vw, 8px);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(10px, 1.5vw, 12px);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.badge-inactivo {
+    background-color: #dc3545;
+    color: white;
+    padding: clamp(3px, 0.5vw, 4px) clamp(6px, 1vw, 8px);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(10px, 1.5vw, 12px);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sin-miembros {
+    text-align: center;
+    padding: clamp(20px, 4vw, 40px);
+    color: #666;
+}
+
+.sin-miembros p {
+    margin: 0;
+    font-size: clamp(12px, 2vw, 14px);
+    color: #999;
+}
+
+/* Scroll personalizado */
+.lista-miembros::-webkit-scrollbar {
+    width: clamp(4px, 0.5vw, 6px);
+}
+
+.lista-miembros::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: clamp(3px, 0.5vw, 5px);
+}
+
+.lista-miembros::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: clamp(3px, 0.5vw, 5px);
+}
+
+.lista-miembros::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+

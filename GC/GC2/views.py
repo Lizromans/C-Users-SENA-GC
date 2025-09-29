@@ -23,3 +23,12 @@ def semilleros(request):
 
 def base2(request):
     return render(request, 'base2.html')
+
+def resumen(request):
+    return render(request, 'paginas/resumen.html', 
+    {'current_page': 'resumen'})
+
+
+def resu_miembros(request):
+    return render(request, 'paginas/resu-miembros.html', 
+    {'current_page': 'resu_miembros'})

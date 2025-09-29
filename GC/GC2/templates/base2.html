@@ -144,10 +144,21 @@
                 </div>
             </div>
             <div class="menu">
-                <a href="" class="menu-button ">
-                    <img src="{% static 'img/Clipboard.png' %}" alt="Icono de Editar" class="icon-button">
-                    Perfil</a>
-                <a href="{" class="menu-button ">Privacidad</a>
+                <a href="{% url 'resumen' %}" class="menu-button {% if current_page == 'resumen' %}active{% endif %}">
+                    <img src="{% static 'img/Clipboard.png' %}" alt="Icono de Folder" class="icon-button">
+                    Resumen</a>
+                <a href="{% url 'resu-miembros' %}" class="menu-button {% if current_page == 'resu_miembros' %}active{% endif %}">
+                    <img src="{% static 'img/people.png' %}" alt="Icono de Usuarios" class="icon-button">
+                    Miembros</a>
+                <a href="" class="menu-button {% if request.resolver_match.url_name == 'proyectos' %}active{% endif %}">
+                    <img src="{% static 'img/project.png' %}" alt="Icono de Proyectos" class="icon-button">
+                    Proyectos</a>
+                <a href="" class="menu-button {% if request.resolver_match.url_name == 'entregables' %}active{% endif %} ">
+                    <img src="{% static 'img/Papers.png' %}" alt="Icono de Entregables" class="icon-button">
+                    Entregables</a>
+                <a href="" class="menu-button {% if request.resolver_match.url_name == 'recursos' %}active{% endif %}">
+                    <img src="{% static 'img/Chat.png' %}" alt="Icono de Chat" class="icon-button">
+                    Recursos</a>            
             </div>
 
             {% block main %}{% endblock %}

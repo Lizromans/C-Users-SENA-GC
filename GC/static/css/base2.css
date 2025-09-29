@@ -433,7 +433,7 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: clamp(35px, 3vw, 65px);
+  gap: clamp(5px, 1vh, 15px);
 }
 
 
@@ -442,31 +442,31 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 98%;
-    max-width: clamp(700px, 78vw, 1100px);
+    width: clamp(90%, 95vw, 98%); /* Se reduce en pantallas pequeñas */
+    max-width: clamp(500px, 78vw, 1100px); /* Tamaño máximo más pequeño en móviles */
     height: auto;
     position: relative;
-    border-radius: clamp(12px, 2vw, 20px);
-    padding: 0 0  0 clamp(15px, 2vh, 25px) ;
-    min-height: clamp(150px, 20vh, 200px);
+    border-radius: clamp(8px, 2vw, 20px); /* Bordes más pequeños en móviles */
+    padding: clamp(10px, 2vh, 25px) clamp(8px, 1.5vh, 15px); /* Padding reducido */
+    min-height: clamp(100px, 15vh, 200px); /* Altura mínima reducida */
     box-sizing: border-box;
     overflow: hidden;
 }
 
-/* Círculo derecho superior */
+/* Círculo derecho superior - se reduce proporcionalmente */
 .contenedor-principal::after {
     content: '';
     position: absolute;
-    width: clamp(130px, 20vw, 210px);
-    height: clamp(130px, 20vw, 210px);
+    width: clamp(80px, 15vw, 210px); /* Círculo más pequeño en móviles */
+    height: clamp(80px, 15vw, 210px);
     border-radius: 50%;
     background: radial-gradient(circle,rgba(255, 255, 255, 0.233) 0%, rgba(255, 255, 255, 0.233) 70%, transparent 100%);
-    right: clamp(-60px, -7.5vw, -100px);
-    top: clamp(-60px, -7.5vw, -100px);
+    right: clamp(-40px, -5vw, -100px); /* Posición ajustada */
+    top: clamp(-40px, -5vw, -100px);
     z-index: 1;
 }
 
-/* Sección bienvenida - ahora sin fondo */
+/* Sección bienvenida - ajustes responsivos */
 .bienvenida {
     background: none;
     width: 100%;
@@ -479,55 +479,63 @@ main {
     box-sizing: border-box;
     position: relative;
     z-index: 2;
+    gap: clamp(8px, 2vh, 16px); /* Espacio entre elementos */
 }
 
-
-.card-body h4{
-    font-size: clamp(50px, 7vw, 60px);
+/* Ajustes de tipografía más responsivos */
+.card-body h4 {
+    font-size: clamp(28px, 6vw, 60px); /* Tamaño mucho menor en móviles */
     font-weight: 900;
-    margin-bottom: 10px;
+    margin-bottom: clamp(5px, 1vh, 10px);
+    line-height: 1.1;
 }
 
-.card-body h5{
-    font-size: clamp(18px, 1.5vw, 24px);
+.card-body h5 {
+    font-size: clamp(14px, 2.5vw, 24px); /* Más pequeño en móviles */
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: clamp(4px, 0.8vh, 8px);
+    line-height: 1.2;
 }
 
-.card-body h6{
-    font-size: clamp(14px, 1.2vw, 18px);
+.card-body h6 {
+    font-size: clamp(11px, 1.8vw, 18px); /* Más compacto */
     font-weight: 500;
-    margin-bottom: 12px;
+    margin-bottom: clamp(6px, 1.2vh, 12px);
     color: var(--color-text-primary);
     background-color: #cccccc8f;
-    border-radius: 20px;
+    border-radius: clamp(12px, 2vw, 20px);
     width: fit-content;
-    padding: clamp(2px, 0.5vw, 5px) clamp(6px, 1vw, 10px);
+    padding: clamp(1px, 0.3vw, 5px) clamp(4px, 0.8vw, 10px);
 }
 
-.card-info{
+/* Card-info más compacto */
+.card-info {
     display: flex;
-    gap: clamp(70px, 5vw, 80px);
+    gap: clamp(20px, 4vw, 80px); /* Gap mucho menor en móviles */
     flex-wrap: wrap;
     width: 100%;
     z-index: 2;
     position: relative;
-}
-.badge.bg-secondary {
-    background-color: transparent!important; /* Cambia por tu color */
-    color: var(--color-text-primary);
+    justify-content: flex-start; /* Mejor alineación en móviles */
 }
 
+/* Badges más pequeños y compactos */
 .badge {
-    font-size: clamp(0.99rem, 2vw, 1.5rem);
+    font-size: clamp(0.7rem, 1.5vw, 1.5rem); /* Tamaño reducido */
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    white-space: pre-line; /* Permite saltos de línea */
-    line-height: 1.2;
-    padding: 8px 12px;
-    margin-bottom: 3%;
+    white-space: pre-line;
+    line-height: 1.1;
+    padding: clamp(4px, 1vw, 12px) clamp(6px, 1.2vw, 12px);
+    margin-bottom: clamp(1%, 1.5vh, 3%);
+    border-radius: clamp(4px, 1vw, 8px); /* Bordes más suaves */
+}
+
+.badge.bg-secondary {
+    background-color: transparent!important; /* Cambia por tu color */
+    color: var(--color-text-primary);
 }
 
 /* Aplica el mismo patrón de colores al contenedor principal */
@@ -556,34 +564,41 @@ main {
     display: flex;
     justify-content: center;
     background-color: var(--color-primario);
-    border-radius: 15px;
-    margin: 20px auto;
-    padding: 5px;
-    max-width: 450px;
+    border-radius: clamp(10px, 2vw, 15px);
+    margin: clamp(10px, 3vw, 20px) auto;
+    padding: clamp(3px, 1vw, 5px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    height: 45px;
-    margin-top: -2.6%;
-    width: 300px;
-    
+    height: fit-content;
+    min-height: clamp(45px, 8vh, 60px);
+    width: fit-content;
+    min-width: clamp(300px, 50vw, 800px);
+    flex-wrap: wrap; /* Permite que los elementos se ajusten en pantallas pequeñas */
+    gap: clamp(5px, 1vw, 10px); /* Espacio entre elementos */
 }
 
 .menu-button {
     text-decoration: none;
     color: #000000;
-    padding: 8px 20px;
-    border-radius: 15px;
-    margin: 0 10px;
+    padding: clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 20px);
+    border-radius: clamp(10px, 2vw, 15px);
+    margin: 0 clamp(5px, 1vw, 10px);
     font-weight: bold;
+    font-size: clamp(12px, 2vw, 16px);
     transition: all 0.3s ease;
     display: flex;
-    align-items: center; /* Centra verticalmente el ícono y el texto */
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* Evita que el texto se rompa */
+    min-width: clamp(80px, 15vw, 120px);
 }
 
 .icon-button {
-    width: clamp(20px, 3vw, 26px); /* Ajusta el tamaño del ícono */
-    height: clamp(20px, 3vh, 26px); /* Ajusta el tamaño del ícono */
-    margin-right: 8px; /* Espacio entre el ícono y el texto */
+    width: clamp(16px, 3vw, 26px);
+    height: clamp(16px, 3vw, 26px);
+    margin-right: clamp(4px, 1vw, 8px);
+    flex-shrink: 0; /* Evita que el ícono se reduzca */
 }
+
 .menu-button:hover {
     background-color: var(--color-nav-active);
     color: #ffffff;
@@ -591,58 +606,60 @@ main {
 }
 
 .menu-button.active {
-    background-color: var(--color-secundario);
+    background-color: var(--color-nav-active);
     color: #ffffff;
     transform: scale(1.05);
 }
 
-.cuenta{
-    max-width: 500px;
+.cuenta {
+    max-width: clamp(300px, 90vw, 500px);
     position: relative;
-    margin-top: 2%;
+    margin-top: clamp(1%, 2vw, 2%);
     background-color: var(--color-primario);
-    box-shadow: 0 4px 6px rgba(0, 0, 0.3, 0.3);
-    border-radius: 5px;
-    margin-left: 33%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border-radius: clamp(3px, 1vw, 5px);
+    margin-left: clamp(5%, 33vw, 33%);
+    margin-right: clamp(5%, 2vw, auto);
 }
 
-.nav-items{
-    width: 166px;
+.nav-items {
+    width: clamp(120px, 30vw, 166px);
     display: flex;
-    margin-bottom: 9px;
+    margin-bottom: clamp(6px, 1.5vw, 9px);
     justify-content: center;
-    padding-top: 7px;
-    height: 37px;
+    padding-top: clamp(5px, 1.5vw, 7px);
+    height: clamp(30px, 6vh, 37px);
 }
 
 /* Estilos personalizados para las pestañas */
 .nav-pills .nav-link.active {
-    background-color: var(--color-secundario) ; /* Color dorado similar al de tu diseño */
-    color: white; /* Color del texto */;
-    width: 80%;
-    margin-left: 10%;
-    padding-left: 30%;
-    padding-top: 3%;
+    background-color: var(--color-secundario);
+    color: white;
+    width: clamp(70%, 15vw, 80%);
+    margin-left: clamp(15%, 2.5vw, 10%);
+    padding: clamp(2%, 1vw, 3%) clamp(20%, 5vw, 30%);
+    font-size: clamp(12px, 2vw, 16px);
     transform: scale(1.05);
+    border-radius: clamp(3px, 1vw, 5px);
 }
 
-/* Estilo para el hover (opcional) */
+/* Estilo para el hover */
 .nav-pills .nav-link:hover:not(.active) {
-    background-color: var(--color-secundario); /* Version transparente del mismo color */
+    background-color: var(--color-secundario);
     color: #ffffff;
     transform: scale(1.05);
-    width: 80%;
-    margin-left: 10%;
-    padding-left: 10%;
-    padding-top: 3%;
-   
-
+    width: clamp(70%, 15vw, 80%);
+    margin-left: clamp(15%, 2.5vw, 10%);
+    padding: clamp(2%, 1vw, 3%) clamp(10%, 2vw, 10%);
+    font-size: clamp(12px, 2vw, 16px);
+    border-radius: clamp(3px, 1vw, 5px);
 }
 
 /* Estilo para las pestañas no activas */
 .nav-pills .nav-link {
-    color: #000000; /* Color gris para pestañas inactivas */
-    transition: all 0.3s ease; /* Suaviza la transición entre estados */
+    color: #000000;
+    font-size: clamp(12px, 2vw, 16px);
+    transition: all 0.3s ease;
+    padding: clamp(4px, 1vw, 8px) clamp(8px, 2vw, 12px);
 }
-
 

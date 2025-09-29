@@ -1,0 +1,61 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block titulo %} NOMBRE {% endblock %}
+{% block css %}
+<link href="{% static 'css/resu-miembros.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+    <div class="resumen">
+        <div class="cont-1">
+            <button class="btn btn-anadir">
+                <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
+                Añadir Miembro
+            </button>
+            <button class="btn btn-asignar">
+                <img src="{% static 'img/Medal.png' %}" alt="Icono de Asignar Lider De Semillero">
+                Asignar Lider De Semillero
+            </button>
+            <button class="btn btn-asignar">
+                <img src="{% static 'img/project.png' %}" alt="Icono de Asignar Estudiante">
+                Asignar Lider De Proyecto
+            </button>  
+        </div>
+        
+        <div class="contenedor-miembros">
+            <div class="header-miembros">
+                <img src="{% static 'img/people.png' %}" alt="Miembros">
+                <div class="card-body">
+                    <h3>Miembros del Semillero</h3>
+                    <p>Cantidad miembros activod</p>            
+                </div>
+            </div>
+            
+            <div class="lista-miembros">
+                {% for miembro in miembros %}
+                <div class="item-miembro">
+                    <div class="avatar-miembro">
+                        {{ miembro.get_iniciales }}
+                    </div>
+                    <div class="info-miembro">
+                        <h4>{{ miembro.nombre }} {{ miembro.apellido }}</h4>
+                        <span class="rol-miembro">{{ miembro.rol }}</span>
+                    </div>
+                    <div class="estado-miembro">
+                        {% if miembro.activo %}
+                            <span class="badge-activo">Activo</span>
+                        {% else %}
+                            <span class="badge-inactivo">Inactivo</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="sin-miembros">
+                    <p>No hay miembros en este semillero</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
