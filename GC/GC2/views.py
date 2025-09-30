@@ -32,3 +32,12 @@ def resumen(request):
 def resu_miembros(request):
     return render(request, 'paginas/resu-miembros.html', 
     {'current_page': 'resu_miembros'})
+
+def resu_proyectos(request):
+    return render(request, 'paginas/resu-proyectos.html', 
+    {'current_page': 'resu_proyectos'})
+
+def entregables(request):
+    return render(request, 'paginas/entregables.html', 
+    {'current_page': 'entregables'})
+

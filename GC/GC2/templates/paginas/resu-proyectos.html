@@ -1,0 +1,380 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block titulo %} NOMBRE {% endblock %}
+{% block css %}
+<link href="{% static 'css/resu-proyectos.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+    <div class="resumen">
+        <div class="cont-1">
+            <button class="btn btn-anadir">
+                <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
+                Agregar Proyecto
+            </button>
+        </div>
+        
+        <div class="cont-2">
+            <div class="header-proyectos">
+                <img src="{% static 'img/project.png' %}" alt="Proyectos">
+                <div class="card-body">
+                    <h3>Proyectos Activos</h3>
+                    <p>{{ total_proyectos }} proyectos activos</p>            
+                </div>
+            </div>
+            
+            <div class="lista-proyectos">
+                
+                <!-- Sección de Sennova-->
+                {% if proyectos_sennova %}
+                <div class="seccion">
+                    <div class="bg-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                    
+                    <div class="header-seccion">
+                        <img src="{% static 'img/Rocket.png' %}" alt="Icono de Sennova" class="icono-seccion">
+                        <h3 class="titulo-seccion">Proyectos Sennova</h3>
+                    </div>
+
+                    <div class="proyectos-carousel-container">
+                        <button class="carousel-nav-arrow left">‹</button>
+                        
+                        <div class="proyectos-carousel-track">
+                            {% for proyecto in proyectos_sennova %}
+                            
+                            <div class="proyecto-card" data-index="{{ forloop.counter0 }}">
+                                <input type="radio" name="tabs-{{ proyecto.id }}" id="tab-resumen-{{ proyecto.id }}" class="tab-radio" checked>
+                                <input type="radio" name="tabs-{{ proyecto.id }}" id="tab-entregables-{{ proyecto.id }}" class="tab-radio">
+                                
+                                <div class="tabs-header">
+                                    <label for="tab-resumen-{{ proyecto.id }}" class="tab">
+                                        <i class="fas fa-info-circle"></i> Resumen
+                                    </label>
+                                    <label for="tab-entregables-{{ proyecto.id }}" class="tab">
+                                        <i class="fas fa-clipboard-list"></i> Entregables ({{ proyecto.entregables.count }})
+                                    </label>
+                                </div>
+
+                                <div class="tab-content" data-tab="resumen">
+                                    <div class="proyecto-card-content">
+                                        <div class="proyecto-header">
+                                            <h3 class="proyecto-titulo">{{ proyecto.titulo }}</h3>
+                                            <span class="proyecto-estado {{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
+                                        </div>
+                                        <p class="proyecto-lider">Líder: {{ proyecto.lider }}</p>
+                                        <p class="proyecto-descripcion">{{ proyecto.descripcion|truncatewords:250 }}</p>
+                                        
+                                        <div class="proyecto-progress">
+                                            <div class="progress-label">
+                                                <span>Progreso General</span>
+                                                <span class="progress-percentage">{{ proyecto.progreso }}%</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: {{ proyecto.progreso }}%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="proyecto-footer">
+                                            <div class="proyecto-stat">
+                                                <img src="{% static 'img/people.png' %}" alt="Equipo" class="stat-icon">
+                                                <span>Equipo: {{ proyecto.equipo }} integrantes</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-content" data-tab="entregables">
+                                    <div class="entregables-tab-content">
+                                        {% if proyecto.entregables.all %}
+                                            {% for entregable in proyecto.entregables.all %}
+                                            <a href="#" class="entregable-mini">
+                                                <div class="mini-number">{{ forloop.counter }}</div>
+                                                <div class="mini-info">
+                                                    <h6>{{ entregable.titulo }}</h6>
+                                                    <span>
+                                                        {% if entregable.completado %}
+                                                        <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
+                                                        {% else %}
+                                                        <i class="fas fa-clock" style="color: #ed8936;"></i> En proceso
+                                                        {% endif %}
+                                                        • {{ entregable.fecha }}
+                                                    </span>
+                                                </div>
+                                                <i class="fas fa-chevron-right" style="color: #cbd5e0;"></i>
+                                            </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="sin-entregables">
+                                                <i class="fas fa-inbox" style="font-size: 48px; color: #cbd5e0; margin-bottom: 15px;"></i>
+                                                <p>No hay entregables registrados para este proyecto</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% endfor %}
+                        </div>
+                        
+                        <button class="carousel-nav-arrow right">›</button>
+                    </div>
+
+                    <div class="carousel-dots">
+                        {% for proyecto in proyectos_sennova %}
+                        <div class="carousel-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Sección de Capacidad Instalada-->
+                {% if proyectos_capacidad %}
+                <div class="seccion">
+                    <div class="bg-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                    
+                    <div class="header-seccion">
+                        <img src="{% static 'img/Settings.png' %}" alt="Icono de Capacidad Instalada" class="icono-seccion">
+                        <h3 class="titulo-seccion">Proyectos Capacidad Instalada</h3>
+                    </div>
+
+                    <div class="proyectos-carousel-container">
+                        <button class="carousel-nav-arrow left">‹</button>
+                        
+                        <div class="proyectos-carousel-track">
+                            {% for proyecto in proyectos_capacidad %}
+                            
+                            <div class="proyecto-card" data-index="{{ forloop.counter0 }}">
+                                <input type="radio" name="tabs-{{ proyecto.id }}" id="tab-resumen-{{ proyecto.id }}" class="tab-radio" checked>
+                                <input type="radio" name="tabs-{{ proyecto.id }}" id="tab-entregables-{{ proyecto.id }}" class="tab-radio">
+                                
+                                <div class="tabs-header">
+                                    <label for="tab-resumen-{{ proyecto.id }}" class="tab">
+                                        <i class="fas fa-info-circle"></i> Resumen
+                                    </label>
+                                    <label for="tab-entregables-{{ proyecto.id }}" class="tab">
+                                        <i class="fas fa-clipboard-list"></i> Entregables ({{ proyecto.entregables.count }})
+                                    </label>
+                                </div>
+
+                                <div class="tab-content" data-tab="resumen">
+                                    <div class="proyecto-card-content">
+                                        <div class="proyecto-header">
+                                            <h3 class="proyecto-titulo">{{ proyecto.titulo }}</h3>
+                                            <span class="proyecto-estado {{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
+                                        </div>
+                                        <p class="proyecto-lider">Líder: {{ proyecto.lider }}</p>
+                                        <p class="proyecto-descripcion">{{ proyecto.descripcion|truncatewords:250 }}</p>
+                                        
+                                        <div class="proyecto-progress">
+                                            <div class="progress-label">
+                                                <span>Progreso General</span>
+                                                <span class="progress-percentage">{{ proyecto.progreso }}%</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: {{ proyecto.progreso }}%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="proyecto-footer">
+                                            <div class="proyecto-stat">
+                                                <img src="{% static 'img/people.png' %}" alt="Equipo" class="stat-icon">
+                                                <span>Equipo: {{ proyecto.equipo }} integrantes</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-content" data-tab="entregables">
+                                    <div class="entregables-tab-content">
+                                        {% if proyecto.entregables.all %}
+                                            {% for entregable in proyecto.entregables.all %}
+                                            <a href="#" class="entregable-mini">
+                                                <div class="mini-number">{{ forloop.counter }}</div>
+                                                <div class="mini-info">
+                                                    <h6>{{ entregable.titulo }}</h6>
+                                                    <span>
+                                                        {% if entregable.completado %}
+                                                        <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
+                                                        {% else %}
+                                                        <i class="fas fa-clock" style="color: #ed8936;"></i> En proceso
+                                                        {% endif %}
+                                                        • {{ entregable.fecha }}
+                                                    </span>
+                                                </div>
+                                                <i class="fas fa-chevron-right" style="color: #cbd5e0;"></i>
+                                            </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="sin-entregables">
+                                                <i class="fas fa-inbox" style="font-size: 48px; color: #cbd5e0; margin-bottom: 15px;"></i>
+                                                <p>No hay entregables registrados para este proyecto</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% endfor %}
+                        </div>
+                        
+                        <button class="carousel-nav-arrow right">›</button>
+                    </div>
+
+                    <div class="carousel-dots">
+                        {% for proyecto in proyectos_capacidad %}
+                        <div class="carousel-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Sección de Formativa-->
+                {% if proyectos_formativos %}
+                <div class="seccion">
+                    <div class="bg-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                    
+                    <div class="header-seccion">
+                        <img src="{% static 'img/student.png' %}" alt="Icono de Formativa" class="icono-seccion">
+                        <h3 class="titulo-seccion">Proyectos Formativos</h3>
+                    </div>
+
+                    <div class="proyectos-carousel-container">
+                        <button class="carousel-nav-arrow left">‹</button>
+                        
+                        <div class="proyectos-carousel-track">
+                            {% for proyecto in proyectos_formativos %}
+                            
+                            <div class="proyecto-card" data-index="{{ forloop.counter0 }}">
+                                <input type="radio" name="tabs-{{ proyecto.id }}" id="tab-resumen-{{ proyecto.id }}" class="tab-radio" checked>
+                                <input type="radio" name="tabs-{{ proyecto.id }}" id="tab-entregables-{{ proyecto.id }}" class="tab-radio">
+                                
+                                <div class="tabs-header">
+                                    <label for="tab-resumen-{{ proyecto.id }}" class="tab">
+                                        <i class="fas fa-info-circle"></i> Resumen
+                                    </label>
+                                    <label for="tab-entregables-{{ proyecto.id }}" class="tab">
+                                        <i class="fas fa-clipboard-list"></i> Entregables ({{ proyecto.entregables.count }})
+                                    </label>
+                                </div>
+
+                                <div class="tab-content" data-tab="resumen">
+                                    <div class="proyecto-card-content">
+                                        <div class="proyecto-header">
+                                            <h3 class="proyecto-titulo">{{ proyecto.titulo }}</h3>
+                                            <span class="proyecto-estado {{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
+                                        </div>
+                                        <p class="proyecto-lider">Líder: {{ proyecto.lider }}</p>
+                                        <p class="proyecto-descripcion">{{ proyecto.descripcion|truncatewords:250 }}</p>
+                                        
+                                        <div class="proyecto-progress">
+                                            <div class="progress-label">
+                                                <span>Progreso General</span>
+                                                <span class="progress-percentage">{{ proyecto.progreso }}%</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: {{ proyecto.progreso }}%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="proyecto-footer">
+                                            <div class="proyecto-stat">
+                                                <img src="{% static 'img/people.png' %}" alt="Equipo" class="stat-icon">
+                                                <span>Equipo: {{ proyecto.equipo }} integrantes</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-content" data-tab="entregables">
+                                    <div class="entregables-tab-content">
+                                        {% if proyecto.entregables.all %}
+                                            {% for entregable in proyecto.entregables.all %}
+                                            <a href="#" class="entregable-mini">
+                                                <div class="mini-number">{{ forloop.counter }}</div>
+                                                <div class="mini-info">
+                                                    <h6>{{ entregable.titulo }}</h6>
+                                                    <span>
+                                                        {% if entregable.completado %}
+                                                        <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
+                                                        {% else %}
+                                                        <i class="fas fa-clock" style="color: #ed8936;"></i> En proceso
+                                                        {% endif %}
+                                                        • {{ entregable.fecha }}
+                                                    </span>
+                                                </div>
+                                                <i class="fas fa-chevron-right" style="color: #cbd5e0;"></i>
+                                            </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="sin-entregables">
+                                                <i class="fas fa-inbox" style="font-size: 48px; color: #cbd5e0; margin-bottom: 15px;"></i>
+                                                <p>No hay entregables registrados para este proyecto</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% endfor %}
+                        </div>
+                        
+                        <button class="carousel-nav-arrow right">›</button>
+                    </div>
+
+                    <div class="carousel-dots">
+                        {% for proyecto in proyectos_formativos %}
+                        <div class="carousel-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Mensaje cuando no hay ningún proyecto -->
+                {% if not proyectos_sennova and not proyectos_capacidad and not proyectos_formativos %}
+                <div class="sin-proyectos-global">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>No hay proyectos registrados</h3>
+                    <p>Comienza agregando tu primer proyecto usando el botón "Agregar Proyecto"</p>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+{% endblock %}

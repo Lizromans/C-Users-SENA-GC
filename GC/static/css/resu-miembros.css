@@ -33,14 +33,14 @@
 
 .cont-1{
     display: flex;
-    justify-content: flex-end; /* Cambiado de flex-direction */
+    justify-content: flex-end; 
     gap: clamp(10px, 2vw, 20px);
     transition: background-color 0.3s ease;
 }
 
 .btn{
-    display: flex; /* Añadido */
-    align-items: center; /* Cambiado de justify-items */
+    display: flex; 
+    align-items: center; 
     color: var(--color-primario);
     font-size: clamp(8px, 1.5vw, 12px);
     padding: clamp(5px, 1.5vw, 8px) clamp(5px, 2vw, 8px) ;
@@ -50,7 +50,7 @@
     font-weight: 600;
     width: clamp(70px, 15vw, 140px);
     height: auto;
-    border: none; /* Añadido para quitar borde de button */
+    border: none; 
 }
 
 .btn:hover {
@@ -58,6 +58,7 @@
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
+
 .btn img{
     width: clamp(15px, 2vw, 25px);
     height: auto;
@@ -70,9 +71,17 @@
     background-color: #39A900 !important; 
 }
 
+.btn:nth-child(1):focus {
+    box-shadow: 0 0 0 5px rgba(57, 169, 0, 0.39)!important;
+}
+
 /* Botón 2 */
 .btn:nth-child(2){
     background-color: #9747FF !important; 
+}
+
+.btn:nth-child(2):focus {
+    box-shadow: 0 0 0 5px rgba(151, 71, 255, 0.39)!important;
 }
 
 /* Botón 3 */
@@ -80,23 +89,26 @@
     background-color: #0070B3 !important;
 }
 
-/* CSS Responsivo para Lista de Miembros */
+.btn:nth-child(3):focus {
+    box-shadow: 0 0 0 5px rgba(0, 112, 179, 0.39)!important;
+}
+
+/* Lista de Miembros */
 .contenedor-miembros {
     background: white;
     border-radius: clamp(8px, 2vw, 15px);
     box-shadow: 0 clamp(2px, 0.5vw, 4px) clamp(6px, 1.5vw, 12px) rgba(0, 0, 0, 0.1);
-    overflow: hidden;
     width: 100%;
     max-width: clamp(600px, 88vw, 1200px);
-    margin: clamp(10px, 2vw, 20px) 0;
 }
 
 .header-miembros {
-    padding: clamp(15px, 3vw, 20px);
+    padding: clamp(10px, 2.5vw, 15px);
     display: flex;
     flex-direction: row;
-    
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    height: calc(clamp(50px, 7vh, 80px) + 2 * clamp(10px, 2.5vw, 15px));
+    border-radius: clamp(8px, 2vw, 15px) clamp(8px, 2vw, 15px) 0 0;
 
 }
 
@@ -105,17 +117,58 @@
     margin: 0;
     font-size: clamp(14px, 2.5vw, 18px);
     font-weight: 600;
-    margin-top: clamp(-6px, 3vh, -11px);
+    margin-top: clamp(-8px, 1vw, -11px);
 }
 
-.header-miembros p{
+.header-miembros p {
     font-size: clamp(8px, 1.5vw, 14px);
+    color: #ffffff;
+}
+
+.header-miembros img {
+    width: clamp(50px, 8vw, 60px);
+    height: clamp(60px, 8vh, 70px);
+    flex-shrink: 0;
 }
 
 .lista-miembros {
     padding: clamp(10px, 2vw, 15px);
-    max-height: clamp(300px, 50vh, 400px);
-    overflow-y: auto;
+    max-height: auto;
+}
+
+/* Sección de miembros (Instructores/Aprendices) */
+.seccion-miembros {
+    margin-bottom: clamp(15px, 3vw, 25px);
+}
+
+.seccion-miembros:last-child {
+    margin-bottom: 0;
+}
+
+.header-seccion {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1.5vw, 12px);
+    margin-bottom: clamp(8px, 1.5vw, 12px);
+    padding-bottom: clamp(6px, 1vw, 8px);
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.icono-seccion {
+    width: clamp(22px, 3.5vw, 30px);
+    height: clamp(22px, 3.5vw, 30px);
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.titulo-seccion {
+    font-size: clamp(14px, 2.3vw, 17px);
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
 }
 
 .item-miembro {
@@ -146,41 +199,54 @@
     flex-shrink: 0;
 }
 
-/* Variaciones de color para diferentes miembros */
-.item-miembro:nth-child(1) .avatar-miembro {
+/* Variaciones de color para diferentes miembros - Instructores */
+.seccion-miembros:nth-child(1) .item-miembro:nth-child(1) .avatar-miembro {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.item-miembro:nth-child(2) .avatar-miembro {
+.seccion-miembros:nth-child(1) .item-miembro:nth-child(2) .avatar-miembro {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
-.item-miembro:nth-child(3) .avatar-miembro {
+.seccion-miembros:nth-child(1) .item-miembro:nth-child(3) .avatar-miembro {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
-.item-miembro:nth-child(4) .avatar-miembro {
+.seccion-miembros:nth-child(1) .item-miembro:nth-child(4) .avatar-miembro {
     background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
-.item-miembro:nth-child(5) .avatar-miembro {
+.seccion-miembros:nth-child(1) .item-miembro:nth-child(n+5) .avatar-miembro {
     background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
-.item-miembro:nth-child(6) .avatar-miembro {
+/* Variaciones de color para diferentes miembros - Aprendices */
+.seccion-miembros:nth-child(2) .item-miembro:nth-child(1) .avatar-miembro {
     background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 }
 
-.item-miembro:nth-child(7) .avatar-miembro {
+.seccion-miembros:nth-child(2) .item-miembro:nth-child(2) .avatar-miembro {
     background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
 }
 
-.item-miembro:nth-child(8) .avatar-miembro {
+.seccion-miembros:nth-child(2) .item-miembro:nth-child(3) .avatar-miembro {
     background: linear-gradient(135deg, #c1dfc4 0%, #deecdd 100%);
 }
 
-.item-miembro:nth-child(n+9) .avatar-miembro {
+.seccion-miembros:nth-child(2) .item-miembro:nth-child(4) .avatar-miembro {
     background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+}
+
+.seccion-miembros:nth-child(2) .item-miembro:nth-child(5) .avatar-miembro {
+    background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+}
+
+.seccion-miembros:nth-child(2) .item-miembro:nth-child(6) .avatar-miembro {
+    background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%);
+}
+
+.seccion-miembros:nth-child(2) .item-miembro:nth-child(n+7) .avatar-miembro {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
 }
 
 .info-miembro {
@@ -244,23 +310,3 @@
     font-size: clamp(12px, 2vw, 14px);
     color: #999;
 }
-
-/* Scroll personalizado */
-.lista-miembros::-webkit-scrollbar {
-    width: clamp(4px, 0.5vw, 6px);
-}
-
-.lista-miembros::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: clamp(3px, 0.5vw, 5px);
-}
-
-.lista-miembros::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: clamp(3px, 0.5vw, 5px);
-}
-
-.lista-miembros::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
-

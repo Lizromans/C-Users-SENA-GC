@@ -183,6 +183,7 @@
     z-index: 2;
     position: relative;
 }
+
 .badge.bg-secondary {
     background-color: var(--color-fondo-secundario)!important; /* Cambia por tu color */
 }
@@ -246,4 +247,8 @@
     background-color: var(--color-nav-active);
     color: white;
     border-color: var(--color-nav-active);
+}
+
+.btn-primary:focus {
+    box-shadow: 0 0 0 5px rgba(56, 169, 0, 0.39)!important;
 }

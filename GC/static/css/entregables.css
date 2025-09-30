@@ -1,0 +1,75 @@
+:root {
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-active: #007832;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
+    /* Nuevas variables para colores de fondo */
+    --color-fondo-principal: #f5f5f5;
+    --color-fondo-secundario: #e9ecef;
+    /* Variables para gradiente */
+    --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgba(112, 39, 122, 0.884) 75%);
+}
+
+/* Contenedor secundario */
+.resumen {
+    display: flex;
+    flex-direction: column;    
+    gap: clamp(1rem, 2vw, 2rem);
+    width: 100%;
+    max-width: clamp(600px, 90vw, 1200px);
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(20px, 3vh, 40px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+/* Lista de entregables*/
+.contenedor-entregables {
+    background: white;
+    border-radius: clamp(8px, 2vw, 15px);
+    box-shadow: 0 clamp(2px, 0.5vw, 4px) clamp(6px, 1.5vw, 12px) rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: clamp(600px, 88vw, 1200px);
+}
+
+.header-entregables {
+    padding: clamp(10px, 2.5vw, 15px);
+    display: flex;
+    flex-direction: row;
+    background: linear-gradient(135deg , #C084FF 0%, #9747FF 100%);
+    height: calc(clamp(50px, 7vh, 80px) + 2 * clamp(10px, 2.5vw, 15px));
+    border-radius: clamp(8px, 2vw, 15px) clamp(8px, 2vw, 15px) 0 0;
+
+}
+
+.header-entregables h3 {
+    color: #ffffff;
+    margin: 0;
+    font-size: clamp(14px, 2.5vw, 18px);
+    font-weight: 600;
+    margin-top: clamp(-8px, 1vw, -11px);
+}
+
+.header-entregables p {
+    font-size: clamp(8px, 1.5vw, 14px);
+    color: #ffffff;
+}
+
+.header-entregables img {
+    width: clamp(50px, 8vw, 60px);
+    height: clamp(60px, 8vh, 70px);
+    flex-shrink: 0;
+}
+
+.lista-miembros {
+    padding: clamp(10px, 2vw, 15px);
+    max-height: auto;
+}

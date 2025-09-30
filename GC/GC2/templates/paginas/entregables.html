@@ -2,32 +2,18 @@
 {% load static %}
 {% block titulo %} NOMBRE {% endblock %}
 {% block css %}
-<link href="{% static 'css/resu-miembros.css' %}" rel="stylesheet">
+<link href="{% static 'css/entregables.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
     <div class="resumen">
-        <div class="cont-1">
-            <button class="btn btn-anadir">
-                <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
-                Añadir Miembro
-            </button>
-            <button class="btn btn-asignar">
-                <img src="{% static 'img/Medal.png' %}" alt="Icono de Asignar Lider De Semillero">
-                Asignar Lider De Semillero
-            </button>
-            <button class="btn btn-asignar">
-                <img src="{% static 'img/project.png' %}" alt="Icono de Asignar Estudiante">
-                Asignar Lider De Proyecto
-            </button>  
-        </div>
         
-        <div class="contenedor-miembros">
-            <div class="header-miembros">
-                <img src="{% static 'img/people.png' %}" alt="Miembros">
+        <div class="contenedor-entregables">
+            <div class="header-entregables">
+                <img src="{% static 'img/Papers.png' %}" alt="Entregables">
                 <div class="card-body">
-                    <h3>Miembros del Semillero</h3>
+                    <h3> Entregables</h3>
                     <p>{{ total_miembros }} miembros activos</p>            
                 </div>
             </div>

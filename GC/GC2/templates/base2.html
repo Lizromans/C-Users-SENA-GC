@@ -52,21 +52,21 @@
                     <nav>
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
+                                <a class="nav-link {% if current_page == 'home' %}active{% endif %}" 
                                    href="{% url 'home' %}">
                                     <span class="nav-icon">🏠</span>
                                     <span class="nav-text">Inicio</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}" 
+                                <a class="nav-link {% if current_page == 'perfil' %}active{% endif %}" 
                                    href="{% url 'perfil' %}">
                                     <span class="nav-icon">👤</span>
                                     <span class="nav-text">Mi Perfil</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'semilleros' %}active{% endif %}" 
+                                <a class="nav-link {% if current_page == 'semilleros' or 'resumen' or 'resu_miembros' or 'resu_proyectos' or 'entregables' %}active{% endif %}" 
                                     href="{% url 'semilleros' %}">
                                     <span class="nav-icon">🌱</span>
                                     <span class="nav-text">Semilleros</span>
@@ -150,10 +150,10 @@
                 <a href="{% url 'resu-miembros' %}" class="menu-button {% if current_page == 'resu_miembros' %}active{% endif %}">
                     <img src="{% static 'img/people.png' %}" alt="Icono de Usuarios" class="icon-button">
                     Miembros</a>
-                <a href="" class="menu-button {% if request.resolver_match.url_name == 'proyectos' %}active{% endif %}">
+                <a href="{% url 'resu-proyectos' %}" class="menu-button {% if current_page == 'resu_proyectos' %}active{% endif %}">
                     <img src="{% static 'img/project.png' %}" alt="Icono de Proyectos" class="icon-button">
                     Proyectos</a>
-                <a href="" class="menu-button {% if request.resolver_match.url_name == 'entregables' %}active{% endif %} ">
+                <a href="{% url 'entregables' %}" class="menu-button {% if current_page == 'entregables' %}active{% endif %} ">
                     <img src="{% static 'img/Papers.png' %}" alt="Icono de Entregables" class="icon-button">
                     Entregables</a>
                 <a href="" class="menu-button {% if request.resolver_match.url_name == 'recursos' %}active{% endif %}">
