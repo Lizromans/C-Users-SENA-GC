@@ -93,7 +93,7 @@ main {
 }
 
 .main-text h2 {
-    font-size: clamp(3rem, 10vw, 6rem);
+    font-size: clamp(1.5rem, 6vw, 6rem);
     font-weight: 900;
     background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 50%, #e0e0e0 100%);
     -webkit-background-clip: text;
@@ -106,7 +106,7 @@ main {
 }
 
 .main-text .subtitle {
-    font-size: clamp(1.2rem, 3vw, 2rem);
+    font-size: clamp(1rem, 3vw, 2rem);
     color: rgba(255, 255, 255, 0.9);
     line-height: 1.6;
     font-weight: 300;
@@ -161,7 +161,7 @@ main {
     align-items: center;
     perspective: clamp(800px, 120vw, 1500px);
     position: relative;
-    margin-left: clamp(15%, 50%, 35%); /* Agrega espacio a la izquierda */
+    margin-left: clamp(20%, 50%, 40%); /* Agrega espacio a la izquierda */
     z-index: 1;
 }
 
