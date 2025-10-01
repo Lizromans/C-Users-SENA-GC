@@ -10,10 +10,8 @@
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
-    /* Nuevas variables para colores de fondo */
     --color-fondo-principal: #f5f5f5;
     --color-fondo-secundario: #e9ecef;
-    /* Variables para gradiente */
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgba(112, 39, 122, 0.884) 75%);
 }
 
@@ -33,7 +31,7 @@
 
 .cont-1{
     display: flex;
-    justify-content: flex-end; /* Cambiado de flex-direction */
+    justify-content: flex-end;
     gap: clamp(10px, 2vw, 20px);
     transition: background-color 0.3s ease;
 }
@@ -43,7 +41,7 @@
     align-items: center; 
     color: var(--color-primario);
     font-size: clamp(8px, 1.5vw, 12px);
-    padding: clamp(2px, 1vw, 5px) clamp(2px, 1.5vw, 5px) ;
+    padding: clamp(2px, 1vw, 5px) clamp(2px, 1.5vw, 5px);
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease; 
@@ -54,7 +52,7 @@
 }
 
 .btn:hover {
-    opacity: 0.9; /* Efecto sutil al pasar el mouse */
+    opacity: 0.9;
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
@@ -72,7 +70,7 @@
 }
 
 .btn:nth-child(1):focus {
-    box-shadow: 0 0 0 5px rgba(57, 169, 0, 0.39)!important;
+    box-shadow: 0 0 0 5px rgba(57, 169, 0, 0.39) !important;
 }
 
 /* Lista de Proyectos */
@@ -127,7 +125,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0 !important;
+    z-index: 1 !important;
     overflow: hidden;
 }
 
@@ -145,71 +143,100 @@
 .particle:nth-child(1) { 
     width: clamp(10px, 1.2%, 20px); 
     height: clamp(10px, 1.2%, 20px); 
-    top: 15%; left: 10%; animation-delay: 0s; 
+    top: 15%; 
+    left: 10%; 
+    animation-delay: 0s; 
     background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(255, 255, 255, 0.8));
 }
+
 .particle:nth-child(2) { 
     width: clamp(15px, 1.5%, 25px); 
     height: clamp(15px, 1.5%, 25px); 
-    top: 70%; left: 85%; animation-delay: 3s; 
+    top: 70%; 
+    left: 85%; 
+    animation-delay: 3s; 
     background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
 }
+
 .particle:nth-child(3) { 
     width: clamp(8px, 1%, 18px); 
     height: clamp(8px, 1%, 18px); 
-    top: 90%; left: 15%; animation-delay: 6s; 
+    top: 90%; 
+    left: 15%; 
+    animation-delay: 6s; 
     background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(61, 177, 3, 0.8));
 }
+
 .particle:nth-child(4) { 
     width: clamp(13px, 1.4%, 23px); 
     height: clamp(13px, 1.4%, 23px); 
-    top: 25%; left: 75%; animation-delay: 9s; 
+    top: 25%; 
+    left: 75%; 
+    animation-delay: 9s; 
     background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(61, 177, 3, 0.8));
 }
+
 .particle:nth-child(5) { 
     width: clamp(11px, 1.1%, 19px); 
     height: clamp(11px, 1.1%, 19px); 
-    top: 60%; left: 45%; animation-delay: 12s; 
+    top: 60%; 
+    left: 45%; 
+    animation-delay: 12s; 
     background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(80, 229, 249, 0.8));
 }
+
 .particle:nth-child(6) { 
     width: clamp(12px, 1.3%, 22px); 
     height: clamp(12px, 1.3%, 22px); 
-    top: 35%; left: 20%; animation-delay: 15s; 
+    top: 35%; 
+    left: 20%; 
+    animation-delay: 15s; 
     background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(255, 255, 255, 0.8));
 }
+
 .particle:nth-child(7) { 
     width: clamp(7px, 0.8%, 15px); 
     height: clamp(7px, 0.8%, 15px); 
-    top: 50%; left: 60%; animation-delay: 2s; 
+    top: 50%; 
+    left: 60%; 
+    animation-delay: 2s; 
     background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
 }
+
 .particle:nth-child(8) { 
     width: clamp(18px, 1.7%, 28px); 
     height: clamp(18px, 1.7%, 28px); 
-    top: 80%; left: 70%; animation-delay: 5s; 
+    top: 80%; 
+    left: 70%; 
+    animation-delay: 5s; 
     background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(61, 177, 3, 0.9));
 }
+
 .particle:nth-child(9) { 
     width: clamp(14px, 1.3%, 24px); 
     height: clamp(14px, 1.3%, 24px); 
-    top: 10%; left: 50%; animation-delay: 8s; 
+    top: 10%; 
+    left: 50%; 
+    animation-delay: 8s; 
     background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(80, 229, 249, 0.9));
 }
+
 .particle:nth-child(10) { 
     width: clamp(9px, 1%, 19px); 
     height: clamp(9px, 1%, 19px); 
-    top: 40%; left: 90%; animation-delay: 11s; 
+    top: 40%; 
+    left: 90%; 
+    animation-delay: 11s; 
     background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
 }
 
 /* Asegurar que el contenido principal esté por encima */
-.proyecto-card-container{
+.proyecto-card-container,.sin-proyectos-global{
     position: relative !important;
-    z-index: -1 !important;
+    z-index: 2 !important;
 }
 
-/* Sección de proyectos (SENNOVA/CAPACIDAD INSTALADA/ FORMATIVA) */
+/* Sección de proyectos */
 .seccion-proyectos:last-child {
     margin-bottom: 0;
 }
@@ -243,52 +270,60 @@
 
 /* Sección Sennova */
 .seccion {
-
     padding: clamp(15px, 3vw, 25px);
-    position: relative;  
+    position: relative;
     background: transparent;
-    z-index: 1;
+    z-index: 0;
+    isolation: isolate;
 }
+
+/* ====== TABS STYLES ====== */
 .tabs-header {
-            display: flex;
-            border-bottom: 2px solid #e2e8f0;
-        }
+    display: flex;
+    border-bottom: 2px solid #e2e8f0;
+    background: white;
+    border-radius: clamp(12px, 2vw, 15px) clamp(12px, 2vw, 15px) 0 0;
+}
 
-        .tab {
-            flex: 1;
-            padding: 18px;
-            background: none;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            color: #718096;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
+.tab {
+    flex: 1;
+    padding: clamp(12px, 2vw, 18px);
+    background: none;
+    border: none;
+    font-size: clamp(13px, 1.8vw, 16px);
+    font-weight: 600;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 1vw, 8px);
+}
 
-        .tab.active {
-            color: #667eea;
-        }
+.tab:hover {
+    color: #667eea;
+    background: #f7fafc;
+}
 
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+.tab.active {
+    color: #667eea;
+}
 
-        .tab-content {
-            padding: 25px;
-            display: none;
-        }
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
 
-        .tab-content.active {
-            display: block;
-        }
+.tab i {
+    font-size: clamp(14px, 1.8vw, 16px);
+}
 
 /* Carrusel de Proyectos */
 .proyectos-carousel-container {
@@ -299,7 +334,7 @@
     perspective: 1000px;
     margin: clamp(30px, 5vw, 50px) auto;
     padding: 0 clamp(40px, 6vw, 60px);
-    z-index: 1;
+    z-index: 2;
 }
 
 .proyectos-carousel-track {
@@ -316,15 +351,17 @@
 .proyecto-card {
     position: absolute;
     width: clamp(280px, 35vw, 400px);
-    height: fit-content;
+    min-height: clamp(420px, 55vh, 550px);
     background: white;
-    border-radius: clamp(12px, 2vw, 20px);
+    border-radius: clamp(12px, 2vw, 15px);
     overflow: hidden;
     box-shadow: 0 clamp(10px, 2vw, 20px) clamp(20px, 3vw, 40px) rgba(0, 0, 0, 0.15);
     transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    cursor: pointer;
+    cursor: default;
     border: 2px solid #e0e0e0;
-    z-index: inherit
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .proyecto-card-content {
@@ -404,7 +441,6 @@
     color: #fd0000;
 }
 
-.proyecto-estado.planeacion,
 .proyecto-estado.planeacion {
     background-color: #fd870079;
     color: #FD8700;
@@ -568,14 +604,6 @@
     transform: scale(1.15);
 }
 
-/* Sin Proyectos */
-.sin-proyectos {
-    text-align: center;
-    padding: clamp(40px, 6vw, 60px);
-    color: #999;
-    font-size: clamp(14px, 2vw, 16px);
-}
-
 /* ====== ANIMACIONES ====== */
 @keyframes float-particle {
     0%, 100% { 
@@ -596,52 +624,15 @@
     }
 }
 
-/* ====== TABS STYLES ====== */
-.tabs-header {
-    display: flex;
-    border-bottom: 2px solid #e2e8f0;
-    background: white;
-    border-radius: clamp(12px, 2vw, 15px) clamp(12px, 2vw, 15px) 0 0;
-}
-
-.tab {
-    flex: 1;
-    padding: clamp(12px, 2vw, 18px);
-    background: none;
-    border: none;
-    font-size: clamp(13px, 1.8vw, 16px);
-    font-weight: 600;
-    color: #718096;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(6px, 1vw, 8px);
-}
-
-.tab:hover {
-    color: #667eea;
-    background: #f7fafc;
-}
-
-.tab.active {
-    color: #667eea;
-}
-
-.tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.tab i {
-    font-size: clamp(14px, 1.8vw, 16px);
+@keyframes fadeInTab {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ====== TAB CONTENT ====== */
@@ -655,17 +646,6 @@
 .tab-content.active {
     display: block;
     animation: fadeInTab 0.3s ease;
-}
-
-@keyframes fadeInTab {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* ====== ENTREGABLES TAB CONTENT ====== */
@@ -758,6 +738,19 @@
     font-size: clamp(10px, 1.3vw, 11px);
 }
 
+/* Estilos para los iconos de FontAwesome dentro de mini-info span */
+.mini-info span .fa-check-circle {
+    color: #38a169;
+}
+
+.mini-info span .fa-clock {
+    color: #ed8936;
+}
+
+.entregable-mini .fa-chevron-right {
+    color: #cbd5e0;
+}
+
 /* ====== SIN ENTREGABLES ====== */
 .sin-entregables {
     text-align: center;
@@ -768,6 +761,8 @@
 .sin-entregables i {
     display: block;
     margin: 0 auto clamp(12px, 2vw, 15px);
+    font-size: 48px;
+    color: #cbd5e0;
 }
 
 .sin-entregables p {
@@ -775,31 +770,6 @@
     color: #718096;
     margin: 0;
 }
-
-/* ====== AJUSTES AL PROYECTO CARD ====== */
-.proyecto-card {
-    position: absolute;
-    width: clamp(280px, 35vw, 400px);
-    min-height: clamp(420px, 55vh, 550px);
-    background: white;
-    border-radius: clamp(12px, 2vw, 15px);
-    overflow: hidden;
-    box-shadow: 0 clamp(10px, 2vw, 20px) clamp(20px, 3vw, 40px) rgba(0, 0, 0, 0.15);
-    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    cursor: default;
-    border: 2px solid #e0e0e0;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.proyecto-card-content {
-    padding: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
 
 /* ====== OCULTAR RADIO BUTTONS ====== */
 .tab-radio {
@@ -847,9 +817,9 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 /* ====== MENSAJE GLOBAL SIN PROYECTOS ====== */
 .sin-proyectos-global {
     text-align: center;
-    padding: clamp(60px, 10vw, 100px) clamp(20px, 3vw, 40px);
+    padding: clamp(25px, 5vw, 35px) clamp(20px, 3vw, 40px);
     color: #a0aec0;
-    background: white;
+    background: transparent !important;;
     border-radius: clamp(12px, 2vw, 20px);
     margin: clamp(20px, 3vw, 30px) 0;
 }

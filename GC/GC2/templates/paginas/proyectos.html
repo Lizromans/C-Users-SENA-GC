@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %} NOMBRE {% endblock %}
+{% block css %}
+<link href="{% static 'css/proyectos.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+    <div class="contenedor-principal">
+        <div class="titulo">
+            <h3>Gestiona y monitorea todos los proyectos de tus semilleros desde un solo lugar</h3>
+        </div>
+        <div class="info">
+            <div class="grupo">
+                <div class="card verde">
+                    <div class="icon-cont fichas">
+                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Fichas y Actas</h5>
+                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                    </div>
+                </div>
+            </div>
+
+            <div class="grupo">
+                <div class="card azul">
+                    <div class="icon-cont fichas">
+                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Fichas y Actas</h5>
+                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                    </div>
+                </div>
+            </div>
+
+            <div class="grupo">
+                <div class="card naranja">
+                    <div class="icon-cont fichas">
+                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Fichas y Actas</h5>
+                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                    </div>
+                </div>
+            </div>
+
+            <div class="grupo">
+                <div class="card morado">
+                    <div class="icon-cont fichas">
+                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Fichas y Actas</h5>
+                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                    </div>
+                </div>
+            </div>
+        </div>
+                
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+        
+{% endblock %}

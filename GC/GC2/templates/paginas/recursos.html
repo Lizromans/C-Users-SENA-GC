@@ -1,0 +1,81 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block titulo %} NOMBRE {% endblock %}
+{% block css %}
+<link href="{% static 'css/recursos.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+    <div class="resumen">
+        
+        <div class="grupo">
+            <div class="card">
+                <div class="icon-cont documentos">
+                    <img class="icon" src="{% static 'img/Books.png' %}" alt="Icono Documentos y Guías">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Documentos y Guías</h5>
+                    <p>Material de referencia y guías para apoyar la gestión de semilleros y proyectos.</p>           
+                </div>
+            </div>
+            <div class="scrollable-list">
+                {% for documento in documentos %}
+                <ul class="lista">
+                    <li>
+                        <div class="icon-cont">
+                            <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
+                        </div>
+                        <div class="texto-lista">
+                            <span class="titulo">{{ documento.titulo }}</span><br>
+                            <span class="subtitulo">{{ documento.tipo_archivo }}</span>
+                        </div>
+                        <i><a href="{{ documento.archivo.url }}" download class="fa fa-download descargar" aria-hidden="true"></a></i>
+                    </li>
+                </ul>
+                {% empty %}
+                <div class="empty-message">
+                    <i class="fa fa-folder-open"></i>
+                    <p>No hay fichas disponibles en este momento</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="grupo">
+            <div class="card">
+                <div class="icon-cont fichas">
+                    <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Fichas y Actas</h5>
+                    <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                </div>
+            </div>
+            <div class="scrollable-list">
+                {% for ficha in fichas %}
+                <ul class="lista">
+                    <li>
+                        <div class="icon-cont">
+                            <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
+                        </div>
+                        <div class="texto-lista">
+                            <span class="titulo">{{ ficha.titulo }}</span><br>
+                            <span class="subtitulo">{{ ficha.tipo_archivo }}</span>
+                        </div>
+                        <i><a href="{{ ficha.archivo.url }}" download class="fa fa-download descargar" aria-hidden="true"></a></i>
+                    </li>
+                </ul>
+                {% empty %}
+                <div class="empty-message">
+                    <i class="fa fa-folder-open"></i>
+                    <p>No hay fichas disponibles en este momento</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+{% endblock %}

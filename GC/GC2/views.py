@@ -37,7 +37,11 @@ def resu_proyectos(request):
     return render(request, 'paginas/resu-proyectos.html', 
     {'current_page': 'resu_proyectos'})
 
-def entregables(request):
-    return render(request, 'paginas/entregables.html', 
-    {'current_page': 'entregables'})
+def recursos(request):
+    return render(request, 'paginas/recursos.html', 
+    {'current_page': 'recursos'})
+
+def proyectos(request):
+    return render(request, 'paginas/proyectos.html', 
+    {'current_page': 'proyectos'})
 

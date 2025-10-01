@@ -66,14 +66,15 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if current_page == 'semilleros' or 'resumen' or 'resu_miembros' or 'resu_proyectos' or 'entregables' %}active{% endif %}" 
+                                <a class="nav-link {% if current_page == 'semilleros' or 'resumen' or 'resu_miembros' or 'resu_proyectos' %}active{% endif %}" 
                                     href="{% url 'semilleros' %}">
                                     <span class="nav-icon">🌱</span>
                                     <span class="nav-text">Semilleros</span>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
+                            <li class="nav-item {% if current_page == 'proyectos' %}active{% endif %}" ">
+                                <a class="nav-link" 
+                                    href="{% url 'proyectos' %}">
                                     <span class="nav-icon">📊</span>
                                     <span class="nav-text">Proyectos</span>
                                 </a>
@@ -153,11 +154,8 @@
                 <a href="{% url 'resu-proyectos' %}" class="menu-button {% if current_page == 'resu_proyectos' %}active{% endif %}">
                     <img src="{% static 'img/project.png' %}" alt="Icono de Proyectos" class="icon-button">
                     Proyectos</a>
-                <a href="{% url 'entregables' %}" class="menu-button {% if current_page == 'entregables' %}active{% endif %} ">
-                    <img src="{% static 'img/Papers.png' %}" alt="Icono de Entregables" class="icon-button">
-                    Entregables</a>
-                <a href="" class="menu-button {% if request.resolver_match.url_name == 'recursos' %}active{% endif %}">
-                    <img src="{% static 'img/Chat.png' %}" alt="Icono de Chat" class="icon-button">
+                <a href="{% url 'recursos' %}" class="menu-button {% if current_page == 'recursos' %}active{% endif %}">
+                    <img src="{% static 'img/recursos.png' %}" alt="Icono de Recursos Digitales" class="icon-button">
                     Recursos</a>            
             </div>
 

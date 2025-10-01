@@ -211,7 +211,6 @@
 }
 
 .contenedor-secundario .icon-cont {
-    background: linear-gradient(135deg, #9747FF 0%, #7a35d1 100%);
     flex: 0 0 clamp(60px, 15%, 90px);
     height: clamp(60px, 8vh, 90px);
     margin: clamp(12px, 1.5vh, 20px) 0 0 clamp(15px, 2vw, 25px);
