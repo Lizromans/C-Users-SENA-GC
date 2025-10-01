@@ -88,10 +88,12 @@ main {
     flex: 0.6;
     max-width: clamp(300px, 35vw, 500px);
     margin-left: -5%;
+    position: absolute;
+    z-index: 100;
 }
 
 .main-text h2 {
-    font-size: clamp(3rem, 10vw, 100px);
+    font-size: clamp(3rem, 10vw, 6rem);
     font-weight: 900;
     background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 50%, #e0e0e0 100%);
     -webkit-background-clip: text;
@@ -104,7 +106,7 @@ main {
 }
 
 .main-text .subtitle {
-    font-size: clamp(1.2rem, 3vw, 30px);
+    font-size: clamp(1.2rem, 3vw, 2rem);
     color: rgba(255, 255, 255, 0.9);
     line-height: 1.6;
     font-weight: 300;
@@ -153,18 +155,19 @@ main {
 
 /* ====== HUB DE CONOCIMIENTO ====== */
 .knowledge-hub {
-    flex: clamp(0.4, 0.6, 0.8);
+    flex: clamp(0.50, 0.52, 0.54);
     display: flex;
     justify-content: flex-start;
     align-items: center;
     perspective: clamp(800px, 120vw, 1500px);
     position: relative;
-    margin-left: clamp(3%, 9%, 12%); /* Agrega espacio a la izquierda */
+    margin-left: clamp(15%, 50%, 35%); /* Agrega espacio a la izquierda */
+    z-index: 1;
 }
 
 .hub-container {
-    width: clamp(250px, 33vw, 600px);
-    height: clamp(300px, 75vh, 800px);
+    width: clamp(195px, 28vw, 595px);
+    height: clamp(250px, 75vh, 800px);
     position: relative;
     animation: float-hub 8s ease-in-out infinite;
     transform-style: preserve-3d;
