@@ -26,13 +26,12 @@
 .cont-1{
     display: flex;
     flex-direction: column;
-    ;
     gap: 5%;
 }
 
 .foto {
     background-color: var(--color-fondo-secundario);
-    width: clamp(200px, 25vw, 300px);
+    width: clamp(100px, 25vw, 250px);
     height: clamp(200px, 25vh, 300px);
     border-radius: 48%;
     border: 3px solid var(--color-nav-active);
@@ -50,8 +49,8 @@
 }
 
 .foto img {
-    max-width: 80%;
-    max-height: 80%;
+    max-width: 90%;
+    max-height: 90%;
     object-fit: cover;
     border-radius: 50%;
 }

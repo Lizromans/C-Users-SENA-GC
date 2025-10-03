@@ -137,6 +137,7 @@ body.sidebar-collapsed .header-container {
 .main-content:last-child{
     margin-left: auto;
 }
+
 .sidebar.collapsed {
     width: var(--sidebar-collapsed-width);
 }
@@ -220,11 +221,11 @@ body.sidebar-collapsed .header-container {
 
 .nav-item {
     animation: slideIn 0.3s ease forwards;
-    margin-bottom: clamp(4px, 1%, 8px)
+    margin-bottom: clamp(15px, 1%, 20px);
 }
 
 .nav-icon {
-    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    font-size: clamp(0.7rem, 1.5vw, 1.2rem);
     margin-right: clamp(8px, 2%, 15px);
     flex-shrink: 0;
     width: clamp(18px, 3%, 25px);
@@ -236,7 +237,7 @@ body.sidebar-collapsed .header-container {
 
 .nav-text {
     transition: opacity 0.3s ease, transform 0.3s ease;
-    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    font-size: clamp(0.7rem, 1.5vw, 1.2rem);
 }
 
 .nav-link {
@@ -246,7 +247,7 @@ body.sidebar-collapsed .header-container {
     color: var(--color-text-primary);
     text-decoration: none;
     font-weight: 500;
-    font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+    font-size: clamp(0.85rem, 1.5vw, 1.2rem);
     border-left: 3px solid transparent;
     position: relative;
     transition: all 0.3s ease;

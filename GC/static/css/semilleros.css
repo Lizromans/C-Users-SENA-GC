@@ -76,6 +76,7 @@
 .fa-search {
     color: var(--color-text-primary);
 }
+
 /* Contenedor de filtros */
 .filtros {
     display: flex;
@@ -108,8 +109,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 20vw, 300px), 2fr));
     gap: clamp(1rem, 2vw, 2rem);
-    width: 100%;
-    max-width: clamp(600px, 90vw, 1200px);
+    width: 98%;
     border-radius: clamp(10px, 2vw, 15px);
     margin-top: clamp(20px, 3vh, 40px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

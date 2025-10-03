@@ -80,7 +80,8 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link {%if request.resolver_match.url_name == 'miembros' %}active{% endif %}" 
+                                    href="{% url 'miembros' %}">
                                     <span class="nav-icon">👥</span>
                                     <span class="nav-text">Miembros</span>
                                 </a>

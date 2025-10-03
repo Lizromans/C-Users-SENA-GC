@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %} Gestión de Proyectos {% endblock %}
+{% block css %}
+<link href="{% static 'css/miembros.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+
+    <div class="contenedor-principal">
+        <div class="titulo">
+            <h3>👥 Miembros</h3>
+            <p>Aquí podrás consultar y administrar la información detallada de cada uno de los miembros que hacen parte de los semilleros.</p>
+        </div>
+
+        <div class="info">
+            <div class="grupo">
+                <div class="card amarillo">
+                    <div class="icon-cont instructores">
+                        <img class="icon" src="{% static 'img/instructor.png' %}" alt="Icono Proyectos">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ total_instructores }}</h5>
+                        <p>Instructores</p>           
+                    </div>
+                </div>
+            </div>
+
+            <div class="grupo">
+                <div class="card azul">
+                    <div class="icon-cont investigadores">
+                        <img class="icon" src="{% static 'img/investigador.png' %}" alt="Icono En Desarrollo">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ total_investigadores }}</h5>
+                        <p>Investigadores</p>           
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="grupo">
+                <div class="card morado">
+                    <div class="icon-cont aprendiz">
+                        <img class="icon" src="{% static 'img/Student.png' %}" alt="Icono Completados">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ Total_aprendices }}</h5>
+                        <p>Aprendices</p>           
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-busqueda">
+        
+            <div class="titulo2">
+                <h3> Filtrados y Vistas</h3>
+                <form method="get" class="pildora-vista">
+                    <label>
+                        <input type="radio" name="vista" value="tarjeta" onchange="this.form.submit()" {% if request.GET.vista == 'tarjeta' or not request.GET.vista %}checked{% endif %}>
+                        <span> <img src="{% static 'img/Layout.png' %}" alt="Tarjetas"> Tarjeta</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="vista" value="lista" onchange="this.form.submit()" {% if request.GET.vista == 'lista' %}checked{% endif %}>
+                        <span><img src="{% static 'img/Menu.png' %}" alt="Lista">Lista</span>
+                    </label>
+                </form>
+                
+            </div>
+            
+            <div class="busqueda-miembros">
+                <label for="search-miembros">Miembros:</label>
+                <div class="input-busqueda">
+                    <input 
+                        type="text" 
+                        id="search-miembros" 
+                        placeholder="Todos los miembros"
+                        class="input-miembros"
+                    >
+                    <img class="icono-buscar" src="{% static 'img/Search.png' %}" alt="Buscar">
+                </div>
+            </div>
+
+            <div class="filtros-rol">
+                <label>Estado:</label>
+                <div class="botones-rol">
+                    <button class="btn-rol activo" data-estado="todos">Todos</button>
+                    <button class="btn-rol investigadores" data-estado="investigadores">Investigadores</button>
+                    <button class="btn-rol instructores" data-estado="instructores">Instructores</button>
+                    <button class="btn-rol aprendices" data-estado="aprendices">Aprendices</button>
+                </div>
+            </div>
+            <div class="estado">
+                <select name="estado" class="filtro">
+                    <option value="">Todos los estados</option>
+                    <option value="Activo" {% if request.GET.estado == 'Activo' %}selected{% endif %}>Activo</option>
+                    <option value="Inactivo" {% if request.GET.estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Vista de Lista -->
+        <div class="lista-container" style="display: {% if request.GET.vista == 'lista' %}block{% else %}none{% endif %};">
+            <h3>Lista de Miembros</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo Electrónico</th>
+                        <th>Celular</th>
+                        <th>Rol</th>
+                        <th>Última Sesión</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td class="nombre">Pedro</td>
+                        <td>pepitoperez@hjmil.com</td>
+                        <td>310235689</td>
+                        <td>Instructor</td>
+                        <td>Hace 3 horas</td>
+                        <td>
+                            <a href="#modalPerfilMiembro" class="btn">Ver perfil</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="nombre">María García</td>
+                        <td>maria.garcia@mail.com</td>
+                        <td>320456789</td>
+                        <td>Investigador</td>
+                        <td>
+                            <a href="#" class="btn">Ver</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="nombre">Juan López</td>
+                        <td>juan.lopez@mail.com</td>
+                        <td>315678901</td>
+                        <td>Aprendiz</td>
+                        <td>
+                            <a href="modalPerfilMiembro" class="btn">Ver</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Vista de Tarjetas -->
+        <div class="tabla-container" style="display: {% if request.GET.vista == 'lista' %}none{% else %}flex{% endif %};">
+            <div class="titulo-tarjeta">
+                <h3>Lista de Miembros</h3>
+            </div>
+            
+            <div class="tarjetas-grid">
+                <div class="grupo">
+                    <div class="card amarillo">
+                        <div class="icon-cont">
+                            <span class="user-icon">
+                                <i class="fa fa-user-circle" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 id="nombre">Pedro Pérez</h5>
+                            <p id="correo">pepitoperez@hjmil.com</p>
+                            <p id="celular">310235689</p>
+                        </div>
+                        <div class="info-badge">
+                            <div class="rol instructores">
+                                <span>Instructor</span>
+                            </div>
+                            <div class="ultima-sesion">
+                                <span> Hace 3 horas</span>
+                            </div>
+                        </div>
+                        <!-- En la vista de TARJETAS -->
+                        <div class="info-icon">
+                            <a href="#modalPerfilMiembro" onclick="document.getElementById('modalPerfilMiembro').classList.add('activo'); document.body.style.overflow='hidden';">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tarjetas-grid">
+                <div class="grupo">
+                    <div class="card amarillo">
+                        <div class="icon-cont">
+                            <span class="user-icon">
+                                <i class="fa fa-user-circle" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 id="nombre">Pedro Pérez</h5>
+                            <p id="correo">pepitoperez@hjmil.com</p>
+                            <p id="celular">310235689</p>
+                        </div>
+                        <div class="info-badge">
+                            <div class="rol instructores">
+                                <span>Instructor</span>
+                            </div>
+                            <div class="ultima-sesion">
+                                <span> Hace 3 horas</span>
+                            </div>
+                        </div>
+                        <!-- En la vista de TARJETAS -->
+                        <div class="info-icon">
+                            <a href="#modalPerfilMiembro" onclick="document.getElementById('modalPerfilMiembro').classList.add('activo'); document.body.style.overflow='hidden';">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INFORMACIÓN DEL MIEMBRO -->
+    <div id="modalPerfilMiembro" class="modal-perfil-overlay">
+        <div class="modal-perfil-contenedor">
+            <a class="modal-perfil-cerrar" id="btnCerrarPerfilModal" href="{% url 'miembros' %}">
+                <i class="fa fa-times"></i>
+            </a>
+            
+            <div class="perfil-miembro">
+                <div class="perfil-miembro-sidebar">
+                    <!-- Foto de perfil -->
+                    <div class="perfil-foto-contenedor">
+                        <img src="{% static 'img/cam.png' %}" alt="foto de perfil" id="perfilFotoImg">
+                        <div class="perfil-foto-edit">
+                            <img src="{% static 'img/edit.png' %}" alt="Editar foto">
+                        </div>
+                    </div>
+
+                    <!-- Card de resumen -->
+                    <div class="perfil-resumen-card">
+                        <h5 class="perfil-resumen-titulo">Resumen</h5>
+                        <div class="perfil-resumen-body">
+                            <div class="perfil-resumen-fila">
+                                <p class="perfil-resumen-label">Estado:</p>
+                                <p class="perfil-resumen-valor activo" id="perfilEstado">Activo</p>
+                            </div>
+
+                            <div class="perfil-resumen-fila">
+                                <p class="perfil-resumen-label">Semilleros:</p>
+                                <p class="perfil-resumen-numero" id="perfilSemilleros">9</p>
+                            </div>
+
+                            <div class="perfil-resumen-fila">
+                                <p class="perfil-resumen-label">Proyectos:</p>
+                                <p class="perfil-resumen-numero" id="perfilProyectos">8</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información del miembro -->
+                <div class="perfil-informacion-contenedor">
+                    <!-- Sección 1: Información Personal -->
+                    <div class="perfil-seccion">
+                        <div class="perfil-seccion-titulo">
+                            <img src="{% static 'img/User.png' %}" alt="Información Personal">
+                            <h6>Información Personal</h6>
+                        </div>
+                        <hr class="perfil-hr-personal">
+                        <div class="perfil-info-grid">
+                            <div class="perfil-campo">
+                                <label for="perfilNombres">Nombres:</label>
+                                <input type="text" id="perfilNombres" placeholder="Escribe tu nombre" required>
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilApellidos">Apellidos:</label>
+                                <input type="text" id="perfilApellidos" placeholder="Escribe tus Apellidos" required>
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilCedula">Cédula:</label>
+                                <input type="text" id="perfilCedula" placeholder="Escribe tu número de documento" required>
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilCorreoPersonal">Correo Personal:</label>
+                                <input type="email" id="perfilCorreoPersonal" placeholder="Escribe tu correo personal" required>
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilCelular">Celular:</label>
+                                <input type="tel" id="perfilCelular" placeholder="Escribe tu número de celular" required>
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilDireccion">Dirección:</label>
+                                <input type="text" id="perfilDireccion" placeholder="Escribe tu dirección">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Información Profesional -->
+                    <div class="perfil-seccion">
+                        <div class="perfil-seccion-titulo">
+                            <img src="{% static 'img/briefcase.png' %}" alt="Información Profesional">
+                            <h6>Información Profesional</h6>
+                        </div>
+                        <hr class="perfil-hr-profesional">
+                        <div class="perfil-info-grid">
+                            <div class="perfil-campo">
+                                <label for="perfilCorreoSena">Correo Sena:</label>
+                                <input type="email" id="perfilCorreoSena" placeholder="Escribe tu correo institucional">
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilVinculacion">Vinculación laboral:</label>
+                                <select id="perfilVinculacion" class="perfil-select">
+                                    <option value="">-- Seleccione un tipo --</option>
+                                    <option value="contratista">Contratista</option>
+                                    <option value="planta">Planta</option>
+                                </select>
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilDependencia">Dependencia/Área:</label>
+                                <input type="text" id="perfilDependencia" placeholder="Indique su dependencia" required>
+                            </div>
+                            <div class="perfil-campo">
+                                <label for="perfilRol">Rol:</label>
+                                <input type="text" id="perfilRol" placeholder="Rol">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 3: Información de Semilleros -->
+                    <div class="perfil-seccion">
+                        <div class="perfil-seccion-titulo">
+                            <img src="{% static 'img/microscopio.png' %}" alt="Información de Semilleros">
+                            <h6>Información de Semilleros</h6>
+                        </div>
+                        <hr class="perfil-hr-semilleros">
+                        <div class="perfil-info-grid">
+                            {% for semillero in miembro.semilleros.all %}
+                            <div class="perfil-campo">
+                                <input type="text" value="{{ semillero.siglas }}" class="perfil-input-readonly" readonly>
+                            </div>
+                            {% empty %}
+                            <p class="perfil-sin-datos">No está asociado a ningún semillero.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Sección 4: Información de Proyectos -->
+                    <div class="perfil-seccion">
+                        <div class="perfil-seccion-titulo">
+                            <img src="{% static 'img/project.png' %}" alt="Información de Proyectos">
+                            <h6>Información de Proyectos</h6>
+                        </div>
+                        <hr class="perfil-hr-proyectos">
+                        <div class="perfil-info-grid">
+                            {% for proyecto in miembro.proyectos.all %}
+                            <div class="perfil-campo">
+                                <input type="text" value="{{ proyecto.nombre }}" class="perfil-input-readonly" readonly>
+                            </div>
+                            {% empty %}
+                            <p class="perfil-sin-datos">No está asociado a ningún proyecto.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <hr class="perfil-hr-final">
+                    <button class="perfil-btn-guardar" id="btnGuardarPerfil">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+{% endblock %}

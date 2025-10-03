@@ -45,3 +45,7 @@ def proyectos(request):
     return render(request, 'paginas/proyectos.html', 
     {'current_page': 'proyectos'})
 
+def miembros(request):
+    return render(request, 'paginas/miembros.html',
+    {'current_page': 'miembros'})
+

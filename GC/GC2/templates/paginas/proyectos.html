@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %} NOMBRE {% endblock %}
+{% block titulo %} Gestión de Proyectos {% endblock %}
 {% block css %}
 <link href="{% static 'css/proyectos.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -9,60 +9,146 @@
 {% block main %}
     <div class="contenedor-principal">
         <div class="titulo">
-            <h3>Gestiona y monitorea todos los proyectos de tus semilleros desde un solo lugar</h3>
+            <h3>📊 Proyectos</h3>
+            <p>Gestiona y monitorea todos los proyectos de tus semilleros desde un solo lugar</p>
         </div>
         <div class="info">
             <div class="grupo">
-                <div class="card verde">
-                    <div class="icon-cont fichas">
-                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                <div class="card naranja">
+                    <div class="icon-cont proyectos">
+                        <img class="icon" src="{% static 'img/project.png' %}" alt="Icono Proyectos">
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">Fichas y Actas</h5>
-                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                        <h5 class="card-title">{{ total_proyectos }}</h5>
+                        <p>Total Proyectos</p>           
+                    </div>
+                    <div class="info-badge naranja">
+                        <span>+{{ proyectos_mes }} este mes</span>
                     </div>
                 </div>
             </div>
 
             <div class="grupo">
                 <div class="card azul">
-                    <div class="icon-cont fichas">
-                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                    <div class="icon-cont en-desarrollo">
+                        <img class="icon" src="{% static 'img/Rocket.png' %}" alt="Icono En Desarrollo">
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">Fichas y Actas</h5>
-                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                        <h5 class="card-title">{{ proyectos_desarrollo }}</h5>
+                        <p>Proyectos en desarrollo</p>           
+                    </div>
+                    <div class="info-badge azul">
+                        <span>+{{ desarrollo_mes }} este mes</span>
                     </div>
                 </div>
             </div>
 
             <div class="grupo">
-                <div class="card naranja">
-                    <div class="icon-cont fichas">
-                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                <div class="card verde">
+                    <div class="icon-cont completados">
+                        <img class="icon" src="{% static 'img/Verified.png' %}" alt="Icono Completados">
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">Fichas y Actas</h5>
-                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                        <h5 class="card-title">{{ proyectos_completados }}</h5>
+                        <p>Proyectos completados</p>           
+                    </div>
+                    <div class="info-badge verde">
+                        <span>+{{ completados_mes }}</span>
                     </div>
                 </div>
             </div>
 
             <div class="grupo">
-                <div class="card morado">
-                    <div class="icon-cont fichas">
-                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                <div class="card rojo">
+                    <div class="icon-cont pendientes">
+                        <img class="icon" src="{% static 'img/Hourglass.png' %}" alt="Icono Pendientes">
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">Fichas y Actas</h5>
-                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                        <h5 class="card-title">{{ proyectos_pendientes }}</h5>
+                        <p>Proyectos pendientes</p>           
+                    </div>
+                    <div class="info-badge rojo">
+                        <span>+{{ pendientes_mes }}</span>
                     </div>
                 </div>
             </div>
         </div>
-                
+
+        <div class="busqueda">
+            <h3>Busqueda y Filtrados</h3>
+            <form method="GET" action="">
+                <div class="filtros">
+                    <input type="text" name="buscar" placeholder="Buscar proyecto..." class="buscador" value="{{ request.GET.buscar }}">
+                        <img class="fa fa-search" src="{% static 'img/Search.png' %}" alt="Icono Buscar">
+                    <select name="estado" class="filtro">
+                        <option value="">Todos los estados</option>
+                        <option value="diagnostico" {% if request.GET.estado == 'diagnostico' %}selected{% endif %}>En diagnóstico</option>
+                        <option value="planeacion" {% if request.GET.estado == 'planeacion' %}selected{% endif %}>En planeación</option>
+                        <option value="ejecucion" {% if request.GET.estado == 'ejecucion' %}selected{% endif %}>En ejecución</option>
+                        <option value="completado" {% if request.GET.estado == 'completado' %}selected{% endif %}>Completado</option>
+                    </select>
+                    <select name="tipo" class="filtro">
+                        <option value="">Todos los tipos</option>
+                        {% for tipo in tipos_proyecto %}
+                        <option value="{{ tipo.id }}" {% if request.GET.tipo == tipo.id|stringformat:"s" %}selected{% endif %}>{{ tipo.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="orden" class="filtro" onchange="this.form.submit()">
+                        <option value="">Ordenar por</option>
+                        <option value="fecha_creacion" {% if request.GET.orden == 'fecha_creacion' %}selected{% endif %}>Fecha de creación</option>
+                        <option value="-fecha_actualizacion" {% if request.GET.orden == '-fecha_actualizacion' %}selected{% endif %}>Fecha de actualización</option>
+                        <option value="nombre" {% if request.GET.orden == 'nombre' %}selected{% endif %}>Nombre</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="tabla-container">
+            <h3>Lista de Proyectos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre del Proyecto</th>
+                        <th>Semillero</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Progreso</th>
+                        <th>Fecha creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for proyecto in proyectos %}
+                    <tr>
+                        <td class="nombre">{{ proyecto.nombre }}</td>
+                        <td>{{ proyecto.semillero.nombre }}</td>
+                        <td>{{ proyecto.tipo.nombre }}</td>
+                        <td class="estado">
+                            <span class="estado en-diagnostico {% if proyecto.estado == 'diagnostico' %}activo{% endif %}"></span>
+                            <span class="estado planeacion {% if proyecto.estado == 'planeacion' %}activo{% endif %}"></span>
+                            <span class="estado en-ejecucion {% if proyecto.estado == 'ejecucion' %}activo{% endif %}"></span>
+                            <span class="estado completado {% if proyecto.estado == 'completado' %}activo{% endif %}"></span>
+                        </td>
+                        <td>
+                            <div class="barra">
+                                <div class="relleno" >{{ proyecto.progreso }}%</div>
+                            </div>
+                        </td>
+                        <td>{{ proyecto.fecha_creacion|date:"d/m/Y" }}</td>
+                        <td>
+                            <a href="{% url 'detalle_proyecto' proyecto.id %}" class="btn">Ver</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay proyectos disponibles</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
-
-        
 {% endblock %}

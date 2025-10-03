@@ -1,0 +1,1113 @@
+:root {
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-active: #007832;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
+    /* Nuevas variables para colores de fondo */
+    --color-fondo-principal: #f5f5f5;
+    --color-fondo-secundario: #e9ecef;
+    /* Variables para gradiente */
+    --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
+}
+
+.contenedor-principal{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    gap: clamp(25px, 4vw, 40px); /* Espacio entre columnas */
+}
+
+.titulo h3{
+    color: var(--color-text-primary);
+    font-size: clamp(1.5rem, 2.5vw, 3rem);
+    font-weight: bold;
+}
+
+.titulo p{
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-weight: 200;
+    margin-bottom: 0;
+}
+
+.info {
+  display: grid;
+  gap: clamp(1rem, 3vw, 2rem);
+  width: clamp(280px, 90vw, 1000px);
+  margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.grupo {
+    background-color: white;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width:100%;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.grupo:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border: none;
+    width: 100%;
+    position: relative;
+    z-index: 0;
+    padding: 1rem;
+
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    background-size: 100% 100%, 100% 100%, 100% 100%;
+    background-repeat: no-repeat;
+    border-radius: 20px;
+    filter: blur(3px);
+    opacity: 0.7;
+    z-index: -1;
+
+}
+
+/* Tarjeta 1 - Verde */
+.card.amarillo::before {
+  background: 
+    linear-gradient(to bottom, #ffe70e 0%, transparent 10%) top,
+    linear-gradient(to right, #ffe70e 0%, transparent 3%) left,
+    linear-gradient(to left, #ffe70e 0%, transparent 3%) right;
+}
+
+/* Tarjeta 2 - Azul */
+.card.azul::before {
+  background: 
+    linear-gradient(to bottom, #2196F3 0%, transparent 10%) top,
+    linear-gradient(to right, #2196F3 0%, transparent 3%) left,
+    linear-gradient(to left, #2196F3 0%, transparent 3%) right;
+}
+
+/* Tarjeta 3 - Naranja */
+.card.morado::before {
+  background: 
+    linear-gradient(to bottom, #9747FF 0%, transparent 10%) top,
+    linear-gradient(to right, #9747FF 0%, transparent 3%) left,
+    linear-gradient(to left, #9747FF 0%, transparent 3%) right;
+}
+
+/* ====== BACKGROUNDS PARA ICON-CONT ====== */
+.icon-cont.instructores{
+    background: linear-gradient(135deg, #fffd98 0%,  #fff347 40%, #ffc70e 100%);
+}
+
+.icon-cont.investigadores {
+    background: linear-gradient(135deg,  #7be0ff 0%, #33adff 40%, #2196F3 100%);
+}
+
+.icon-cont.aprendiz {
+    background: linear-gradient(135deg, #c598ff 0%,  #9747FF 40%, #760eff 100%);
+}
+
+.card-body {
+    flex: 1;
+    padding: clamp(1rem, 2vh, 1.2rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+}
+
+.card-title {
+    color: var(--color-text-primary);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    margin: 0 0 clamp(0.25rem, 0.5vh, 0.5rem) 0;
+    word-wrap: break-word;
+    line-height: 1.3;
+}
+
+.card p {
+    color: var(--color-text-secondary);
+    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    margin: 0;
+    word-wrap: break-word;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* ====== ICON CONTAINER ====== */
+.icon-cont {
+    flex: 0 0 clamp(60px, 12vw, 90px);
+    width: clamp(60px, 12vw, 90px);
+    height: clamp(60px, 12vw, 90px);
+    margin: clamp(12px, 2vh, 20px) 0 clamp(12px, 2vh, 20px) clamp(15px, 2vw, 25px);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.icon-cont img,
+.icon {
+    width: clamp(40px, 10vw, 60px);
+    height: clamp(40px, 10vw, 60px);
+    object-fit: contain;
+}
+
+/* ====== BUSQUEDA ====== */
+.seccion-busqueda {
+    padding: clamp(1rem, 2vw, 1.5rem);
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 2vw, 1rem);
+    flex-wrap: wrap;
+}
+
+.seccion-busqueda h3 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    justify-self: start;
+}
+
+.busqueda-miembros {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.8rem, 2vw, 1rem);
+    flex: 1;
+    min-width: clamp(250px, 40%, 400px);
+}
+
+.busqueda-miembros label {
+    font-weight: 600;
+    color: #333;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    white-space: nowrap;
+}
+
+.input-busqueda {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.input-miembros {
+    padding: clamp(0.5rem, 1vw, 0.10rem) clamp(0.5rem, 1vw, 0.65rem);
+    border: 1px solid #ddd;
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(0.5rem, 1vw, 0.9rem);
+    width: 90%;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.input-miembros:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.icono-buscar {
+    position: absolute;
+    right: clamp(4.5rem, 4vw, 5rem);
+    width: clamp(16px, 2vw, 20px);
+    height: clamp(16px, 2vw, 20px);
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.filtros-rol {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.3rem, 1vw, 0.5rem);    
+    flex: 1;
+    min-width: fit-content;
+}
+
+.filtros-rol label {
+    font-weight: 600;
+    color: #333;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    white-space: nowrap;
+}
+
+.botones-rol {
+    display: flex;
+    gap: clamp(0.4rem, 1vw, 0.6rem);
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.btn-rol {
+    padding: clamp(0.5rem, 1.2vw, 0.65rem) clamp(1rem, 2.5vw, 1.4rem);
+    border: none;
+    border-radius: clamp(18px, 3vw, 22px);
+    font-size: clamp(0.5rem, 1vw, 0.8rem);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #e0e0e0;
+    color: #666;
+    white-space: nowrap;
+}
+
+.btn-rol:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-rol.activo {
+    background-color: #75757563;
+    color: #000000;
+    border: 0.9px solid #2e2e2e;
+}
+
+.btn-rol.investigadores {
+    background-color:#2196F363;
+    color: #2196F3;
+    border: 0.9px solid #2196F3;
+}
+
+.btn-rol.instructores {
+    background-color: #ffc70e63;
+    color: #ff9f0e;
+    border: 0.9px solid #ffc70e;
+
+}
+
+.btn-rol.aprendices {
+    background-color: #760eff63;
+    color: #760eff;
+    border: 0.9px solid #760eff93;
+}
+
+.estado{
+    margin-right: clamp(10px, 5vw,20px);
+}
+.filtro {
+    padding: clamp(0.5rem, 1vw, 0.65rem) clamp(1rem, 2vw, 1.5rem);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: clamp(150px, 20%, 200px);
+}
+
+.filtro:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ====== Pildoras ====== */
+.titulo2{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+
+}
+
+.pildora-vista {
+    display: inline-flex;
+    gap: clamp(0.1rem, 1vw, 0.3rem);
+    background-color: var(--color-fondo-principal);
+    border-radius: 50px;
+    padding: clamp(2px, 0.8vw, 8px);
+    justify-self: end;
+}
+
+.pildora-vista label {
+  position: relative;
+  cursor: pointer;
+}
+
+.pildora-vista input[type="radio"] {
+  display: none;
+}
+
+.pildora-vista span {
+  display: inline-block;
+  padding: clamp(2px, 1vw, 6px) clamp(12px, 3vw, 24px);
+  border-radius: 50px;
+  background-color: var(--color-fondo-principal);
+  color: #333;
+  font-weight: 500;
+  font-size: clamp(0.4rem, 1.5vw, 0.8rem);
+  transition: background-color 0.3s;
+}
+
+.pildora-vista img{
+    padding-right: clamp(2px, 1vw, 6px);
+    filter: brightness(0) saturate(100%) invert(0);
+}
+
+.pildora-vista input[type="radio"]:checked + span img {
+    filter: brightness(0) invert(1); /* Ícono blanco */
+}
+
+.pildora-vista input[type="radio"]:checked + span {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* ====== TABLA- LISTADO DE MIEMBROS ====== */
+.lista-container {
+    width: 100%;
+}
+
+.lista-container h3 {
+    color: #333;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Encabezado */
+thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+thead th {
+    padding: clamp(0.8rem, 2vw, 1.2rem) clamp(0.5rem, 1.5vw, 1rem);
+    text-align: left;
+    color: white;
+    font-weight: 600;
+    font-size: clamp(0.75rem, 1.8vw, 1rem);
+    text-transform: uppercase;
+    letter-spacing: clamp(0.3px, 0.5vw, 0.5px);
+    white-space: nowrap;
+}
+
+/* Cuerpo de la tabla */
+tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+tbody tr:hover {
+    background: #f8f9ff;
+    transform: scale(1.005);
+    box-shadow: 0 clamp(1px, 0.3vw, 2px) clamp(5px, 1vw, 8px) rgba(102, 126, 234, 0.2);
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+tbody td {
+    padding: clamp(0.7rem, 1.8vw, 1rem) clamp(0.5rem, 1.5vw, 1rem);
+    color: #333;
+    font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+}
+
+/* Columnas específicas */
+.nombre {
+    min-width: clamp(100px, 20vw, 200px);
+    font-weight: 700;
+}
+
+/* Botones de acción */
+.acciones {
+    display: flex;
+    gap: clamp(0.3rem, 1vw, 0.5rem);
+    flex-wrap: wrap;
+    min-width: clamp(120px, 15vw, 180px);
+}
+
+.btn {
+    padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.7rem, 1.5vw, 1rem);
+    border: none;
+    border-radius: clamp(6px, 1.2vw, 8px);
+    cursor: pointer;
+    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    background-color: #38a900cc;
+    width: 90%;
+    color:var(--color-primario)
+}
+
+.btn:hover{
+    color:#007832;
+    border-color: var(--color-nav-active);
+}
+
+.btn:focus{
+    box-shadow: 0 0 0 5px rgba(56, 169, 0, 0.39)!important;
+
+}
+
+/* ====== TARJETA- LISTADO DE MIEMBROS (MÁS PEQUEÑAS) ====== */
+.tabla-container{
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2vw, 1.5rem);
+    width: 100%;
+}
+
+.titulo-tarjeta {
+    width: 100%;
+}
+
+.titulo-tarjeta h3 {
+    color: #333;
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+}
+
+.tarjetas-grid {
+    display: grid;
+    gap: clamp(0.8rem, 1.5vw, 1.2rem);
+    grid-template-columns: repeat(auto-fill, minmax(clamp(180px, 16vw, 220px), 1fr));
+    width: 100%;
+}
+
+.tabla-container .grupo {
+    background-color: white;
+    border-radius: clamp(6px, 1vw, 10px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.tabla-container .grupo:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tabla-container .card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border: none;
+    width: 100%;
+    position: relative;
+    z-index: 0;
+}
+
+.tabla-container .card::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background-size: 100% 100%, 100% 100%, 100% 100%;
+    background-repeat: no-repeat;
+    border-radius: 15px;
+    filter: blur(2px);
+    opacity: 0.7;
+    z-index: -1;
+}
+
+/* Tarjeta 1 - Amarillo */
+.tabla-container .card.amarillo::before {
+  background: 
+    linear-gradient(to bottom, #ffe70e 0%, transparent 10%) top,
+    linear-gradient(to right, #ffe70e 0%, transparent 3%) left,
+    linear-gradient(to left, #ffe70e 0%, transparent 3%) right;
+}
+
+/* Tarjeta 2 - Azul */
+.tabla-container .card.azul::before {
+  background: 
+    linear-gradient(to bottom, #2196F3 0%, transparent 10%) top,
+    linear-gradient(to right, #2196F3 0%, transparent 3%) left,
+    linear-gradient(to left, #2196F3 0%, transparent 3%) right;
+}
+
+/* Tarjeta 3 - Morado */
+.tabla-container .card.morado::before {
+  background: 
+    linear-gradient(to bottom, #9747FF 0%, transparent 10%) top,
+    linear-gradient(to right, #9747FF 0%, transparent 3%) left,
+    linear-gradient(to left, #9747FF 0%, transparent 3%) right;
+}
+
+.tabla-container .card-body {
+    flex: 1;
+    padding: clamp(0.5rem, 1.2vh, 0.8rem);
+    margin: clamp(12px, 2vh, 16px) 0 0 0;    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+}
+
+.tabla-container #nombre {
+    color: var(--color-text-primary);
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+    font-weight: 700;
+    margin: 0 0 clamp(0.15rem, 0.3vh, 0.3rem) 0;
+    word-wrap: break-word;
+    line-height: 1.2;
+}
+
+.tabla-container #correo {
+    color: var(--color-text-secondary);
+    font-size: clamp(0.6rem, 1vw, 0.75rem);
+    margin: 0;
+    word-wrap: break-word;
+    line-height: 1.3;
+    font-weight: 400;
+}
+
+.tabla-container #celular{
+    color: var(--color-text-secondary);
+    font-size: clamp(0.6rem, 1vw, 0.75rem);
+    margin: 0;
+    word-wrap: break-word;
+    line-height: 1.3;
+    font-weight: 200;
+}
+
+/* ====== ICON CONTAINER (MÁS PEQUEÑO) ====== */
+.tabla-container .icon-cont {
+    flex: 0 0 clamp(45px, 8vw, 60px);
+    width: clamp(45px, 8vw, 60px);
+    height: clamp(45px, 8vw, 60px);
+    margin: clamp(24px, 3vh, 26px) 0 clamp(8px, 1.5vh, 12px) clamp(10px, 2vw, 14px);
+    border-radius: clamp(6px, 1vw, 10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.tabla-container .user-icon {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+/* ====== BADGE INFO (MÁS PEQUEÑO) ====== */
+.tabla-container .rol.investigadores {
+    background-color:#2196F363;
+    color: #2196F3;
+    border: 0.9px solid #2196F3;
+    padding: clamp(3px, 0.4vw, 5px) clamp(6px, 0.8vw, 10px);
+    border-radius: clamp(10px, 1.5vw, 16px);
+    font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+    font-weight: bold;
+}
+
+.tabla-container .rol.instructores {
+    background-color: #ffc70e63;
+    color: #ff9f0e;
+    border: 0.9px solid #ffc70e;
+    padding: clamp(3px, 0.4vw, 5px) clamp(6px, 0.8vw, 10px);
+    border-radius: clamp(10px, 1.5vw, 16px);
+    font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+    font-weight: bold;
+}
+
+.tabla-container .rol.aprendices {
+    background-color: #760eff63;
+    color: #760eff;
+    border: 0.9px solid #760eff93;
+    padding: clamp(3px, 0.4vw, 5px) clamp(6px, 0.8vw, 10px);
+    border-radius: clamp(10px, 1.5vw, 16px);
+    font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+    font-weight: bold;
+}
+
+.ultima-sesion{
+    position: absolute;
+    color: var(--color-text-secondary);
+    top: clamp(6px, 3vw, 8px);
+    left: 8px;
+    padding: clamp(3px, 0.4vw, 5px) clamp(6px, 0.8vw, 10px);
+    border-radius: clamp(10px, 1.5vw, 16px);
+    font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+    font-weight: 200;
+    z-index: 1;
+}
+
+.rol{
+    position: absolute;
+    top: clamp(6px, 3vw, 8px);
+    right: 8px;
+    padding: clamp(3px, 0.4vw, 5px) clamp(6px, 0.8vw, 10px);
+    border-radius: clamp(10px, 1.5vw, 16px);
+    font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+    font-weight: bold;
+    z-index: 1;
+}
+
+/* ====== ICON INFO ====== */
+.tabla-container .info-icon {
+    position: absolute;
+    bottom: 0;
+    right: 8px;
+    padding: clamp(3px, 0.4vw, 5px) clamp(6px, 0.8vw, 8px);
+    z-index: 1;
+    cursor: pointer;
+    font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+}
+
+/* El enlace dentro del ícono */
+.tabla-container .info-icon a {
+    color: #000000; /* Negro por defecto */
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+/* Al pasar el mouse */
+.tabla-container .info-icon a:hover {
+    color: var(--color-nav-active); /* Verde al hacer hover */
+    transform: scale(1.15);
+    border: none;
+}
+
+/* Al hacer clic */
+.tabla-container .info-icon a:active {
+    color: #007832; /* Verde más oscuro al hacer clic */
+    transform: scale(0.95);
+}
+
+/* Al enfocar con teclado */
+.tabla-container .info-icon a:focus {
+    outline: none
+}
+
+/* Alternativa: Si quieres que el ícono haga una animación al hacer clic */
+.tabla-container .info-icon a:active i {
+    animation: clickPulse 0.3s ease;
+}
+
+@keyframes clickPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.85); }
+    100% { transform: scale(1); }
+}
+
+/* ======== MODAL DE PERFIL DEL MIEMBRO =========== */
+
+.modal-perfil-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    overflow-y: auto;
+    padding: clamp(20px, 3vw, 40px);
+}
+
+.modal-perfil-overlay:target {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.modal-perfil-overlay.activo {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    animation: perfilFadeIn 0.3s ease;
+}
+
+.modal-perfil-contenedor {
+    background: white;
+    border-radius: clamp(12px, 2vw, 20px);
+    width: 100%;
+    max-width: 1200px;
+    position: relative;
+    animation: perfilSlideIn 0.4s ease;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    margin: auto;
+}
+
+.modal-perfil-cerrar {
+    position: absolute;
+    top: clamp(15px, 2vw, 25px);
+    right: clamp(15px, 2vw, 25px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: clamp(35px, 5vw, 45px);
+    height: clamp(35px, 5vw, 45px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: #666;
+    transition: all 0.3s ease;
+    z-index: 10;
+    text-decoration: none; /* Eliminar subrayado del enlace */
+}
+
+.modal-perfil-cerrar:hover {
+    background: #f44336;
+    color: white;
+    border-color: #f44336;
+    transform: rotate(90deg);
+}
+
+/* Contenedor principal del perfil */
+.perfil-miembro {
+    display: grid;
+    grid-template-columns: clamp(200px, 25vw, 320px) 1fr;
+    gap: clamp(20px, 4vw, 50px);
+    padding: clamp(30px, 4vw, 50px);
+}
+
+/* ====== SIDEBAR (IZQUIERDA) ====== */
+.perfil-miembro-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 3vh, 30px);
+}
+
+/* Foto de perfil */
+.perfil-foto-contenedor {
+    background-color: #e9ecef;
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: 250px;
+    border-radius: 50%;
+    border: 4px solid #39A900;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    margin: 0 auto;
+}
+
+.perfil-foto-contenedor:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.perfil-foto-contenedor img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.perfil-foto-edit {
+    position: absolute;
+    bottom: clamp(8px, 1.5vh, 15px);
+    right: clamp(8px, 1.5vw, 20px);
+    width: clamp(30px, 5vw, 40px);
+    height: clamp(30px, 5vw, 40px);
+    background-color: #39A900;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.perfil-foto-edit:hover {
+    background-color: #007832;
+    transform: scale(1.15);
+}
+
+.perfil-foto-edit img {
+    width: 50%;
+    height: 50%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    filter: brightness(0) invert(1);
+}
+
+/* Card de resumen */
+.perfil-resumen-card {
+    background-color: #f8f9fa;
+    border-radius: clamp(10px, 2vw, 16px);
+    padding: clamp(15px, 2.5vw, 25px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.perfil-resumen-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.perfil-resumen-titulo {
+    font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 clamp(12px, 2vh, 18px) 0;
+    padding-bottom: clamp(8px, 1.5vh, 12px);
+    border-bottom: 3px solid #39A900;
+}
+
+.perfil-resumen-body {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 1.5vh, 15px);
+}
+
+.perfil-resumen-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: clamp(6px, 1vh, 10px) 0;
+}
+
+.perfil-resumen-label {
+    font-weight: 500;
+    color: #666;
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    margin: 0;
+}
+
+.perfil-resumen-valor {
+    font-weight: 700;
+    font-size: clamp(0.9rem, 1.6vw, 1.1rem);
+    margin: 0;
+}
+
+.perfil-resumen-valor.activo {
+    color: #39A900;
+}
+
+.perfil-resumen-valor.inactivo {
+    color: #f44336;
+}
+
+.perfil-resumen-numero {
+    font-weight: 700;
+    color: #39A900;
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    margin: 0;
+}
+
+/* ====== INFORMACIÓN (DERECHA) ====== */
+.perfil-informacion-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(25px, 3.5vh, 40px);
+}
+
+.perfil-seccion {
+    background-color: #fafafa;
+    padding: clamp(15px, 2.5vw, 25px);
+    border-radius: clamp(10px, 1.5vw, 14px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.perfil-seccion-titulo {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1.5vw, 12px);
+    margin-bottom: clamp(8px, 1.5vh, 12px);
+}
+
+.perfil-seccion-titulo img {
+    width: clamp(22px, 4vw, 35px);
+    height: clamp(22px, 4vh, 35px);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.perfil-seccion-titulo h6 {
+    font-weight: 800;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: #333;
+    margin: 0;
+}
+
+/* HRs con colores específicos */
+.perfil-hr-personal {
+    background-color: #9747FF;
+    border: none;
+    height: 3px;
+    margin: clamp(8px, 1.5vh, 15px) 0;
+}
+
+.perfil-hr-profesional {
+    background-color: #00304D;
+    border: none;
+    height: 3px;
+    margin: clamp(8px, 1.5vh, 15px) 0;
+}
+
+.perfil-hr-semilleros {
+    background-color: #50E5F9;
+    border: none;
+    height: 3px;
+    margin: clamp(8px, 1.5vh, 15px) 0;
+}
+
+.perfil-hr-proyectos {
+    background-color: #39A900;
+    border: none;
+    height: 3px;
+    margin: clamp(8px, 1.5vh, 15px) 0;
+}
+
+.perfil-hr-final {
+    background-color: #6c757d;
+    border: none;
+    height: 2px;
+    margin: clamp(15px, 2.5vh, 25px) 0;
+}
+
+/* Grid de información */
+.perfil-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 40%, 280px), 1fr));
+    gap: clamp(15px, 2.5vw, 25px);
+}
+
+.perfil-campo {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(5px, 1vh, 8px);
+}
+
+.perfil-campo label {
+    font-weight: 700;
+    font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+    color: #444;
+}
+
+.perfil-campo input[type="text"],
+.perfil-campo input[type="email"],
+.perfil-campo input[type="tel"],
+.perfil-select {
+    border-radius: clamp(6px, 1.2vw, 10px);
+    border: 2px solid #e0e0e0;
+    padding: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.85rem, 1.4vw, 0.95rem);
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.perfil-campo input:focus,
+.perfil-select:focus {
+    outline: none;
+    border-color: #39A900;
+    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+/* Select personalizado */
+.perfil-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('../img/arrow-down.png');
+    background-repeat: no-repeat;
+    background-position: right clamp(10px, 2vw, 15px) center;
+    background-size: clamp(12px, 2vw, 16px);
+    cursor: pointer;
+    padding-right: clamp(30px, 6vw, 45px);
+}
+
+/* Inputs readonly (semilleros/proyectos) */
+.perfil-input-readonly {
+    background-color: rgba(57, 169, 0, 0.12) !important;
+    border: 2px solid #39A900 !important;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    padding: clamp(8px, 1.5vw, 12px);
+    color: #007832;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.perfil-input-readonly:hover {
+    background-color: #39A900 !important;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+}
+
+.perfil-sin-datos {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: clamp(15px, 2vh, 25px);
+}
+
+/* Botón guardar */
+.perfil-btn-guardar {
+    background-color: rgba(57, 169, 0, 0.15);
+    border: 3px solid #39A900;
+    border-radius: clamp(10px, 2vw, 14px);
+    padding: clamp(10px, 2vh, 15px) clamp(25px, 5vw, 40px);
+    width: fit-content;
+    min-width: clamp(150px, 25%, 220px);
+    margin: 0 auto;
+    color: #007832;
+    font-weight: 700;
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.perfil-btn-guardar:hover {
+    background-color: #39A900;
+    color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(57, 169, 0, 0.4);
+}
+
+/* Animaciones */
+@keyframes perfilFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes perfilSlideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
