@@ -1,17 +1,25 @@
 from django.db import models
+import secrets
+import datetime
+from django.core.mail import send_mail
+from django.urls import reverse
+from django.conf import settings
+from django.utils import timezone
+from django.contrib.auth.models import Group
 
 class Usuario(models.Model):
     cedula = models.IntegerField(primary_key=True)
     nom_usu = models.CharField(max_length=250)
     ape_usu = models.CharField(max_length=250)
-    link = models.CharField(max_length=250, null=True, blank=True)
+    fecha_nacimiento = models.CharField(max_length=250, null=True, blank=True)
     telefono = models.CharField(max_length=250, null=True, blank=True)
     correo_per = models.CharField(max_length=250, null=True, blank=True)
     correo_ins = models.CharField(max_length=250)
     rol = models.CharField(max_length=250)
+    genero = models.CharField(max_length=45,null=True, blank=True)
     vinculacion_laboral = models.CharField(max_length=250, null=True, blank=True)
     dependencia = models.CharField(max_length=250, null=True, blank=True)
-    estado = models.CharField(max_length=250)
+    estado = models.CharField(max_length=250, null=True, blank=True)
     contraseña = models.CharField(max_length=250)
     conf_contraseña = models.CharField(max_length=250)
     token_verificacion = models.CharField(max_length=250, null=True, blank=True)
@@ -20,9 +28,89 @@ class Usuario(models.Model):
     last_login = models.DateTimeField(null=True, blank=True)
     imagen_perfil = models.IntegerField(null=True, blank=True)
 
+    grupos = models.ManyToManyField(
+    Group,
+    through='UsuarioGrupos',  # ⭐ Esto es CRÍTICO
+    related_name='usuarios',   # Cambié a plural
+    blank=True,
+    verbose_name='Grupos de permisos'
+)
+
     class Meta:
         managed = False
         db_table = 'usuario'
+
+    @property
+    def password(self):
+        return self.contraseña
+
+    @password.setter
+    def password(self, value):
+        self.contraseña = value
+
+    def get_email_field_name(self):
+        return 'correo'
+
+    def get_username(self):
+        return self.nom_usu
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    def get_full_name(self):
+        return self.nom_usu
+
+    def get_short_name(self):
+        return self.nom_usu
+
+    def generar_token_verificacion(self):
+        # Crear un token aleatorio
+        self.token_verificacion = secrets.token_urlsafe(32)
+        # El token expirará en 24 horas
+        self.token_expira = timezone.now() + datetime.timedelta(hours=24)
+        self.save()
+
+    def enviar_email_verificacion(self, request):
+        """Envía un correo electrónico con el enlace de verificación"""
+        verificacion_url = request.build_absolute_uri(
+            reverse('verificar_email', kwargs={'token': self.token_verificacion})
+        )
+
+        asunto = 'Verifica tu dirección de correo electrónico'
+        mensaje = f'''
+        Hola {self.nom_usu},
+
+        Gracias por registrarte. Por favor, haz clic en el siguiente enlace para verificar tu correo electrónico:
+
+        {verificacion_url}
+
+        Este enlace expirará en 24 horas.
+
+        Si no solicitaste este registro, puedes ignorar este mensaje.
+        '''
+
+        send_mail(
+            asunto,
+            mensaje,
+            settings.DEFAULT_FROM_EMAIL,
+            [self.correo_ins],
+            fail_silently=False,
+        )
+
+class UsuarioGrupos(models.Model):
+    id = models.IntegerField(primary_key=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
+    grupo = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id')
+
+    class Meta:
+        managed = False
+        db_table = 'usuario_grupos'
+        unique_together = ('usuario', 'grupo')
 
 
 class Semillero(models.Model):
@@ -42,6 +130,7 @@ class Aprendiz(models.Model):
     nombre = models.CharField(max_length=60)
     apellido = models.CharField(max_length=60)
     fecha_nacimiento = models.CharField(max_length=45)
+    genero = models.CharField(max_length=45)
     ficha = models.IntegerField()
     programa = models.CharField(max_length=100)
     correo_per = models.CharField(max_length=250)
@@ -68,7 +157,6 @@ class Proyecto(models.Model):
     linea_sem = models.CharField(max_length=250)
     can_entre = models.IntegerField()
     estado_pro = models.CharField(max_length=50)
-    cod_form = models.IntegerField()
 
     class Meta:
         managed = False
@@ -150,4 +238,3 @@ class SemilleroUsuario(models.Model):
     class Meta:
         managed = False
         db_table = 'semillero_usuario'
-

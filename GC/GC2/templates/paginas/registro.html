@@ -6,7 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login y Registro</title>
   <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
 <body>
+  {% if messages %}
+    <div class="mensajes-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+          <button type="button" class="close-btn" onclick="this.parentElement.remove()">×</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+    <div class="mensajes-container">
+        {% if form.errors %}
+                <div class="alert alert-danger">
+                    Por favor, corrige los errores indicados a continuación.
+                </div>
+        {% endif %}
+    </div>
+
   <div class="bg-particles">
       <div class="particle"></div>
       <div class="particle"></div>
@@ -19,34 +40,132 @@
       <div class="particle"></div>
       <div class="particle"></div>
   </div>
-  <div class="container" id="container">
-    <!-- Panel Azul -->
-    <div class="blue-panel" id="bluePanel">
-      <img src="{% static 'img/logo1.png' %}"  alt="Logo SENA">
-      <h2 id="blueTitle">¿Ya tienes cuenta?</h2>
-      <p id="blueText">Inicia sesión para acceder a todas las funcionalidades del sistema</p>
-      <button id="toggleBtn">Iniciar sesión</button>
-    </div>
 
-    <!-- Formulario -->
-    <div class="form-container" id="formContainer">
-      <h2 id="formTitle">REGISTRO</h2>
-      <input type="text" placeholder="Nombre de usuario">
-      <input type="text" placeholder="Nombre">
-      <input type="text" placeholder="Apellido">
-      <input type="email" placeholder="Correo electrónico">
-      <select>
-        <option>Selecciona tu rol</option>
-        <option>Instructor</option>
-        <option>Aprendiz</option>
-      </select>
-      <input type="password" placeholder="Contraseña">
-      <input type="password" placeholder="Confirmar contraseña">
-      <button>Registrarse</button>
-    </div>
+    <div class="container" id="container">
+      
+      <!-- Panel Azul -->
+      <div class="blue-panel" id="bluePanel">
+        <!-- Botón de regresar -->
+        <a  class="back-arrow" onclick="window.history.back()">
+          <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back" >
+        </a>  
+        <img src="{% static 'img/logo1.png' %}" alt="Logo SENA">
+        <h2 id="blueTitle">¿Ya tienes cuenta?</h2>
+        <p id="blueText">Inicia sesión para acceder a todas las funcionalidades del sistema</p>
+        <button id="toggleBtn">Iniciar sesión</button>
+      </div>
+
+      <!-- Formulario -->
+      <div class="form-container" id="formContainer">
+    <h2 id="formTitle">REGISTRO</h2>
+
+    <form class="datos" method="POST" action="{% url 'registro' %}" id="mainForm" novalidate>
+      {% csrf_token %}
+
+      <!-- Cédula -->
+      <div class="form-group m-1">
+        {{ form.cedula }}
+        {% if form.cedula.errors %}
+          <div class="error-container">{{ form.cedula.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Nombre -->
+      <div class="form-group m-1">
+        {{ form.nom_usu }}
+        {% if form.nom_usu.errors %}
+          <div class="error-container">{{ form.nom_usu.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Apellido -->
+      <div class="form-group m-1">
+        {{ form.ape_usu }}
+        {% if form.ape_usu.errors %}
+          <div class="error-container">{{ form.ape_usu.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Correo Institucional -->
+      <div class="form-group m-1">
+        {{ form.correo_ins }}
+        {% if form.correo_ins.errors %}
+          <div class="error-correo">{{ form.correo_ins.errors }}</div>
+        {% endif %}
+        <small class="form-text text-muted">
+          Se enviará un enlace de verificación a este correo.
+        </small>
+      </div>
+
+      <!-- Rol -->
+      <div class="select_container">
+        {{ form.rol }}
+        {% if form.rol.errors %}
+          <div class="error-container">{{ form.rol.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-group m-1">
+        <div class="password-field-container">
+          {{ form.contraseña }}
+          <span class="password-toggle-icon" onclick="togglePassword('password')">
+            <i class="fas fa-eye" id="toggleIcon_password"></i>
+          </span>
+        </div>
+        {% if form.contraseña.errors %}
+          <div class="error-contra">{{ form.contraseña.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Confirmar Contraseña -->
+      <div class="form-group m-1">
+        <div class="password-field-container">
+          {{ form.conf_contraseña }}
+          <span class="password-toggle-icon" onclick="togglePassword('confpassword')">
+            <i class="fas fa-eye" id="toggleIcon_confpassword"></i>
+          </span>
+        </div>
+        {% if form.non_field_errors %}
+          <div class="error-container">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% if form.conf_contraseña.errors %}
+          <div class="error-contra">{{ form.conf_contraseña.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Botón -->
+      <div class="form-group m-1">
+        <button type="submit" class="btn">Registrarse</button>
+      </div>
+    </form>
   </div>
 
-
+  {% if mostrar_modal %}
+    <div id="modalOlvido" class="modal modal-visible">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close"><a href="{% url 'iniciarsesion' %}">&times;</a></span>
+                <h3>Recuperar Contraseña</h3>
+            </div>
+            <form method="POST" action="{% url 'recuperar_contrasena' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Ingrese su correo electrónico para recibir instrucciones sobre cómo restablecer su contraseña.</p>   
+                    <div class="form-email">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Ingresa tu correo electrónico" required>
+                        {% if email_error %}
+                            <div class="error-container">{{ email_error }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="submit-btn">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+  {% endif %}
 
   <script>
     const container = document.getElementById("container");
@@ -56,52 +175,117 @@
     const blueText = document.getElementById("blueText");
     const formTitle = document.getElementById("formTitle");
 
-    let isLogin = false;
+    let isLogin = {% if show_login %}true{% else %}false{% endif %};
+
+    // Si debe mostrar login al cargar la página
+    if (isLogin) {
+      container.classList.add("active");
+      showLoginForm();
+    }
+
+    // Función para alternar visibilidad de contraseña
+    function togglePassword(fieldId) {
+      const field = document.getElementById(fieldId);
+      const icon = document.getElementById('toggleIcon_' + fieldId);
+      
+      if (field && icon) {
+        if (field.type === 'password') {
+          field.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          field.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      }
+    }
+
+    function showLoginForm() {
+      blueTitle.textContent = "¿Eres un usuario nuevo?";
+      blueText.textContent = "Regístrate para acceder al sistema de gestión del conocimiento";
+      toggleBtn.textContent = "Registrarse";
+      formTitle.textContent = "INICIAR SESIÓN";
+      formContainer.innerHTML = `
+        <h2>INICIAR SESIÓN</h2>
+        <form method="POST" action="{% url 'iniciarsesion' %}" novalidate>
+          {% csrf_token %}
+          
+          <!-- Rol -->
+          <div class="select_container">
+            <select name="rol" class="select" required>
+              <option value="">Selecciona tu rol</option>
+              <option value="dinamizador" {% if rol == 'dinamizador' %}selected{% endif %}>Dinamizador</option>
+              <option value="lider" {% if rol == 'lider' %}selected{% endif %}>Líder</option>
+              <option value="investigador" {% if rol == 'investigador' %}selected{% endif %}>Investigador</option>
+              <option value="instructor" {% if rol == 'instructor' %}selected{% endif %}>Instructor</option>
+            </select>
+            {% if error_rol %}
+              <div class="error-rol">{{ error_rol }}</div>
+            {% endif %}
+          </div>
+          
+          <!-- Cedula -->
+          <div class="form-group m-1">
+            <input type="text" name="cedula" class="input" placeholder="Cédula" value="{% if cedula %}{{ cedula }}{% endif %}" required>
+            {% if error_user %}
+              <div class="error-cedula">{{ error_user }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-group m-1">
+            <div class="password-field-container">
+              <input type="password" name="password" id="loginPassword" class="input" placeholder="Contraseña" required>
+              <span class="password-toggle-icon" onclick="togglePasswordLogin()">
+                <i class="fas fa-eye" id="toggleIcon_loginPassword"></i>
+              </span>
+            </div>
+            {% if error_password %}
+              <div class="error-contrase">{{ error_password }}</div>
+            {% endif %}
+          </div>
+
+          <a id="olvido" href="{% url 'mostrar_recuperar_contrasena' %}">¿Olvidó su contraseña?</a>
+
+          <div class="form-group m-1">
+            <button type="submit" class="btn">Iniciar Sesión</button>
+          </div>
+        </form>
+      `;
+    }
 
     toggleBtn.addEventListener("click", () => {
       container.classList.toggle("active");
       isLogin = !isLogin;
 
       if (isLogin) {
-        // Vista login
-        blueTitle.textContent = "¿Eres un usuario nuevo?";
-        blueText.textContent = "Regístrate para acceder al sistema de gestión del conocimiento";
-        toggleBtn.textContent = "Registrarse";
-        formTitle.textContent = "INICIAR SESIÓN";
-        formContainer.innerHTML = `
-          <h2>INICIAR SESIÓN</h2>
-          <select>
-            <option>Selecciona tu rol</option>
-            <option>Instructor</option>
-            <option>Aprendiz</option>
-          </select>
-          <input type="text" placeholder="Usuario">
-          <input type="password" placeholder="Contraseña">
-          <button>Iniciar Sesión</button>
-        `;
+        showLoginForm();
       } else {
-        // Vista registro
-        blueTitle.textContent = "¿Ya tienes cuenta?";
-        blueText.textContent = "Inicia sesión para acceder a todas las funcionalidades del sistema";
-        toggleBtn.textContent = "Iniciar sesión";
-        formTitle.textContent = "REGISTRO";
-        formContainer.innerHTML = `
-          <h2>REGISTRO</h2>
-          <input type="text" placeholder="Nombre de usuario">
-          <input type="text" placeholder="Nombre">
-          <input type="text" placeholder="Apellido">
-          <input type="email" placeholder="Correo electrónico">
-          <select>
-            <option>Selecciona tu rol</option>
-            <option>Instructor</option>
-            <option>Aprendiz</option>
-          </select>
-          <input type="password" placeholder="Contraseña">
-          <input type="password" placeholder="Confirmar contraseña">
-          <button>Registrarse</button>
-        `;
+        // Vista registro - recargar la página para mostrar el formulario original
+        window.location.href = "{% url 'registro' %}";
       }
     });
+
+    // Función global para el toggle de contraseña en login
+    window.togglePasswordLogin = function() {
+      const field = document.getElementById('loginPassword');
+      const icon = document.getElementById('toggleIcon_loginPassword');
+      
+      if (field && icon) {
+        if (field.type === 'password') {
+          field.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          field.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      }
+    };
   </script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/mensajes.js' %}"></script>
 </body>
 </html>
