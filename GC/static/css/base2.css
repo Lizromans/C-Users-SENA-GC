@@ -239,6 +239,12 @@ body.sidebar-collapsed .header-container {
     transition: margin 0.3s ease;
 }
 
+.icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 .nav-text {
     transition: opacity 0.3s ease, transform 0.3s ease;
     font-size: clamp(0.7rem, 1.5vw, 1.2rem);
@@ -393,25 +399,68 @@ body.sidebar-collapsed .main-content {
     align-items: center;
     gap: clamp(6px, 1.5%, 10px);
     border: none;
-    width: 98vw;
-    height: clamp(40px, 5vh, 60px);
+    width: 100%;
+    padding: clamp(10px, 2%, 15px) clamp(18px, 3.5%, 30px);
     background-color: transparent;
     animation: slideIn 0.3s ease forwards;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    color: var(--color-text-primary);
+    font-weight: 500;
+    font-size: clamp(0.85rem, 1.5vw, 1.2rem);
 }
 
-.config-btn .nav-icon, .logout-btn .nav-icon {
-    margin-left: clamp(3px, 1%, 6px);
+.config-btn .nav-icon, 
+.logout-btn .nav-icon {
+    font-size: clamp(0.7rem, 1.5vw, 1.2rem);
+    margin-right: clamp(8px, 2%, 15px);
+    flex-shrink: 0;
+    width: clamp(18px, 4%, 25px) !important;
+    height: clamp(18px, 4%, 25px) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: margin 0.3s ease;
 }
 
-.config-btn:hover, .logout-btn:hover {
+.config-btn .nav-icon img, 
+.logout-btn .nav-icon img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 25px !important;
+    max-height: 25px !important;
+    object-fit: contain;
+}
+
+.config-btn:hover, 
+.logout-btn:hover {
     background-color: var(--color-nav-hover);
     color: var(--color-text-active);
-    padding-left: clamp(8px, 1.5%, 12px);
+    padding-left: clamp(22px, 4%, 35px);
 }
 
-.config-btn:active, .logout-btn:active {
+.config-btn:active, 
+.logout-btn:active {
     box-shadow: inset 0 0 10px rgb(57, 169, 0);
     color: var(--color-text-active);
+}
+
+.sidebar.collapsed .config-btn,
+.sidebar.collapsed .logout-btn {
+    padding-left: clamp(15px, 3%, 25px);
+    justify-content: center;
+}
+
+.sidebar.collapsed .config-btn .nav-icon,
+.sidebar.collapsed .logout-btn .nav-icon {
+    margin-right: 0;
+}
+
+.sidebar.collapsed .config-btn .nav-text,
+.sidebar.collapsed .logout-btn .nav-text {
+    opacity: 0;
+    transform: translateX(-10px);
 }
 
 /* MAIN CONTENT */
