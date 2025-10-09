@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
@@ -13,6 +13,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import permission_required
+from django.views.decorators.cache import never_cache
+from functools import wraps
 
 
 # Create your views here.
@@ -311,6 +313,50 @@ def reset_password_confirm(request):
     # Si no es POST, redirigir a la página de inicio de sesión
     return redirect('iniciarsesion')
 
+# VISTA DE PRIVACIDAD
+
+
+def privacidad(request):
+    usuario_id = request.session.get('cedula')
+    
+    try:
+        usuario = Usuario.objects.get(pk=usuario_id)
+        
+        if request.method == 'POST':
+            contraseña_actual = request.POST.get('contraseña_actual')
+            nueva_contraseña = request.POST.get('nueva_contraseña')
+            confirmar_contraseña = request.POST.get('confirmar_contraseña')
+            
+            if not check_password(contraseña_actual, usuario.contraseña):
+                messages.error(request, "La contraseña actual es incorrecta")
+                return redirect('privacidad')
+            
+            if nueva_contraseña != confirmar_contraseña:
+                messages.error(request, "Las contraseñas no coinciden")
+                return redirect('privacidad')
+            
+            if len(nueva_contraseña) < 8:
+                messages.error(request, "La contraseña debe tener al menos 8 caracteres")
+                return redirect('privacidad')
+            
+            usuario.contraseña = make_password(nueva_contraseña)
+            usuario.save()
+
+            messages.success(request, "Contraseña actualizada correctamente")
+            return redirect('home')
+            
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado. Por favor inicie sesión nuevamente")
+        return redirect('iniciarsesion')
+    except Exception as e:
+        messages.error(request, f"Error al actualizar la contraseña: {str(e)}")
+        return redirect('privacidad')
+    
+    return render(request, 'paginas/home.html', {
+        'current_page': 'privacidad',
+        'current_page_name': 'Privacidad'
+    })
+
 # VISTAS DE HOME 
 def home(request):
     return render(request, 'paginas/home.html')
@@ -359,3 +405,10 @@ def centroayuda(request):
 def reportes(request):
     return render(request, 'paginas/reportes.html',
     {'current_page': 'reportes'})
+
+# VISTA DE LOGOUT
+def logout(request):
+    # Clear all session data
+    request.session.flush()
+    messages.success(request, "Has cerrado sesión correctamente")
+    return redirect('iniciarsesion')

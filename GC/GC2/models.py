@@ -205,8 +205,8 @@ class Evento(models.Model):
 
 # Tablas intermedias (relaciones ManyToMany)
 class SemilleroDocumento(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
-    cod_doc = models.ForeignKey(Documento, on_delete=models.CASCADE)
+    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
+    cod_doc = models.ForeignKey(Documento, on_delete=models.CASCADE, db_column='cod_doc')
 
     class Meta:
         managed = False
@@ -214,8 +214,8 @@ class SemilleroDocumento(models.Model):
 
 
 class SemilleroEvento(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
-    cod_eve = models.ForeignKey(Evento, on_delete=models.CASCADE)
+    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
+    cod_eve = models.ForeignKey(Evento, on_delete=models.CASCADE, db_column='cod_eve')
 
     class Meta:
         managed = False
@@ -223,8 +223,8 @@ class SemilleroEvento(models.Model):
 
 
 class SemilleroProyecto(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
-    cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
+    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
+    cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
 
     class Meta:
         managed = False
@@ -232,8 +232,8 @@ class SemilleroProyecto(models.Model):
 
 
 class SemilleroUsuario(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
-    cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
+    cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
 
     class Meta:
         managed = False

@@ -36,7 +36,7 @@ body {
     background: var(--color-primario);
     box-shadow: 0 2px 4px var(--color-sidebar-shadow);
     transition: left 0.3s ease, width 0.3s ease;
-    z-index: 1030;
+    z-index: 1000;
 }
 
 .header-content {
@@ -127,7 +127,7 @@ body.sidebar-collapsed .header-container {
     flex-direction: column;
     overflow: hidden;
     transition: width 0.3s ease;
-    z-index: 1055;
+    z-index: 1000;
 }
 
 .sidebar-container:first-child {
@@ -427,4 +427,128 @@ main {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+/* ======= MODAL CAMBIAR CONTRASEÑA ======= */
+
+.modal-content {
+    background-color: var(--color-primario);
+    border: 1px solid rgba(57, 169, 0, 0.2);
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 2000 !important;
+    animation: modalFadeIn 0.4s ease;
+    margin-top: 40%;
+}
+
+
+.modal-header {
+    background-color: rgba(57, 169, 0, 0.05);
+    border-bottom: 1px solid rgba(57, 169, 0, 0.2);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    position: relative;
+    justify-content: center; /* centra el contenido */
+    height: 7vh;
+}
+
+.modal-title {
+    color: var(--color-text-active);
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+
+.btn-close {
+    filter: brightness(0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-close:hover {
+    filter: brightness(0);
+}
+
+/* Body */
+.modal-body {
+    padding: 1.8rem 1.5rem;
+}
+
+.modal-body label {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.modal-body .form-control {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px 12px;
+    transition: all 0.3s ease;
+}
+
+.modal-body .form-control:focus {
+    border-color: var(--color-nav-active);
+    box-shadow: 0 0 5px rgba(57, 169, 0, 0.3);
+}
+
+/* Iconos dentro de los inputs */
+.input-con-icono {
+    position: relative;
+}
+
+.input-con-icono .edit-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.input-con-icono .edit-icon:hover {
+    color: var(--color-nav-active);
+}
+
+/* Footer */
+.modal-footer {
+    border-top: 1px solid rgba(57, 169, 0, 0.15);
+    background-color: rgba(57, 169, 0, 0.03);
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    padding: 1rem 1.5rem;
+}
+
+/* Botones */
+.modal-footer .boton {
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background-color: var(--color-nav-active);
+    color: var(--color-text-primary);
+    border: 1px solid #ccc;
+}
+
+.modal-footer .boton:hover {
+    background-color: #e9ecef;
+    color: var(--color-text-active);
+}
+
+/* Animación suave al abrir */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

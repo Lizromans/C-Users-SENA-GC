@@ -103,24 +103,80 @@
                         </ul>
                         <ul class="nav-footer">
                             <li>
-                                <button class="config-btn">
-                                    <span class="nav-icon">⚙️</span>
-                                    <span class="nav-text">Configuración</span>
+                                <button class="config-btn" data-bs-toggle="modal" data-bs-target="#cambiarContraseñaModal">
+                                    <span class="nav-icon">
+                                        <img class="icon" src="{% static 'img/privacidad.png' %}" alt="Icono de Privacidad">
+                                    </span>
+                                    <span class="nav-text">Privacidad</span>
                                 </button>
                             </li>
                             <li>
-                                <button class="logout-btn">
-                                    <span class="nav-icon">
-                                        <img src="{% static 'img/logout.png' %}" alt="Icono de Cerrar Sesión">
-                                    </span>
-                                    <span class="nav-text">Cerrar Sesión</span>
-                                </button>
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="logout-btn" type="submit">
+                                        <span class="nav-icon">
+                                            <img src="{% static 'img/logout.png' %}" alt="Icono de Cerrar Sesión">
+                                        </span>
+                                        <span class="nav-text">Cerrar Sesión</span>
+                                    </button>
+                                </form>
                             </li>
                         </ul>
                     </nav>
-                    
                 </div>
             </aside>
+        </div>
+    </div>
+
+    <!-- Modal con el formulario -->
+    <div class="modal fade" id="cambiarContraseñaModal" tabindex="-1" aria-labelledby="cambiarContraseñaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                
+                <!-- Encabezado -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cambiarContraseñaLabel">Cambiar Contraseña</h5>
+                </div>
+
+                <!-- Cuerpo del modal -->
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'privacidad' %}" id="cambio-contraseña-form">
+                        {% csrf_token %}
+                        
+                        <div class="form-section mb-3">
+                            <label for="contraseña_actual">Contraseña Actual</label>
+                            <div class="input-con-icono">
+                                <input type="password" class="form-control" id="contraseña_actual" name="contraseña_actual" required>
+                                <span class="edit-icon"><i class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="form-section mb-3">
+                            <label for="nueva_contraseña">Nueva Contraseña</label>
+                            <div class="input-con-icono">
+                                <input type="password" class="form-control" id="nueva_contraseña" name="nueva_contraseña" required>
+                                <span class="edit-icon"><i class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="form-section mb-3">
+                            <label for="confirmar_contraseña">Confirmar Nueva Contraseña</label>
+                            <div class="input-con-icono">
+                                <input type="password" class="form-control" id="confirmar_contraseña" name="confirmar_contraseña" required>
+                                <span class="edit-icon"><i class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Pie del modal -->
+                <div class="modal-footer">
+                    <button type="button" class="boton" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="boton" onclick="document.getElementById('cambio-contraseña-form').submit();">
+                        Guardar cambios
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -135,7 +191,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/sidebar.js' %}"></script>
-
-  
-</body>
+    <script src="{% static 'js/contraseña.js' %}"></script>
 </html>

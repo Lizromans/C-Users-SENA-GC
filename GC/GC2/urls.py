@@ -23,4 +23,6 @@ urlpatterns = [
     path('miembros/', views.miembros, name='miembros'),
     path('centroayuda/', views.centroayuda, name='centroayuda'),
     path('reportes/', views.reportes, name='reportes'),
+    path('privacidad/', views.privacidad, name='privacidad'),
+    path('logout/', views.logout, name='logout'),
 ]
