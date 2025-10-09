@@ -1,4 +1,4 @@
-:root {
+    :root {
     --color-primario: #ffffff;
     --color-sidebar-bg: #f8f9fa;
     --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
@@ -20,15 +20,25 @@
 /* Contenedor secundario */
 .resumen {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);    
-    gap: clamp(1rem, 2vw, 2rem);
+    grid-template-columns: repeat(2, 1fr); 
     width: 100%;
-    max-width: clamp(600px, 90vw, 1200px);
+    gap: clamp(1rem, 2vw, 2rem);
     background-color: var(--color-fondo-secundario);
     border-radius: clamp(10px, 2vw, 15px);
     padding: clamp(20px, 3vh, 40px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
+    margin: 0 auto;
+}
+
+.resumen img,
+.icon{
+    transition: transform 0.3s ease;
+}
+
+.resumen:hover img,
+.icon {
+  transform: rotate(10deg);
 }
 
 /* Tarjetas del contenedor secundario */
@@ -74,7 +84,7 @@
     background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
 }
 
-.resumen.icon-cont.lineas {
+.resumen .icon-cont.lineas {
     background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
 }
 
@@ -84,7 +94,7 @@
 
 .resumen img {
     width: clamp(25px, 2.5vw, 35px);
-    height:clamp(35px, 2.5vh, 45px) ;
+    height: clamp(35px, 2.5vh, 45px);
 }
 
 .resumen .card-body {
@@ -105,7 +115,7 @@
 }
 
 .resumen .texto-inferior {
-    padding: clamp(10px, 3vw, 15px) clamp(10px, 3vw, 15px) ;
+    padding: clamp(10px, 3vw, 15px) clamp(10px, 3vw, 15px);
     background-color: transparent;
     display: flex;
     flex-direction: column;

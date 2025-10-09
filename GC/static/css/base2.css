@@ -188,7 +188,7 @@ body.sidebar-collapsed .header-container {
 }
 
 .sidebar-title {
-    font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+    font-size: clamp(0.75rem, 1.3vw, 1.1rem);
     font-weight: 600;
     color: var(--color-text-primary);
     white-space: nowrap;
@@ -225,11 +225,11 @@ body.sidebar-collapsed .header-container {
 
 .nav-item {
     animation: slideIn 0.3s ease forwards;
-    margin-bottom: clamp(4px, 1%, 8px)
+    margin-bottom: clamp(15px, 1%, 20px)
 }
 
 .nav-icon {
-    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    font-size: clamp(0.7rem, 1.5vw, 1.2rem);
     margin-right: clamp(8px, 2%, 15px);
     flex-shrink: 0;
     width: clamp(18px, 3%, 25px);
@@ -241,7 +241,7 @@ body.sidebar-collapsed .header-container {
 
 .nav-text {
     transition: opacity 0.3s ease, transform 0.3s ease;
-    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    font-size: clamp(0.7rem, 1.5vw, 1.2rem);
 }
 
 .nav-link {
@@ -251,7 +251,7 @@ body.sidebar-collapsed .header-container {
     color: var(--color-text-primary);
     text-decoration: none;
     font-weight: 500;
-    font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+    font-size: clamp(0.85rem, 1.5vw, 1.2rem);
     border-left: 3px solid transparent;
     position: relative;
     transition: all 0.3s ease;
@@ -420,6 +420,7 @@ body.sidebar-collapsed .main-content {
   margin-left: var(--sidebar-width);
   min-height: calc(100vh - var(--header-height));
   transition: margin-left 0.3s ease;
+  width: calc(100vw-(var(--sidebar-width)));
 }
 
 body.sidebar-collapsed .main-content {
@@ -427,7 +428,6 @@ body.sidebar-collapsed .main-content {
 }
 
 main {
-  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -442,8 +442,7 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: clamp(90%, 95vw, 98%); /* Se reduce en pantallas pequeñas */
-    max-width: clamp(500px, 78vw, 1100px); /* Tamaño máximo más pequeño en móviles */
+    width: 98%; /* Se reduce en pantallas pequeñas */
     height: auto;
     position: relative;
     border-radius: clamp(8px, 2vw, 20px); /* Bordes más pequeños en móviles */
@@ -663,3 +662,10 @@ main {
     padding: clamp(4px, 1vw, 8px) clamp(8px, 2vw, 12px);
 }
 
+.contenido {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

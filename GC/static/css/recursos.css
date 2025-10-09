@@ -22,12 +22,19 @@
     grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 30vw, 350px), 1fr));
     gap: clamp(1rem, 2vw, 2rem);
     width: 100%;
-    max-width: clamp(600px, 90vw, 1200px);
     background-color: var(--color-fondo-secundario);
     border-radius: clamp(10px, 2vw, 15px);
     padding: clamp(20px, 3vh, 40px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
+}
+
+.resumen img {
+    transition: transform 0.3s ease;
+}
+
+.resumen:hover img{
+  transform: rotate(10deg);
 }
 
 /* ====== GRUPO (CARD CONTAINER) ====== */

@@ -23,12 +23,21 @@
     flex-direction: column;    
     gap: clamp(1rem, 2vw, 2rem);
     width: 100%;
-    max-width: clamp(600px, 90vw, 1200px);
     background-color: var(--color-fondo-secundario);
     border-radius: clamp(10px, 2vw, 15px);
     padding: clamp(20px, 3vh, 40px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
+}
+
+.resumen img,
+.icon{
+    transition: transform 0.3s ease;
+}
+
+.resumen:hover img,
+.icon {
+  transform: rotate(10deg);
 }
 
 .cont-1{
@@ -99,7 +108,6 @@
     border-radius: clamp(8px, 2vw, 15px);
     box-shadow: 0 clamp(2px, 0.5vw, 4px) clamp(6px, 1.5vw, 12px) rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: clamp(600px, 88vw, 1200px);
 }
 
 .header-miembros {

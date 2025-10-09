@@ -20,15 +20,7 @@ from django.contrib.auth.decorators import permission_required
 def bienvenido(request):
     return render(request, 'paginas/bienvenido.html')
 
-def base(request):
-    return render(request, 'base.html')
-
-def home(request):
-    return render(request, 'paginas/home.html')
-
-def perfil(request):
-    return render(request, 'paginas/perfil.html')
-
+# VISTAS DE LOGIN
 def registro(request):
     if request.method == 'POST':
         form = UsuarioRegistroForm(request.POST)
@@ -319,12 +311,17 @@ def reset_password_confirm(request):
     # Si no es POST, redirigir a la página de inicio de sesión
     return redirect('iniciarsesion')
 
+# VISTAS DE HOME 
+def home(request):
+    return render(request, 'paginas/home.html')
 
+# VISTAS PERFIL
+def perfil(request):
+    return render(request, 'paginas/perfil.html')
+
+# VISTAS SEMILLEROS
 def semilleros(request):
     return render(request, 'paginas/semilleros.html')
-
-def base2(request):
-    return render(request, 'base2.html')
 
 def resumen(request):
     return render(request, 'paginas/resumen.html', 
@@ -343,11 +340,22 @@ def recursos(request):
     return render(request, 'paginas/recursos.html', 
     {'current_page': 'recursos'})
 
+# VISTAS DE PROYECTOS
 def proyectos(request):
     return render(request, 'paginas/proyectos.html', 
     {'current_page': 'proyectos'})
 
+# VISTAS DE MIEMBROS
 def miembros(request):
     return render(request, 'paginas/miembros.html',
     {'current_page': 'miembros'})
 
+# VISTAS DE CENTRO DE AYUDA
+def centroayuda(request):
+    return render(request, 'paginas/centroayuda.html',
+    {'current_page': 'centroayuda'})
+
+# VISTAS DE REPORTES
+def reportes(request):
+    return render(request, 'paginas/reportes.html',
+    {'current_page': 'reportes'})

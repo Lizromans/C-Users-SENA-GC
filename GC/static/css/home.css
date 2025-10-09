@@ -17,35 +17,40 @@
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgba(112, 39, 122, 0.884) 75%);
 }
 
-/* Layout general */
-.layout-general {
+.contenedor-principal{
     display: flex;
     flex-direction: column;
-    align-items: center;
-    min-height: calc(100vh - var(--header-height));
-    box-sizing: border-box;
-    gap: clamp(10px, 1.5vh, 20px);
+    gap: clamp(25px, 4vw, 40px); /* Espacio entre columnas */
+}
+
+.contenedor-secundario 
+.icon{
+    transition: transform 0.3s ease;
+}
+
+.contenedor-secundario:hover
+.icon {
+  transform: rotate(10deg);
 }
 
 /* Contenedor principal - con el nuevo gradiente y círculos */
-.contenedor-principal {
+.contenedor-info {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 98%;
-    max-width: clamp(700px, 75vw, 1100px);
+    width: 98%; /* Se reduce en pantallas pequeñas */
     height: auto;
     position: relative;
-    background: var(--gradient);
-    border-radius: clamp(12px, 2vw, 20px);
-    padding: clamp(20px, 3vh, 40px);
-    min-height: clamp(300px, 40vh, 450px);
+    border-radius: clamp(8px, 2vw, 20px); /* Bordes más pequeños en móviles */
+    padding: clamp(10px, 2vh, 25px) clamp(8px, 1.5vh, 15px); /* Padding reducido */
+    min-height: clamp(100px, 15vh, 200px); /* Altura mínima reducida */
     box-sizing: border-box;
     overflow: hidden;
+    background: var(--gradient);
 }
 
 /* Círculo izquierdo inferior */
-.contenedor-principal::before {
+.contenedor-info::before {
     content: '';
     position: absolute;
     width: clamp(150px, 20vw, 250px);
@@ -58,7 +63,7 @@
 }
 
 /* Círculo derecho superior */
-.contenedor-principal::after {
+.contenedor-info::after {
     content: '';
     position: absolute;
     width: clamp(130px, 20vw, 210px);
@@ -175,8 +180,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 20vw, 300px), 2fr));
     gap: clamp(1rem, 2vw, 2rem);
-    width: 100%;
-    max-width: clamp(600px, 90vw, 1200px);
+    width: 98%;
     background-color: var(--color-fondo-secundario);
     border-radius: clamp(10px, 2vw, 15px);
     padding: clamp(20px, 3vh, 40px);
@@ -223,23 +227,23 @@
 
 /* Diferentes backgrounds para cada icon-cont usando clases específicas */
 .contenedor-secundario .icon-cont.semilleros {
-    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+    background: linear-gradient(135deg, #fdc878 0%, #FF9800 40%, #F57C00 100%);
 }
 
 .contenedor-secundario .icon-cont.proyectos {
-    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    background: linear-gradient(135deg, #85c8f8 0%, #2196F3 40%, #1976D2 100%);
 }
 
 .contenedor-secundario .icon-cont.miembros {
-    background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+    background: linear-gradient(135deg, #f879a8 0%, #E91E63 40%, #C2185B 100%);
 }
 
 .contenedor-secundario .icon-cont.ayuda {
-    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+    background: linear-gradient(135deg, #e884f8 0%, #c033da 40%, #7B1FA2 100%);
 }
 
 .contenedor-secundario .icon-cont.reportes {
-    background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+    background: linear-gradient(135deg, #607D88 0%, #607D8B 40%, #455A64 100%);
 }
 
 .contenedor-secundario .icon {
@@ -346,8 +350,7 @@
 
 /* Contenedor terciario para timeline */
 .contenedor-tres {
-    width: 100%;
-    max-width: clamp(600px, 90vw, 1200px);
+    width: 98%;
     background-color: var(--color-fondo-secundario);
     border-radius: clamp(10px, 2vw, 15px);
     padding: clamp(20px, 3vh, 40px);

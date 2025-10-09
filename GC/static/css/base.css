@@ -184,7 +184,7 @@ body.sidebar-collapsed .header-container {
 }
 
 .sidebar-title {
-    font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+    font-size: clamp(0.75rem, 1.3vw, 1.1rem);
     font-weight: 600;
     color: var(--color-text-primary);
     white-space: nowrap;

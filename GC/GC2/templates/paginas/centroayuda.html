@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %} Gestión de Proyectos {% endblock %}
+{% block css %}
+<link href="{% static 'css/centroayuda.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+{% block contenido %} {% endblock %}
+{% block main %}
+
+    <div class="contenedor-principal">
+        <div class="titulo">
+            <h3>❓Centro de Ayuda</h3>
+            <p>Accede a videos, manuales y guías para dominar la app fácilmente. Recursos claros, prácticos y siempre actualizados.</p>
+        </div>
+
+        <div class="busqueda">
+            <h3>Búsqueda y Filtrados</h3>
+            <form method="GET" action="">
+                <div class="filtros">
+                    <input type="text" name="buscar" placeholder="Buscar recurso..." class="buscador" value="{{ request.GET.buscar }}">
+                    <img class="fa fa-search" src="{% static 'img/Search.png' %}" alt="Icono Buscar">
+                    <select name="estado" class="filtro">
+                        <option value="">Todos los estados</option>
+                        <option value="diagnostico" {% if request.GET.estado == 'diagnostico' %}selected{% endif %}>En diagnóstico</option>
+                        <option value="planeacion" {% if request.GET.estado == 'planeacion' %}selected{% endif %}>En planeación</option>
+                        <option value="ejecucion" {% if request.GET.estado == 'ejecucion' %}selected{% endif %}>En ejecución</option>
+                        <option value="completado" {% if request.GET.estado == 'completado' %}selected{% endif %}>Completado</option>
+                    </select>
+                </div>
+            </form> 
+        </div>
+
+        <div class="recursos">
+            <!-- Sección: Manuales y Documentación -->
+            <div class="grupo">
+                <div class="card">
+                    <div class="icon-cont documentos">
+                        <img class="icon" src="{% static 'img/Books.png' %}" alt="Icono Documentos y Guías">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Manuales y Documentación Técnica</h5>
+                        <p>En esta sección encontrarás los manuales y la documentación técnica necesarios para comprender y utilizar la plataforma de forma efectiva.</p>           
+                    </div>
+                </div>
+                <div class="scrollable-list">
+                    {% for documento in documentos %}
+                    <ul class="lista">
+                        <li>
+                            <div class="icon-cont">
+                                <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
+                            </div>
+                            <div class="texto-lista">
+                                <span class="titulo">{{ documento.titulo }}</span><br>
+                                <span class="subtitulo">{{ documento.tipo_archivo }}</span>
+                            </div>
+                            <div class="acciones">
+                                <a href="{{ documento.archivo.url }}" target="_blank" class="fas fa-eye" title="Ver"></a>
+                                <a href="{{ documento.archivo.url }}" download class="fa fa-download" aria-hidden="true" title="Descargar"></a>
+                            </div>
+                        </li>
+                    </ul>
+                    {% empty %}
+                    <div class="empty-message">
+                        <i class="fa fa-folder-open"></i>
+                        <p>No hay documentos disponibles en este momento</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Sección: Video Tutoriales -->
+            <div class="grupo">
+                <div class="card">
+                    <div class="icon-cont tutoriales">
+                        <img class="icon" src="{% static 'img/video.png' %}" alt="Icono Video Tutoriales">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Video Tutoriales</h5>
+                        <p>En esta sección encontrarás los video tutoriales que te guiarán paso a paso en el uso de la plataforma.</p>           
+                    </div>
+                </div>
+                <div class="scrollable-list">
+                    {% for video in videos %}
+                    <ul class="lista">
+                        <li>
+                            <div class="icon-cont">
+                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                            </div>
+                            <div class="texto-lista">
+                                <span class="titulo">{{ video.titulo }}</span><br>
+                                <span class="subtitulo">{{ video.tipo_archivo }}</span>
+                            </div>
+                            <div class="acciones">
+                                <a href="{{ video.archivo.url }}" target="_blank" class="fas fa-eye" title="Ver"></a>
+                                <a href="{{ video.archivo.url }}" download class="fa fa-download descargar" aria-hidden="true" title="Descargar"></a>
+                            </div>
+                        </li>
+                    </ul>
+                    {% empty %}
+                    <div class="empty-message">
+                        <i class="fa fa-folder-open"></i>
+                        <p>No hay videos disponibles en este momento</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sección: Eventos -->
+            <div class="grupo">
+                <div class="card">
+                    <div class="icon-cont eventos">
+                        <img class="icon" src="{% static 'img/evento.png' %}" alt="Icono Eventos">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Eventos</h5>
+                        <p>En esta sección encontrarás información sobre los eventos académicos vinculados a los semilleros de investigación, como simposios, ponencias, conferencias, talleres y otras actividades formativas.</p>           
+                    </div>
+                </div>
+                <div class="scrollable-list">
+                    {% for evento in eventos %}
+                    <ul class="lista">
+                        <li>
+                            <div class="icon-cont">
+                                <img src="{% static 'img/calendar.png' %}" alt="Icono" class="icono">
+                            </div>
+                            <div class="texto-lista">
+                                <span class="titulo">{{ evento.nom_eve }}</span><br>
+                                <span class="subtitulo">{{ evento.fecha_eve }}</span>
+                            </div>
+                            <div class="acciones">
+                                <a href="#modal-evento-{{ evento.id }}" class="fas fa-eye" title="Ver detalles"></a>
+                            </div>
+                        </li>
+                    </ul>
+                    {% empty %}
+                    <div class="empty-message">
+                        <i class="fa fa-folder-open"></i>
+                        <p>No hay eventos disponibles en este momento</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sección: Preguntas y Soporte -->
+            <div class="grupo">
+                <div class="card">
+                    <div class="icon-cont soporte">
+                        <img class="icon" src="{% static 'img/ask.png' %}" alt="Icono Soporte">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Preguntas y Soluciones</h5>
+                        <p>En esta sección encontrarás el formulario de soporte técnico para reportar problemas críticos relacionados con el funcionamiento de la plataforma, que no puedan resolverse con ninguno de los recursos compartidos en esta sección</p>           
+                    </div>
+                </div>
+                <div class="scrollable-list">
+                    {% for pregunta in preguntas %}
+                    <ul class="lista">
+                        <li>
+                            <div class="icon-cont">
+                                <img src="{% static 'img/soporte.png' %}" alt="Icono" class="icono">
+                            </div>
+                            <div class="texto-lista">
+                                <span class="titulo">{{ pregunta.titulo }}</span><br>
+                                <span class="subtitulo">{{ pregunta.categoria }}</span>
+                            </div>
+                            <div class="acciones">
+                                <a href="#modal-pregunta-{{ pregunta.id }}" class="fas fa-eye" title="Ver respuesta"></a>
+                            </div>
+                        </li>
+                    </ul>
+                    {% empty %}
+                    <div class="empty-message">
+                        <i class="fa fa-folder-open"></i>
+                        <p>No hay preguntas frecuentes disponibles</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+<!-- Modales para Eventos -->
+{% for evento in eventos %}
+<div id="modal-evento-{{ evento.id }}" class="modal-overlay">
+    <div class="modal-contenido">
+        <a class="modal-perfil-cerrar" href="{% url 'centroayuda' %}">
+            <i class="fa fa-times"></i>
+        </a>
+        <h3>{{ evento.nom_eve }}</h3>
+        <div class="modal-info">
+            <div class="modal-info-item">
+                <strong>Fecha:</strong>
+                <p>{{ evento.fecha_eve|date:"d/m/Y" }}</p>
+            </div>
+            <div class="modal-info-item">
+                <strong>Descripción:</strong>
+                <p>{{ evento.desc_eve }}</p>
+            </div>
+            <div class="modal-info-item">
+                <strong>Modalidad:</strong>
+                <p>{{ evento.modalidad_eve }}</p>
+            </div>
+            {% if evento.direccion_eve %}
+            <div class="modal-info-item">
+                <strong>Dirección:</strong>
+                <p>{{ evento.direccion_eve }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+     
+{% endblock %}

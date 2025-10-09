@@ -23,6 +23,14 @@
     gap: clamp(30px, 5vw, 60px); /* Espacio entre columnas */
 }
 
+.perfil img{
+    transition: transform 0.3s ease;
+}
+
+.perfil:hover img {
+  transform: rotate(10deg);
+}
+
 .cont-1{
     display: flex;
     flex-direction: column;

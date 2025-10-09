@@ -5,7 +5,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.bienvenido, name='bienvenido'),
-    path('base/', views.base, name='base'),
     path('home/', views.home, name='home'),
     path('registro/', views.registro, name='registro'),
     path('iniciarsesion/', views.iniciarsesion, name='iniciarsesion'),
@@ -16,11 +15,12 @@ urlpatterns = [
     path('reset-password-confirm/', views.reset_password_confirm, name='reset_password_confirm'),
     path('perfil/', views.perfil, name='perfil'),
     path('semilleros/', views.semilleros, name='semilleros'),
-    path('base2/', views.base2, name='base2'),
     path('resumen/', views.resumen, name='resumen'),
     path('resu-miembros/', views.resu_miembros, name='resu-miembros'),
     path('resu-proyectos/', views.resu_proyectos, name='resu-proyectos'),
     path('recursos/', views.recursos, name='recursos'),
     path('proyectos/', views.proyectos, name='proyectos'),
-    path('miembros/', views.miembros, name='miembros')
+    path('miembros/', views.miembros, name='miembros'),
+    path('centroayuda/', views.centroayuda, name='centroayuda'),
+    path('reportes/', views.reportes, name='reportes'),
 ]
