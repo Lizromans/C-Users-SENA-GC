@@ -15,6 +15,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import permission_required
 from django.views.decorators.cache import never_cache
 from functools import wraps
+from .models import Semillero, Usuario, SemilleroUsuario, Aprendiz
 
 
 # Create your views here.
@@ -314,8 +315,6 @@ def reset_password_confirm(request):
     return redirect('iniciarsesion')
 
 # VISTA DE PRIVACIDAD
-
-
 def privacidad(request):
     usuario_id = request.session.get('cedula')
     
@@ -367,16 +366,200 @@ def perfil(request):
 
 # VISTAS SEMILLEROS
 def semilleros(request):
-    return render(request, 'paginas/semilleros.html')
+    semilleros = Semillero.objects.all()
 
-def resumen(request):
-    return render(request, 'paginas/resumen.html', 
-    {'current_page': 'resumen'})
+    return render(request, 'paginas/semilleros.html', 
+    {'semilleros': semilleros
+     })
+
+def crear_semillero(request):
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        cod_sem = request.POST.get('cod_sem')  
+        sigla = request.POST.get('sigla')
+        nombre = request.POST.get('nombre')
+        desc_sem = request.POST.get('desc_sem')
+        objetivo = request.POST.getlist('objetivo')  # varios textareas
+
+        # Combinar los objetivos en una sola cadena (separados por saltos de línea)
+        objetivo_texto = "\n".join(objetivo)
+
+        # Validar campos requeridos
+        if not all([cod_sem, sigla, nombre, desc_sem, objetivo_texto]):
+            messages.error(request, 'Todos los campos son obligatorios')
+            return redirect('semilleros')
+
+        try:
+            semillero = Semillero(
+                cod_sem=cod_sem,
+                sigla=sigla,
+                nombre=nombre,
+                desc_sem=desc_sem,
+                objetivo=objetivo_texto,
+                estado='Activo'
+            )
+            semillero.save()
+            messages.success(request, f'Semillero "{sigla}" creado exitosamente')
+            return redirect('semilleros')
+
+        except Exception as e:
+            messages.error(request, f'Error al crear semillero: {str(e)}')
+            return redirect('semilleros')
+
+    return redirect('semilleros')
+
+def resumen(request, id_sem):
+    semillero = Semillero.objects.get(id_sem=id_sem)
+    
+    # Convertir los objetivos a lista
+    objetivos_lista = []
+    if semillero.objetivo:  
+        objetivos_lista = semillero.objetivo.split('\n')
+        objetivos_lista = [obj.strip() for obj in objetivos_lista if obj.strip()]
+    
+    return render(request, 'paginas/resumen.html', {
+        'current_page': 'resumen',
+        'semillero': semillero,
+        'objetivos_lista': objetivos_lista
+    })
+
+def resu_miembros(request, id_sem):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+
+    cedulas_en_semillero = SemilleroUsuario.objects.filter(
+        id_sem=semillero
+    ).values_list('cedula', flat=True)
+    
+    # Instructores
+    usuarios = Usuario.objects.filter(cedula__in=cedulas_en_semillero)
+    usuarios_disponibles = Usuario.objects.exclude(cedula__in=cedulas_en_semillero)
+
+    # Aprendices
+    aprendices = Aprendiz.objects.filter(id_sem=semillero)
+
+    total_miembros = usuarios.count() + aprendices.count()
+
+    # Verificar si hay instructores y aprendices
+    tiene_instructores = any(u.rol.lower() == 'instructor' for u in usuarios)
+
+    context = {
+        'current_page': 'resu_miembros',
+        'semillero': semillero,
+        'usuarios': usuarios,
+        'aprendices': aprendices,
+        'Usuarios': usuarios_disponibles,
+        'total_miembros': total_miembros,
+        'tiene_instructores': tiene_instructores,
+    }
+    return render(request, 'paginas/resu-miembros.html', context)
+
+def agregar_miembros(request, id_sem):
+    if request.method == 'POST':
+        semillero = get_object_or_404(Semillero, id_sem=id_sem)
+        miembros_seleccionados = request.POST.getlist('miembros_seleccionados')
+        
+        if not miembros_seleccionados:
+            messages.warning(request, 'No se seleccionó ningún miembro')
+            return redirect('resu-miembros', id_sem=id_sem)
+        
+        try:
+            agregados = 0
+            ya_existentes = 0
+            
+            for cedula in miembros_seleccionados:
+                usuario = get_object_or_404(Usuario, cedula=cedula)
+                
+                existe = SemilleroUsuario.objects.filter(
+                    id_sem=semillero, 
+                    cedula=usuario
+                ).exists()
+                
+                if not existe:
+                    SemilleroUsuario.objects.create(
+                        id_sem=semillero, 
+                        cedula=usuario
+                    )
+                    agregados += 1
+                else:
+                    ya_existentes += 1
+            
+            if agregados > 0:
+                messages.success(request, f'{agregados} miembro(s) agregado(s) exitosamente')
+            if ya_existentes > 0:
+                messages.info(request, f'{ya_existentes} miembro(s) ya estaban en el semillero')
+            
+            return redirect('resu-miembros', id_sem=id_sem)
+            
+        except Exception as e:
+            messages.error(request, f'Error al agregar miembros: {str(e)}')
+            return redirect('resu-miembros', id_sem=id_sem)
+    
+    return redirect('resu-miembros', id_sem=id_sem)
+
+def detalle_semillero(request, id_sem):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+
+    # Obtener todos los miembros del semillero
+    miembros = SemilleroUsuario.objects.filter(id_sem=semillero)
+    
+    # Filtrar solo instructores e investigadores activos QUE YA ESTÁN EN EL SEMILLERO
+    instructores = miembros.filter(
+        cedula__rol__in=['Instructor', 'Investigador'],
+        cedula__estado=True
+    ).select_related('cedula')
+
+    context = {
+        'semillero': semillero,
+        'instructores': instructores,
+        'miembros': miembros,
+    }
+    return render(request, 'paginas/resu-miembros.html', context)
 
 
-def resu_miembros(request):
-    return render(request, 'paginas/resu-miembros.html', 
-    {'current_page': 'resu_miembros'})
+def asignar_lider_semillero(request, id_semillero):
+    semillero = get_object_or_404(Semillero, id_sem=id_semillero)
+    
+    if request.method == 'POST':
+        lider_cedula = request.POST.get('lider_semillero')
+        
+        if lider_cedula:
+            try:
+                # Buscar el instructor
+                instructor = Usuario.objects.get(cedula=lider_cedula)
+                
+                # Verificar que el instructor esté en el semillero
+                miembro_semillero = SemilleroUsuario.objects.filter(
+                    id_sem=semillero,
+                    cedula=instructor
+                ).exists()
+                
+                if not miembro_semillero:
+                    messages.error(request, 'El instructor seleccionado no pertenece a este semillero.')
+                    return redirect('resu-miembros', id_semillero)
+                
+                # Asignar líder (ajusta según tu modelo)
+                # Opción 1: Si tienes campo lider en Semillero
+                semillero.lider = instructor
+                semillero.save()
+                
+                # Opción 2: Si el líder se marca en SemilleroUsuario
+                # SemilleroUsuario.objects.filter(id_sem=semillero, es_lider=True).update(es_lider=False)
+                # SemilleroUsuario.objects.filter(id_sem=semillero, cedula=instructor).update(es_lider=True)
+                
+                messages.success(request, f'Líder {instructor.nom_usu} {instructor.ape_usu} asignado correctamente.')
+                
+            except Usuario.DoesNotExist:
+                messages.error(request, 'El instructor seleccionado no existe.')
+            except Exception as e:
+                messages.error(request, f'Error al asignar líder: {str(e)}')
+        else:
+            messages.warning(request, 'No se seleccionó ningún instructor.')
+        
+        return redirect('resu-miembros', id_semillero)
+    
+    # Si no es POST, redirigir
+    return redirect('resu-miembros', id_semillero)
+
 
 def resu_proyectos(request):
     return render(request, 'paginas/resu-proyectos.html', 

@@ -763,7 +763,6 @@ tbody td {
   align-items: center;
 }
 
-
 .modal-perfil-overlay.activo {
     display: flex;
     justify-content: center;
@@ -799,7 +798,7 @@ tbody td {
     color: #666;
     transition: all 0.3s ease;
     z-index: 10;
-    text-decoration: none; /* Eliminar subrayado del enlace */
+    text-decoration: none; 
 }
 
 .modal-perfil-cerrar:hover {

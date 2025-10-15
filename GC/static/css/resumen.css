@@ -20,7 +20,7 @@
 /* Contenedor secundario */
 .resumen {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); 
+    grid-template-columns: repeat(3, 1fr); 
     width: 100%;
     gap: clamp(1rem, 2vw, 2rem);
     background-color: var(--color-fondo-secundario);
@@ -36,7 +36,7 @@
     transition: transform 0.3s ease;
 }
 
-.resumen:hover img,
+.grupo:hover img,
 .icon {
   transform: rotate(10deg);
 }
@@ -125,7 +125,8 @@
     align-items: center;
 }
 
-.resumen .texto-inferior p {
+.texto-inferior li, 
+p {
     margin: 0 0 clamp(0.8rem, 1.5vh, 1.2rem) 0;
     color: var(--color-text-secondary);
     font-size: clamp(0.8rem, 1.8vw, 1rem);

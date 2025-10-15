@@ -252,7 +252,6 @@
     backdrop-filter: blur(10px);
 }
 
-
 .filtros .fa-search {
     position: absolute;
     left: clamp(47rem, 50vw, 47rem);

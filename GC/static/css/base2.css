@@ -556,6 +556,10 @@ main {
     padding: clamp(1px, 0.3vw, 5px) clamp(4px, 0.8vw, 10px);
 }
 
+.card-body p{
+    color: var(--color-text-primary);
+}
+
 /* Card-info más compacto */
 .card-info {
     display: flex;
@@ -578,11 +582,11 @@ main {
     line-height: 1.1;
     padding: clamp(4px, 1vw, 12px) clamp(6px, 1.2vw, 12px);
     margin-bottom: clamp(1%, 1.5vh, 3%);
-    border-radius: clamp(4px, 1vw, 8px); /* Bordes más suaves */
+    border-radius: clamp(4px, 1vw, 8px); 
 }
 
 .badge.bg-secondary {
-    background-color: transparent!important; /* Cambia por tu color */
+    background-color: transparent!important; 
     color: var(--color-text-primary);
 }
 

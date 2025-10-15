@@ -54,6 +54,7 @@
     text-decoration: none;
 }
 
+.title:hover img,
 .reporte-card:hover img,
 .lista:hover i,
 .grupo:hover i,
@@ -483,21 +484,42 @@
     gap: 0.5rem;
     padding: clamp(0.75rem, 1.5vw, 1rem);
     border-radius: 8px;
-    border: 2px solid transparent;
     transition: all 0.3s ease;
     font-weight: 600;
     font-size: clamp(0.9rem, 1.5vw, 1rem);
 }
 
-.categoria-selector input[type="checkbox"]:checked + .categoria-badge {
+.categoria-selector input[type="checkbox"]:checked + .semilleros-badge {
+    border: 2px solid transparent;
     border-color: currentColor;
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 0 4px rgba(251, 140, 0, 0.4);
+}
+
+.categoria-selector input[type="checkbox"]:checked + .proyectos-badge {
+    border: 2px solid transparent;
+    border-color: currentColor;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.4);
+}
+
+.categoria-selector input[type="checkbox"]:checked + .miembros-badge {
+    border: 2px solid transparent;
+    border-color: currentColor;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.4);
+}
+
+.categoria-selector input[type="checkbox"]:checked + .entregables-badge {
+    border: 2px solid transparent;
+    border-color: currentColor;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(192, 51, 218, 0.4);
 }
 
 .semilleros-badge {
-  background: linear-gradient(135deg, #ffe0b2 0%, #fb8c00 100%);
-  color: #fff;
+    background: linear-gradient(135deg, #ffe0b2 0%, #fb8c00 100%);
+    color: #fff;
 }
 
 .proyectos-badge {
@@ -513,6 +535,26 @@
 .entregables-badge {
     background: linear-gradient(135deg, #e884f8 0%, #c033da 100%);
     color: #fff;
+}
+
+.semilleros-badge:focus {
+    box-shadow: 0 0 0 4px rgba(251, 140, 0, 0.4);
+    outline: none;
+}
+
+.proyectos-badge:focus {
+    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.4);
+    outline: none;
+}
+
+.miembros-badge:focus {
+    box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.4);
+    outline: none;
+}
+
+.entregables-badge:focus {
+    box-shadow: 0 0 0 4px rgba(192, 51, 218, 0.4);
+    outline: none;
 }
 
 /* ====== CAMPOS DINÁMICOS ====== */
@@ -758,4 +800,3 @@
 .lista li .titulo:has(~ .subtitulo):before {
     content: '';
 }
-

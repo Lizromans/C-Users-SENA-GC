@@ -189,26 +189,32 @@
             <div class="contenedor-principal">
                 <div class="bienvenida">
                     <div class="card-body">
-                        <h4>Semillero de Biotecnología</h4>
-                        <h5>Innovación en Biotecnología</h5>
-                        <h6>SM-SI-09</h6>
-                        <p class="card-text">Descubre los avances en biotecnología y su impacto en la salud y el medio ambiente.</p>
+                        <h4>{{ semillero.nombre }}</h4>
+                        <h5>{{ semillero.sigla }}</h5>
+                        <h6>{{ semillero.cod_sem }}</h6>
+                        <p class="card-text">{{ semillero.desc_sem|default:"Sin descripción disponible" }}</p>
                         <div class="card-info">
-                            <span class="badge bg-secondary">2 
-                                Ciencia</span>
-                            <span class="badge bg-secondary">3 
-                                Tecnología</span>
-                            <span class="badge bg-secondary">3 
-                                Tecnología</span>
+                            <span class="badge bg-secondary">
+                                <strong>{{ total_miembros }}</strong>
+                                <span>Miembros</span>
+                            </span>
+                            <span class="badge bg-secondary">
+                                <strong>{{ total_miembros }}</strong>
+                                <span>Proyectos</span>
+                            </span>
+                            <span class="badge bg-secondary">
+                                <strong>{{ total_miembros }}</strong>
+                                <span>Entregables</span>
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="menu">
-                <a href="{% url 'resumen' %}" class="menu-button {% if current_page == 'resumen' %}active{% endif %}">
+                <a href="{% url 'resumen' semillero.id_sem %}" class="menu-button {% if current_page == 'resumen' %}active{% endif %}">
                     <img src="{% static 'img/Clipboard.png' %}" alt="Icono de Folder" class="icon-button">
                     Resumen</a>
-                <a href="{% url 'resu-miembros' %}" class="menu-button {% if current_page == 'resu_miembros' %}active{% endif %}">
+                <a href="{% url 'resu-miembros' semillero.id_sem %}" class="menu-button {% if current_page == 'resu_miembros' %}active{% endif %}">
                     <img src="{% static 'img/people.png' %}" alt="Icono de Usuarios" class="icon-button">
                     Miembros</a>
                 <a href="{% url 'resu-proyectos' %}" class="menu-button {% if current_page == 'resu_proyectos' %}active{% endif %}">

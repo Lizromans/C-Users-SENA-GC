@@ -28,7 +28,7 @@
     transition: transform 0.3s ease;
 }
 
-.contenedor-secundario:hover
+.grupo:hover
 .icon {
   transform: rotate(10deg);
 }
@@ -216,7 +216,7 @@
 
 .contenedor-secundario .icon-cont {
     flex: 0 0 clamp(60px, 15%, 90px);
-    height: clamp(60px, 8vh, 90px);
+    height: clamp(65px, 7vh, 85px);
     margin: clamp(12px, 1.5vh, 20px) 0 0 clamp(15px, 2vw, 25px);
     border-radius: 7%;
     display: flex;
@@ -248,6 +248,11 @@
 
 .contenedor-secundario .icon {
     font-size: clamp(20px, 3vw, 30px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    text-align: center;
 }
 
 .contenedor-secundario .card-body {
@@ -268,7 +273,7 @@
 }
 
 .contenedor-secundario .texto-inferior {
-    padding: clamp(15px, 2vh, 25px) clamp(20px, 3vw, 40px);
+    padding: clamp(15px, 2vh, 25px) ;
     background-color: transparent;
     display: flex;
     flex-direction: column;
@@ -287,6 +292,7 @@
 
 .contenedor-secundario .redirigir {
     color: white;
+    margin: 0 auto clamp(15px, 2vw, 25px) auto;
     font-weight: 600;
     padding: clamp(0.5rem, 1vh, 0.8rem) clamp(1rem, 2vw, 1.5rem);
     border-radius: 8px;

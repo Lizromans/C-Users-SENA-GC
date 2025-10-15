@@ -14,15 +14,32 @@ urlpatterns = [
     path('reset-password/<str:uidb64>/<str:token>/', views.reset_password, name='reset_password'),
     path('reset-password-confirm/', views.reset_password_confirm, name='reset_password_confirm'),
     path('perfil/', views.perfil, name='perfil'),
+
+    #SEMILERO
     path('semilleros/', views.semilleros, name='semilleros'),
-    path('resumen/', views.resumen, name='resumen'),
-    path('resu-miembros/', views.resu_miembros, name='resu-miembros'),
+    path('crear_semillero/', views.crear_semillero, name='crear_semillero'),
+    path('semillero/<int:id_sem>/miembros/', views.resu_miembros, name='resu-miembros'),
+    path('semillero/<int:id_sem>/agregar-miembros/', views.agregar_miembros, name='agregar_miembros'),
+    path('resumen/<int:id_sem>/', views.resumen, name='resumen'),
+    path('resu-miembros/<int:id_sem>/', views.resu_miembros, name='resu-miembros'),
+    path('semillero/<int:id_semillero>/asignar-lider/', views.asignar_lider_semillero, name='asignar-lider-semillero'),
+    path('agregar-miembros/<int:id_sem>/', views.agregar_miembros, name='agregar_miembros'),
     path('resu-proyectos/', views.resu_proyectos, name='resu-proyectos'),
     path('recursos/', views.recursos, name='recursos'),
+
+    #PROYECTOS
     path('proyectos/', views.proyectos, name='proyectos'),
+
+    #MIEMBROS
     path('miembros/', views.miembros, name='miembros'),
+
+    #CENTRO DE AYUDA
     path('centroayuda/', views.centroayuda, name='centroayuda'),
+
+    #REPORTES
     path('reportes/', views.reportes, name='reportes'),
+
+    #CONFIGURACIONES ADICIONES 
     path('privacidad/', views.privacidad, name='privacidad'),
     path('logout/', views.logout, name='logout'),
 ]

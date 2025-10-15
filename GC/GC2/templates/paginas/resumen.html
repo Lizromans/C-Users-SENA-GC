@@ -1,6 +1,6 @@
 {% extends "base2.html" %}
 {% load static %}
-{% block titulo %} NOMBRE {% endblock %}
+{% block titulo %} {{ semillero.nombre }} {% endblock %}
 {% block css %}
 <link href="{% static 'css/resumen.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -18,39 +18,47 @@
                 </div>
             </div>
             <div class="texto-inferior">
-                <p>Administra tus semilleros de investigación, añade estudiantes y supervisa proyectos activos.</p>
+                <ul>
+                    {% for objetivo in objetivos_lista %}
+                        <li>{{ objetivo }}</li>
+                    {% empty %}
+                        <li>Sin objetivos definidos</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
         
         <div class="grupo">
             <div class="card">
                 <div class="icon-cont lineas">
-                    <img src="{% static 'img/microscopio.png' %}" alt="Objetivos">
+                    <img src="{% static 'img/creacion.png' %}" alt="Creación">
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Objetivos del Semillero</h5>            
+                    <h5 class="card-title">Fecha de Creación</h5>            
                 </div>
             </div>
             <div class="texto-inferior">
-                <p>Administra tus semilleros de investigación, añade estudiantes y supervisa proyectos activos.</p>
+                <p>El semillero fue creado el: {{ semillero.fecha_creacion|date:"d/m/Y" }}</p>
             </div>
         </div>
 
         <div class="grupo">
             <div class="card">
                 <div class="icon-cont progreso">
-                    <img src="{% static 'img/progreso.png' %}" alt="Objetivos">
+                    <img src="{% static 'img/progreso.png' %}" alt="Progreso">
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Objetivos del Semillero</h5>            
+                    <h5 class="card-title">Progreso General</h5>            
                 </div>
             </div>
             <div class="texto-inferior">
-                <p>Administra tus semilleros de investigación, añade estudiantes y supervisa proyectos activos.</p>
+                <p>{{ progreso|floatformat:0 }}% completado</p>
             </div>
         </div>
     </div>     
 
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/mensaje.js' %}"></script>
+
 
 {% endblock %}

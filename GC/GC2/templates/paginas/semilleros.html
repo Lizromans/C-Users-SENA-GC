@@ -1,97 +1,196 @@
- {% extends "base.html" %} {% load static %} 
- {% block titulo %} NOMBRE {% endblock %} 
- {% block css %} 
- <link href="{% static 'css/semilleros.css' %}" rel="stylesheet"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> 
- {% endblock %} 
- {% block contenido %} 
- {% endblock %} 
- {% block main %}      
-    <div class="contenedor1">         
-        <div class="contenedor-titulo">             
-            <img src="{% static 'img/microscopio.png' %}" alt="Semilleros">             
-            <h1 class="titulo">Semilleros</h1>         
-        </div>         
-        <div class="buscador">             
-            <div class="input-group">                 
-                <input type="text" class="form-control" placeholder="Buscar semillero..." aria-label="Buscar semillero" aria-describedby="button-search">                 
-                <button class="btn btn-primary" type="button" id="button-search"> <i class="fa fa-search"></i>                 
-                </button>             
-            </div>             
-            <div class="filtros">                 
-                <select class="form-select" aria-label="Filtrar por categoría">                     
-                    <option selected>Filtrar por categoría</option>                     
-                    <option value="1">Ciencia</option>                     
-                    <option value="2">Tecnología</option>                     
-                    <option value="3">Ingeniería</option>                     
-                    <option value="4">Matemáticas</option>                 
-                </select>                 
-                <select class="form-select" aria-label="Ordenar por">                     
-                    <option selected>Ordenar por</option>                     
-                    <option value="1">Más recientes</option>                     
-                    <option value="2">Más antiguos</option>                     
-                    <option value="3">A-Z</option>                     
-                    <option value="4">Z-A</option>                 
-                </select>             
-            </div>         
-        </div>         
-        <div class="contenedor-semillero">             
-            <div class="card-semillero">                 
-                <div class="card-body">                     
-                    <h4>Semillero de Robótica</h4>                     
-                    <h5 >Explora la Robótica</h5>                     
-                    <h6>codigo</h6>                     
-                    <p class="card-text">Explora el mundo de la robótica y la automatización con proyectos innovadores.</p>                     
-                    <div class="card-info">                         
-                        <span class="badge bg-secondary">2                              
-                            Ciencia</span>                         
-                        <span class="badge bg-secondary">3                              
-                            Tecnología</span>                         
-                        <span class="badge bg-secondary">3                             
-                            Tecnología</span>                    
-                        </div>                     
-                        <a href="{% url 'resumen' %}" class="btn btn-primary">Ver más</a>                 
-                    </div>             
-                </div>             
-                <div class="card-semillero">                 
-                    <div class="card-body">                     
-                        <h4>Semillero de Biotecnología</h4>                     
-                        <h5 >Innovación en Biotecnología</h5>                     
-                        <h6>codigo</h6>                     
-                        <p class="card-text">Descubre los avances en biotecnología y su impacto en la salud y el medio ambiente.</p>                     
-                        <div class="card-info">                         
-                            <span class="badge bg-secondary">2                              
-                                Ciencia</span>                         
-                            <span class="badge bg-secondary">3                              
-                                Tecnología</span>                         
-                            <span class="badge bg-secondary">3                              
-                                Tecnología</span>                     
-                        </div>                     
-                        <a href="#" class="btn btn-primary">Ver más</a>                 
-                    </div>             
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %} NOMBRE {% endblock %}
+
+{% block css %}
+<link href="{% static 'css/semilleros.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block contenido %}
+{% endblock %}
+
+{% block main %}
+   <!-- Mensajes de alerta -->
+    <div class="mensajes-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close-btn" onclick="this.parentElement.style.display='none'">&times;</button>
                 </div>
-                <div class="card-semillero">                 
-                    <div class="card-body">                     
-                        <h4>Semillero de Biotecnología</h4>                     
-                        <h5 >Innovación en Biotecnología</h5>                     
-                        <h6>codigo</h6>                     
-                        <p class="card-text">Descubre los avances en biotecnología y su impacto en la salud y el medio ambiente.</p>                     
-                        <div class="card-info">                         
-                            <span class="badge bg-secondary">2                              
-                                Ciencia</span>                         
-                            <span class="badge bg-secondary">3                              
-                                Tecnología</span>                         
-                            <span class="badge bg-secondary">3                              
-                                Tecnología</span>                     
-                        </div>                     
-                        <a href="#" class="btn btn-primary">Ver más</a>                 
-                    </div>             
-                </div>                  
-            </div> 
-        </div>
-        
+            {% endfor %}
+        {% endif %}
     </div>
 
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <div class="contenedor1">
+        <div class="contenedor-titulo">
+            <img src="{% static 'img/microscopio.png' %}" alt="Semilleros">
+            <h1 class="titulo">Semilleros</h1>
+        </div>
+        
 
- 
+        
+        <div class="buscador">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Buscar semillero..." aria-label="Buscar semillero" aria-describedby="button-search">
+                <button class="btn btn-primary" type="button" id="button-search">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+            <div class="filtros">
+                <select class="form-select" aria-label="Filtrar por categoría">
+                    <option selected>Filtrar por categoría</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" aria-label="Ordenar por">
+                    <option selected>Ordenar por</option>
+                    <option value="1">Más recientes</option>
+                    <option value="2">Más antiguos</option>
+                    <option value="3">A-Z</option>
+                    <option value="4">Z-A</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="contenedor-semillero">
+            <div class="header-semilleros">
+                <button class="btn-crear-semillero" data-bs-toggle="modal" data-bs-target="#modal-crear">
+                    <i class="fas fa-plus"></i> Crear Semillero
+                </button>
+            </div>
+            
+            <div class="grid-semilleros">
+                {% for semillero in semilleros %}
+                <div class="card-semillero">
+                    <div class="card-body">
+                        <h4>{{ semillero.nombre }}</h4>
+                        <h5>{{ semillero.sigla }}</h5>
+                        <h6>{{ semillero.cod_sem }}</h6>
+                        <p class="card-text">{{ semillero.desc_sem }}</p>
+                        <div class="card-info">
+                            <span class="badge bg-secondary">{{ total_participantes }} Participantes</span>
+                            <span class="badge bg-secondary">{{ total_proyectos }} Proyectos</span>
+                            <span class="badge bg-secondary">{{ total_entregables }} Entregables</span>
+                        </div>
+                        <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-semilleros">
+                    <i class="fas fa-inbox"></i>
+                    <p>No hay semilleros disponibles</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+<!-- MODAL CREAR SEMILLERO -->
+<div id="modal-crear" class="modal-overlay">
+    <div class="modal-contenedor">
+        <!-- Botón cerrar (X) -->
+        <a href="{% url 'semilleros' %}" class="modal-cerrar">&times;</a>
+        
+        <div class="modal-contenido">
+            <!-- Header del modal -->
+            <div class="modal-header">
+                <img src="{% static 'img/microscopio.png' %}" alt="Semilleros">
+                <h2 class="modal-titulo">Crear Nuevo Semillero</h2>
+            </div>
+            
+            <!-- Formulario -->
+            <form method="POST" action="{% url 'crear_semillero' %}" class="modal-form">
+                {% csrf_token %}
+                
+                <!-- Sección: Información Básica -->
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <i class="fas fa-info-circle"></i>
+                        <h6>Información Básica</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-primario">
+                    
+                    <div class="modal-form-grid">
+                        <div class="modal-campo">
+                            <label for="sigla">Siglas *</label>
+                            <input type="text" id="subtitulo" name="sigla" placeholder="Ej: Explora la Robótica" required>
+                        </div>
+                        
+                        <div class="modal-campo">
+                            <label for="cod_sem">Código *</label>
+                            <input type="text" id="codigo" name="cod_sem" placeholder="Ej: SEM-ROB-001" required>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-campo" id="sub-campo">
+                        <label for="nombre">Nombre del Semillero *</label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej: Semillero de Robótica" required>
+                    </div>
+                </div>
+                
+                <!-- Sección: Descripción y Categorías -->
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <i class="fas fa-align-left"></i>
+                        <h6>Descripción</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-secundario">
+                    
+                    <div class="modal-campo">
+                        <label for="des_sem">Descripción *</label>
+                        <textarea id="descripcion" name="desc_sem" placeholder="Describe el propósito del semillero..." required></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sección: Objetivos -->
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <i class="fas fa-bullseye"></i>
+                        <h6>Objetivos del Semillero</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-terciario">
+                    
+                    <div id="objetivos-container">
+                        <!-- Objetivo 1 (por defecto) -->
+                        <div class="objetivo-item">
+                            <div class="modal-campo">
+                                <label for="objetivo">Objetivo 1 *</label>
+                                <div class="objetivo-input-group">
+                                    <textarea id="objetivo_1" name="objetivo" class="objetivo-textarea" placeholder="Describe el objetivo del semillero..." required></textarea>
+                                    <button type="button" class="btn-eliminar-objetivo" disabled title="Mínimo 1 objetivo">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="btn-agregar-objetivo" class="btn-agregar-item">
+                        <i class="fas fa-plus-circle"></i> Agregar otro objetivo
+                    </button>
+                </div>
+                
+                <hr class="modal-hr modal-hr-final">
+                
+                <!-- Acciones del modal -->
+                <div class="modal-acciones">
+                    <a href="{% url 'semilleros' %}" class="modal-btn modal-btn-cancelar">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="modal-btn modal-btn-primario">
+                        <i class="fas fa-check"></i> Crear Semillero
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/objetivos.js' %}"></script>
+
 {% endblock %}

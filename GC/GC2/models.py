@@ -11,12 +11,11 @@ class Usuario(models.Model):
     cedula = models.IntegerField(primary_key=True)
     nom_usu = models.CharField(max_length=250)
     ape_usu = models.CharField(max_length=250)
-    fecha_nacimiento = models.CharField(max_length=250, null=True, blank=True)
+    fecha_nacimiento = models.DateField(null=True, blank=True)
     telefono = models.CharField(max_length=250, null=True, blank=True)
     correo_per = models.CharField(max_length=250, null=True, blank=True)
     correo_ins = models.CharField(max_length=250)
     rol = models.CharField(max_length=250)
-    genero = models.CharField(max_length=45,null=True, blank=True)
     vinculacion_laboral = models.CharField(max_length=250, null=True, blank=True)
     dependencia = models.CharField(max_length=250, null=True, blank=True)
     estado = models.CharField(max_length=250, null=True, blank=True)
@@ -30,8 +29,8 @@ class Usuario(models.Model):
 
     grupos = models.ManyToManyField(
     Group,
-    through='UsuarioGrupos',  # ⭐ Esto es CRÍTICO
-    related_name='usuarios',   # Cambié a plural
+    through='UsuarioGrupos', 
+    related_name='usuarios',   
     blank=True,
     verbose_name='Grupos de permisos'
 )
@@ -101,7 +100,11 @@ class Usuario(models.Model):
             [self.correo_ins],
             fail_silently=False,
         )
-
+    
+    @property
+    def get_iniciales(self):
+        return f"{self.nom_usu[0]}{self.ape_usu[0]}".upper()
+    
 class UsuarioGrupos(models.Model):
     id = models.IntegerField(primary_key=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
@@ -114,37 +117,43 @@ class UsuarioGrupos(models.Model):
 
 
 class Semillero(models.Model):
-    cod_sem = models.IntegerField(primary_key=True)
+    id_sem = models.AutoField(primary_key=True)
+    cod_sem = models.CharField(max_length=20)
     sigla = models.CharField(max_length=250)
     nombre = models.CharField(max_length=250)
     desc_sem = models.TextField()
     objetivo = models.TextField()
     estado = models.CharField(max_length=250)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
+
 
     class Meta:
-        managed = False
         db_table = 'semillero'
+
 
 class Aprendiz(models.Model):
     cedula_apre = models.IntegerField(primary_key=True)
     nombre = models.CharField(max_length=60)
     apellido = models.CharField(max_length=60)
     fecha_nacimiento = models.CharField(max_length=45)
-    genero = models.CharField(max_length=45)
     ficha = models.IntegerField()
     programa = models.CharField(max_length=100)
     correo_per = models.CharField(max_length=250)
     correo_ins = models.CharField(max_length=250)
     medio_bancario = models.CharField(max_length=45)
-    numero_cuenta = models.IntegerField()
+    numero_cuenta = models.CharField(max_length=15)
     modalidad = models.CharField(max_length=45)
     telefono = models.CharField(max_length=45)
     estado_apre = models.CharField(max_length=45)
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE)
+    id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
 
     class Meta:
         managed = False
         db_table = 'aprendiz'
+
+    @property
+    def get_iniciales(self):
+        return f"{self.nombre[0]}{self.apellido[0]}".upper()
 
 
 class Proyecto(models.Model):
@@ -232,9 +241,21 @@ class SemilleroProyecto(models.Model):
 
 
 class SemilleroUsuario(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
-    cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
+    id_sem = models.ForeignKey(
+        Semillero, 
+        on_delete=models.CASCADE, 
+        db_column='id_sem',
+    )
+    cedula = models.ForeignKey(
+        Usuario, 
+        on_delete=models.CASCADE, 
+        db_column='cedula'
+    )
 
     class Meta:
         managed = False
         db_table = 'semillero_usuario'
+        unique_together = (('id_sem', 'cedula'),)
+    
+    def __str__(self):
+        return f"{self.cedula.nom_usu} en {self.id_sem.nom_sem}"
