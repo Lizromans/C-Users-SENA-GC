@@ -34,7 +34,7 @@
             
             
             <div class="lista-miembros">
-                {% if usuarios %}
+                {% if miembros %}
                     <!-- Sección de Instructores con Carrusel -->
                     {% if tiene_instructores %}
                         <div class="seccion-miembros">
@@ -42,44 +42,68 @@
                                 <img src="{% static 'img/instructor.png' %}" alt="Icono de Instructores" class="icono-seccion">
                                 <h3 class="titulo-seccion">Instructores</h3>
                             </div>
-                                
+                                            
                             <div class="carousel-container">
                                 <button class="nav-arrow left" data-carousel="instructores">‹</button>
+                                
                                 <div class="carousel-track" data-carousel="instructores">
-                                    {% for usuario in usuarios %}
-                                        {% if usuario.rol == "Instructor" or usuario.rol == "Investigador" or usuario.rol == "investigador" %}
-                                        <div class="card" data-index="{{ forloop.counter0 }}">
-                                            <div class="item-miembro">
-                                                <div class="avatar-miembro" data-color="{{ forloop.counter }}">
-                                                    {{ usuario.get_iniciales }}
-                                                </div>
-                                                <div class="info-miembro">
-                                                    <h4>{{ usuario.nom_usu }} {{ usuario.ape_usu }}</h4>
-                                                    <span class="rol-miembro">{{ usuario.rol }}</span>
-                                                </div>
-                                                <div class="estado-miembro">
-                                                    {% if usuario.estado %}
-                                                        <span class="badge-activo">Activo</span>
-                                                    {% else %}
-                                                        <span class="badge-inactivo">Inactivo</span>
+                                    {% for m in miembros %}
+                                        {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
+                                            <div class="card" data-index="{{ forloop.counter0 }}">
+                                                <div class="item-miembro">
+                                                    <!-- Ícono de líder -->
+                                                    <div class="lider">
+                                                        {% if m.es_lider %}
+                                                            <img src="{% static 'img/Medal.png' %}" alt="Líder" class="icono-lider">
+                                                        {% endif %}
+                                                    </div>
+                                                    
+                                                    <!-- Estado arriba a la derecha -->
+                                                    <div class="estado-miembro">
+                                                        {% if m.cedula.estado %}
+                                                            <span class="badge-activo">Activo</span>
+                                                        {% else %}
+                                                            <span class="badge-inactivo">Inactivo</span>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    <!-- Avatar centrado -->
+                                                    <div class="avatar-miembro" data-color="{{ forloop.counter }}">
+                                                        {{ m.cedula.get_iniciales }}
+                                                    </div>
+
+                                                    <!-- Información del usuario -->
+                                                    <div class="info-miembro">
+                                                        <h4>{{ m.cedula.nom_usu }} {{ m.cedula.ape_usu }}</h4>
+                                                        <span class="rol-miembro">{{ m.cedula.rol }}</span>
+                                                    {% if m.es_lider %}
+                                                        <span class="rol-lider">Lider de Semillero</span>
                                                     {% endif %}
+                                                    </div>
+
+                                                    
                                                 </div>
                                             </div>
-                                        </div>
                                         {% endif %}
                                     {% endfor %}
                                 </div>
+
                                 <button class="nav-arrow right" data-carousel="instructores">›</button>
                             </div>
 
+                            <!-- Dots del carrusel -->
                             <div class="dots" data-carousel="instructores">
-                                {% for usuario in usuarios %}
-                                    <div class="dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></div>
+                                {% for m in miembros %}
+                                    {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
+                                        <div class="dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></div>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
                     {% endif %}
                 {% endif %}
+
+
                 
                
                 {% if aprendices %}
@@ -125,7 +149,7 @@
                     </div>
                 {% endif %}
             </div>
-            {% if miembros %}
+            {% if miembro in miembros %}
                 <div class="sin-miembros">
                     <p>No hay miembros en este semillero</p>
                 </div>
@@ -154,7 +178,7 @@
                 <div class="lista-miembros-modal">
                     {% for usuario in Usuarios %}
                         <div class="item-miembro-modal">
-                            <div class="avatar-miembro">
+                            <div class="avatar-miembro" data-color="{{ forloop.counter }}" >
                                 {{ usuario.get_iniciales }}
                             </div>
                             <div class="info-miembro">
@@ -185,58 +209,96 @@
     </div>
 </div>
 
-<!-- MODAL ASIGNAR LIDER SEMILLERO -->
+<!-- MODAL ASIGNAR LÍDER DE SEMILLERO -->
 <div id="modal-semillero" class="modal-overlay">
     <div class="modal-contenedor modal-miembros">
-        <a href="#" class="modal-cerrar" onclick="cerrarModal('modal-semillero'); return false;">&times;</a>
-        
+        <!-- Botón cerrar -->
+        <a href="{% url 'resu-miembros' semillero.id_sem %}" 
+           class="modal-cerrar" 
+           onclick="cerrarModal('modal-semillero'); return false;">&times;</a>
+
+        <!-- Formulario -->
         <form method="POST" action="{% url 'asignar-lider-semillero' semillero.id_sem %}">
             {% csrf_token %}
             
             <div class="modal-contenido">
+
+                <!-- Encabezado -->
                 <div class="modal-header">
-                    <img src="{% static 'img/Medal.png' %}" alt="Semilleros">
-                    <h2 class="modal-titulo">Asignar Líder De Semillero: {{ semillero.sigla }}</h2>
+                    <img src="{% static 'img/Medal.png' %}" alt="Icono de semilleros">
+                    <h2 class="modal-titulo">
+                        Asignar Líder del Semillero: <span>{{ semillero.sigla }}</span>
+                    </h2>
                 </div>
-                
+               
+                <!-- Lista de miembros -->
                 <div class="lista-miembros-modal">
-                    {% for miembro in instructores %}
-                        <div class="item-miembro-modal">
-                            <div class="avatar-miembro" data-color="{{ forloop.counter }}">
-                                {{ miembro.cedula.get_iniciales }}
-                            </div>
-                            <div class="info-miembro">
-                                <h4>{{ miembro.cedula.nom_usu }} {{ miembro.cedula.ape_usu }}</h4>
-                                <span class="rol-miembro">{{ miembro.cedula.rol }}</span>
-                            </div>
-                            <div class="check">
-                                <label>
-                                    <input type="radio" 
-                                           name="lider_semillero" 
-                                           value="{{ miembro.cedula.cedula }}"
-                                           required>
-                                </label>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <p class="sin-resultados">No hay instructores en este semillero. Agrega instructores primero.</p>
-                    {% endfor %}
+                    {% if miembros %}
+                        {% for m in miembros %}
+                            {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
+                                <div class="item-miembro-modal {% if m.es_lider %}item-lider{% endif %}">
+                                    <!-- Avatar -->
+                                    <div class="avatar-miembro" data-color="{{ forloop.counter }}">
+                                        {{ m.cedula.get_iniciales }}
+                                    </div>
+
+                                    <!-- Información -->
+                                    <div class="info-miembro">
+                                        <h4>
+                                            {{ m.cedula.nom_usu }} {{ m.cedula.ape_usu }}
+                                            {% if m.es_lider %}
+                                                <img src="{% static 'img/Medal.png' %}" 
+                                                     alt="Líder actual" 
+                                                     class="icono-lider-inline">
+                                            {% endif %}
+                                        </h4>
+                                        <span class="rol-miembro">{{ m.cedula.rol }}</span>
+                                        {% if m.es_lider %}
+                                            <span class="badge-lider">Líder actual</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Selección de líder -->
+                                    <div class="check">
+                                        <label>
+                                            <input 
+                                                type="radio" 
+                                                name="lider_semillero" 
+                                                value="{{ m.semusu_id }}" 
+                                                {% if m.es_lider %}checked{% endif %}
+                                                required
+                                            >
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="sin-resultados">
+                            No hay instructores disponibles en este semillero.<br>
+                            Agrega instructores antes de asignar un líder.
+                        </p>
+                    {% endif %}
                 </div>
-                
+
                 <hr class="modal-hr modal-hr-final">
-                
+
+                <!-- Acciones -->
                 <div class="modal-acciones">
                     <a href="{% url 'resu-miembros' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
                         <i class="fas fa-times"></i> Cancelar
                     </a>
-                    <button type="submit" class="modal-btn modal-btn-primario">
-                        <i class="fas fa-check"></i> Asignar Líder
+                    <button type="submit" class="modal-btn modal-btn-asignar">
+                        <img src="{% static 'img/Medal.png' %}" alt="Icono de Líder de Semillero">
+                        Asignar Líder
                     </button>
-                </div>    
+                </div>
             </div>
         </form>
     </div>
 </div>
+
+
 
     <script src="{% static 'js/miembros-carousel.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>

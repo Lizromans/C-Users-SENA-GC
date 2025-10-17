@@ -367,10 +367,24 @@ def perfil(request):
 # VISTAS SEMILLEROS
 def semilleros(request):
     semilleros = Semillero.objects.all()
-
-    return render(request, 'paginas/semilleros.html', 
-    {'semilleros': semilleros
-     })
+    
+    # Calcular totales para cada semillero
+    for semillero in semilleros:
+        cedulas = SemilleroUsuario.objects.filter(
+            id_sem=semillero
+        ).values_list('cedula', flat=True)
+        
+        total_usuarios = Usuario.objects.filter(cedula__in=cedulas).count()
+        total_aprendices = Aprendiz.objects.filter(id_sem=semillero).count()
+        
+        # Agregar como atributo dinámico
+        semillero.total_miembros = total_usuarios + total_aprendices
+        semillero.total_proyectos = 0  # Ajusta según tu lógica
+        semillero.total_entregables = 0  # Ajusta según tu lógica
+    
+    return render(request, 'paginas/semilleros.html', {
+        'semilleros': semilleros
+    })
 
 def crear_semillero(request):
     if request.method == 'POST':
@@ -409,7 +423,7 @@ def crear_semillero(request):
     return redirect('semilleros')
 
 def resumen(request, id_sem):
-    semillero = Semillero.objects.get(id_sem=id_sem)
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
     # Convertir los objetivos a lista
     objetivos_lista = []
@@ -417,10 +431,20 @@ def resumen(request, id_sem):
         objetivos_lista = semillero.objetivo.split('\n')
         objetivos_lista = [obj.strip() for obj in objetivos_lista if obj.strip()]
     
+    # Calcular total de miembros
+    cedulas = SemilleroUsuario.objects.filter(
+        id_sem=semillero
+    ).values_list('cedula', flat=True)
+    
+    total_usuarios = Usuario.objects.filter(cedula__in=cedulas).count()
+    total_aprendices = Aprendiz.objects.filter(id_sem=semillero).count()
+    total_miembros = total_usuarios + total_aprendices
+    
     return render(request, 'paginas/resumen.html', {
         'current_page': 'resumen',
         'semillero': semillero,
-        'objetivos_lista': objetivos_lista
+        'objetivos_lista': objetivos_lista,
+        'total_miembros': total_miembros,
     })
 
 def resu_miembros(request, id_sem):
@@ -439,18 +463,28 @@ def resu_miembros(request, id_sem):
 
     total_miembros = usuarios.count() + aprendices.count()
 
-    # Verificar si hay instructores y aprendices
-    tiene_instructores = any(u.rol.lower() == 'instructor' for u in usuarios)
+    # CORRECCIÓN: Obtener miembros con el campo es_lider ya incluido
+    miembros = SemilleroUsuario.objects.filter(
+        id_sem=semillero
+    ).select_related('cedula')
+
+    # Verificar si hay instructores
+    tiene_instructores = any(
+        m.cedula.rol.lower() in ['instructor', 'investigador'] 
+        for m in miembros
+    )
 
     context = {
         'current_page': 'resu_miembros',
         'semillero': semillero,
         'usuarios': usuarios,
         'aprendices': aprendices,
+        'miembros': miembros, 
         'Usuarios': usuarios_disponibles,
         'total_miembros': total_miembros,
         'tiene_instructores': tiene_instructores,
     }
+
     return render(request, 'paginas/resu-miembros.html', context)
 
 def agregar_miembros(request, id_sem):
@@ -495,71 +529,28 @@ def agregar_miembros(request, id_sem):
             return redirect('resu-miembros', id_sem=id_sem)
     
     return redirect('resu-miembros', id_sem=id_sem)
-
-def detalle_semillero(request, id_sem):
-    semillero = get_object_or_404(Semillero, id_sem=id_sem)
-
-    # Obtener todos los miembros del semillero
-    miembros = SemilleroUsuario.objects.filter(id_sem=semillero)
     
-    # Filtrar solo instructores e investigadores activos QUE YA ESTÁN EN EL SEMILLERO
-    instructores = miembros.filter(
-        cedula__rol__in=['Instructor', 'Investigador'],
-        cedula__estado=True
-    ).select_related('cedula')
+def asignar_lider_semillero(request, id_sem):
+    if request.method == "POST":
+        semillero = get_object_or_404(Semillero, id_sem=id_sem)
+        id_relacion = request.POST.get("lider_semillero")
 
-    context = {
-        'semillero': semillero,
-        'instructores': instructores,
-        'miembros': miembros,
-    }
-    return render(request, 'paginas/resu-miembros.html', context)
+        # Verificar existencia segura
+        try:
+            lider = SemilleroUsuario.objects.get(semusu_id=id_relacion, id_sem=semillero)
+        except SemilleroUsuario.DoesNotExist:
+            messages.error(request, "El usuario seleccionado no pertenece a este semillero.")
+            return redirect("resu-miembros", semillero.id_sem)
 
+        # Quitar liderazgo anterior
+        SemilleroUsuario.objects.filter(id_sem=semillero, es_lider=True).update(es_lider=False)
 
-def asignar_lider_semillero(request, id_semillero):
-    semillero = get_object_or_404(Semillero, id_sem=id_semillero)
-    
-    if request.method == 'POST':
-        lider_cedula = request.POST.get('lider_semillero')
-        
-        if lider_cedula:
-            try:
-                # Buscar el instructor
-                instructor = Usuario.objects.get(cedula=lider_cedula)
-                
-                # Verificar que el instructor esté en el semillero
-                miembro_semillero = SemilleroUsuario.objects.filter(
-                    id_sem=semillero,
-                    cedula=instructor
-                ).exists()
-                
-                if not miembro_semillero:
-                    messages.error(request, 'El instructor seleccionado no pertenece a este semillero.')
-                    return redirect('resu-miembros', id_semillero)
-                
-                # Asignar líder (ajusta según tu modelo)
-                # Opción 1: Si tienes campo lider en Semillero
-                semillero.lider = instructor
-                semillero.save()
-                
-                # Opción 2: Si el líder se marca en SemilleroUsuario
-                # SemilleroUsuario.objects.filter(id_sem=semillero, es_lider=True).update(es_lider=False)
-                # SemilleroUsuario.objects.filter(id_sem=semillero, cedula=instructor).update(es_lider=True)
-                
-                messages.success(request, f'Líder {instructor.nom_usu} {instructor.ape_usu} asignado correctamente.')
-                
-            except Usuario.DoesNotExist:
-                messages.error(request, 'El instructor seleccionado no existe.')
-            except Exception as e:
-                messages.error(request, f'Error al asignar líder: {str(e)}')
-        else:
-            messages.warning(request, 'No se seleccionó ningún instructor.')
-        
-        return redirect('resu-miembros', id_semillero)
-    
-    # Si no es POST, redirigir
-    return redirect('resu-miembros', id_semillero)
+        # Asignar nuevo líder
+        lider.es_lider = True
+        lider.save()
 
+        messages.success(request, f"{lider.cedula.nom_usu} ha sido asignado como líder del semillero.")
+        return redirect("resu-miembros", semillero.id_sem)
 
 def resu_proyectos(request):
     return render(request, 'paginas/resu-proyectos.html', 

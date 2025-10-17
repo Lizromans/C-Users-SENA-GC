@@ -72,9 +72,18 @@
                         <h6>{{ semillero.cod_sem }}</h6>
                         <p class="card-text">{{ semillero.desc_sem }}</p>
                         <div class="card-info">
-                            <span class="badge bg-secondary">{{ total_participantes }} Participantes</span>
-                            <span class="badge bg-secondary">{{ total_proyectos }} Proyectos</span>
-                            <span class="badge bg-secondary">{{ total_entregables }} Entregables</span>
+                            <span class="badge bg-secondary">
+                                <strong>{{ semillero.total_miembros }}</strong>
+                                <span>Miembros</span>
+                            </span>
+                            <span class="badge bg-secondary">
+                                <strong>{{ semillero.total_miembros }}</strong>
+                                <span>Proyectos</span>
+                            </span>
+                            <span class="badge bg-secondary">
+                                <strong>{{ semillero.total_miembros }}</strong>
+                                <span>Entregables</span>
+                            </span>
                         </div>
                         <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
                     </div>

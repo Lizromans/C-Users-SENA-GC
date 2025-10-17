@@ -35,6 +35,13 @@ class Usuario(models.Model):
     verbose_name='Grupos de permisos'
 )
 
+    # Relación ManyToMany a través de tabla intermedia
+    semilleros = models.ManyToManyField(
+        'Semillero',
+        through='SemilleroUsuario',
+        related_name='usuarios'
+    )
+
     class Meta:
         managed = False
         db_table = 'usuario'
@@ -239,23 +246,31 @@ class SemilleroProyecto(models.Model):
         managed = False
         db_table = 'semillero_proyecto'
 
-
 class SemilleroUsuario(models.Model):
+    semusu_id = models.AutoField(primary_key=True)
+    es_lider = models.BooleanField(default=False)
+
     id_sem = models.ForeignKey(
-        Semillero, 
-        on_delete=models.CASCADE, 
-        db_column='id_sem',
+        'Semillero',
+        on_delete=models.CASCADE,
+        db_column='id_sem' 
     )
     cedula = models.ForeignKey(
-        Usuario, 
-        on_delete=models.CASCADE, 
-        db_column='cedula'
+        'Usuario',
+        on_delete=models.CASCADE,
+        db_column='cedula' 
     )
 
     class Meta:
-        managed = False
         db_table = 'semillero_usuario'
         unique_together = (('id_sem', 'cedula'),)
-    
+
     def __str__(self):
         return f"{self.cedula.nom_usu} en {self.id_sem.nom_sem}"
+
+
+
+
+
+    
+    

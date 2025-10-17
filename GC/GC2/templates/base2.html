@@ -195,15 +195,15 @@
                         <p class="card-text">{{ semillero.desc_sem|default:"Sin descripción disponible" }}</p>
                         <div class="card-info">
                             <span class="badge bg-secondary">
-                                <strong>{{ total_miembros }}</strong>
+                                <strong>{{ total_miembros|default:0 }}</strong>
                                 <span>Miembros</span>
                             </span>
                             <span class="badge bg-secondary">
-                                <strong>{{ total_miembros }}</strong>
+                                <strong>{{ total_miembros|default:0 }}</strong>
                                 <span>Proyectos</span>
                             </span>
                             <span class="badge bg-secondary">
-                                <strong>{{ total_miembros }}</strong>
+                                <strong>{{ total_miembros|default:0 }}</strong>
                                 <span>Entregables</span>
                             </span>
                         </div>
