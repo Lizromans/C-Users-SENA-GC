@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm
-from .models import Usuario, Semillero
+from .models import Usuario, Semillero,SemilleroUsuario, Aprendiz, Proyecto, SemilleroProyecto
 from django.utils import timezone 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
@@ -15,7 +15,9 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import permission_required
 from django.views.decorators.cache import never_cache
 from functools import wraps
-from .models import Semillero, Usuario, SemilleroUsuario, Aprendiz
+from django.utils import timezone 
+from django.utils.timezone import now
+from datetime import timedelta
 
 
 # Create your views here.
@@ -87,80 +89,81 @@ def verificar_email(request, token):
         messages.error(request, "El enlace de verificación no es válido.")
         return redirect('iniciarsesion') 
 
+# VISTA DE INICIAR SESION
 def iniciarsesion(request):
-    error_user = None
-    error_password = None
-    error_rol = None
-
     if request.method == 'POST':
+        # --- Obtener datos del formulario ---
         cedula = request.POST.get('cedula')
         contraseña = request.POST.get('password')
         rol = request.POST.get('rol')
 
-        # Validaciones básicas
-        if not rol:
-            error_rol = "Debe seleccionar un rol."
-        
-        if not cedula:
-            error_user = 'La cédula es obligatoria'
-        
-        if not contraseña:
-            error_password = 'La contraseña es obligatoria'
+        # --- Validaciones básicas ---
+        errores = {}
 
-        # Si hay errores de validación, mostrar formulario nuevamente
-        if error_user or error_password or error_rol:
+        if not rol:
+            errores['error_rol'] = "Debe seleccionar un rol."
+        if not cedula:
+            errores['error_user'] = "La cédula es obligatoria."
+        if not contraseña:
+            errores['error_password'] = "La contraseña es obligatoria."
+
+        # Si hay errores, regresar al formulario
+        if errores:
             return render(request, 'paginas/registro.html', {
-                'error_user': error_user,
-                'error_password': error_password,
-                'error_rol': error_rol,
+                **errores,
                 'cedula': cedula,
                 'rol': rol,
                 'show_login': True,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # Intentar autenticar
+        # --- Autenticación ---
         try:
             usuario = Usuario.objects.get(cedula=cedula, rol=rol)
-            
-            # Verificar contraseña
-            if check_password(contraseña, usuario.contraseña):
-                # VERIFICAR SI EL EMAIL ESTÁ VERIFICADO
-                if not usuario.email_verificado:
-                    error_user = 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.'
-                    return render(request, 'paginas/registro.html', {
-                        'error_user': error_user,
-                        'cedula': cedula,
-                        'rol': rol,
-                        'show_login': True,
-                        'current_page_name': 'Iniciar Sesión'
-                    })
-                
-                # AUTENTICACIÓN EXITOSA
-                request.session['cedula'] = usuario.cedula
-                request.session['nom_usu'] = usuario.nom_usu
-                request.session['ape_usu'] = usuario.ape_usu
-                request.session['rol'] = usuario.rol
-                return redirect('home')
-            else:
-                # Contraseña incorrecta
-                error_password = 'Contraseña incorrecta'
-        
-        except Usuario.DoesNotExist:
-            # Usuario no encontrado
-            error_user = 'Usuario no encontrado con ese rol y cédula'
 
-        # Si llegamos aquí, hubo un error de autenticación
-        return render(request, 'paginas/registro.html', {
-            'error_user': error_user,
-            'error_password': error_password,
-            'cedula': cedula,
-            'rol': rol,
-            'show_login': True,
-            'current_page_name': 'Iniciar Sesión'
-        })
-    
-    # GET request - mostrar formulario de login
+            if not check_password(contraseña, usuario.contraseña):
+                return render(request, 'paginas/registro.html', {
+                    'error_password': 'Contraseña incorrecta',
+                    'cedula': cedula,
+                    'rol': rol,
+                    'show_login': True,
+                    'current_page_name': 'Iniciar Sesión'
+                })
+
+            # --- Verificar si el correo está verificado ---
+            if not usuario.email_verificado:
+                return render(request, 'paginas/registro.html', {
+                    'error_user': 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
+                    'cedula': cedula,
+                    'rol': rol,
+                    'show_login': True,
+                    'current_page_name': 'Iniciar Sesión'
+                })
+            
+            
+
+            # --- Inicio de sesión exitoso ---
+            request.session['cedula'] = usuario.cedula
+            request.session['nom_usu'] = usuario.nom_usu
+            request.session['ape_usu'] = usuario.ape_usu
+            request.session['rol'] = usuario.rol
+
+            # ✅ Registrar el último acceso
+            usuario.last_login = now()
+            usuario.save(update_fields=['last_login'])
+
+            return redirect('home')
+
+        except Usuario.DoesNotExist:
+            return render(request, 'paginas/registro.html', {
+                'error_user': 'Usuario no encontrado con ese rol y cédula.',
+                'cedula': cedula,
+                'rol': rol,
+                'show_login': True,
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+    # --- Si es GET, mostrar formulario ---
     return render(request, 'paginas/registro.html', {
         'show_login': True,
         'current_page_name': 'Iniciar Sesión'
@@ -362,7 +365,101 @@ def home(request):
 
 # VISTAS PERFIL
 def perfil(request):
-    return render(request, 'paginas/perfil.html')
+    # Verificar sesión activa
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    # Obtener usuario
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+
+    # Calcular último acceso
+    ultimo_acceso = "Sin registro"
+    if usuario.last_login:
+        tiempo = now() - usuario.last_login
+        dias, segundos = tiempo.days, tiempo.seconds
+        if dias == 0:
+            if segundos < 60:
+                ultimo_acceso = "Hace unos segundos"
+            elif segundos < 3600:
+                minutos = segundos // 60
+                ultimo_acceso = f"Hace {minutos} minuto{'s' if minutos != 1 else ''}"
+            else:
+                horas = segundos // 3600
+                ultimo_acceso = f"Hace {horas} hora{'s' if horas != 1 else ''}"
+        elif dias == 1:
+            ultimo_acceso = "Ayer"
+        elif dias < 7:
+            ultimo_acceso = f"Hace {dias} día{'s' if dias != 1 else ''}"
+        elif dias < 30:
+            semanas = dias // 7
+            ultimo_acceso = f"Hace {semanas} semana{'s' if semanas != 1 else ''}"
+        elif dias < 365:
+            meses = dias // 30
+            ultimo_acceso = f"Hace {meses} mes{'es' if meses != 1 else ''}"
+        else:
+            años = dias // 365
+            ultimo_acceso = f"Hace {años} año{'s' if años != 1 else ''}"
+
+    # Actualización de datos del perfil
+    if request.method == 'POST':
+        usuario.nom_usu = request.POST.get('nombre1')
+        usuario.ape_usu = request.POST.get('nombre2')
+        usuario.correo_per = request.POST.get('correo1')
+        usuario.telefono = request.POST.get('celular')
+        usuario.fecha_nacimiento = request.POST.get('fecha')
+        usuario.genero = request.POST.get('genero')
+        usuario.correo_ins = request.POST.get('correo2')
+        usuario.vinculacion_laboral = request.POST.get('vinculacion')
+        usuario.dependencia = request.POST.get('dependencia')
+        usuario.rol = request.POST.get('rol')
+        usuario.save()
+        messages.success(request, "Cambios guardados correctamente.")
+        return redirect('perfil')
+
+    semilleros = usuario.semilleros.all()
+    total_semilleros = semilleros.count()
+
+    proyectos = usuario.proyectos.all()
+    total_proyectos = proyectos.count()
+
+    # Enviar datos al template
+    context = {
+        'usuario': usuario,
+        'ultimo_acceso': ultimo_acceso,
+        'semilleros': semilleros,
+        'total_semilleros': total_semilleros,
+        'proyectos': proyectos,
+        'total_proyectos': total_proyectos,
+    }
+
+    return render(request, 'paginas/perfil.html', context)
+
+# VISTA ACTUALIZAR FOTO PERFIL
+def actualizar_foto(request):
+    if request.method == 'POST':
+        usuario_id = request.session.get('cedula')
+        usuario = Usuario.objects.get(cedula=usuario_id)
+
+        if 'imagen_perfil' in request.FILES:
+            # Eliminar la imagen anterior (opcional pero recomendado)
+            if usuario.imagen_perfil:
+                usuario.imagen_perfil.delete(save=False)
+            
+            # Guardar la nueva
+            usuario.imagen_perfil = request.FILES['imagen_perfil']
+            usuario.save()
+            messages.success(request, "Imagen actualizada correctamente.")
+        else:
+            messages.error(request, "No se seleccionó ninguna imagen.")
+        
+        return redirect('perfil')  # o a la vista donde se muestra el perfil
+
 
 # VISTAS SEMILLEROS
 def semilleros(request):

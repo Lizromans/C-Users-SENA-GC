@@ -17,6 +17,119 @@
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
 }
 
+/* Estilos para mensajes de alerta */
+.mensajes-container {
+    position: fixed;
+    top: 16%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    max-width: 500px;
+    z-index: 9999;
+    text-align: center;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s ease-in-out;
+    position: relative;
+    padding-right: 30px; /* Espacio para el botón */
+}
+
+.alert-success {
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    color: #3c763d;
+}
+
+.alert-danger {
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    color: #a94442;
+}
+
+.alert-info {
+    background-color: #d9edf7;
+    border: 1px solid #bce8f1;
+    color: black;
+}
+
+.close-btn {
+    position: absolute;
+    top: 2px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: inherit;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- MODAL --- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+/* Cuando el id del modal coincide con el hash de la URL, se muestra */
+.modal:target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 350px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Botón de cerrar */
+.cerrar {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  color: #555;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Botón dentro del modal */
+.btn-accion {
+  background-color: #39A900;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
 .perfil{
     display: grid;
     grid-template-columns: auto 1fr;
@@ -27,7 +140,7 @@
     transition: transform 0.3s ease;
 }
 
-.perfil:hover img {
+.foto:hover img {
   transform: rotate(10deg);
 }
 
@@ -41,7 +154,7 @@
     background-color: var(--color-fondo-secundario);
     width: clamp(100px, 25vw, 250px);
     height: clamp(200px, 25vh, 300px);
-    border-radius: 48%;
+    border-radius: 50%;
     border: 3px solid var(--color-nav-active);
     display: flex;
     justify-content: center;
@@ -57,10 +170,12 @@
 }
 
 .foto img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: cover;
-    border-radius: 50%;
+    width: 12.7vw;
+    height: clamp(150px, 24.3vh, 250px);
+    object-fit: cover;        /* 🔹 Recorta la imagen sin deformarla */
+    object-position: center;
+    display: block;             /* hace la imagen circular */
+    border-radius: 50%;        /* hace la imagen circular */
 }
 
 .icon-edit {
@@ -97,7 +212,7 @@
     filter: brightness(0) saturate(100%) invert(0.4) sepia(1) saturate(5) hue-rotate(80deg);
 }
 
-.card{
+.card {
     background-color: var(--color-fondo-secundario);
     width: clamp(180px, 15vw, 290px);
     height: fit-content;
@@ -105,6 +220,7 @@
     transition: transform 0.3s ease;
     border: none;
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    padding: 10px 15px; /* 👈 agrega padding interno */
 }
 
 .card:hover {
@@ -112,15 +228,16 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
-.card-title{
-    padding: clamp(5px, 0.5vw, 20px) 0 0 clamp(5px, 0.5vw, 20px);
+.card-title {
     font-weight: 600;
+    margin-bottom: 8px; /* 👈 espacio entre título y contenido */
 }
 
 .card-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 4px; /* 👈 separa cada línea */
 }
 
 .card-text {
@@ -128,13 +245,18 @@
     color: #333;
 }
 
-.text{
+.text {
     font-weight: bold;
     color: #39A900;
+    text-align: right;
+    white-space: nowrap;
 }
+
 .card-num {
     font-weight: bold;
     color: #39A900;
+    text-align: right;
+    white-space: nowrap;
 }
 
 /* INFORMACIÓN DE USUARIO */
@@ -154,6 +276,10 @@
     width: clamp(20px, 20vw, 40px);
     width: clamp(15px, 20vh, 35px);
     filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.1));
+}
+
+.titulo:hover img {
+  transform: rotate(10deg);
 }
 
 h6{

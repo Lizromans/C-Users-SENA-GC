@@ -25,7 +25,7 @@ class Usuario(models.Model):
     token_expira = models.DateTimeField(null=True, blank=True)
     email_verificado = models.BooleanField(default=False)
     last_login = models.DateTimeField(null=True, blank=True)
-    imagen_perfil = models.IntegerField(null=True, blank=True)
+    imagen_perfil = models.ImageField(upload_to='fotos_perfil/', null=True, blank=True)
 
     grupos = models.ManyToManyField(
     Group,
@@ -33,7 +33,7 @@ class Usuario(models.Model):
     related_name='usuarios',   
     blank=True,
     verbose_name='Grupos de permisos'
-)
+    )
 
     # Relación ManyToMany a través de tabla intermedia
     semilleros = models.ManyToManyField(
@@ -41,6 +41,13 @@ class Usuario(models.Model):
         through='SemilleroUsuario',
         related_name='usuarios'
     )
+
+    proyectos = models.ManyToManyField(
+        'Proyecto',
+        through='UsuarioProyecto',
+        related_name='usuarios'
+    )
+
 
     class Meta:
         managed = False
@@ -133,6 +140,13 @@ class Semillero(models.Model):
     estado = models.CharField(max_length=250)
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
+    # Relación ManyToMany con Proyecto (a través de tabla intermedia)
+    proyectos = models.ManyToManyField(
+        'Proyecto',
+        through='SemilleroProyecto',
+        related_name='semilleros',
+        blank=True
+    )
 
     class Meta:
         db_table = 'semillero'
@@ -227,6 +241,7 @@ class SemilleroDocumento(models.Model):
     class Meta:
         managed = False
         db_table = 'semillero_documento'
+        unique_together = ('cod_sem', 'cod_doc')  # evita duplicados
 
 
 class SemilleroEvento(models.Model):
@@ -236,6 +251,7 @@ class SemilleroEvento(models.Model):
     class Meta:
         managed = False
         db_table = 'semillero_evento'
+        unique_together = ('cod_sem', 'cod_eve')  # evita duplicados
 
 
 class SemilleroProyecto(models.Model):
@@ -245,6 +261,7 @@ class SemilleroProyecto(models.Model):
     class Meta:
         managed = False
         db_table = 'semillero_proyecto'
+        unique_together = ('cod_sem', 'cod_pro')  # evita duplicados
 
 class SemilleroUsuario(models.Model):
     semusu_id = models.AutoField(primary_key=True)
@@ -268,9 +285,11 @@ class SemilleroUsuario(models.Model):
     def __str__(self):
         return f"{self.cedula.nom_usu} en {self.id_sem.nom_sem}"
 
+class UsuarioProyecto(models.Model):
+    cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
+    cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
 
-
-
-
-    
-    
+    class Meta:
+        managed = False
+        db_table = 'usuario_proyecto'
+        unique_together = ('cedula', 'cod_pro')  # evita duplicados

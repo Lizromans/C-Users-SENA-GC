@@ -14,6 +14,7 @@ urlpatterns = [
     path('reset-password/<str:uidb64>/<str:token>/', views.reset_password, name='reset_password'),
     path('reset-password-confirm/', views.reset_password_confirm, name='reset_password_confirm'),
     path('perfil/', views.perfil, name='perfil'),
+    path('actualizar_foto/', views.actualizar_foto, name='actualizar_foto'),
 
     #SEMILERO
     path('semilleros/', views.semilleros, name='semilleros'),
@@ -43,3 +44,6 @@ urlpatterns = [
     path('privacidad/', views.privacidad, name='privacidad'),
     path('logout/', views.logout, name='logout'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
