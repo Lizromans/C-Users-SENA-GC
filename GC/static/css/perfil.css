@@ -356,11 +356,18 @@ input[type="text"]:focus, input[type="num"]:focus, select:focus {
   color: #5d4037;
 }
 
+.info-group2 {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 input[disabled]{
     background-color: #38a90071;
     border: 2px solid #39A900;
     border-radius: 10px;
-    width: clamp(150px, 20vw, 250px);
+    width: clamp(100px, 15vw, 200px);
     color: #007832;
     font-weight: 600;
     cursor: pointer;
@@ -373,6 +380,27 @@ input[disabled]:hover{
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
+
+textarea[disabled]{
+    background-color: #38a90071;
+    border: 2px solid #39A900;
+    border-radius: 10px;
+    width: clamp(100px, 17vw, 200px);
+    color: #007832;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    resize: none; /* Evita que el usuario cambie el tamaño del textarea */
+    padding: 2% 11% 2% 11%; /* Espaciado interno */
+}
+
+textarea[disabled]:hover{
+    background-color: #39A900;
+    color: var(--color-nav-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
 .informacion:nth-child(1) hr {
     background-color: var(--color-text-secondary);
     margin: clamp(5px, 1vh, 15px) 0;  /* Espaciado responsivo */

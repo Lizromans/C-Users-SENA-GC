@@ -145,7 +145,7 @@
                     <h6>Información de Semilleros</h6>
                 </div>
                 <hr>
-                <div class="info-group">
+                <div class="info-group2">
                     {% for semillero in semilleros %}
                     <div class="info">
                         <input type="text" value="{{ semillero.sigla }}" disabled>
@@ -162,10 +162,10 @@
                     <h6>Información de Proyectos</h6>
                 </div>
                 <hr>
-                <div class="info-group">
+                <div class="info-group2">
                     {% for proyecto in proyectos %}
                     <div class="info">
-                        <input type="text" value="{{ proyecto.nom_pro }}" disabled>
+                        <textarea disabled>{{ proyecto.nom_pro }}</textarea>
                     </div>
                     {% empty %}
                     <p>No estás asociado a ningún proyecto.</p>
