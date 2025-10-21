@@ -18,6 +18,8 @@ from functools import wraps
 from django.utils import timezone 
 from django.utils.timezone import now
 from datetime import timedelta
+from django.http import Http404
+from django.db.models import Q
 
 
 # Create your views here.
@@ -1038,8 +1040,159 @@ def proyectos(request):
 
 # VISTAS DE MIEMBROS
 def miembros(request):
-    return render(request, 'paginas/miembros.html',
-    {'current_page': 'miembros'})
+    """Vista principal de gestión de miembros."""
+    
+    # Obtener parámetros GET
+    vista = request.GET.get('vista', 'tarjeta')
+    estado_filtro = request.GET.get('estado', '')
+    rol_filtro = request.GET.get('rol', 'todos')
+    busqueda = request.GET.get('busqueda', '').strip().lower()
+    miembro_id = request.GET.get('miembro_id')
+
+    # 🔹 Manejar actualización del estado (POST)
+    if request.method == "POST":
+        cedula = request.POST.get("cedula")
+        nuevo_estado = request.POST.get("estado")
+
+        if cedula and nuevo_estado:
+            # Buscar primero en Usuario
+            usuario = Usuario.objects.filter(cedula=cedula).first()
+            if usuario:
+                usuario.estado = nuevo_estado
+                usuario.save()
+                messages.success(request, f"Estado de {usuario.nom_usu} actualizado a {nuevo_estado}.")
+            else:
+                # Buscar en Aprendiz
+                aprendiz = Aprendiz.objects.filter(cedula_apre=cedula).first()
+                if aprendiz:
+                    aprendiz.estado_apre = nuevo_estado
+                    aprendiz.save()
+                    messages.success(request, f"Estado de {aprendiz.nombre} actualizado a {nuevo_estado}.")
+
+        # Redirigir para evitar reenvíos del formulario
+        return redirect(f"{request.path}?miembro_id={cedula}")
+
+    # Obtener todos los usuarios y aprendices
+    usuarios = Usuario.objects.all()
+    aprendices = Aprendiz.objects.all()
+
+    # Aplicar filtros
+    if busqueda:
+        usuarios = usuarios.filter(
+            Q(nom_usu__icontains=busqueda) |
+            Q(ape_usu__icontains=busqueda) |
+            Q(cedula__icontains=busqueda)
+        )
+        aprendices = aprendices.filter(
+            Q(nombre__icontains=busqueda) |
+            Q(apellido__icontains=busqueda) |
+            Q(cedula_apre__icontains=busqueda)
+        )
+
+    if estado_filtro:
+        usuarios = usuarios.filter(estado=estado_filtro)
+        aprendices = aprendices.filter(estado_apre=estado_filtro)
+
+    if rol_filtro == 'investigadores':
+        usuarios = usuarios.filter(rol__iexact='Investigador')
+        aprendices = aprendices.none()
+    elif rol_filtro == 'instructores':
+        usuarios = usuarios.filter(rol__iexact='Instructor')
+        aprendices = aprendices.none()
+    elif rol_filtro == 'aprendices':
+        usuarios = usuarios.none()
+
+    # Normalizar miembros
+    miembros = []
+    for u in usuarios:
+        miembros.append({
+            'id': u.cedula,
+            'nombres': u.nom_usu,
+            'apellidos': u.ape_usu,
+            'correo_personal': u.correo_per,
+            'celular': u.telefono,
+            'rol': u.rol,
+            'ultima_sesion': u.last_login,
+            'tipo': 'usuario',
+            'objeto': u
+        })
+    for a in aprendices:
+        miembros.append({
+            'id': a.cedula_apre,
+            'nombres': a.nombre,
+            'apellidos': a.apellido,
+            'correo_personal': a.correo_per,
+            'celular': a.telefono,
+            'rol': 'Aprendiz',
+            'ultima_sesion': None,
+            'tipo': 'aprendiz',
+            'objeto': a
+        })
+
+    # Totales
+    total_instructores = Usuario.objects.filter(rol='Instructor').count()
+    total_investigadores = Usuario.objects.filter(rol='Investigador').count()
+    total_aprendices = Aprendiz.objects.count()
+
+    # Miembro seleccionado
+    miembro_seleccionado = None
+    tipo_miembro = None
+
+    if miembro_id:
+        usuario = Usuario.objects.filter(cedula=miembro_id).first()
+        if usuario:
+            tipo_miembro = 'usuario'
+            miembro_seleccionado = {
+                'cedula': usuario.cedula,
+                'nombres': usuario.nom_usu,
+                'apellidos': usuario.ape_usu,
+                'fecha_nacimiento': usuario.fecha_nacimiento,
+                'correo_personal': usuario.correo_per,
+                'correo_sena': usuario.correo_ins,
+                'celular': usuario.telefono,
+                'vinculacion': usuario.vinculacion_laboral,
+                'dependencia': usuario.dependencia,
+                'rol': usuario.rol,
+                'estado': usuario.estado,
+                'semilleros': usuario.semilleros.all() if hasattr(usuario, 'semilleros') else [],
+                'proyectos': usuario.proyectos.all() if hasattr(usuario, 'proyectos') else [],
+            }
+        else:
+            aprendiz = Aprendiz.objects.filter(cedula_apre=miembro_id).first()
+            if aprendiz:
+                tipo_miembro = 'aprendiz'
+                miembro_seleccionado = {
+                    'cedula': aprendiz.cedula_apre,
+                    'nombres': aprendiz.nombre,
+                    'apellidos': aprendiz.apellido,
+                    'correo_personal': aprendiz.correo_per,
+                    'fecha_nacimiento': aprendiz.fecha_nacimiento,
+                    'correo_sena': aprendiz.correo_ins,
+                    'medio_bancario': aprendiz.medio_bancario,
+                    'numero_cuenta': aprendiz.numero_cuenta,
+                    'celular': aprendiz.telefono,
+                    'ficha': aprendiz.ficha,
+                    'programa': aprendiz.programa,
+                    'rol': 'Aprendiz',
+                    'estado': aprendiz.estado_apre,
+                    'semilleros': [aprendiz.id_sem] if aprendiz.id_sem else [],
+                    'proyectos': aprendiz.proyectos.all() if hasattr(aprendiz, 'proyectos') else [],
+                }
+
+    contexto = {
+        'miembros': miembros,
+        'total_instructores': total_instructores,
+        'total_investigadores': total_investigadores,
+        'total_aprendices': total_aprendices,
+        'miembro_seleccionado': miembro_seleccionado,
+        'tipo_miembro': tipo_miembro,
+        'vista': vista,
+        'estado_filtro': estado_filtro,
+        'rol_filtro': rol_filtro,
+        'busqueda': busqueda,
+    }
+
+    return render(request, 'paginas/miembros.html', contexto)
 
 # VISTAS DE CENTRO DE AYUDA
 def centroayuda(request):

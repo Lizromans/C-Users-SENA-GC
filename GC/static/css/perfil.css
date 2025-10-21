@@ -144,38 +144,41 @@
   transform: rotate(10deg);
 }
 
-.cont-1{
+.cont-1 {
     display: flex;
-    flex-direction: column;
-    gap: 5%;
+    flex-direction: column;     /* 🔹 Siempre uno encima del otro */
+    align-items: center;        /* 🔹 Centra horizontalmente */
+    gap: clamp(15px, 3vh, 30px); /* 🔹 Espacio adaptable entre foto y tarjeta */
+    width: 100%;
+    max-width: 350px;           /* 🔹 Mantiene proporción sin crecer demasiado */
+    margin: 0 auto;
 }
 
 .foto {
     background-color: var(--color-fondo-secundario);
-    width: clamp(100px, 25vw, 250px);
-    height: clamp(200px, 25vh, 300px);
+    width: clamp(120px, 20vw, 220px);
+    height: clamp(120px, 20vw, 220px);
     border-radius: 50%;
     border: 3px solid var(--color-nav-active);
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.3s ease;
-    position: relative; /* Importante para posicionar el ícono */
+    position: relative;
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
 .foto:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
 
 .foto img {
-    width: 12.7vw;
-    height: clamp(150px, 24.3vh, 250px);
-    object-fit: cover;        /* 🔹 Recorta la imagen sin deformarla */
+    width: clamp(115px, 18vw, 215px);
+    height: clamp(115px, 18vw, 215px);
+    object-fit: cover;
     object-position: center;
-    display: block;             /* hace la imagen circular */
-    border-radius: 50%;        /* hace la imagen circular */
+    border-radius: 50%;
+    display: block;
 }
 
 .icon-edit {
@@ -205,7 +208,7 @@
     max-width: none;
     max-height: none;
     border-radius: 0;
-    filter: brightness(0) invert(1); /* Para hacer el ícono blanco */
+    filter: brightness(0) invert(1);
 }
 
 .icon-edit:hover img {
@@ -216,28 +219,30 @@
     background-color: var(--color-fondo-secundario);
     width: clamp(180px, 15vw, 290px);
     height: fit-content;
-    border-radius: 5%;
+    border-radius: 10px;
     transition: transform 0.3s ease;
     border: none;
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-    padding: 10px 15px; /* 👈 agrega padding interno */
+    padding: 12px 16px;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
 
 .card-title {
     font-weight: 600;
-    margin-bottom: 8px; /* 👈 espacio entre título y contenido */
+    margin-bottom: 10px;
 }
 
 .card-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px; /* 👈 separa cada línea */
+    margin-bottom: 6px;   
+    gap: 2px;                 
+    word-break: break-word;
 }
 
 .card-text {
@@ -245,18 +250,11 @@
     color: #333;
 }
 
-.text {
+.text, .card-num {
     font-weight: bold;
     color: #39A900;
     text-align: right;
-    white-space: nowrap;
-}
-
-.card-num {
-    font-weight: bold;
-    color: #39A900;
-    text-align: right;
-    white-space: nowrap;
+    white-space: normal;   
 }
 
 /* INFORMACIÓN DE USUARIO */

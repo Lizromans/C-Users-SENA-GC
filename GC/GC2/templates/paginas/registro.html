@@ -215,10 +215,10 @@
           <div class="select_container">
             <select name="rol" class="select" required>
               <option value="">Selecciona tu rol</option>
-              <option value="dinamizador" {% if rol == 'dinamizador' %}selected{% endif %}>Dinamizador</option>
-              <option value="lider" {% if rol == 'lider' %}selected{% endif %}>Líder</option>
-              <option value="investigador" {% if rol == 'investigador' %}selected{% endif %}>Investigador</option>
-              <option value="instructor" {% if rol == 'instructor' %}selected{% endif %}>Instructor</option>
+              <option value="Dinamizador" {% if rol == 'Dinamizador' %}selected{% endif %}>Dinamizador</option>
+              <option value="Lider" {% if rol == 'Lider' %}selected{% endif %}>Líder</option>
+              <option value="Investigador" {% if rol == 'Investigador' %}selected{% endif %}>Investigador</option>
+              <option value="Instructor" {% if rol == 'Instructor' %}selected{% endif %}>Instructor</option>
             </select>
             {% if error_rol %}
               <div class="error-rol">{{ error_rol }}</div>

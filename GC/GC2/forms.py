@@ -29,7 +29,7 @@ class UsuarioRegistroForm(forms.ModelForm):
             }),
             'rol': forms.Select(
                 attrs={'class': 'select', 'id': 'rol'},
-                choices=[('', 'Selecciona tu rol'), ('instructor', 'Instructor'), ('investigador', 'Investigador')]
+                choices=[('', 'Selecciona tu rol'), ('Instructor', 'Instructor'), ('Investigador', 'Investigador')]
             ),
             'contraseña': forms.PasswordInput(attrs={
                 'class': 'input', 

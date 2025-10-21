@@ -175,7 +175,12 @@ class Aprendiz(models.Model):
     @property
     def get_iniciales(self):
         return f"{self.nombre[0]}{self.apellido[0]}".upper()
-
+    
+    proyectos = models.ManyToManyField(
+        'Proyecto',
+        through='ProyectoAprendiz',
+        related_name='aprendices'
+    )
 
 class Proyecto(models.Model):
     cod_pro = models.IntegerField(primary_key=True)
@@ -295,3 +300,12 @@ class UsuarioProyecto(models.Model):
         managed = False
         db_table = 'usuario_proyecto'
         unique_together = (('cedula', 'cod_pro'),)  # evita duplicados
+
+class ProyectoAprendiz(models.Model):
+    cedula_apre = models.ForeignKey(Aprendiz, on_delete=models.CASCADE, db_column='cedula_apre')
+    cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
+
+class Meta:
+        managed = False
+        db_table = 'proyecto_aprendiz'
+        unique_together = ('cedula_apre', 'cod_pro')  # evita duplicados

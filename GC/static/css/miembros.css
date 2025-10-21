@@ -254,11 +254,12 @@
     min-width: fit-content;
 }
 
-.filtros-rol label {
+.filtros-rol a {
     font-weight: 600;
     color: #333;
     font-size: clamp(0.9rem, 1.5vw, 1rem);
     white-space: nowrap;
+    text-decoration: none;
 }
 
 .botones-rol {
@@ -487,7 +488,6 @@ tbody td {
     border-radius: 8px;
     margin: 20px 0;
 }
-
 
 /* ====== TARJETA DE MIEMBROS (MÁS PEQUEÑAS) ====== */
 .tabla-container{
@@ -958,6 +958,7 @@ tbody td {
     padding: clamp(15px, 2.5vw, 25px);
     border-radius: clamp(10px, 1.5vw, 14px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2%;
 }
 
 .perfil-seccion-titulo {
@@ -1026,7 +1027,7 @@ tbody td {
 .perfil-campo {
     display: flex;
     flex-direction: column;
-    gap: clamp(5px, 1vh, 8px);
+    gap: clamp(5px, 0.5vh, 8px);
 }
 
 .perfil-campo label {
@@ -1041,7 +1042,7 @@ tbody td {
 .perfil-select {
     border-radius: clamp(6px, 1.2vw, 10px);
     border: 2px solid #e0e0e0;
-    padding: clamp(8px, 1.5vw, 12px);
+    padding: clamp(4px, 0.5vw, 8px);
     font-size: clamp(0.85rem, 1.4vw, 0.95rem);
     transition: all 0.3s ease;
     background-color: white;
@@ -1072,7 +1073,7 @@ tbody td {
     background-color: rgba(57, 169, 0, 0.12) !important;
     border: 2px solid #39A900 !important;
     border-radius: clamp(8px, 1.5vw, 12px);
-    padding: clamp(8px, 1.5vw, 12px);
+    padding: clamp(8px, 1vw, 12px);
     color: #007832;
     font-weight: 600;
     cursor: pointer;

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %} Gestión de Proyectos {% endblock %}
+{% block titulo %} Gestión de Miembros {% endblock %}
 {% block css %}
 <link href="{% static 'css/miembros.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -36,7 +36,6 @@
                         <h5 class="card-title">{{ total_investigadores }}</h5>
                         <p>Investigadores</p>           
                     </div>
-                    
                 </div>
             </div>
 
@@ -56,8 +55,12 @@
         <div class="seccion-busqueda">
         
             <div class="titulo2">
-                <h3> Filtrados y Vistas</h3>
+                <h3>Filtrados y Vistas</h3>
                 <form method="get" class="pildora-vista">
+                    <input type="hidden" name="busqueda" value="{{ busqueda }}">
+                    <input type="hidden" name="estado" value="{{ estado_filtro }}">
+                    <input type="hidden" name="rol" value="{{ rol_filtro }}">
+                    
                     <label>
                         <input type="radio" name="vista" value="tarjeta" onchange="this.form.submit()" {% if request.GET.vista == 'tarjeta' or not request.GET.vista %}checked{% endif %}>
                         <span> <img src="{% static 'img/Layout.png' %}" alt="Tarjetas"> Tarjeta</span>
@@ -67,37 +70,51 @@
                         <span><img src="{% static 'img/Menu.png' %}" alt="Lista">Lista</span>
                     </label>
                 </form>
-                
             </div>
             
-            <div class="busqueda-miembros">
+            <form method="get" class="busqueda-miembros">
+                <input type="hidden" name="vista" value="{{ vista }}">
+                <input type="hidden" name="estado" value="{{ estado_filtro }}">
+                <input type="hidden" name="rol" value="{{ rol_filtro }}">
+                
                 <label for="search-miembros">Miembros:</label>
                 <div class="input-busqueda">
                     <input 
                         type="text" 
                         id="search-miembros" 
+                        name="busqueda"
                         placeholder="Todos los miembros"
                         class="input-miembros"
+                        value="{{ busqueda }}"
                     >
-                    <img class="icono-buscar" src="{% static 'img/Search.png' %}" alt="Buscar">
+                    <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0;">
+                        <img class="icono-buscar" src="{% static 'img/Search.png' %}" alt="Buscar">
+                    </button>
+                </div>
+            </form>
+
+            <div class="filtros-rol">
+                <label>Rol:</label>
+                <div class="botones-rol">
+                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=todos&busqueda={{ busqueda }}" class="btn-rol {% if rol_filtro == 'todos' %}activo{% endif %}" data-estado="todos">Todos</a>
+                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=investigadores&busqueda={{ busqueda }}" class="btn-rol investigadores {% if rol_filtro == 'investigadores' %}activo{% endif %}" data-estado="investigadores">Investigadores</a>
+                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=instructores&busqueda={{ busqueda }}" class="btn-rol instructores {% if rol_filtro == 'instructores' %}activo{% endif %}" data-estado="instructores">Instructores</a>
+                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=aprendices&busqueda={{ busqueda }}" class="btn-rol aprendices {% if rol_filtro == 'aprendices' %}activo{% endif %}" data-estado="aprendices">Aprendices</a>
                 </div>
             </div>
 
-            <div class="filtros-rol">
-                <label>Estado:</label>
-                <div class="botones-rol">
-                    <button class="btn-rol activo" data-estado="todos">Todos</button>
-                    <button class="btn-rol investigadores" data-estado="investigadores">Investigadores</button>
-                    <button class="btn-rol instructores" data-estado="instructores">Instructores</button>
-                    <button class="btn-rol aprendices" data-estado="aprendices">Aprendices</button>
-                </div>
-            </div>
             <div class="estado">
-                <select name="estado" class="filtro">
-                    <option value="">Todos los estados</option>
-                    <option value="Activo" {% if request.GET.estado == 'Activo' %}selected{% endif %}>Activo</option>
-                    <option value="Inactivo" {% if request.GET.estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
-                </select>
+                <form method="get">
+                    <input type="hidden" name="vista" value="{{ vista }}">
+                    <input type="hidden" name="rol" value="{{ rol_filtro }}">
+                    <input type="hidden" name="busqueda" value="{{ busqueda }}">
+                    
+                    <select name="estado" class="filtro" onchange="this.form.submit()">
+                        <option value="">Todos los estados</option>
+                        <option value="Activo" {% if request.GET.estado == 'Activo' %}selected{% endif %}>Activo</option>
+                        <option value="Inactivo" {% if request.GET.estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+                    </select>
+                </form>
             </div>
         </div>
 
@@ -125,7 +142,7 @@
                         <td>{{ miembro.rol }}</td>
                         <td>{{ miembro.ultima_sesion|default:"No disponible" }}</td>
                         <td>
-                            <a href="#modalPerfilMiembro" onclick="cargarPerfilMiembro({{ miembro.id }})" class="btn">Ver perfil</a>
+                            <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" class="btn">Ver perfil</a>
                         </td>
                     </tr>
                     {% empty %}
@@ -166,7 +183,7 @@
                             </div>
                         </div>
                         <div class="info-icon">
-                            <a href="#modalPerfilMiembro" onclick="cargarPerfilMiembro({{ miembro.id }}); document.getElementById('modalPerfilMiembro').classList.add('activo'); document.body.style.overflow='hidden';">
+                            <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                             </a>
                         </div>
@@ -180,12 +197,14 @@
     </div>
 
     <!-- MODAL DE INFORMACIÓN DEL MIEMBRO -->
-    <div id="modalPerfilMiembro" class="modal-perfil-overlay">
+    <div id="modalPerfilMiembro" class="modal-perfil-overlay" 
+        {% if miembro_seleccionado %}style="display: flex;"{% endif %}>
+
         <div class="modal-perfil-contenedor">
             <a class="modal-perfil-cerrar" id="btnCerrarPerfilModal" href="{% url 'miembros' %}">
                 <i class="fa fa-times"></i>
             </a>
-            
+
             <div class="perfil-miembro">
                 <div class="perfil-miembro-sidebar">
                     <!-- Foto de perfil -->
@@ -202,27 +221,34 @@
                         <div class="perfil-resumen-body">
                             <div class="perfil-resumen-fila">
                                 <p class="perfil-resumen-label">Estado:</p>
-                                <p class="perfil-resumen-valor activo" id="perfilEstado">{{ miembro_seleccionado.estado|default:"Activo" }}</p>
+                                <p class="perfil-resumen-valor activo" id="perfilEstado">
+                                    {{ miembro_seleccionado.estado|default:"Activo" }}
+                                </p>
                             </div>
 
                             <div class="perfil-resumen-fila">
                                 <p class="perfil-resumen-label">Semilleros:</p>
-                                <p class="perfil-resumen-numero" id="perfilSemilleros">{{ miembro_seleccionado.semilleros.count|default:"0" }}</p>
+                                <p class="perfil-resumen-numero" id="perfilSemilleros">
+                                    {{ miembro_seleccionado.semilleros.count|default:"0" }}
+                                </p>
                             </div>
 
                             <div class="perfil-resumen-fila">
                                 <p class="perfil-resumen-label">Proyectos:</p>
-                                <p class="perfil-resumen-numero" id="perfilProyectos">{{ miembro_seleccionado.proyectos.count|default:"0" }}</p>
+                                <p class="perfil-resumen-numero" id="perfilProyectos">
+                                    {{ miembro_seleccionado.proyectos.count|default:"0" }}
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Información del miembro -->
+
+                <!-- CONTENEDOR PRINCIPAL DEL PERFIL -->
                 <div class="perfil-informacion-contenedor">
                     <form method="post" action="">
                         {% csrf_token %}
-                        <!-- Sección 1: Información Personal -->
+
+                        <!-- INFORMACIÓN PERSONAL -->
                         <div class="perfil-seccion">
                             <div class="perfil-seccion-titulo">
                                 <img src="{% static 'img/User.png' %}" alt="Información Personal">
@@ -232,32 +258,47 @@
                             <div class="perfil-info-grid">
                                 <div class="perfil-campo">
                                     <label for="perfilNombres">Nombres:</label>
-                                    <input type="text" id="perfilNombres" name="nombres" value="{{ miembro_seleccionado.nombres }}" placeholder="Escribe tu nombre" required>
+                                    <input type="text" id="perfilNombres" name="nombres"
+                                        value="{{ miembro_seleccionado.nombres }}"readonly>
                                 </div>
                                 <div class="perfil-campo">
                                     <label for="perfilApellidos">Apellidos:</label>
-                                    <input type="text" id="perfilApellidos" name="apellidos" value="{{ miembro_seleccionado.apellidos }}" placeholder="Escribe tus Apellidos" required>
+                                    <input type="text" id="perfilApellidos" name="apellidos"
+                                        value="{{ miembro_seleccionado.apellidos }}" readonly>
                                 </div>
                                 <div class="perfil-campo">
                                     <label for="perfilCedula">Cédula:</label>
-                                    <input type="text" id="perfilCedula" name="cedula" value="{{ miembro_seleccionado.cedula }}" placeholder="Escribe tu número de documento" required>
+                                    <input type="text" id="perfilCedula" name="cedula"
+                                        value="{{ miembro_seleccionado.cedula }}"readonly>
                                 </div>
                                 <div class="perfil-campo">
                                     <label for="perfilCorreoPersonal">Correo Personal:</label>
-                                    <input type="email" id="perfilCorreoPersonal" name="correo_personal" value="{{ miembro_seleccionado.correo_personal }}" placeholder="Escribe tu correo personal" required>
+                                    <input type="email" id="perfilCorreoPersonal" name="correo_personal"
+                                        value="{{ miembro_seleccionado.correo_personal|default_if_none:'' }}" readonly>
                                 </div>
                                 <div class="perfil-campo">
                                     <label for="perfilCelular">Celular:</label>
-                                    <input type="tel" id="perfilCelular" name="celular" value="{{ miembro_seleccionado.celular }}" placeholder="Escribe tu número de celular" required>
+                                    <input type="tel" id="perfilCelular" name="celular"
+                                        value="{{ miembro_seleccionado.celular|default_if_none:'' }}" readonly>
+                                </div>
+
+                                <div class="perfil-campo">
+                                    <label for="perfilFechaNacimiento">Fecha de Nacimiento:</label>
+                                    <input type="text" id="perfilFechaNacimiento" name="fecha_nacimiento"
+                                        value="{{ miembro_seleccionado.fecha_nacimiento|default_if_none:'' }}" readonly>
                                 </div>
                                 <div class="perfil-campo">
-                                    <label for="perfilDireccion">Dirección:</label>
-                                    <input type="text" id="perfilDireccion" name="direccion" value="{{ miembro_seleccionado.direccion }}" placeholder="Escribe tu dirección">
+                                    <label for="perfilEstado">Estado:</label>
+                                    <select name="estado" id="perfilEstado" class="perfil-select">
+                                        <option value="Activo" {% if miembro_seleccionado.estado == "Activo" %}selected{% endif %}>Activo</option>
+                                        <option value="Inactivo" {% if miembro_seleccionado.estado == "Inactivo" %}selected{% endif %}>Inactivo</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Sección 2: Información Profesional -->
+                        <!-- INFORMACIÓN PROFESIONAL (solo para usuarios) -->
+                        {% if tipo_miembro == 'usuario' %}
                         <div class="perfil-seccion">
                             <div class="perfil-seccion-titulo">
                                 <img src="{% static 'img/briefcase.png' %}" alt="Información Profesional">
@@ -267,28 +308,81 @@
                             <div class="perfil-info-grid">
                                 <div class="perfil-campo">
                                     <label for="perfilCorreoSena">Correo Sena:</label>
-                                    <input type="email" id="perfilCorreoSena" name="correo_sena" value="{{ miembro_seleccionado.correo_sena }}" placeholder="Escribe tu correo institucional">
+                                    <input type="email" id="perfilCorreoSena" name="correo_sena"
+                                        value="{{ miembro_seleccionado.correo_sena }}"  readonly>
                                 </div>
                                 <div class="perfil-campo">
                                     <label for="perfilVinculacion">Vinculación laboral:</label>
-                                    <select id="perfilVinculacion" name="vinculacion" class="perfil-select">
-                                        <option value="">-- Seleccione un tipo --</option>
-                                        <option value="contratista" {% if miembro_seleccionado.vinculacion == 'contratista' %}selected{% endif %}>Contratista</option>
-                                        <option value="planta" {% if miembro_seleccionado.vinculacion == 'planta' %}selected{% endif %}>Planta</option>
-                                    </select>
+                                    <input type="text" id="perfilVinculacion" name="vinculacion"
+                                        value="{{ miembro_seleccionado.vinculacion|default_if_none:'' }}" readonly>
                                 </div>
                                 <div class="perfil-campo">
                                     <label for="perfilDependencia">Dependencia/Área:</label>
-                                    <input type="text" id="perfilDependencia" name="dependencia" value="{{ miembro_seleccionado.dependencia }}" placeholder="Indique su dependencia" required>
+                                    <input type="text" id="perfilDependencia" name="dependencia"
+                                        value="{{ miembro_seleccionado.dependencia|default_if_none:'' }}" readonly>
                                 </div>
                                 <div class="perfil-campo">
                                     <label for="perfilRol">Rol:</label>
-                                    <input type="text" id="perfilRol" name="rol" value="{{ miembro_seleccionado.rol }}" placeholder="Rol">
+                                    <input type="text" id="perfilRol" name="rol"
+                                        value="{{ miembro_seleccionado.rol }}" readonly>
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
 
-                        <!-- Sección 3: Información de Semilleros -->
+                        <!-- INFORMACIÓN ACADÉMICA (solo para aprendices) -->
+                        {% if tipo_miembro == 'aprendiz' %}
+                        <div class="perfil-seccion">
+                            <div class="perfil-seccion-titulo">
+                                <img src="{% static 'img/student.png' %}" alt="Información Académica">
+                                <h6>Información Académica</h6>
+                            </div>
+                            <hr class="perfil-hr-academica">
+
+                            <div class="perfil-info-grid">
+                                <div class="perfil-campo">
+                                    <label for="perfilCorreoSena">Correo SENA:</label>
+                                    <input type="email" id="perfilCorreoSena" name="correo_sena"
+                                        value="{{ miembro_seleccionado.correo_sena }}" readonly>
+                                </div>
+
+                                <div class="perfil-campo">
+                                    <label for="perfilFicha">Ficha:</label>
+                                    <input type="text" id="perfilFicha" name="ficha"
+                                        value="{{ miembro_seleccionado.ficha }}" readonly>
+                                </div>
+
+                                <div class="perfil-campo">
+                                    <label for="perfilPrograma">Programa:</label>
+                                    <input type="text" id="perfilPrograma" name="programa"
+                                        value="{{ miembro_seleccionado.programa }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="perfil-seccion">
+                            <div class="perfil-seccion-titulo">
+                                <img src="{% static 'img/banco.png' %}" alt="Información Bancaria">
+                                <h6>Información Bancaria</h6>
+                            </div>
+                            <hr class="perfil-hr-academica">
+
+                            <div class="perfil-info-grid">
+                                <div class="perfil-campo">
+                                    <label for="perfilMedioBancario">Medio Bancario:</label>
+                                    <input type="text" id="perfilMedioBancario" name="medio_bancario"
+                                        value="{{ miembro_seleccionado.medio_bancario }}" readonly>
+                                </div>
+
+                                <div class="perfil-campo">
+                                    <label for="perfilCuenta">Número de Cuenta:</label>
+                                    <input type="text" id="perfilCuenta" name="numero_cuenta"
+                                        value="{{ miembro_seleccionado.numero_cuenta }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- INFORMACIÓN DE SEMILLEROS -->
                         <div class="perfil-seccion">
                             <div class="perfil-seccion-titulo">
                                 <img src="{% static 'img/microscopio.png' %}" alt="Información de Semilleros">
@@ -296,17 +390,18 @@
                             </div>
                             <hr class="perfil-hr-semilleros">
                             <div class="perfil-info-grid">
-                                {% for semillero in miembro_seleccionado.semilleros.all %}
-                                <div class="perfil-campo">
-                                    <input type="text" value="{{ semillero.siglas }} - {{ semillero.nombre }}" class="perfil-input-readonly" readonly>
-                                </div>
+                                {% for semillero in miembro_seleccionado.semilleros %}
+                                    <div class="perfil-campo">
+                                        <input type="text" class="perfil-input-readonly" readonly
+                                            value="{{ semillero.sigla }} - {{ semillero.nombre }}">
+                                    </div>
                                 {% empty %}
-                                <p class="perfil-sin-datos">No está asociado a ningún semillero.</p>
+                                    <p class="perfil-sin-datos">No está asociado a ningún semillero.</p>
                                 {% endfor %}
                             </div>
                         </div>
 
-                        <!-- Sección 4: Información de Proyectos -->
+                        <!-- INFORMACIÓN DE PROYECTOS -->
                         <div class="perfil-seccion">
                             <div class="perfil-seccion-titulo">
                                 <img src="{% static 'img/project.png' %}" alt="Información de Proyectos">
@@ -314,18 +409,19 @@
                             </div>
                             <hr class="perfil-hr-proyectos">
                             <div class="perfil-info-grid">
-                                {% for proyecto in miembro_seleccionado.proyectos.all %}
-                                <div class="perfil-campo">
-                                    <input type="text" value="{{ proyecto.nombre }}" class="perfil-input-readonly" readonly>
-                                </div>
+                                {% for proyecto in miembro_seleccionado.proyectos %}
+                                    <div class="perfil-campo">
+                                        <input type="text" class="perfil-input-readonly" readonly
+                                            value="{{ proyecto.nom_pro }}">
+                                    </div>
                                 {% empty %}
-                                <p class="perfil-sin-datos">No está asociado a ningún proyecto.</p>
+                                    <p class="perfil-sin-datos">No está asociado a ningún proyecto.</p>
                                 {% endfor %}
                             </div>
                         </div>
 
                         <hr class="perfil-hr-final">
-                        <button type="submit" class="perfil-btn-guardar" id="btnGuardarPerfil">Guardar Cambios</button>
+                        <button type="submit" class="perfil-btn-guardar">Guardar Cambios</button>
                     </form>
                 </div>
             </div>
