@@ -23,6 +23,12 @@
                     <span class="sidebar-icon">
                         <i class="fa fa-dashboard" aria-hidden="true"></i>
                         Dashboard
+                        {% if current_page_name %}
+                            / {{ current_page_name }}
+                        {% endif %}
+                        {% if semillero %}
+                            / {{ semillero.sigla }}
+                        {% endif %}  
                     </span>
                 </div>
                 <div class="header-right">
@@ -31,8 +37,8 @@
                             <i class="fa fa-user-circle" aria-hidden="true"> </i>
                         </span>
                         <span class="user">
-                            <a>Usuario</a>
-                            <p>Rol</p>
+                            <a>{{ request.session.nom_usu }}</a>
+                            <p>{{ request.session.rol }}</p>
                         </span>
                     </div>
                 </div>
@@ -199,11 +205,11 @@
                                 <span>Miembros</span>
                             </span>
                             <span class="badge bg-secondary">
-                                <strong>{{ total_miembros|default:0 }}</strong>
+                                <strong>{{ total_proyectos|default:0 }}</strong>
                                 <span>Proyectos</span>
                             </span>
                             <span class="badge bg-secondary">
-                                <strong>{{ total_miembros|default:0 }}</strong>
+                                <strong>{{ total_entregables|default:0 }}</strong>
                                 <span>Entregables</span>
                             </span>
                         </div>
@@ -217,7 +223,7 @@
                 <a href="{% url 'resu-miembros' semillero.id_sem %}" class="menu-button {% if current_page == 'resu_miembros' %}active{% endif %}">
                     <img src="{% static 'img/people.png' %}" alt="Icono de Usuarios" class="icon-button">
                     Miembros</a>
-                <a href="{% url 'resu-proyectos' %}" class="menu-button {% if current_page == 'resu_proyectos' %}active{% endif %}">
+                <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="menu-button {% if current_page == 'resu_proyectos' %}active{% endif %}">
                     <img src="{% static 'img/project.png' %}" alt="Icono de Proyectos" class="icon-button">
                     Proyectos</a>
                 <a href="{% url 'recursos' %}" class="menu-button {% if current_page == 'recursos' %}active{% endif %}">

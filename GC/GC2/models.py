@@ -185,7 +185,6 @@ class Proyecto(models.Model):
     linea_tec = models.CharField(max_length=250)
     linea_inv = models.CharField(max_length=250)
     linea_sem = models.CharField(max_length=250)
-    can_entre = models.IntegerField()
     estado_pro = models.CharField(max_length=50)
 
     class Meta:
@@ -207,13 +206,13 @@ class Documento(models.Model):
 
 class Entregable(models.Model):
     cod_entre = models.IntegerField(primary_key=True)
-    numero = models.IntegerField()
     nom_entre = models.CharField(max_length=250)
-    fecha_entre = models.CharField(max_length=250)
+    fecha_inicio = models.CharField(max_length=250)
+    fecha_fin = models.CharField(max_length=250)
     desc_entre = models.CharField(max_length=250)
     estado = models.CharField(max_length=45)
     archivo = models.CharField(max_length=250)
-    cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
+    cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE,db_column='cod_pro')
 
     class Meta:
         managed = False
@@ -255,13 +254,14 @@ class SemilleroEvento(models.Model):
 
 
 class SemilleroProyecto(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
+    id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
-
+    
     class Meta:
         managed = False
         db_table = 'semillero_proyecto'
-        unique_together = ('cod_sem', 'cod_pro')  # evita duplicados
+        unique_together = ('id_sem', 'cod_pro')
+
 
 class SemilleroUsuario(models.Model):
     semusu_id = models.AutoField(primary_key=True)
@@ -286,10 +286,12 @@ class SemilleroUsuario(models.Model):
         return f"{self.cedula.nom_usu} en {self.id_sem.nom_sem}"
 
 class UsuarioProyecto(models.Model):
+    usupro_id = models.AutoField(primary_key=True)
     cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
+    es_lider = models.BooleanField(default=False)
 
     class Meta:
         managed = False
         db_table = 'usuario_proyecto'
-        unique_together = ('cedula', 'cod_pro')  # evita duplicados
+        unique_together = (('cedula', 'cod_pro'),)  # evita duplicados

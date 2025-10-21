@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm
-from .models import Usuario, Semillero,SemilleroUsuario, Aprendiz, Proyecto, SemilleroProyecto
+from .models import Usuario, Semillero,SemilleroUsuario, Aprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable
 from django.utils import timezone 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
@@ -361,8 +361,16 @@ def privacidad(request):
 
 # VISTAS DE HOME 
 def home(request):
-    return render(request, 'paginas/home.html')
+    usuario = {
+        'nom_usu': request.session.get('nom_usu')
+    }
 
+    return render(request, 'paginas/home.html',{
+        'current_page': 'home',
+        'current_page_name': 'Inicio',
+        'usuario': usuario
+    })
+    
 # VISTAS PERFIL
 def perfil(request):
     # Verificar sesión activa
@@ -460,7 +468,6 @@ def actualizar_foto(request):
         
         return redirect('perfil')  # o a la vista donde se muestra el perfil
 
-
 # VISTAS SEMILLEROS
 def semilleros(request):
     semilleros = Semillero.objects.all()
@@ -480,7 +487,7 @@ def semilleros(request):
         semillero.total_entregables = 0  # Ajusta según tu lógica
     
     return render(request, 'paginas/semilleros.html', {
-        'semilleros': semilleros
+        'semilleros': semilleros,
     })
 
 def crear_semillero(request):
@@ -536,12 +543,25 @@ def resumen(request, id_sem):
     total_usuarios = Usuario.objects.filter(cedula__in=cedulas).count()
     total_aprendices = Aprendiz.objects.filter(id_sem=semillero).count()
     total_miembros = total_usuarios + total_aprendices
-    
+
+    # Proyectos del semillero
+    proyectos = SemilleroProyecto.objects.filter(id_sem=semillero)
+    total_proyectos = proyectos.count()
+
+    # Entregables asociados a esos proyectos
+    total_entregables = Entregable.objects.filter(
+        cod_pro__in=proyectos.values('cod_pro')
+    ).count()
+
+
     return render(request, 'paginas/resumen.html', {
         'current_page': 'resumen',
+        'current_page_name': 'Semilleros',
         'semillero': semillero,
         'objetivos_lista': objetivos_lista,
         'total_miembros': total_miembros,
+        'total_proyectos': total_proyectos,
+        'total_entregables': total_entregables
     })
 
 def resu_miembros(request, id_sem):
@@ -560,10 +580,33 @@ def resu_miembros(request, id_sem):
 
     total_miembros = usuarios.count() + aprendices.count()
 
-    # CORRECCIÓN: Obtener miembros con el campo es_lider ya incluido
+    # Obtener miembros con el campo es_lider ya incluido
     miembros = SemilleroUsuario.objects.filter(
         id_sem=semillero
     ).select_related('cedula')
+
+    # Obtener proyectos del semillero
+    proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
+    codigos_proyectos = proyectos.values_list('cod_pro', flat=True)
+
+    # Agregar información de líder de proyecto a cada miembro
+    # Solo considerando proyectos del semillero actual
+    for miembro in miembros:
+        # Verificar si este usuario es líder de algún proyecto del semillero
+        miembro.es_lider_proyecto = UsuarioProyecto.objects.filter(
+            cedula=miembro.cedula,
+            cod_pro__in=codigos_proyectos,  # Solo proyectos de este semillero
+            es_lider=True
+        ).exists()
+        
+        # Opcional: Obtener nombres de los proyectos que lidera (para mostrar tooltip)
+        if miembro.es_lider_proyecto:
+            proyectos_liderados = UsuarioProyecto.objects.filter(
+                cedula=miembro.cedula,
+                cod_pro__in=codigos_proyectos,
+                es_lider=True
+            ).select_related('cod_pro').values_list('cod_pro__nom_pro', flat=True)
+            miembro.proyectos_liderados = list(proyectos_liderados)
 
     # Verificar si hay instructores
     tiene_instructores = any(
@@ -571,15 +614,26 @@ def resu_miembros(request, id_sem):
         for m in miembros
     )
 
+    total_proyectos = proyectos.count()
+
+    # Entregables asociados a esos proyectos
+    total_entregables = Entregable.objects.filter(
+        cod_pro__in=proyectos.values('cod_pro')
+    ).count()
+
     context = {
         'current_page': 'resu_miembros',
+        'current_page_name': 'Semilleros',
         'semillero': semillero,
         'usuarios': usuarios,
         'aprendices': aprendices,
         'miembros': miembros, 
         'Usuarios': usuarios_disponibles,
         'total_miembros': total_miembros,
+        'proyectos': proyectos,
         'tiene_instructores': tiene_instructores,
+        'total_proyectos': total_proyectos,
+        'total_entregables': total_entregables
     }
 
     return render(request, 'paginas/resu-miembros.html', context)
@@ -649,9 +703,329 @@ def asignar_lider_semillero(request, id_sem):
         messages.success(request, f"{lider.cedula.nom_usu} ha sido asignado como líder del semillero.")
         return redirect("resu-miembros", semillero.id_sem)
 
-def resu_proyectos(request):
-    return render(request, 'paginas/resu-proyectos.html', 
-    {'current_page': 'resu_proyectos'})
+def asignar_lider_proyecto(request, id_sem):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    
+    if request.method == "POST":
+        cedula_instructor = request.POST.get("instructor_seleccionado")
+        cod_proyecto = request.POST.get("proyecto_seleccionado")
+
+        # Validar que se seleccionaron ambos
+        if not cedula_instructor or not cod_proyecto:
+            messages.error(request, "Debes seleccionar un instructor y un proyecto.")
+            return redirect("resu-miembros", id_sem=id_sem)
+
+        try:
+            # Obtener el instructor y el proyecto
+            instructor = Usuario.objects.get(cedula=cedula_instructor)
+            proyecto = Proyecto.objects.get(cod_pro=cod_proyecto)
+
+            # Verificar que el proyecto pertenece al semillero
+            if not SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).exists():
+                messages.error(request, "El proyecto seleccionado no pertenece a este semillero.")
+                return redirect("resu-miembros", id_sem=id_sem)
+
+            # Verificar que el instructor pertenece al semillero
+            if not SemilleroUsuario.objects.filter(id_sem=semillero, cedula=instructor).exists():
+                messages.error(request, "El instructor seleccionado no pertenece a este semillero.")
+                return redirect("resu-miembros", id_sem=id_sem)
+
+            # Paso 1: Quitar liderazgo anterior del proyecto
+            UsuarioProyecto.objects.filter(
+                cod_pro=proyecto,
+                es_lider=True
+            ).update(es_lider=False)
+
+            # Paso 2: Buscar si ya existe la relación usuario-proyecto
+            try:
+                relacion = UsuarioProyecto.objects.get(
+                    cedula=instructor,
+                    cod_pro=proyecto
+                )
+                # Si existe, actualizar el liderazgo
+                relacion.es_lider = True
+                relacion.save()
+                creada = False
+            except UsuarioProyecto.DoesNotExist:
+                # Si no existe, crear nueva relación
+                relacion = UsuarioProyecto.objects.create(
+                    cedula=instructor,
+                    cod_pro=proyecto,
+                    es_lider=True
+                )
+                creada = True
+
+            mensaje = "asignado" if creada else "actualizado como"
+            messages.success(
+                request, 
+                f"{instructor.nom_usu} {instructor.ape_usu} ha sido {mensaje} líder del proyecto '{proyecto.nom_pro}'."
+            )
+            return redirect("resu-miembros", id_sem=id_sem)
+
+        except Usuario.DoesNotExist:
+            messages.error(request, "El instructor seleccionado no existe.")
+            return redirect("resu-miembros", id_sem=id_sem)
+        
+        except Proyecto.DoesNotExist:
+            messages.error(request, "El proyecto seleccionado no existe.")
+            return redirect("resu-miembros", id_sem=id_sem)
+        
+        except Exception as e:
+            messages.error(request, f"Error al asignar líder: {e}")
+            return redirect("resu-miembros", id_sem=id_sem)
+
+    # Si es GET, redirigir a resu-miembros (el modal se abre desde allí)
+    return redirect("resu-miembros", id_sem=id_sem)
+
+def resu_proyectos(request, id_sem):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    
+    # Obtener todos los proyectos asociados al semillero
+    proyectos = semillero.proyectos.all()
+    
+    # Filtrar por tipo
+    proyectos_sennova = list(proyectos.filter(tipo__iexact="sennova"))
+    proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
+    proyectos_formativos = list(proyectos.filter(tipo__iexact="Formativo"))
+    
+    # Convertir las líneas de texto a listas para cada tipo de proyecto
+    for proyecto in proyectos_sennova + proyectos_capacidad + proyectos_formativos:
+        proyecto.lineas_tec_lista = [l.strip() for l in proyecto.linea_tec.split('\n') if l.strip()] if proyecto.linea_tec else []
+        proyecto.lineas_inv_lista = [l.strip() for l in proyecto.linea_inv.split('\n') if l.strip()] if proyecto.linea_inv else []
+        proyecto.lineas_sem_lista = [l.strip() for l in proyecto.linea_sem.split('\n') if l.strip()] if proyecto.linea_sem else []
+    
+    # Proyectos del semillero
+    proyectos = SemilleroProyecto.objects.filter(id_sem=semillero)
+    total_proyectos = proyectos.count()
+
+    # Usuarios vinculados al semillero
+    usuarios = SemilleroUsuario.objects.filter(id_sem=semillero)
+
+    # Aprendices asociados al semillero
+    aprendices = Aprendiz.objects.filter(id_sem=semillero)
+
+    # Total de miembros (usuarios + aprendices)
+    total_miembros = usuarios.count() + aprendices.count()
+
+    # Obtener los miembros con el campo es_lider
+    miembros = usuarios.select_related('cedula')
+
+    # Entregables asociados a esos proyectos
+    total_entregables = Entregable.objects.filter(
+        cod_pro__in=proyectos.values('cod_pro')
+    ).count()
+    
+    # Obtener miembros del semillero para el modal de crear proyecto
+    usuarios_semillero = SemilleroUsuario.objects.filter(
+        id_sem=semillero
+    ).select_related('cedula')
+    
+    aprendices_semillero = Aprendiz.objects.filter(id_sem=semillero)
+    
+    # Combinar miembros
+    miembros_semillero = []
+    
+    for u in usuarios_semillero:
+        miembros_semillero.append({
+            'cedula': u.cedula.cedula,
+            'nombre_completo': f"{u.cedula.nom_usu} {u.cedula.ape_usu}",
+            'iniciales': u.cedula.get_iniciales,
+            'tipo': 'Usuario',
+            'rol': u.cedula.rol
+        })
+    
+    for a in aprendices_semillero:
+        miembros_semillero.append({
+            'cedula': a.cedula_apre,
+            'nombre_completo': f"{a.nombre} {a.apellido}",
+            'iniciales': a.get_iniciales,
+            'tipo': 'Aprendiz',
+            'rol': 'Aprendiz'
+        })
+
+    context = {
+        'current_page': 'resu_proyectos',
+        'current_page_name': 'Semilleros',
+        'semillero': semillero,
+        'proyectos_sennova': proyectos_sennova,
+        'proyectos_capacidad': proyectos_capacidad,
+        'proyectos_formativos': proyectos_formativos,
+        'total_proyectos': total_proyectos,
+        'total_miembros': total_miembros,
+        'miembros': miembros,
+        'total_entregables': total_entregables,
+        'miembros_semillero': miembros_semillero
+    }
+    
+    return render(request, 'paginas/resu-proyectos.html', context)
+
+def crear_proyecto(request, id_sem):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+
+    # Obtener los usuarios (instructores/investigadores) del semillero
+    usuarios_semillero = SemilleroUsuario.objects.filter(
+        id_sem=semillero  # ✅ se usa el objeto, no el id
+    ).select_related('cedula')
+
+    # Obtener los aprendices del semillero
+    aprendices_semillero = Aprendiz.objects.filter(id_sem=semillero)
+
+    # Combinar miembros (usuarios + aprendices)
+    miembros_semillero = []
+
+    # Agregar usuarios
+    for u in usuarios_semillero:
+        miembros_semillero.append({
+            'cedula': u.cedula.cedula,
+            'nombre_completo': f"{u.cedula.nom_usu} {u.cedula.ape_usu}",
+            'iniciales': u.cedula.get_iniciales,
+            'tipo': 'Usuario',
+            'rol': u.cedula.rol
+        })
+    
+    # Agregar aprendices
+    for a in aprendices_semillero:
+        miembros_semillero.append({
+            'cedula': a.cedula_apre,
+            'nombre_completo': f"{a.nombre} {a.apellido}",
+            'iniciales': a.get_iniciales,
+            'tipo': 'Aprendiz',
+            'rol': 'Aprendiz'
+        })
+
+    if request.method == 'POST':
+        try:
+            # Verificar usuario autenticado
+            cedula_usuario = request.session.get('cedula')
+            if not cedula_usuario:
+                messages.error(request, 'Debes iniciar sesión para crear un proyecto.')
+                return redirect('iniciarsesion')
+
+            usuario_actual = Usuario.objects.get(cedula=cedula_usuario)
+
+            # Capturar datos del formulario
+            nom_pro = request.POST.get('nom_pro', '').strip()
+            tipo = request.POST.get('tipo', '').strip()
+            desc_pro = request.POST.get('desc_pro', '').strip()
+            lineas_tec = request.POST.getlist('lineastec[]')
+            lineas_inv = request.POST.getlist('lineasinv[]')
+            lineas_sem = request.POST.getlist('lineassem[]')
+            miembros_seleccionados = request.POST.getlist('miembros_proyecto[]')
+
+            # Validar campos requeridos
+            if not all([nom_pro, tipo, desc_pro]):
+                messages.error(request, 'Todos los campos son obligatorios.')
+                return redirect('resu-proyectos', id_sem=id_sem)
+
+            # Generar nuevo código de proyecto
+            ultimo_proyecto = Proyecto.objects.order_by('-cod_pro').first()
+            nuevo_cod_pro = ultimo_proyecto.cod_pro + 1 if ultimo_proyecto else 1
+
+            # Crear el proyecto
+            proyecto = Proyecto.objects.create(
+                cod_pro=nuevo_cod_pro,
+                nom_pro=nom_pro,
+                tipo=tipo,
+                desc_pro=desc_pro,
+                linea_tec="\n".join(lineas_tec),
+                linea_inv="\n".join(lineas_inv),
+                linea_sem="\n".join(lineas_sem),
+                estado_pro="Activo"
+            )
+
+            # Asociar proyecto al semillero
+            SemilleroProyecto.objects.create(
+                id_sem=semillero,
+                cod_pro=proyecto
+            )
+
+            # Asociar usuario creador al proyecto
+            UsuarioProyecto.objects.create(
+                cedula=usuario_actual,
+                cod_pro=proyecto
+            )
+
+            # Asociar miembros seleccionados
+            miembros_agregados = 0
+            for cedula in miembros_seleccionados:
+                if str(cedula) != str(cedula_usuario):
+                    try:
+                        usuario = Usuario.objects.get(cedula=cedula)
+                        if not UsuarioProyecto.objects.filter(cedula=usuario, cod_pro=proyecto).exists():
+                            UsuarioProyecto.objects.create(cedula=usuario, cod_pro=proyecto)
+                            miembros_agregados += 1
+                    except Usuario.DoesNotExist:
+                        try:
+                            aprendiz = Aprendiz.objects.get(cedula_apre=cedula)
+                            # Aquí podrías crear la relación AprendizProyecto si existe el modelo
+                            # AprendizProyecto.objects.create(cedula=aprendiz, cod_pro=proyecto)
+                            pass
+                        except Aprendiz.DoesNotExist:
+                            pass
+
+            # Crear entregables con descripciones predeterminadas
+            entregables_default = [
+                {
+                    "nombre": "Formalización de Proyecto",
+                    "descripcion": "Documento que establece el marco formal del proyecto, incluyendo título, justificación, alcance, participantes y recursos necesarios."
+                },
+                {
+                    "nombre": "Diagnóstico",
+                    "descripcion": "Análisis de la situación actual, identificación de problemáticas, necesidades y oportunidades del contexto donde se desarrollará el proyecto."
+                },
+                {
+                    "nombre": "Planeación",
+                    "descripcion": "Planificación detallada con cronograma, actividades, metodología, recursos, responsables y estrategias para el desarrollo del proyecto."
+                },
+                {
+                    "nombre": "Ejecución",
+                    "descripcion": "Informe de implementación del proyecto, evidencias de actividades realizadas, resultados obtenidos y ajustes aplicados durante el proceso."
+                },
+                {
+                    "nombre": "Evaluación",
+                    "descripcion": "Análisis del cumplimiento de objetivos, medición de impacto, identificación de logros, dificultades y lecciones aprendidas del proyecto."
+                },
+                {
+                    "nombre": "Conclusiones",
+                    "descripcion": "Reflexiones finales, recomendaciones para futuros proyectos, aportes al conocimiento y perspectivas de continuidad o réplica del proyecto."
+                }
+            ]
+
+            ultimo_entregable = Entregable.objects.order_by('-cod_entre').first()
+            base_cod = ultimo_entregable.cod_entre if ultimo_entregable else 0
+
+            for i, entregable_data in enumerate(entregables_default, start=1):
+                fecha_inicio = request.POST.get(f'fecha_inicio_{i}')
+                fecha_fin = request.POST.get(f'fecha_fin_{i}')
+                
+                # 🔹 Se eliminó el messages.error aquí para evitar el SyntaxError
+
+                Entregable.objects.create(
+                    cod_entre=base_cod + i,
+                    nom_entre=entregable_data["nombre"],
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
+                    desc_entre=entregable_data["descripcion"],
+                    estado="Pendiente",
+                    archivo="",
+                    cod_pro=proyecto
+                )
+
+            messages.success(
+                request,
+                f'Proyecto "{nom_pro}" creado correctamente con {miembros_agregados} miembro(s) asignado(s).'
+            )
+            return redirect('resu-proyectos', id_sem=id_sem)
+
+        except Exception as e:
+            messages.error(request, f'Error al crear proyecto: {str(e)}')
+            return redirect('resu-proyectos', id_sem=id_sem)
+
+    return render(request, 'crear_proyecto.html', {
+        'semillero': semillero,
+        'miembros_semillero': miembros_semillero
+    })
+
 
 def recursos(request):
     return render(request, 'paginas/recursos.html', 

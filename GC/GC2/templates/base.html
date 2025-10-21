@@ -23,6 +23,9 @@
                     <span class="sidebar-icon">
                         <i class="fa fa-dashboard" aria-hidden="true"></i>
                         Dashboard
+                        {% if current_page_name %}
+                            / {{ current_page_name }}
+                        {% endif %}
                     </span>
                 </div>
                 <div class="header-right">
@@ -31,8 +34,8 @@
                             <i class="fa fa-user-circle" aria-hidden="true"> </i>
                         </span>
                         <span class="user">
-                            <a>Usuario</a>
-                            <p>Rol</p>
+                            <a>{{ request.session.nom_usu }}</a>
+                            <p>{{ request.session.rol }}</p>
                         </span>
                     </div>
                 </div>

@@ -17,7 +17,7 @@
                 <img src="{% static 'img/Medal.png' %}" alt="Icono de Asignar Lider De Semillero">
                 Asignar Lider De Semillero
             </button>
-            <button class="btn btn-asignar">
+            <button class="btn btn-asignar" data-bs-toggle="modal" data-bs-target="#modal-proyecto" >
                 <img src="{% static 'img/project.png' %}" alt="Icono de Asignar Estudiante">
                 Asignar Lider De Proyecto
             </button>  
@@ -54,7 +54,10 @@
                                                     <!-- Ícono de líder -->
                                                     <div class="lider">
                                                         {% if m.es_lider %}
-                                                            <img src="{% static 'img/Medal.png' %}" alt="Líder" class="icono-lider">
+                                                            <img src="{% static 'img/Medal.png' %}" alt="Líder Semillero" class="icono-lider">
+                                                        {% endif %}
+                                                         {% if m.es_lider_proyecto %}
+                                                            <img src="{% static 'img/project.png' %}" alt="Líder Proyecto" class="icono-lider">
                                                         {% endif %}
                                                     </div>
                                                     
@@ -79,9 +82,10 @@
                                                     {% if m.es_lider %}
                                                         <span class="rol-lider">Lider de Semillero</span>
                                                     {% endif %}
+                                                    {% if m.es_lider_proyecto %}
+                                                        <span class="rol-lider-proyecto">Lider de Proyecto</span>
+                                                    {% endif %}
                                                     </div>
-
-                                                    
                                                 </div>
                                             </div>
                                         {% endif %}
@@ -298,8 +302,138 @@
     </div>
 </div>
 
+<!-- MODAL ASIGNAR LÍDER DE PROYECTO -->
+<div id="modal-proyecto" class="modal-overlay">
+    <div class="modal-contenedor modal-miembros">
+        <!-- Botón cerrar -->
+        <a href="{% url 'resu-miembros' semillero.id_sem %}" 
+           class="modal-cerrar" 
+           onclick="cerrarModal('modal-proyecto'); return false;">&times;</a>
 
+        <!-- Formulario -->
+        <form method="POST" action="{% url 'asignar-lider-proyecto' semillero.id_sem %}">
+            {% csrf_token %}
+            
+            <div class="modal-contenido">
 
+                <!-- Encabezado -->
+                <div class="modal-header">
+                    <img src="{% static 'img/project.png' %}" alt="Icono de proyectos">
+                    <h2 class="modal-titulo">
+                        Asignar Líder de Proyecto: <span>{{ semillero.sigla }}</span>
+                    </h2>
+                </div>
+
+                <!-- Sección: Seleccionar Instructor -->
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <h6>Seleccionar Instructor/Investigador</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-primario">
+                    
+                    <div class="lista-miembros-modal">
+                        {% if miembros %}
+                            {% for m in miembros %}
+                                {# Solo mostrar instructores/investigadores que NO sean líderes de semillero #}
+                                {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
+                                    {% if not m.es_lider %}
+                                        <div class="item-miembro-modal">
+                                            <!-- Avatar -->
+                                            <div class="avatar-miembro" data-color="{{ forloop.counter }}">
+                                                {{ m.cedula.get_iniciales }}
+                                            </div>
+
+                                            <!-- Información -->
+                                            <div class="info-miembro">
+                                                <h4>{{ m.cedula.nom_usu }} {{ m.cedula.ape_usu }}</h4>
+                                                <span class="rol-miembro">{{ m.cedula.rol }}</span>
+                                            </div>
+
+                                            <!-- Selección -->
+                                            <div class="check">
+                                                <label>
+                                                    <input 
+                                                        type="radio" 
+                                                        name="instructor_seleccionado" 
+                                                        value="{{ m.cedula.cedula }}" 
+                                                        required
+                                                    >
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="sin-resultados">
+                                No hay instructores disponibles en este semillero.<br>
+                                Agrega instructores antes de asignar un líder.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Sección: Seleccionar Proyecto -->
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <h6>Seleccionar Proyecto</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-secundario">
+                    
+                    <div class="lista-miembros-modal">
+                        {% if proyectos %}
+                            {% for proyecto in proyectos %}
+                                <div class="item-miembro-modal">
+                                    <!-- Ícono del proyecto -->
+                                    <div class="avatar-miembro" data-color="{{ forloop.counter }}">
+                                        <i class="fas fa-folder-open"></i>
+                                    </div>
+
+                                    <!-- Información del Proyecto -->
+                                    <div class="info-miembro">
+                                        <h4>{{ proyecto.nom_pro }}</h4>
+                                        <span class="rol-miembro">{{ proyecto.tipo }}</span>
+                                        <p class="desc-proyecto">{{ proyecto.desc_pro|truncatewords:15 }}</p>
+                                    </div>
+
+                                    <!-- Selección -->
+                                    <div class="check">
+                                        <label>
+                                            <input 
+                                                type="radio" 
+                                                name="proyecto_seleccionado" 
+                                                value="{{ proyecto.cod_pro }}" 
+                                                required
+                                            >
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="sin-resultados">
+                                No hay proyectos disponibles en este semillero.<br>
+                                Agrega proyectos para comenzar.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="modal-hr modal-hr-final">
+
+                <!-- Acciones -->
+                <div class="modal-acciones">
+                    <a href="{% url 'resu-miembros' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="modal-btn modal-btn-asignar">
+                        <img src="{% static 'img/project.png' %}" alt="Icono de Líder">
+                        Asignar Líder de Proyecto
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
     <script src="{% static 'js/miembros-carousel.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
