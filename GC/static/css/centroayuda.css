@@ -98,7 +98,7 @@
 /* ====== CONTENEDOR PRINCIPAL ====== */
 .recursos {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(480px, 60vw, 550px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(clamp(400px, 60vw, 450px), 1fr));
     gap: clamp(1rem, 2vw, 2rem);
     width: 100%;
     background-color: var(--color-fondo-secundario);

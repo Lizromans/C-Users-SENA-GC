@@ -84,6 +84,28 @@
                                                 <div class="progress-fill" style="width: {{ proyecto.progreso|default:"0" }}%"></div>
                                             </div>
                                         </div>
+
+                                         <!-- Sección de Equipo -->
+                                        <div class="proyecto-equipo">
+                                            <div class="equipo-label">
+                                                <i class="fas fa-users"></i>
+                                                <span>Equipo</span>
+                                            </div>
+                                            <div class="equipo-avatares">
+                                                {% for miembro in proyecto.miembros_lista %}
+                                                    <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                        <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
+                                                    </div>
+                                                {% empty %}
+                                                    <span class="sin-equipo">Sin miembros asignados</span>
+                                                {% endfor %}
+                                                {% if proyecto.miembros_lista|length > 5 %}
+                                                    <div class="avatar-item avatar-mas">
+                                                        <span class="avatar-iniciales">+{{ proyecto.miembros_lista|length|add:"-5" }}</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                         
                                         <div class="proyecto-footer">                                            
                                             <div class="proyecto-lineas-grid">
@@ -218,6 +240,29 @@
                                                 <div class="progress-fill" style="width: {{ proyecto.progreso|default:"0" }}%"></div>
                                             </div>
                                         </div>
+
+                                         <!-- Sección de Equipo -->
+                                        <div class="proyecto-equipo">
+                                            <div class="equipo-label">
+                                                <i class="fas fa-users"></i>
+                                                <span>Equipo</span>
+                                            </div>
+                                            <div class="equipo-avatares">
+                                                {% for miembro in proyecto.miembros_lista %}
+                                                    <div class="avatar-item" title="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                        <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
+                                                    </div>
+                                                {% empty %}
+                                                    <span class="sin-equipo">Sin miembros asignados</span>
+                                                {% endfor %}
+                                                {% if proyecto.miembros_lista|length > 5 %}
+                                                    <div class="avatar-item avatar-mas">
+                                                        <span class="avatar-iniciales">+{{ proyecto.miembros_lista|length|add:"-5" }}</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
                                         <div class="proyecto-footer">                                            
                                             <div class="proyecto-lineas-grid">
                                                 <div class="proyecto-lineas-columna">
@@ -352,6 +397,28 @@
                                                 <div class="progress-fill" style="width: {{ proyecto.progreso|default:"0" }}%"></div>
                                             </div>
                                         </div>
+                                        <!-- Sección de Equipo -->
+                                        <div class="proyecto-equipo">
+                                            <div class="equipo-label">
+                                                <i class="fas fa-users"></i>
+                                                <span>Equipo</span>
+                                            </div>
+                                            <div class="equipo-avatares">
+                                                {% for miembro in proyecto.miembros_lista %}
+                                                    <div class="avatar-item" title="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                        <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
+                                                    </div>
+                                                {% empty %}
+                                                    <span class="sin-equipo">Sin miembros asignados</span>
+                                                {% endfor %}
+                                                {% if proyecto.miembros_lista|length > 5 %}
+                                                    <div class="avatar-item avatar-mas">
+                                                        <span class="avatar-iniciales">+{{ proyecto.miembros_lista|length|add:"-5" }}</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
                                         
                                         <div class="proyecto-footer">                                            
                                             <div class="proyecto-lineas-grid">

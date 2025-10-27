@@ -388,6 +388,7 @@
     height: clamp(320px, 60vh, 350px);
     overflow-y: auto;
     display: flex;
+    overflow: visible;
     flex-direction: column;
     padding: clamp(5px, 3vw, 8px);
 }
@@ -552,6 +553,7 @@
     background: white;
     flex: 1;
     overflow-y: auto;
+    overflow: visible;
 }
 
 .tab-content.active {
@@ -1190,7 +1192,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     background-color: white;
     transition: all 0.3s ease;
     max-height: clamp(180px, 25vh, 220px);
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .modal-check-group:focus-within {
@@ -1804,4 +1806,159 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 
 .contador-miembros-seleccionados i {
     font-size: clamp(12px, 1.4vw, 14px);
+}
+
+/* ====== SECCIÓN DE EQUIPO ====== */
+.proyecto-equipo {
+    margin-bottom: clamp(5px, 2vh, 10px) ;
+}
+
+.equipo-label {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1vw, 8px);
+    font-size: clamp(12px, 1.6vw, 14px);
+    font-weight: 600;
+    color: #555;
+}
+
+.equipo-avatares {
+    display: flex;
+    align-items: center;
+    padding-left: clamp(4px, 0.8vw, 6px);
+}
+
+.avatar-item {
+    width: clamp(32px, 4vw, 38px);
+    height: clamp(32px, 4vw, 38px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    margin-left: clamp(-8px, -1.2vw, -10px);
+}
+
+.avatar-item:first-child {
+    margin-left: 0;
+}
+
+.avatar-item:hover {
+    transform: translateY(-4px) scale(1.15);
+    z-index: 10;
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.avatar-iniciales {
+    font-size: clamp(11px, 1.4vw, 13px);
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Colores alternados para avatares */
+.avatar-item:nth-child(6n+1) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.avatar-item:nth-child(6n+2) {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.avatar-item:nth-child(6n+3) {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.avatar-item:nth-child(6n+4) {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.avatar-item:nth-child(6n+5) {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.avatar-item:nth-child(6n+6) {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+/* Avatar de "más" miembros */
+.avatar-mas {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%) !important;
+}
+
+.avatar-mas:hover {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+}
+
+/* Mensaje sin equipo */
+.sin-equipo {
+    font-size: clamp(11px, 1.4vw, 13px);
+    color: #a0aec0;
+    font-style: italic;
+    padding: clamp(4px, 0.8vw, 6px) clamp(8px, 1.2vw, 10px);
+    background: rgba(160, 174, 192, 0.1);
+    border-radius: clamp(6px, 1vw, 8px);
+    display: inline-block;
+}
+
+/* Animación de entrada para avatares */
+@keyframes fadeInAvatar {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.avatar-item {
+    animation: fadeInAvatar 0.4s ease;
+    animation-fill-mode: both;
+}
+
+.avatar-item:nth-child(1) { animation-delay: 0.05s; }
+.avatar-item:nth-child(2) { animation-delay: 0.1s; }
+.avatar-item:nth-child(3) { animation-delay: 0.15s; }
+.avatar-item:nth-child(4) { animation-delay: 0.2s; }
+.avatar-item:nth-child(5) { animation-delay: 0.25s; }
+.avatar-item:nth-child(n+6) { animation-delay: 0.3s; }
+
+/* Tooltip para mostrar nombre completo */
+.avatar-item::after {
+    content: attr(data-tooltip);
+    position: fixed;
+    bottom: auto;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%) scale(0.9);
+    background: rgba(45, 55, 72, 0.95);
+    color: white;
+    padding: clamp(4px, 0.8vw, 6px) clamp(8px, 1.2vw, 10px);
+    border-radius: clamp(4px, 0.8vw, 6px);
+    font-size: clamp(10px, 1.2vw, 11px);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin-top: -8px;
+}
+
+.avatar-item:hover {
+    transform: translateY(-4px) scale(1.15);
+    z-index: 9999;
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.avatar-item:hover::after {
+    opacity: 1;
+    transform: translateX(-40%) translateY(-100%) scale(1);
 }

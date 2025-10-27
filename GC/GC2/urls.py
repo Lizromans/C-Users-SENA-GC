@@ -25,7 +25,7 @@ urlpatterns = [
     path('resu-miembros/<int:id_sem>/', views.resu_miembros, name='resu-miembros'),
     path('semillero/<int:id_sem>/asignar-lider/', views.asignar_lider_semillero, name='asignar-lider-semillero'),
     path('semillero/<int:id_sem>/asignar-lider-proyecto/', views.asignar_lider_proyecto, name='asignar-lider-proyecto'),    path('agregar-miembros/<int:id_sem>/', views.agregar_miembros, name='agregar_miembros'),
-    path('resu-proyectos/<int:id_sem>/', views.resu_proyectos, name='resu-proyectos'),
+    path('resu-proyectos/<int:id_sem>/<int:cod_pro>/', views.resu_proyectos, name='resu-proyectos'),
     path('semillero/<int:id_sem>/crear_proyecto/', views.crear_proyecto, name='crear_proyecto'),
     path('recursos/', views.recursos, name='recursos'),
 

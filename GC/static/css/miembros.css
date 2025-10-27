@@ -141,7 +141,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-width: 0;
+    width: fit-content;
 }
 
 .card-title {
@@ -511,7 +511,7 @@ tbody td {
 .tarjetas-grid {
     display: grid;
     gap: clamp(0.8rem, 1.5vw, 1.2rem);
-    grid-template-columns: repeat(auto-fill, minmax(clamp(180px, 16vw, 220px), 1fr));
+    grid-template-columns: repeat(3, 2fr);
     width: 100%;
 }
 

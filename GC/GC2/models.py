@@ -259,6 +259,7 @@ class SemilleroEvento(models.Model):
 
 
 class SemilleroProyecto(models.Model):
+    sempro_id = models.AutoField(primary_key=True)
     id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
     
@@ -302,10 +303,11 @@ class UsuarioProyecto(models.Model):
         unique_together = (('cedula', 'cod_pro'),)  # evita duplicados
 
 class ProyectoAprendiz(models.Model):
+    proapre_id = models.AutoField(primary_key=True)
     cedula_apre = models.ForeignKey(Aprendiz, on_delete=models.CASCADE, db_column='cedula_apre')
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
 
-class Meta:
+    class Meta:
         managed = False
         db_table = 'proyecto_aprendiz'
         unique_together = ('cedula_apre', 'cod_pro')  # evita duplicados

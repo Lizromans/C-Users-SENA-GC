@@ -79,7 +79,6 @@
             <form method="GET" action="">
                 <div class="filtros">
                     <input type="text" name="buscar" placeholder="Buscar proyecto..." class="buscador" value="{{ request.GET.buscar }}">
-                        <img class="fa fa-search" src="{% static 'img/Search.png' %}" alt="Icono Buscar">
                     <select name="estado" class="filtro">
                         <option value="">Todos los estados</option>
                         <option value="diagnostico" {% if request.GET.estado == 'diagnostico' %}selected{% endif %}>En diagnóstico</option>
@@ -121,9 +120,9 @@
                 <tbody>
                     {% for proyecto in proyectos %}
                     <tr>
-                        <td class="nombre">{{ proyecto.nombre }}</td>
-                        <td>{{ proyecto.semillero.nombre }}</td>
-                        <td>{{ proyecto.tipo.nombre }}</td>
+                        <td class="nombre">{{ proyecto.nom_pro }}</td>
+                        <td>{{ proyecto.semillero }}</td>
+                        <td>{{ proyecto.tipo }}</td>
                         <td class="estado">
                             <span class="estado en-diagnostico {% if proyecto.estado == 'diagnostico' %}activo{% endif %}"></span>
                             <span class="estado planeacion {% if proyecto.estado == 'planeacion' %}activo{% endif %}"></span>
@@ -137,7 +136,7 @@
                         </td>
                         <td>{{ proyecto.fecha_creacion|date:"d/m/Y" }}</td>
                         <td>
-                            <a href="{% url 'detalle_proyecto' proyecto.id %}" class="btn">Ver</a>
+                            <a href="{% url 'resu-proyectos' proyecto.cod_pro %}" class="btn">Ver</a>
                         </td>
                     </tr>
                     {% empty %}
