@@ -21,6 +21,7 @@ from datetime import timedelta
 from django.http import Http404
 from django.db.models import Q
 from datetime import datetime
+from django.db.models import Case, When, Value, IntegerField
 
 
 # Create your views here.
@@ -787,39 +788,52 @@ def asignar_lider_proyecto(request, id_sem):
     # Si es GET, redirigir a resu-miembros (el modal se abre desde allí)
     return redirect("resu-miembros", id_sem=id_sem)
 
-def resu_proyectos(request, id_sem):
+def resu_proyectos(request, id_sem, cod_pro=None):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
-    # Obtener todos los proyectos asociados al semillero
+    # 🔹 Obtener todos los proyectos asociados al semillero
     proyectos = semillero.proyectos.all()
-    
+
+    # Si hay un proyecto seleccionado
+    tipo_seleccionado = None
+    if cod_pro:
+        proyectos = proyectos.order_by(
+            Case(
+                When(cod_pro=cod_pro, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        )
+
+        # Obtenemos el tipo del proyecto seleccionado (para el scroll)
+        proyecto_sel = proyectos.filter(cod_pro=cod_pro).first()
+        if proyecto_sel:
+            tipo_seleccionado = proyecto_sel.tipo.lower()
+
     # Filtrar por tipo
     proyectos_sennova = list(proyectos.filter(tipo__iexact="sennova"))
     proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
     proyectos_formativos = list(proyectos.filter(tipo__iexact="Formativo"))
-    
-    # Procesar cada proyecto para obtener líneas y miembros
+
+    # 🔄 Procesar cada proyecto para obtener líneas y miembros
     for proyecto in proyectos_sennova + proyectos_capacidad + proyectos_formativos:
         # Líneas tecnológicas, investigación y semillero
         proyecto.lineas_tec_lista = [l.strip() for l in proyecto.linea_tec.split('\n') if l.strip()] if proyecto.linea_tec else []
         proyecto.lineas_inv_lista = [l.strip() for l in proyecto.linea_inv.split('\n') if l.strip()] if proyecto.linea_inv else []
         proyecto.lineas_sem_lista = [l.strip() for l in proyecto.linea_sem.split('\n') if l.strip()] if proyecto.linea_sem else []
         
-        # OBTENER MIEMBROS DEL PROYECTO
-        # Usuarios del proyecto
+        # 🧑‍💻 OBTENER MIEMBROS DEL PROYECTO
         usuarios_proyecto = UsuarioProyecto.objects.filter(
             cod_pro=proyecto
         ).select_related('cedula')
         
-        # Aprendices del proyecto
         aprendices_proyecto = ProyectoAprendiz.objects.filter(
             cod_pro=proyecto
         ).select_related('cedula_apre')
         
-        # Combinar todos los miembros
         miembros_lista = []
         
-        # Agregar usuarios al proyecto
+        # Agregar usuarios
         for up in usuarios_proyecto:
             miembros_lista.append({
                 'cedula': up.cedula.cedula,
@@ -829,7 +843,7 @@ def resu_proyectos(request, id_sem):
                 'rol': up.cedula.rol
             })
         
-        # Agregar aprendices al proyecto
+        # Agregar aprendices
         for ap in aprendices_proyecto:
             miembros_lista.append({
                 'cedula': ap.cedula_apre.cedula_apre,
@@ -839,26 +853,20 @@ def resu_proyectos(request, id_sem):
                 'rol': 'Aprendiz'
             })
         
-        # Asignar lista de miembros al proyecto
         proyecto.miembros_lista = miembros_lista
     
-    # Estadísticas del semillero
+    # 📊 Estadísticas generales del semillero
     proyectos_count = SemilleroProyecto.objects.filter(id_sem=semillero)
     total_proyectos = proyectos_count.count()
-
     # Usuarios vinculados al semillero
     usuarios = SemilleroUsuario.objects.filter(id_sem=semillero)
-
-    # Aprendices asociados al semillero
+# Aprendices asociados al semillero
     aprendices = Aprendiz.objects.filter(id_sem=semillero)
-
-    # Total de miembros (usuarios + aprendices)
+# Total de miembros (usuarios + aprendices)
     total_miembros = usuarios.count() + aprendices.count()
-
-    # Obtener los miembros con el campo es_lider
+# Obtener los miembros con el campo es_lider
     miembros = usuarios.select_related('cedula')
-
-    # Entregables asociados a proyectos del semillero
+# Entregables asociados a proyectos del semillero
     total_entregables = Entregable.objects.filter(
         cod_pro__in=proyectos_count.values('cod_pro')
     ).count()
@@ -867,35 +875,27 @@ def resu_proyectos(request, id_sem):
     # Obtener todos los proyectos del semillero
     proyectos_semillero = proyectos_count.values_list('cod_pro', flat=True)
 
-    # Obtener cédulas de usuarios asignados a esos proyectos
     usuarios_asignados = UsuarioProyecto.objects.filter(
         cod_pro__in=proyectos_semillero
     ).values_list('cedula__cedula', flat=True)
 
-    # Obtener cédulas de aprendices asignados a esos proyectos
     aprendices_asignados = ProyectoAprendiz.objects.filter(
         cod_pro__in=proyectos_semillero
     ).values_list('cedula_apre__cedula_apre', flat=True)
-
-    # Crear conjunto de cédulas asignadas
+    
     cedulas_asignadas = set(str(c) for c in usuarios_asignados) | set(str(c) for c in aprendices_asignados)
 
-    # Filtrar usuarios del semillero que NO están asignados a ningún proyecto
-    usuarios_semillero = SemilleroUsuario.objects.filter(
-        id_sem=semillero
-    ).select_related('cedula')
-    
+    usuarios_semillero = SemilleroUsuario.objects.filter(id_sem=semillero).select_related('cedula')
     usuarios_disponibles = [u for u in usuarios_semillero if str(u.cedula.cedula) not in cedulas_asignadas]
 
-    # Filtrar aprendices del semillero que NO están asignados a ningún proyecto
     aprendices_semillero = Aprendiz.objects.filter(id_sem=semillero)
-    
+
     aprendices_disponibles = [a for a in aprendices_semillero if str(a.cedula_apre) not in cedulas_asignadas]
     
-    # Combinar miembros disponibles del semillero
+
     miembros_semillero = []
     
-    # Agregar usuarios disponibles al semillero
+
     for u in usuarios_disponibles:
         miembros_semillero.append({
             'cedula': u.cedula.cedula,
@@ -905,7 +905,7 @@ def resu_proyectos(request, id_sem):
             'rol': u.cedula.rol
         })
     
-    # Agregar aprendices disponibles al semillero
+
     for a in aprendices_disponibles:
         miembros_semillero.append({
             'cedula': a.cedula_apre,
@@ -926,7 +926,9 @@ def resu_proyectos(request, id_sem):
         'total_miembros': total_miembros,
         'miembros': miembros,
         'total_entregables': total_entregables,
-        'miembros_semillero': miembros_semillero,  # Solo miembros SIN proyecto
+        'miembros_semillero': miembros_semillero,
+        'proyecto_seleccionado': cod_pro,
+        'tipo_seleccionado': tipo_seleccionado,
     }
     
     return render(request, 'paginas/resu-proyectos.html', context)
@@ -1176,49 +1178,87 @@ def agregar_recurso(request, id_sem):
     return redirect('recursos', id_sem=id_sem)
 
 # VISTAS DE PROYECTOS
-def proyectos(request, cod_pro=None):
-   # ---- FILTROS DE BÚSQUEDA ----
+def proyectos(request):
+    """
+    Vista para la gestión de proyectos con búsqueda, filtros y estadísticas
+    """
+    # Obtener la fecha actual y el inicio del mes
+    fecha_actual = timezone.now()
+    inicio_mes = fecha_actual.replace(day=1)
+    
+    # Obtener todos los proyectos
+    proyectos_list = Proyecto.objects.all().prefetch_related('semilleros')
+    
+    # --- ESTADÍSTICAS GENERALES ---
+    total_proyectos = proyectos_list.count()
+    
+    # Proyectos por estado
+    proyectos_desarrollo = proyectos_list.filter(
+        Q(estado_pro='planeacion') | Q(estado_pro='ejecucion')
+    ).count()
+    proyectos_completados = proyectos_list.filter(estado_pro='completado').count()
+    proyectos_pendientes = proyectos_list.filter(estado_pro='diagnostico').count()
+    
+    # Proyectos creados este mes
+    proyectos_mes = proyectos_list.filter(
+        fecha_creacion__gte=inicio_mes
+    ).count()
+    
+    # Proyectos en desarrollo este mes
+    desarrollo_mes = proyectos_list.filter(
+        Q(estado_pro='planeacion') | Q(estado_pro='ejecucion'),
+        fecha_creacion__gte=inicio_mes
+    ).count()
+    
+    # Proyectos completados este mes
+    completados_mes = proyectos_list.filter(
+        estado_pro='completado'
+    ).count()
+    
+    # Proyectos pendientes este mes
+    pendientes_mes = proyectos_list.filter(
+        estado_pro='diagnostico',
+        fecha_creacion__gte=inicio_mes
+    ).count()
+    
+    # --- FILTROS Y BÚSQUEDA ---
+    
+    # Búsqueda por nombre
     buscar = request.GET.get('buscar', '').strip()
-    estado = request.GET.get('estado', '')
-    tipo = request.GET.get('tipo', '')
-    orden = request.GET.get('orden', '')
-
-    proyectos = Proyecto.objects.all()
-
-    # ---- FILTRAR POR TEXTO ----
     if buscar:
-        proyectos = proyectos.filter(
+        proyectos_list = proyectos_list.filter(
             Q(nom_pro__icontains=buscar) |
-            Q(semillero__nom_sem__icontains=buscar)
-        )
-
-    # ---- FILTRAR POR ESTADO ----
+            Q(semilleros__nombre__icontains=buscar)
+        ).distinct()
+    
+    # Filtro por estado
+    estado = request.GET.get('estado', '').strip()
     if estado:
-        proyectos = proyectos.filter(estado=estado)
-
-    # ---- FILTRAR POR TIPO ----
+        proyectos_list = proyectos_list.filter(estado_pro=estado)
+    
+    # Filtro por tipo (si el campo tipo existe en tu modelo)
+    tipo = request.GET.get('tipo', '').strip()
     if tipo:
-        proyectos = proyectos.filter(tipo_id=tipo)
-
-    # ---- ORDEN ----
-    if orden:
-        proyectos = proyectos.order_by(orden)
-
-    # ---- ESTADÍSTICAS ----
-    total_proyectos = Proyecto.objects.count()
-    proyectos_desarrollo = Proyecto.objects.filter(estado='ejecucion').count()
-    proyectos_completados = Proyecto.objects.filter(estado='completado').count()
-    proyectos_pendientes = Proyecto.objects.filter(estado__in=['diagnostico', 'planeacion']).count()
-
-    # ---- PROYECTOS CREADOS ESTE MES ----
-    inicio_mes = datetime.now().replace(day=1)
-    proyectos_mes = Proyecto.objects.filter(fecha_creacion__gte=inicio_mes).count()
-    desarrollo_mes = Proyecto.objects.filter(estado='ejecucion', fecha_creacion__gte=inicio_mes).count()
-    completados_mes = Proyecto.objects.filter(estado='completado', fecha_creacion__gte=inicio_mes).count()
-    pendientes_mes = Proyecto.objects.filter(estado__in=['diagnostico', 'planeacion'], fecha_creacion__gte=inicio_mes).count()
-
-    contexto = {
-        'proyectos': proyectos,
+        # Ajusta 'tipo' según el nombre real del campo en tu modelo
+        proyectos_list = proyectos_list.filter(tipo=tipo)
+    
+    # Ordenamiento
+    orden = request.GET.get('orden', '').strip()
+    if orden == 'nombre':
+        proyectos_list = proyectos_list.order_by('nom_pro')
+    elif orden == 'fecha_creacion':
+        proyectos_list = proyectos_list.order_by('fecha_creacion')
+    else:
+        # Ordenamiento por defecto: más recientes primero
+        proyectos_list = proyectos_list.order_by('-fecha_creacion')
+    
+    # Obtener todos los tipos de proyecto únicos (ajusta según tu modelo)
+    # Si tienes un campo 'tipo' en el modelo Proyecto:
+    tipos_proyecto = Proyecto.objects.values_list('tipo', flat=True).exclude(tipo__isnull=True).exclude(tipo='').distinct().order_by('tipo')
+    
+    # Contexto para el template
+    context = {
+        # Estadísticas
         'total_proyectos': total_proyectos,
         'proyectos_desarrollo': proyectos_desarrollo,
         'proyectos_completados': proyectos_completados,
@@ -1227,9 +1267,10 @@ def proyectos(request, cod_pro=None):
         'desarrollo_mes': desarrollo_mes,
         'completados_mes': completados_mes,
         'pendientes_mes': pendientes_mes,
+        'proyectos': proyectos_list,
+        'tipos_proyecto': tipos_proyecto,
     }
-
-    return render(request, 'proyectos.html', contexto)
+    return render(request, 'paginas/proyectos.html', context)
 
 # VISTAS DE MIEMBROS
 def miembros(request):

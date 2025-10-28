@@ -32,6 +32,7 @@ urlpatterns = [
     path('agregar_recurso/<int:id_sem>/', views.agregar_recurso, name='agregar_recurso'),
     
     path('proyectos/', views.proyectos, name='proyectos'),
+    path('resu-proyectos/<int:id_sem>/<int:cod_pro>/', views.resu_proyectos, name='resu-proyectos'),
 
     #MIEMBROS
     path('miembros/', views.miembros, name='miembros'),

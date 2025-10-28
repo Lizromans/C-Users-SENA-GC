@@ -53,7 +53,7 @@
                         <p>Proyectos completados</p>           
                     </div>
                     <div class="info-badge verde">
-                        <span>+{{ completados_mes }}</span>
+                        <span>+{{ completados_mes }} este mes</span>
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                         <p>Proyectos pendientes</p>           
                     </div>
                     <div class="info-badge rojo">
-                        <span>+{{ pendientes_mes }}</span>
+                        <span>+{{ pendientes_mes }} este mes</span>
                     </div>
                 </div>
             </div>
@@ -89,13 +89,12 @@
                     <select name="tipo" class="filtro">
                         <option value="">Todos los tipos</option>
                         {% for tipo in tipos_proyecto %}
-                        <option value="{{ tipo.id }}" {% if request.GET.tipo == tipo.id|stringformat:"s" %}selected{% endif %}>{{ tipo.nombre }}</option>
+                        <option value="{{ tipo }}" {% if request.GET.tipo == tipo %}selected{% endif %}>{{ tipo }}</option>
                         {% endfor %}
                     </select>
                     <select name="orden" class="filtro" onchange="this.form.submit()">
                         <option value="">Ordenar por</option>
                         <option value="fecha_creacion" {% if request.GET.orden == 'fecha_creacion' %}selected{% endif %}>Fecha de creación</option>
-                        <option value="-fecha_actualizacion" {% if request.GET.orden == '-fecha_actualizacion' %}selected{% endif %}>Fecha de actualización</option>
                         <option value="nombre" {% if request.GET.orden == 'nombre' %}selected{% endif %}>Nombre</option>
                     </select>
                 </div>
@@ -121,13 +120,26 @@
                     {% for proyecto in proyectos %}
                     <tr>
                         <td class="nombre">{{ proyecto.nom_pro }}</td>
-                        <td>{{ proyecto.semillero }}</td>
+                        <td>
+                            {% for semillero in proyecto.semilleros.all %}
+                                {{ semillero.nombre }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                Sin semillero
+                            {% endfor %}
+                        </td>
                         <td>{{ proyecto.tipo }}</td>
                         <td class="estado">
-                            <span class="estado en-diagnostico {% if proyecto.estado == 'diagnostico' %}activo{% endif %}"></span>
-                            <span class="estado planeacion {% if proyecto.estado == 'planeacion' %}activo{% endif %}"></span>
-                            <span class="estado en-ejecucion {% if proyecto.estado == 'ejecucion' %}activo{% endif %}"></span>
-                            <span class="estado completado {% if proyecto.estado == 'completado' %}activo{% endif %}"></span>
+                            {% if proyecto.estado_pro == 'diagnostico' %}
+                                <span class="estado en-diagnostico">En diagnóstico</span>
+                            {% elif proyecto.estado_pro == 'planeacion' %}
+                                <span class="estado planeacion">Planeación</span>
+                            {% elif proyecto.estado_pro == 'ejecucion' %}
+                                <span class="estado en-ejecucion">Ejecución</span>
+                            {% elif proyecto.estado_pro == 'completado' %}
+                                <span class="estado completado">Completado</span>
+                            {% else %}
+                                <span class="estado desconocido">Sin estado</span>
+                            {% endif %}
                         </td>
                         <td>
                             <div class="barra">
@@ -136,7 +148,7 @@
                         </td>
                         <td>{{ proyecto.fecha_creacion|date:"d/m/Y" }}</td>
                         <td>
-                            <a href="{% url 'resu-proyectos' proyecto.cod_pro %}" class="btn">Ver</a>
+                            <a href="{% url 'resu-proyectos' proyecto.semilleros.first.id_sem proyecto.cod_pro %}" class="btn">Ver</a>
                         </td>
                     </tr>
                     {% empty %}

@@ -45,7 +45,7 @@
                 <div class="seccion">
                     <div class="header-seccion">
                         <img src="{% static 'img/Rocket.png' %}" alt="Icono de Sennova" class="icono-seccion">
-                        <h3 class="titulo-seccion">Proyectos Sennova</h3>
+                        <h3 class="titulo-seccion" id="sennova" >Proyectos Sennova</h3>
                     </div>
 
                     <div class="proyectos-carousel-container">
@@ -201,7 +201,7 @@
                 <div class="seccion">
                     <div class="header-seccion">
                         <img src="{% static 'img/Settings.png' %}" alt="Icono de Capacidad Instalada" class="icono-seccion">
-                        <h3 class="titulo-seccion">Proyectos Capacidad Instalada</h3>
+                        <h3 class="titulo-seccion" id="capacidadinstalada">Proyectos Capacidad Instalada</h3>
                     </div>
 
                     <div class="proyectos-carousel-container">
@@ -358,7 +358,7 @@
                 <div class="seccion">
                     <div class="header-seccion">
                         <img src="{% static 'img/student.png' %}" alt="Icono de Formativa" class="icono-seccion">
-                        <h3 class="titulo-seccion">Proyectos Formativos</h3>
+                        <h3 class="titulo-seccion" id="formativo">Proyectos Formativos</h3>
                     </div>
 
                     <div class="proyectos-carousel-container">
@@ -832,6 +832,17 @@
         </div>
     </div>
 </div>
+{% if tipo_seleccionado %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const tipo = "{{ tipo_seleccionado }}";
+    const seccion = document.getElementById(tipo);
+    if (seccion) {
+      seccion.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+</script>
+{% endif %}
 <script src="{% static 'js/proyectos-carousel.js' %}"></script>
 <script src="{% static 'js/avatars.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
