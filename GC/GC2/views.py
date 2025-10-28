@@ -1217,11 +1217,6 @@ def proyectos(request, cod_pro=None):
     completados_mes = Proyecto.objects.filter(estado='completado', fecha_creacion__gte=inicio_mes).count()
     pendientes_mes = Proyecto.objects.filter(estado__in=['diagnostico', 'planeacion'], fecha_creacion__gte=inicio_mes).count()
 
-    proyectos = Proyecto.objects.filter(cod_pro=cod_pro)
-
-    for proyecto in proyectos:
-        proyecto.cantidad_entregables = proyecto.entregable_set.count()
-
     contexto = {
         'proyectos': proyectos,
         'total_proyectos': total_proyectos,
