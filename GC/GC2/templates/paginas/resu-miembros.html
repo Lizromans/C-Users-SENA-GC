@@ -38,6 +38,18 @@
                     <!-- Sección de Instructores con Carrusel -->
                     {% if tiene_instructores %}
                         <div class="seccion-miembros">
+                            <div class="bg-particles">
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                            </div>
                             <div class="header-seccion">
                                 <img src="{% static 'img/instructor.png' %}" alt="Icono de Instructores" class="icono-seccion">
                                 <h3 class="titulo-seccion">Instructores</h3>
@@ -435,6 +447,7 @@
     </div>
 </div>
     <script src="{% static 'js/miembros-carousel.js' %}"></script>
+    <script src="{% static 'js/avatars.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
 {% endblock %}

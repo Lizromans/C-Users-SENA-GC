@@ -18,8 +18,8 @@
 
 /* ====== CONTENEDOR PRINCIPAL ====== */
 .resumen {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 30vw, 350px), 1fr));
+    display: flex;
+    flex-direction: column;    
     gap: clamp(1rem, 2vw, 2rem);
     width: 100%;
     background-color: var(--color-fondo-secundario);
@@ -27,14 +27,79 @@
     padding: clamp(20px, 3vh, 40px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
+    position: relative;
 }
 
 .resumen img {
     transition: transform 0.3s ease;
 }
 
-.resumen:hover img{
-  transform: rotate(10deg);
+.grupo:hover img,
+.btn-anadir:hover img {
+    transform: rotate(10deg);
+}
+
+/* ===== CONTENEDORES INTERNOS ========= */
+.cont-1 {
+    display: flex;
+    justify-content: flex-end;
+    gap: clamp(10px, 2vw, 20px);
+}
+
+.cont-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    width: 100%;
+}
+
+/* ========= Botón añadir =========== */
+.boton-agregar {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.btn-anadir {
+    background-color: #39A900;
+    border: clamp(2px, 0.3vw, 3px) solid #39A900;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    min-width: clamp(120px, 15vw, 180px);
+    height: clamp(40px, 5vh, 50px);
+    padding: clamp(4px, 1.5vh, 8px) clamp(10px, 2vw, 15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(4px, 1vw, 8px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 700;
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    color: white;
+    box-shadow: 0 clamp(2px, 0.5vh, 4px) clamp(8px, 1.5vh, 12px) rgba(57, 169, 0, 0.3);
+}
+
+.btn-anadir:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 clamp(4px, 1vh, 6px) clamp(15px, 2vh, 20px) rgba(57, 169, 0, 0.4);
+}
+
+.btn-anadir:focus {
+    box-shadow: 0 0 0 5px rgba(57, 169, 0, 0.39) !important;
+}
+
+.btn-anadir:active {
+    transform: translateY(-1px);
+}
+
+.btn-anadir img {
+    width: clamp(20px, 4vw, 24px);
+    height: clamp(20px, 4vw, 24px);
+}
+
+.btn-anadir:hover img {
+    transform: rotate(10deg);
+    filter: brightness(0);
 }
 
 /* ====== GRUPO (CARD CONTAINER) ====== */
@@ -55,7 +120,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* ====== CARD ====== */
 .card {
     display: flex;
     flex-direction: row;
@@ -96,7 +160,7 @@
     width: clamp(60px, 12vw, 90px);
     height: clamp(60px, 12vw, 90px);
     margin: clamp(12px, 2vh, 20px) 0 clamp(12px, 2vh, 20px) clamp(15px, 2vw, 25px);
-    border-radius: clamp(8px, 1.5vw, 12px);
+    border-radius: clamp(20px, 1.5vw, 22px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -121,6 +185,33 @@
 }
 
 /* ====== LISTA ====== */
+.scrollable-list {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    max-height: clamp(300px, 35vh, 500px);
+    align-items: center;
+}
+
+.scrollable-list .empty-message {
+    text-align: center;
+    padding: clamp(0.5rem, 1vw, 1rem) clamp(1rem, 1vw, 1.5rem);
+    width: 97%;
+    color: #999;
+    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+    background-color: #f8f9fa83;
+    border-radius: clamp(6px, 1vw, 8px);
+    margin: clamp(0.75rem, 2vw, 1rem) 0;
+    border: 2px dashed #dee2e6b4;
+}
+
+.scrollable-list .empty-message-styled i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
 .lista {
     width: 100%;
     padding: 0 clamp(10px, 2vw, 20px);
@@ -138,6 +229,7 @@
     margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
     transition: all 0.3s ease;
     cursor: pointer;
+    justify-content: space-between;
 }
 
 .lista li:hover {
@@ -145,16 +237,13 @@
     transform: translateX(5px);
 }
 
-
-
-/* ====== ICONO LISTA ====== */
 .lista .icon-cont {
     flex: 0 0 clamp(40px, 8vw, 60px);
     width: clamp(40px, 8vw, 60px);
     height: clamp(40px, 8vw, 60px);
     margin: 0;
     border-radius: clamp(6px, 1vw, 8px);
-    background: linear-gradient(135deg,  #FFB6F9 0%, #FF72DC 40%, #FF4FC3 100%);
+    background: linear-gradient(135deg, #FFB6F9 0%, #FF72DC 40%, #FF4FC3 100%);
 }
 
 .lista .icon-cont img,
@@ -165,6 +254,10 @@
 }
 
 /* ====== TEXTO LISTA ====== */
+.texto-lista {
+    flex: 1;
+    min-width: 0;
+}
 
 .texto-lista .titulo {
     font-size: clamp(0.7rem, 1.1vw, 0.99rem);
@@ -176,38 +269,260 @@
 .texto-lista .subtitulo {
     font-size: clamp(0.45rem, 1.2vw, 0.8rem);
     color: #555;
-
     word-wrap: break-word;
 }
 
-.fa{
+/* =======BOTONES DE ACCIÓN============ */
+.fa {
     color: #252525;
 }
 
-.scrollable-list {
-    display: flex;
-    flex-direction: column;
+.descargar {
+    flex-shrink: 0;
+    margin-left: auto;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    padding: clamp(8px, 1.5vw, 12px);
+    transition: all 0.3s ease;
+    color: #252525;
+    text-decoration: none;
+}
+
+.descargar:hover {
+    color: #39A900;
+    transform: scale(1.2);
+    background-color: rgba(57, 169, 0, 0.1);
+    border-radius: 50%;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
-    overflow-y: auto; /* activa scroll vertical */
-    max-height: clamp(300px, 35vh, 500px);
+    background-color: rgba(94, 93, 93, 0.267);
+    z-index: 9999;
+    overflow-y: auto;
+    padding: clamp(20px, 3vw, 40px);
+}
+
+.modal-overlay:target {
+    display: flex;
+    justify-content: center;
     align-items: center;
 }
 
-.scrollable-list .empty-message {
-    text-align: center;
-    padding: clamp(0.5rem, 1vw, 1rem) clamp(1rem, 1vw, 1.5rem);
-    width: 97%;
-    color: #999;
-    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-    background-color: #f8f9fa83;
-    border-radius: clamp(6px, 1vw, 8px);
-    margin: clamp(0.75rem, 2vw, 1rem) 0;
-    border: 2px dashed #dee2e6b4;
-
+.modal-overlay.activo {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    animation: modalFadeIn 0.3s ease;
 }
 
-.scrollable-list .empty-message-styled i {
-    font-size: 2.5rem;;
+.modal-contenedor {
+    background: white;
+    border-radius: clamp(12px, 2vw, 20px);
+    width: 90%;
+    max-width: clamp(500px, 50vw, 1200px);
+    position: relative;
+    animation: modalSlideIn 0.4s ease;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    margin: auto;
+    padding: clamp(20px, 3vw, 30px);
+}
+
+/* ====================================
+   MODAL - HEADER
+==================================== */
+.modal-header {
+    display: flex;
+    background-color: transparent !important;
+    align-items: center;
+    gap: clamp(12px, 2vw, 20px);
+    margin-bottom: clamp(20px, 3vw, 30px);
+    padding-bottom: clamp(15px, 2vw, 20px);
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.modal-header img {
+    width: clamp(35px, 5vw, 50px);
+    height: clamp(35px, 5vw, 50px);
+    object-fit: contain;
+}
+
+.modal-titulo {
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* ====================================
+   MODAL - BODY
+==================================== */
+.modal-body {
+    padding: clamp(15px, 2vw, 25px) 0;
+}
+
+.modal-body .mb-3 {
+    margin-bottom: clamp(15px, 2.5vw, 20px);
+}
+
+.modal-body .form-label {
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    font-weight: 500;
+    color: #555;
+    margin-bottom: clamp(6px, 1vw, 8px);
     display: block;
-    margin-bottom: 1rem;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    width: 100%;
+    padding: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    border: 1.5px solid #ddd;
+    border-radius: clamp(6px, 1vw, 8px);
+    transition: all 0.3s ease;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    outline: none;
+    border-color: #39A900;
+    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+/* ====================================
+   MODAL - FOOTER Y ACCIONES
+==================================== */
+.modal-acciones {
+    display: flex;
+    gap: clamp(10px, 2vw, 15px);
+    justify-content: flex-end;
+    margin-top: clamp(10px, 2vh, 20px);
+    flex-wrap: wrap;
+}
+
+.modal-btn {
+    padding: clamp(10px, 2vh, 15px) clamp(20px, 4vw, 35px);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-weight: 700;
+    font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1vw, 10px);
+    text-decoration: none;
+}
+
+.modal-btn i {
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+}
+
+/* Variantes de botones del modal */
+.modal-btn-cancelar {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border: 2px solid #e0e0e0;
+}
+
+.modal-btn-cancelar:hover {
+    background-color: #f5f5f5;
+    color: var(--color-text-primary);
+    border-color: var(--color-text-secondary);
+}
+
+.modal-btn-primario {
+    background-color: #39A900;
+    color: white;
+    border: 3px solid #39A900;
+}
+
+.modal-btn-primario:hover {
+    background-color: #007832;
+    border-color: #007832;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(57, 169, 0, 0.4);
+}
+
+.modal-btn-secundario {
+    background-color: rgba(57, 169, 0, 0.15);
+    border: 3px solid #39A900;
+    color: #007832;
+}
+
+.modal-btn-secundario:hover {
+    background-color: #39A900;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(57, 169, 0, 0.4);
+}
+
+.modal-btn-peligro {
+    background-color: #dc3545;
+    color: white;
+    border: 3px solid #dc3545;
+}
+
+.modal-btn-peligro:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+/* ====================================
+   MODAL - BOTÓN CERRAR
+==================================== */
+.modal-cerrar {
+    position: absolute;
+    top: clamp(15px, 2vw, 25px);
+    right: clamp(15px, 2vw, 25px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: clamp(35px, 5vw, 45px);
+    height: clamp(35px, 5vw, 45px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: #666;
+    transition: all 0.3s ease;
+    z-index: 10;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.modal-cerrar:hover {
+    background: #f44336;
+    color: white;
+    border-color: #f44336;
+    transform: rotate(90deg);
+}
+
+/* =======ANIMACIONES=========== */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

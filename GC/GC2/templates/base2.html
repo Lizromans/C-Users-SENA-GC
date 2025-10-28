@@ -226,7 +226,7 @@
                 <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="menu-button {% if current_page == 'resu_proyectos' %}active{% endif %}">
                     <img src="{% static 'img/project.png' %}" alt="Icono de Proyectos" class="icon-button">
                     Proyectos</a>
-                <a href="{% url 'recursos' %}" class="menu-button {% if current_page == 'recursos' %}active{% endif %}">
+                <a href="{% url 'recursos' semillero.id_sem %}" class="menu-button {% if current_page == 'recursos' %}active{% endif %}">
                     <img src="{% static 'img/recursos.png' %}" alt="Icono de Recursos Digitales" class="icon-button">
                     Recursos</a>            
             </div>

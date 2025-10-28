@@ -75,6 +75,11 @@
     flex-shrink: 0;
 }
 
+.btn-anadir:hover img {
+    transform: rotate(10deg);
+    filter: brightness(0);
+}
+
 /* Botón Añadir Miembro (Verde) */
 .btn:nth-child(1) {
     background-color: #39A900 !important; 
@@ -108,6 +113,8 @@
     border-radius: clamp(8px, 2vw, 15px);
     box-shadow: 0 clamp(2px, 0.5vw, 4px) clamp(6px, 1.5vw, 12px) rgba(0, 0, 0, 0.1);
     width: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Header del contenedor */
@@ -139,10 +146,144 @@
     flex-shrink: 0;
 }
 
+/* ====== PARTÍCULAS DE FONDO ====== */
+.bg-particles {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1 !important;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute !important;
+    border-radius: 50%;
+    opacity: 1 !important;
+    animation: float-particle 15s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Partículas individuales */
+.particle:nth-child(1) { 
+    width: clamp(10px, 1.2%, 20px); 
+    height: clamp(10px, 1.2%, 20px); 
+    top: 15%; 
+    left: 10%; 
+    animation-delay: 0s; 
+    background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(255, 255, 255, 0.8));
+}
+
+.particle:nth-child(2) { 
+    width: clamp(15px, 1.5%, 25px); 
+    height: clamp(15px, 1.5%, 25px); 
+    top: 70%; 
+    left: 85%; 
+    animation-delay: 3s; 
+    background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
+}
+
+.particle:nth-child(3) { 
+    width: clamp(8px, 1%, 18px); 
+    height: clamp(8px, 1%, 18px); 
+    top: 90%; 
+    left: 15%; 
+    animation-delay: 6s; 
+    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(61, 177, 3, 0.8));
+}
+
+.particle:nth-child(4) { 
+    width: clamp(13px, 1.4%, 23px); 
+    height: clamp(13px, 1.4%, 23px); 
+    top: 25%; 
+    left: 75%; 
+    animation-delay: 9s; 
+    background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(61, 177, 3, 0.8));
+}
+
+.particle:nth-child(5) { 
+    width: clamp(11px, 1.1%, 19px); 
+    height: clamp(11px, 1.1%, 19px); 
+    top: 60%; 
+    left: 45%; 
+    animation-delay: 12s; 
+    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(80, 229, 249, 0.8));
+}
+
+.particle:nth-child(6) { 
+    width: clamp(12px, 1.3%, 22px); 
+    height: clamp(12px, 1.3%, 22px); 
+    top: 35%; 
+    left: 20%; 
+    animation-delay: 15s; 
+    background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(255, 255, 255, 0.8));
+}
+
+.particle:nth-child(7) { 
+    width: clamp(7px, 0.8%, 15px); 
+    height: clamp(7px, 0.8%, 15px); 
+    top: 50%; 
+    left: 60%; 
+    animation-delay: 2s; 
+    background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
+}
+
+.particle:nth-child(8) { 
+    width: clamp(18px, 1.7%, 28px); 
+    height: clamp(18px, 1.7%, 28px); 
+    top: 80%; 
+    left: 70%; 
+    animation-delay: 5s; 
+    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(61, 177, 3, 0.9));
+}
+
+.particle:nth-child(9) { 
+    width: clamp(14px, 1.3%, 24px); 
+    height: clamp(14px, 1.3%, 24px); 
+    top: 10%; 
+    left: 50%; 
+    animation-delay: 8s; 
+    background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(80, 229, 249, 0.9));
+}
+
+.particle:nth-child(10) { 
+    width: clamp(9px, 1%, 19px); 
+    height: clamp(9px, 1%, 19px); 
+    top: 40%; 
+    left: 90%; 
+    animation-delay: 11s; 
+    background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
+}
+
+@keyframes float-particle {
+    0%, 100% { 
+        transform: translateY(0px) translateX(0px) scale(1) rotate(0deg); 
+        opacity: 0.9; 
+    }
+    25% { 
+        transform: translateY(-50px) translateX(40px) scale(1.3) rotate(90deg); 
+        opacity: 1; 
+    }
+    50% { 
+        transform: translateY(-30px) translateX(-35px) scale(0.7) rotate(180deg); 
+        opacity: 0.8; 
+    }
+    75% { 
+        transform: translateY(40px) translateX(50px) scale(1.2) rotate(270deg); 
+        opacity: 1; 
+    }
+}
+
 /* =====LISTA DE MIEMBROS======= */
 .lista-miembros {
     padding: clamp(10px, 2vw, 15px);
     max-height: auto;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Sin miembros */
@@ -269,6 +410,7 @@
   opacity: 0;
   pointer-events: none;
 }
+
 /* =======ICONO LIDER========== */
 .lider {
     position: absolute;
@@ -349,22 +491,6 @@
     box-shadow: 0 4px 15px rgba(49, 49, 49, 0.4);
 }
 
-/* ==== Avatares con colores únicos ==== */
-.avatar-miembro[data-color="1"] { background: linear-gradient(135deg, #00C9FF, #92FE9D); }
-.avatar-miembro[data-color="2"] { background: linear-gradient(135deg, #FEE140, #FA709A); }
-.avatar-miembro[data-color="3"] { background: linear-gradient(135deg, #84FAB0, #8FD3F4); }
-.avatar-miembro[data-color="4"] { background: linear-gradient(135deg, #A1C4FD, #C2E9FB); }
-.avatar-miembro[data-color="5"] { background: linear-gradient(135deg, #F6D365, #FDA085); }
-.avatar-miembro[data-color="6"] { background: linear-gradient(135deg, #FCCB90, #D57EEB); }
-.avatar-miembro[data-color="7"] { background: linear-gradient(135deg, #F093FB, #F5576C); }
-.avatar-miembro[data-color="8"] { background: linear-gradient(135deg, #667EEA, #764BA2); }
-.avatar-miembro[data-color="9"] { background: linear-gradient(135deg, #43E97B, #38F9D7); }
-.avatar-miembro[data-color="10"] { background: linear-gradient(135deg, #FF9A9E, #FAD0C4); }
-
-/* Repetir ciclo si hay más de 10 */
-[data-color="11"] { background: var(--color1); }
-[data-color="12"] { background: var(--color2); }
-
 /* ========INFORMACIÓN DEL MIEMBRO========== */
 .info-miembro {
     text-align: center;
@@ -430,19 +556,19 @@
 
 /* =====DOTS DE NAVEGACIÓN========== */
 .dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: clamp(0.5rem, 1vw, 1rem);
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: clamp(0.5rem, 1vw, 1rem);
 }
 
 .dot {
-  width: clamp(8px, 1vw, 12px);
-  height: clamp(8px, 1vw, 12px);
-  border-radius: 50%;
-  background-color: #ccc;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    width: clamp(8px, 1vw, 12px);
+    height: clamp(8px, 1vw, 12px);
+    border-radius: 50%;
+    background-color: #ccc;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .dot.active {

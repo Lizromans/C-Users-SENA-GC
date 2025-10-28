@@ -249,7 +249,7 @@
                                             </div>
                                             <div class="equipo-avatares">
                                                 {% for miembro in proyecto.miembros_lista %}
-                                                    <div class="avatar-item" title="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                    <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
                                                         <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
                                                     </div>
                                                 {% empty %}
@@ -405,7 +405,7 @@
                                             </div>
                                             <div class="equipo-avatares">
                                                 {% for miembro in proyecto.miembros_lista %}
-                                                    <div class="avatar-item" title="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                    <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
                                                         <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
                                                     </div>
                                                 {% empty %}
@@ -833,6 +833,7 @@
     </div>
 </div>
 <script src="{% static 'js/proyectos-carousel.js' %}"></script>
+<script src="{% static 'js/avatars.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/calendario.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

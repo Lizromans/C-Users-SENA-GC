@@ -8,74 +8,144 @@
 {% block contenido %} {% endblock %}
 {% block main %}
     <div class="resumen">
-        
-        <div class="grupo">
-            <div class="card">
-                <div class="icon-cont documentos">
-                    <img class="icon" src="{% static 'img/Books.png' %}" alt="Icono Documentos y Guías">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Documentos y Guías</h5>
-                    <p>Material de referencia y guías para apoyar la gestión de semilleros y proyectos.</p>           
-                </div>
-            </div>
-            <div class="scrollable-list">
-                {% for documento in documentos %}
-                <ul class="lista">
-                    <li>
-                        <div class="icon-cont">
-                            <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
-                        </div>
-                        <div class="texto-lista">
-                            <span class="titulo">{{ documento.titulo }}</span><br>
-                            <span class="subtitulo">{{ documento.tipo_archivo }}</span>
-                        </div>
-                        <i><a href="{{ documento.archivo.url }}" download class="fa fa-download descargar" aria-hidden="true"></a></i>
-                    </li>
-                </ul>
-                {% empty %}
-                <div class="empty-message">
-                    <i class="fa fa-folder-open"></i>
-                    <p>No hay fichas disponibles en este momento</p>
-                </div>
-                {% endfor %}
+        <div class="cont-1">
+            <div class="boton-agregar">
+                <button class="btn btn-anadir" data-bs-toggle="modal" data-bs-target="#modal-crear">
+                    <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Recurso"> Añadir Recurso
+                </button>
             </div>
         </div>
-        
-        <div class="grupo">
-            <div class="card">
-                <div class="icon-cont fichas">
-                    <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+        <div class="cont-2">
+            <div class="grupo">
+                <div class="card">
+                    <div class="icon-cont documentos">
+                        <img class="icon" src="{% static 'img/Books.png' %}" alt="Icono Documentos y Guías">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Documentos y Guías</h5>
+                        <p>Material de referencia y guías para apoyar la gestión de semilleros y proyectos.</p>           
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">Fichas y Actas</h5>
-                    <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                <div class="scrollable-list">
+                    {% for documento in documentos %}
+                    <ul class="lista">
+                        <li>
+                            <div class="icon-cont">
+                                <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
+                            </div>
+                            <div class="texto-lista">
+                                <span class="titulo">{{ documento.nom_doc }}</span><br>
+                                <span class="subtitulo">{{ documento.tipo }}</span>
+                            </div>
+                            {% if documento.archivo %}
+                                <a href="{{ documento.archivo.url }}" 
+                                    class="fa fa-download descargar" 
+                                    aria-hidden="true" 
+                                    target="_blank">
+                                </a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    {% empty %}
+                    <div class="empty-message">
+                        <i class="fa fa-folder-open"></i>
+                        <p>No hay fichas disponibles en este momento</p>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            <div class="scrollable-list">
-                {% for ficha in fichas %}
-                <ul class="lista">
-                    <li>
-                        <div class="icon-cont">
-                            <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
-                        </div>
-                        <div class="texto-lista">
-                            <span class="titulo">{{ ficha.titulo }}</span><br>
-                            <span class="subtitulo">{{ ficha.tipo_archivo }}</span>
-                        </div>
-                        <i><a href="{{ ficha.archivo.url }}" download class="fa fa-download descargar" aria-hidden="true"></a></i>
-                    </li>
-                </ul>
-                {% empty %}
-                <div class="empty-message">
-                    <i class="fa fa-folder-open"></i>
-                    <p>No hay fichas disponibles en este momento</p>
+            
+            <div class="grupo">
+                <div class="card">
+                    <div class="icon-cont fichas">
+                        <img class="icon" src="{% static 'img/forms.png' %}" alt="Icono Documentos y Guías">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Fichas y Actas</h5>
+                        <p>Material de registro disponibles para consulta y documentación institucional.</p>           
+                    </div>
                 </div>
-                {% endfor %}
+                <div class="scrollable-list">
+                    {% for ficha in fichas %}
+                    <ul class="lista">
+                        <li>
+                            <div class="icon-cont">
+                                <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
+                            </div>
+                            <div class="texto-lista">
+                                <span class="titulo">{{ ficha.nom_doc }}</span><br>
+                                <span class="subtitulo">{{ ficha.tipo }}</span>
+                            </div>
+                            {% if ficha.archivo %}
+                                <a href="{{ ficha.archivo.url }}" 
+                                    class="fa fa-download descargar" 
+                                    aria-hidden="true" 
+                                    target="_blank">
+                                </a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    {% empty %}
+                    <div class="empty-message">
+                        <i class="fa fa-folder-open"></i>
+                        <p>No hay fichas disponibles en este momento</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 
+<!-- Modal Crear Recurso -->
+<div id="modal-crear" class="modal-overlay">
+    <div class="modal-contenedor">
+        <!-- Botón cerrar -->
+        <a href="{% url 'recursos' semillero.id_sem %}" 
+           class="modal-cerrar" 
+           onclick="cerrarModal('modal-semillero'); return false;">&times;</a>
+
+        <!-- Encabezado -->
+        <div class="modal-header">
+            <img src="{% static 'img/folder.png' %}" alt="Icono de semilleros">
+            <h2 class="modal-titulo">Añadir Recurso</h2>
+        </div>
+
+        <!-- Formulario -->
+        <form method="POST" action="{% url 'agregar_recurso' semillero.id_sem %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="nom_doc" class="form-label">Título</label>
+                    <input type="text" class="form-control" id="nom_doc" name="nom_doc" required>
+                </div>
+                <div class="mb-3">
+                    <label for="id_tipo" class="form-label">Tipo de Archivo</label>
+                    <select class="form-select" id="id_tipo" name="tipo" required>
+                        <option value="">Seleccione una categoria</option>
+                        <option value="Documento">Documento</option>
+                        <option value="Guía">Guía</option>
+                        <option value="Ficha">Ficha</option>
+                        <option value="Acta">Acta</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="archivo" class="form-label">Archivo (PDF)</label>
+                    <input type="file" class="form-control" id="archivo" name="archivo" accept=".pdf" required>
+                </div>
+            </div>
+
+            <div class="modal-acciones">
+                <a href="{% url 'recursos' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="modal-btn modal-btn-primario">
+                    <i class="fas fa-check"></i> Agregar Recurso
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
 {% endblock %}

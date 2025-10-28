@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm
-from .models import Usuario, Semillero,SemilleroUsuario, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable
+from .models import Documento, Usuario, Semillero,SemilleroUsuario, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento
 from django.utils import timezone 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
@@ -20,6 +20,7 @@ from django.utils.timezone import now
 from datetime import timedelta
 from django.http import Http404
 from django.db.models import Q
+from datetime import datetime
 
 
 # Create your views here.
@@ -564,7 +565,6 @@ def resumen(request, id_sem):
         cod_pro__in=proyectos.values('cod_pro')
     ).count()
 
-
     return render(request, 'paginas/resumen.html', {
         'current_page': 'resumen',
         'current_page_name': 'Semilleros',
@@ -585,7 +585,7 @@ def resu_miembros(request, id_sem):
     # Instructores
     usuarios = Usuario.objects.filter(cedula__in=cedulas_en_semillero)
     usuarios_disponibles = Usuario.objects.exclude(cedula__in=cedulas_en_semillero)
-
+    
     # Aprendices
     aprendices = Aprendiz.objects.filter(id_sem=semillero)
 
@@ -609,7 +609,7 @@ def resu_miembros(request, id_sem):
             es_lider=True
         ).exists()
         
-        # Opcional: Obtener nombres de los proyectos que lidera (para mostrar tooltip)
+        # Obtener nombres de los proyectos que lidera (para mostrar tooltip)
         if miembro.es_lider_proyecto:
             proyectos_liderados = UsuarioProyecto.objects.filter(
                 cedula=miembro.cedula,
@@ -798,14 +798,14 @@ def resu_proyectos(request, id_sem):
     proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
     proyectos_formativos = list(proyectos.filter(tipo__iexact="Formativo"))
     
-    # 🔄 Procesar cada proyecto para obtener líneas y miembros
+    # Procesar cada proyecto para obtener líneas y miembros
     for proyecto in proyectos_sennova + proyectos_capacidad + proyectos_formativos:
         # Líneas tecnológicas, investigación y semillero
         proyecto.lineas_tec_lista = [l.strip() for l in proyecto.linea_tec.split('\n') if l.strip()] if proyecto.linea_tec else []
         proyecto.lineas_inv_lista = [l.strip() for l in proyecto.linea_inv.split('\n') if l.strip()] if proyecto.linea_inv else []
         proyecto.lineas_sem_lista = [l.strip() for l in proyecto.linea_sem.split('\n') if l.strip()] if proyecto.linea_sem else []
         
-        # 🆕 OBTENER MIEMBROS DEL PROYECTO
+        # OBTENER MIEMBROS DEL PROYECTO
         # Usuarios del proyecto
         usuarios_proyecto = UsuarioProyecto.objects.filter(
             cod_pro=proyecto
@@ -863,7 +863,7 @@ def resu_proyectos(request, id_sem):
         cod_pro__in=proyectos_count.values('cod_pro')
     ).count()
     
-    # 📋 OBTENER MIEMBROS DEL SEMILLERO QUE NO ESTÁN EN NINGÚN PROYECTO
+    # OBTENER MIEMBROS DEL SEMILLERO QUE NO ESTÁN EN NINGÚN PROYECTO
     # Obtener todos los proyectos del semillero
     proyectos_semillero = proyectos_count.values_list('cod_pro', flat=True)
 
@@ -926,7 +926,7 @@ def resu_proyectos(request, id_sem):
         'total_miembros': total_miembros,
         'miembros': miembros,
         'total_entregables': total_entregables,
-        'miembros_semillero': miembros_semillero  # Solo miembros SIN proyecto
+        'miembros_semillero': miembros_semillero,  # Solo miembros SIN proyecto
     }
     
     return render(request, 'paginas/resu-proyectos.html', context)
@@ -1077,10 +1077,103 @@ def crear_proyecto(request, id_sem):
         'miembros_semillero': miembros_semillero
     })
 
+def recursos(request, id_sem):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    
+    # Obtener todos los documentos del semillero
+    relaciones = SemilleroDocumento.objects.filter(id_sem=semillero)
+    todos_documentos = Documento.objects.filter(
+        cod_doc__in=relaciones.values_list('cod_doc', flat=True)
+    )
+    
+    # Separar por categorías
+    documentos = todos_documentos.filter(tipo__in=['Documento', 'Guía'])
+    fichas = todos_documentos.filter(tipo__in=['Ficha', 'Acta'])
 
-def recursos(request):
-    return render(request, 'paginas/recursos.html', 
-    {'current_page': 'recursos'})
+    # Calcular total de miembros
+    cedulas = SemilleroUsuario.objects.filter(
+        id_sem=semillero
+    ).values_list('cedula', flat=True)
+    
+    total_usuarios = Usuario.objects.filter(cedula__in=cedulas).count()
+    total_aprendices = Aprendiz.objects.filter(id_sem=semillero).count()
+    total_miembros = total_usuarios + total_aprendices
+
+    # Proyectos del semillero
+    proyectos = SemilleroProyecto.objects.filter(id_sem=semillero)
+    total_proyectos = proyectos.count()
+
+    # Entregables asociados a esos proyectos
+    total_entregables = Entregable.objects.filter(
+        cod_pro__in=proyectos.values('cod_pro')
+    ).count()
+
+    
+    return render(request, 'paginas/recursos.html', {
+        'current_page': 'recursos', 
+        'semillero': semillero,
+        'current_page_name': 'Semilleros',
+        'documentos': documentos,
+        'fichas': fichas,
+        'total_miembros': total_miembros,
+        'total_proyectos': total_proyectos,
+        'total_entregables': total_entregables
+    })
+
+def agregar_recurso(request, id_sem):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        nom_doc = request.POST.get('nom_doc')
+        tipo = request.POST.get('tipo')
+        archivo = request.FILES.get('archivo')
+        
+        # Validar que todos los campos requeridos estén presentes
+        if not all([nom_doc, tipo, archivo]):
+            messages.error(request, 'Todos los campos son obligatorios')
+            return redirect('recursos', id_sem=id_sem)
+                
+        # Validar que el archivo sea PDF
+        if archivo and not archivo.name.lower().endswith('.pdf'):
+            messages.error(request, 'Solo se permiten archivos PDF')
+            return redirect('recursos', id_sem=id_sem)
+        
+        try:
+            # Generar el próximo cod_doc
+            ultimo_doc = Documento.objects.order_by('-cod_doc').first()
+            nuevo_cod_doc = (ultimo_doc.cod_doc + 1) if ultimo_doc else 1
+            
+            # Obtener fecha actual
+            fecha_actual = datetime.now().strftime('%Y-%m-%d')
+            
+            # Crear el nuevo documento
+            documento = Documento(
+                cod_doc=nuevo_cod_doc,
+                nom_doc=nom_doc,
+                tipo=tipo,
+                fecha_doc=fecha_actual,
+                archivo=archivo
+            )
+            
+            # Guardar el documento en la base de datos
+            documento.save()
+            
+            # Crear la relación con el semillero 
+            SemilleroDocumento.objects.create(
+                id_sem=semillero,
+                cod_doc=documento
+            )
+            
+            messages.success(request, 'Documento guardado exitosamente')
+            return redirect('recursos', id_sem=id_sem)
+            
+        except Exception as e:
+            messages.error(request, f'Error al guardar el documento: {str(e)}')
+            return redirect('recursos', id_sem=id_sem)
+    
+    # Si la solicitud no es POST, redirigir a la página de recursos
+    return redirect('recursos', id_sem=id_sem)
 
 # VISTAS DE PROYECTOS
 def proyectos(request, cod_pro=None):
@@ -1124,12 +1217,13 @@ def proyectos(request, cod_pro=None):
     completados_mes = Proyecto.objects.filter(estado='completado', fecha_creacion__gte=inicio_mes).count()
     pendientes_mes = Proyecto.objects.filter(estado__in=['diagnostico', 'planeacion'], fecha_creacion__gte=inicio_mes).count()
 
-    # ---- TIPOS DE PROYECTO ----
-    tipos_proyecto = TipoProyecto.objects.all()
+    proyectos = Proyecto.objects.filter(cod_pro=cod_pro)
+
+    for proyecto in proyectos:
+        proyecto.cantidad_entregables = proyecto.entregable_set.count()
 
     contexto = {
         'proyectos': proyectos,
-        'tipos_proyecto': tipos_proyecto,
         'total_proyectos': total_proyectos,
         'proyectos_desarrollo': proyectos_desarrollo,
         'proyectos_completados': proyectos_completados,
@@ -1153,7 +1247,7 @@ def miembros(request):
     busqueda = request.GET.get('busqueda', '').strip().lower()
     miembro_id = request.GET.get('miembro_id')
 
-    # 🔹 Manejar actualización del estado (POST)
+    # Manejar actualización del estado (POST)
     if request.method == "POST":
         cedula = request.POST.get("cedula")
         nuevo_estado = request.POST.get("estado")

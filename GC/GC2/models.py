@@ -191,6 +191,7 @@ class Proyecto(models.Model):
     linea_inv = models.CharField(max_length=250)
     linea_sem = models.CharField(max_length=250)
     estado_pro = models.CharField(max_length=50)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         managed = False
@@ -200,14 +201,12 @@ class Documento(models.Model):
     cod_doc = models.IntegerField(primary_key=True)
     nom_doc = models.CharField(max_length=250)
     fecha_doc = models.CharField(max_length=250)
-    ver_doc = models.IntegerField()
     tipo = models.CharField(max_length=250)
-    archivo = models.CharField(max_length=250)
+    archivo = models.FileField(upload_to='documentos/', null=True, blank=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'documento'
-
 
 class Entregable(models.Model):
     cod_entre = models.IntegerField(primary_key=True)
@@ -239,23 +238,23 @@ class Evento(models.Model):
 
 # Tablas intermedias (relaciones ManyToMany)
 class SemilleroDocumento(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
+    id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
     cod_doc = models.ForeignKey(Documento, on_delete=models.CASCADE, db_column='cod_doc')
 
     class Meta:
         managed = False
         db_table = 'semillero_documento'
-        unique_together = ('cod_sem', 'cod_doc')  # evita duplicados
+        unique_together = ('id_sem', 'cod_doc')  # evita duplicados
 
 
 class SemilleroEvento(models.Model):
-    cod_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='cod_sem')
+    id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
     cod_eve = models.ForeignKey(Evento, on_delete=models.CASCADE, db_column='cod_eve')
 
     class Meta:
         managed = False
         db_table = 'semillero_evento'
-        unique_together = ('cod_sem', 'cod_eve')  # evita duplicados
+        unique_together = ('id_sem', 'cod_eve')  # evita duplicados
 
 
 class SemilleroProyecto(models.Model):
