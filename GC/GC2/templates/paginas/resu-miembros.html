@@ -60,7 +60,7 @@
                                 
                                 <div class="carousel-track" data-carousel="instructores">
                                     {% for m in miembros %}
-                                        {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
+                                        {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador"  or m.cedula.rol|lower == "líder" or m.cedula.rol|lower == "lider" %}
                                             <div class="card" data-index="{{ forloop.counter0 }}">
                                                 <div class="item-miembro">
                                                     <!-- Ícono de líder -->
@@ -251,7 +251,7 @@
                 <div class="lista-miembros-modal">
                     {% if miembros %}
                         {% for m in miembros %}
-                            {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
+                            {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador"  or m.cedula.rol|lower == "líder" or m.cedula.rol|lower == "lider" %}
                                 <div class="item-miembro-modal {% if m.es_lider %}item-lider{% endif %}">
                                     <!-- Avatar -->
                                     <div class="avatar-miembro" data-color="{{ forloop.counter }}">

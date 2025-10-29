@@ -699,21 +699,44 @@ def asignar_lider_semillero(request, id_sem):
 
         # Verificar existencia segura
         try:
-            lider = SemilleroUsuario.objects.get(semusu_id=id_relacion, id_sem=semillero)
+            nueva_relacion_lider = SemilleroUsuario.objects.get(semusu_id=id_relacion, id_sem=semillero)
         except SemilleroUsuario.DoesNotExist:
             messages.error(request, "El usuario seleccionado no pertenece a este semillero.")
             return redirect("resu-miembros", semillero.id_sem)
 
-        # Quitar liderazgo anterior
-        SemilleroUsuario.objects.filter(id_sem=semillero, es_lider=True).update(es_lider=False)
+        # Paso 1: Obtener el líder anterior (si existe)
+        try:
+            relacion_lider_anterior = SemilleroUsuario.objects.get(id_sem=semillero, es_lider=True)
+            usuario_anterior = relacion_lider_anterior.cedula
+            
+            # Cambiar rol del antiguo líder a "Miembro" o "Instructor"
+            if usuario_anterior.rol == 'Líder':
+                usuario_anterior.rol = 'Instructor'  # o 'Miembro', según tu necesidad
+                usuario_anterior.save()
+            
+            # Quitar liderazgo en la tabla intermedia
+            relacion_lider_anterior.es_lider = False
+            relacion_lider_anterior.save()
+            
+        except SemilleroUsuario.DoesNotExist:
+            # No había líder anterior, continuar normalmente
+            pass
 
-        # Asignar nuevo líder
-        lider.es_lider = True
-        lider.save()
+        # Paso 2: Asignar nuevo líder en la tabla intermedia
+        nueva_relacion_lider.es_lider = True
+        nueva_relacion_lider.save()
 
-        messages.success(request, f"{lider.cedula.nom_usu} ha sido asignado como líder del semillero.")
+        # Paso 3: Cambiar el rol del nuevo líder en la tabla Usuario
+        nuevo_usuario_lider = nueva_relacion_lider.cedula
+        nuevo_usuario_lider.rol = 'Líder'
+        nuevo_usuario_lider.save()
+
+        messages.success(
+            request, 
+            f"{nuevo_usuario_lider.nom_usu} {nuevo_usuario_lider.ape_usu} ha sido asignado como líder del semillero."
+        )
         return redirect("resu-miembros", semillero.id_sem)
-
+    
 def asignar_lider_proyecto(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
@@ -741,11 +764,23 @@ def asignar_lider_proyecto(request, id_sem):
                 messages.error(request, "El instructor seleccionado no pertenece a este semillero.")
                 return redirect("resu-miembros", id_sem=id_sem)
 
-            # Paso 1: Quitar liderazgo anterior del proyecto
-            UsuarioProyecto.objects.filter(
-                cod_pro=proyecto,
-                es_lider=True
-            ).update(es_lider=False)
+            # Paso 1: Obtener y actualizar el líder anterior del proyecto
+            try:
+                relacion_anterior = UsuarioProyecto.objects.get(cod_pro=proyecto, es_lider=True)
+                usuario_anterior = relacion_anterior.cedula
+                
+                # Cambiar rol si era "Líder de Proyecto"
+                if usuario_anterior.rol == 'Líder de Proyecto':
+                    usuario_anterior.rol = 'Instructor'  
+                    usuario_anterior.save()
+                
+                # Quitar liderazgo
+                relacion_anterior.es_lider = False
+                relacion_anterior.save()
+                
+            except UsuarioProyecto.DoesNotExist:
+                # No había líder anterior
+                pass
 
             # Paso 2: Buscar si ya existe la relación usuario-proyecto
             try:
@@ -765,6 +800,10 @@ def asignar_lider_proyecto(request, id_sem):
                     es_lider=True
                 )
                 creada = True
+
+            # Paso 3: Actualizar el rol del nuevo líder
+            instructor.rol = 'Líder de Proyecto'  
+            instructor.save()
 
             mensaje = "asignado" if creada else "actualizado como"
             messages.success(
@@ -787,7 +826,6 @@ def asignar_lider_proyecto(request, id_sem):
 
     # Si es GET, redirigir a resu-miembros (el modal se abre desde allí)
     return redirect("resu-miembros", id_sem=id_sem)
-
 def resu_proyectos(request, id_sem, cod_pro=None):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
