@@ -19,6 +19,7 @@ urlpatterns = [
     #SEMILERO
     path('semilleros/', views.semilleros, name='semilleros'),
     path('crear_semillero/', views.crear_semillero, name='crear_semillero'),
+    path('semilleros/eliminar/', views.eliminar_semilleros, name='eliminar_semilleros'),
     path('semillero/<int:id_sem>/miembros/', views.resu_miembros, name='resu-miembros'),
     path('semillero/<int:id_sem>/agregar-miembros/', views.agregar_miembros, name='agregar_miembros'),
     path('resumen/<int:id_sem>/', views.resumen, name='resumen'),

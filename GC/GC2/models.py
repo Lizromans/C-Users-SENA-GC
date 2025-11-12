@@ -236,7 +236,7 @@ class Archivo(models.Model):
 
     class Meta:
         db_table = 'archivo'
-        managed = True
+        managed = False
 
 class Evento(models.Model):
     cod_eve = models.IntegerField(primary_key=True)
@@ -252,11 +252,12 @@ class Evento(models.Model):
 
 # Tablas intermedias (relaciones ManyToMany)
 class SemilleroDocumento(models.Model):
+    id_doc = models.AutoField(primary_key=True)
     id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
     cod_doc = models.ForeignKey(Documento, on_delete=models.CASCADE, db_column='cod_doc')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'semillero_documento'
         unique_together = ('id_sem', 'cod_doc')  # evita duplicados
 

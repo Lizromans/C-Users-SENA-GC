@@ -28,8 +28,6 @@
             <h1 class="titulo">Semilleros</h1>
         </div>
         
-
-        
         <div class="buscador">
             <div class="input-group">
                 <input type="text" class="form-control" placeholder="Buscar semillero..." aria-label="Buscar semillero" aria-describedby="button-search">
@@ -56,43 +54,77 @@
         
         <div class="contenedor-semillero">
             <div class="header-semilleros">
-                <button class="btn-crear-semillero" data-bs-toggle="modal" data-bs-target="#modal-crear">
+                <button class="btn crear-semillero" data-bs-toggle="modal" data-bs-target="#modal-crear">
                     <i class="fas fa-plus"></i> Crear Semillero
                 </button>
+                <a href="#modo-eliminar" class="btn eliminar-semillero">
+                    <i class="fa fa-trash-alt"></i> Eliminar Semilleros
+                </a>
             </div>
             
-            <div class="grid-semilleros">
-                {% for semillero in semilleros %}
-                <div class="card-semillero">
-                    <div class="card-body">
-                        <h4>{{ semillero.nombre }}</h4>
-                        <h5>{{ semillero.sigla }}</h5>
-                        <h6>{{ semillero.cod_sem }}</h6>
-                        <p class="card-text">{{ semillero.desc_sem }}</p>
-                        <div class="card-info">
-                            <span class="badge bg-secondary">
-                                <strong>{{ semillero.total_miembros }}</strong>
-                                <span>Miembros</span>
-                            </span>
-                            <span class="badge bg-secondary">
-                                <strong>{{ semillero.total_proyectos }}</strong>
-                                <span>Proyectos</span>
-                            </span>
-                            <span class="badge bg-secondary">
-                                <strong>{{ semillero.total_entregables }}</strong>
-                                <span>Entregables</span>
-                            </span>
-                        </div>
-                        <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
+            <!-- Formulario para eliminar múltiples semilleros -->
+            <form method="POST" action="{% url 'eliminar_semilleros' %}" id="form-eliminar">
+                {% csrf_token %}
+                
+                <!-- Barra de acciones cuando está en modo eliminar -->
+                <div class="modo-eliminar-acciones" id="modo-eliminar">
+                    <div class="acciones-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Selecciona los semilleros que deseas eliminar</span>
+                    </div>
+                    <div class="acciones-botones">
+                        <a href="{% url 'semilleros' %}" class="btn-cancelar-eliminar">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn-confirmar-eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar los semilleros seleccionados? Esta acción no se puede deshacer.');">
+                            <i class="fas fa-trash"></i> Eliminar Seleccionados
+                        </button>
                     </div>
                 </div>
-                {% empty %}
-                <div class="no-semilleros">
-                    <i class="fas fa-inbox"></i>
-                    <p>No hay semilleros disponibles</p>
+                
+                <div class="grid-semilleros">
+                    {% for semillero in semilleros %}
+                    <div class="card-semillero">
+                        <!-- Checkbox para seleccionar el semillero -->
+                        <input type="checkbox" 
+                               name="semilleros_eliminar" 
+                               value="{{ semillero.id_sem }}" 
+                               id="check-{{ semillero.id_sem }}"
+                               class="checkbox-eliminar">
+                        <label for="check-{{ semillero.id_sem }}" class="checkbox-label">
+                            <i class="fas fa-check"></i>
+                        </label>
+                        
+                        <div class="card-body">
+                            <h4>{{ semillero.nombre }}</h4>
+                            <h5>{{ semillero.sigla }}</h5>
+                            <h6>{{ semillero.cod_sem }}</h6>
+                            <p class="card-text">{{ semillero.desc_sem }}</p>
+                            <div class="card-info">
+                                <span class="badge bg-secondary">
+                                    <strong>{{ semillero.total_miembros }}</strong>
+                                    <span>Miembros</span>
+                                </span>
+                                <span class="badge bg-secondary">
+                                    <strong>{{ semillero.total_proyectos }}</strong>
+                                    <span>Proyectos</span>
+                                </span>
+                                <span class="badge bg-secondary">
+                                    <strong>{{ semillero.total_entregables }}</strong>
+                                    <span>Entregables</span>
+                                </span>
+                            </div>
+                            <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-semilleros">
+                        <i class="fas fa-inbox"></i>
+                        <p>No hay semilleros disponibles</p>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
+            </form>
         </div>
     </div>
 

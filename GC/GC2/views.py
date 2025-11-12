@@ -29,7 +29,6 @@ import os
 
 
 # Create your views here.
-
 def bienvenido(request):
     return render(request, 'paginas/bienvenido.html')
 
@@ -541,6 +540,151 @@ def crear_semillero(request):
             messages.error(request, f'Error al crear semillero: {str(e)}')
             return redirect('semilleros')
 
+    return redirect('semilleros')
+
+def eliminar_semilleros(request):
+    if request.method == 'POST':
+        semilleros_ids = request.POST.getlist('semilleros_eliminar')
+        
+        if not semilleros_ids:
+            messages.warning(request, 'No se seleccionó ningún semillero para eliminar')
+            return redirect('semilleros')
+        
+        try:
+            eliminados = 0
+            errores = []
+            
+            for id_sem in semilleros_ids:
+                try:
+                    semillero = Semillero.objects.get(id_sem=id_sem)
+                    nombre_semillero = semillero.nombre
+                    
+                    # 1. Restaurar roles de líderes de semillero
+                    lideres_sem = SemilleroUsuario.objects.filter(
+                        id_sem=semillero, 
+                        es_lider=True
+                    ).select_related('cedula')
+                    
+                    for relacion_lider in lideres_sem:
+                        usuario_lider = relacion_lider.cedula
+                        if usuario_lider.rol == 'Líder de Semillero':
+                            # Verificar si es líder en otros semilleros
+                            otros_semilleros_lider = SemilleroUsuario.objects.filter(
+                                cedula=usuario_lider, 
+                                es_lider=True
+                            ).exclude(id_sem=semillero).exists()
+                            
+                            if not otros_semilleros_lider:
+                                # Restaurar rol original
+                                if hasattr(usuario_lider, 'rol_original') and usuario_lider.rol_original:
+                                    usuario_lider.rol = usuario_lider.rol_original
+                                elif usuario_lider.vinculacion_laboral and 'instructor' in usuario_lider.vinculacion_laboral.lower():
+                                    usuario_lider.rol = 'Instructor'
+                                else:
+                                    usuario_lider.rol = 'Investigador'
+                                usuario_lider.save()
+                    
+                    # 2. Obtener todos los proyectos del semillero
+                    proyectos = Proyecto.objects.filter(
+                        semilleroproyecto__id_sem=semillero
+                    )
+                    
+                    for proyecto in proyectos:
+                        # Restaurar roles de líderes de proyecto
+                        lideres_proyecto = UsuarioProyecto.objects.filter(
+                            cod_pro=proyecto, 
+                            es_lider_pro=True
+                        ).select_related('cedula')
+                        
+                        for relacion_lider in lideres_proyecto:
+                            usuario_lider = relacion_lider.cedula
+                            if usuario_lider.rol == 'Líder de Proyecto':
+                                # Verificar si es líder en otros proyectos
+                                otros_proyectos_lider = UsuarioProyecto.objects.filter(
+                                    cedula=usuario_lider, 
+                                    es_lider_pro=True
+                                ).exclude(cod_pro=proyecto).exists()
+                                
+                                if not otros_proyectos_lider:
+                                    # Restaurar rol
+                                    if hasattr(usuario_lider, 'rol_original') and usuario_lider.rol_original:
+                                        usuario_lider.rol = usuario_lider.rol_original
+                                    else:
+                                        es_lider_sem = SemilleroUsuario.objects.filter(
+                                            cedula=usuario_lider, 
+                                            es_lider=True
+                                        ).exists()
+                                        if es_lider_sem:
+                                            usuario_lider.rol = 'Líder de Semillero'
+                                        elif usuario_lider.vinculacion_laboral and 'instructor' in usuario_lider.vinculacion_laboral.lower():
+                                            usuario_lider.rol = 'Instructor'
+                                        else:
+                                            usuario_lider.rol = 'Investigador'
+                                    usuario_lider.save()
+                        
+                        # Eliminar entregables y archivos
+                        entregables = Entregable.objects.filter(cod_pro=proyecto)
+                        for entregable in entregables:
+                            archivos = Archivo.objects.filter(entregable=entregable)
+                            for archivo in archivos:
+                                if archivo.archivo:
+                                    archivo.archivo.delete(save=False)
+                            archivos.delete()
+                        entregables.delete()
+                        
+                        # Eliminar relaciones con usuarios y aprendices
+                        UsuarioProyecto.objects.filter(cod_pro=proyecto).delete()
+                        ProyectoAprendiz.objects.filter(cod_pro=proyecto).delete()
+                        
+                        # Eliminar relación proyecto-semillero
+                        SemilleroProyecto.objects.filter(cod_pro=proyecto).delete()
+                        
+                        # Eliminar el proyecto
+                        proyecto.delete()
+                    
+                    # 3. Eliminar documentos del semillero
+                    documentos_semillero = SemilleroDocumento.objects.filter(id_sem=semillero)
+                    for rel_doc in documentos_semillero:
+                        documento = rel_doc.cod_doc
+                        if documento.archivo:
+                            documento.archivo.delete(save=False)
+                        documento.delete()
+                    documentos_semillero.delete()
+                    
+                    # 4. Eliminar relaciones con usuarios
+                    SemilleroUsuario.objects.filter(id_sem=semillero).delete()
+                    
+                    # 5. Actualizar aprendices (quitar referencia al semillero)
+                    Aprendiz.objects.filter(id_sem=semillero).update(id_sem=None)
+                    
+                    # 6. Eliminar el semillero
+                    semillero.delete()
+                    
+                    eliminados += 1
+                    
+                except Semillero.DoesNotExist:
+                    errores.append(f'Semillero con ID {id_sem} no encontrado')
+                except Exception as e:
+                    errores.append(f'Error al eliminar semillero {id_sem}: {str(e)}')
+            
+            # Mostrar mensajes
+            if eliminados > 0:
+                messages.success(
+                    request, 
+                    f'✅ {eliminados} semillero(s) eliminado(s) correctamente y roles restaurados.'
+                )
+            
+            if errores:
+                for error in errores:
+                    messages.error(request, f'⚠️ {error}')
+            
+            return redirect('semilleros')
+            
+        except Exception as e:
+            messages.error(request, f'⚠️ Error general al eliminar semilleros: {str(e)}')
+            return redirect('semilleros')
+    
+    # Si no es POST, redirigir
     return redirect('semilleros')
 
 def resumen(request, id_sem):

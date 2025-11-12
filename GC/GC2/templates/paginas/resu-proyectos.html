@@ -145,9 +145,6 @@
                                                         </div>
                                                     {% endfor %}
                                                 {% endif %}
-
-
-
                                                 {% if proyecto.miembros_lista|length > 5 %}
                                                     {% if miembro.estado == 'activo' %}
                                                         <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
@@ -313,7 +310,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                             </div>
                                             {% endfor %}
                                         {% else %}
@@ -524,13 +520,84 @@
                                                 <div class="entregable-detalles-desplegable">
                                                     <div class="entregable-detalles-grid">
                                                         <div class="entregable-detalle-columna descripcion">
-                                                            <p><strong>Descripción:</strong>{{ entregable.desc_entre|default:"Sin descripción" }}</p>
+                                                            <p><strong>Descripción:</strong> {{ entregable.desc_entre|default:"Sin descripción" }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
                                                             <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
                                                             <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {% if entregable.archivos.exists %}
+                                                        <!-- Caso: hay archivos -->
+                                                        <div class="entregable-documentos">
+                                                            <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
+                                                            <div class="botones">
+                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                                    <i class="fas fa-eye"></i> Ver Archivos
+                                                                </a>
+                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Modal de archivos -->
+                                                        <div id="modal-archivos-{{ entregable.cod_entre }}" class="modal">
+                                                            <div class="modal-cont">
+                                                            <a href="#" class="modal-cerrar mini">&times;</a>
+                                                                <h5><i class="fas fa-folder-open"></i> Documentos del Entregable</h5>
+
+                                                                <ul class="lista-archivos">
+                                                                    {% for archivo in entregable.archivos.all %}
+                                                                        <li>
+                                                                            <i class="fas fa-file-alt"></i>
+                                                                            <span class="nombre-archivo">{{ archivo.nombre }}</span>
+                                                                            <a href="{{ archivo.archivo.url }}" target="_blank" class="btn-ver">
+                                                                                <i class="fas fa-eye"></i> Ver
+                                                                            </a>
+                                                                            <a href="{{ archivo.archivo.url }}" download class="btn-descargar">
+                                                                                <i class="fas fa-download"></i> Descargar
+                                                                            </a>
+                                                                        </li>
+                                                                    {% empty %}
+                                                                        <p>No hay archivos disponibles para este entregable.</p>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+
+                                                    {% else %}
+                                                        <!-- Caso: NO hay archivos -->
+                                                        <div class="entregable-documentos sin-documentos">
+                                                            <i class="fas fa-file-alt"></i>
+                                                            <p>No hay documentos disponibles</p>
+
+                                                            <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
+                                                                <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Modal para subir archivos -->
+                                                    <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
+                                                        <div class="modal-cont">
+                                                            <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento</h3>
+                                                            <p>Selecciona un archivo para adjuntar al entregable:</p>
+
+                                                            <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
+                                                                method="post" enctype="multipart/form-data">
+                                                                {% csrf_token %}
+                                                                <input type="file" name="archivo" required>
+                                                                <div class="modal-botones">
+                                                                    <button type="submit" class="btn-confirmar">
+                                                                        <i class="fas fa-upload"></i> Subir
+                                                                    </button>
+                                                                    <a class="btn-cancelar">Cancelar</a>
+                                                                </div>
+                                                            </form>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -741,13 +808,84 @@
                                                 <div class="entregable-detalles-desplegable">
                                                     <div class="entregable-detalles-grid">
                                                         <div class="entregable-detalle-columna descripcion">
-                                                            <p><strong>Descripción:</strong>{{ entregable.desc_entre|default:"Sin descripción" }}</p>
+                                                            <p><strong>Descripción:</strong> {{ entregable.desc_entre|default:"Sin descripción" }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
                                                             <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
                                                             <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {% if entregable.archivos.exists %}
+                                                        <!-- Caso: hay archivos -->
+                                                        <div class="entregable-documentos">
+                                                            <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
+                                                            <div class="botones">
+                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                                    <i class="fas fa-eye"></i> Ver Archivos
+                                                                </a>
+                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Modal de archivos -->
+                                                        <div id="modal-archivos-{{ entregable.cod_entre }}" class="modal">
+                                                            <div class="modal-cont">
+                                                            <a href="#" class="modal-cerrar mini">&times;</a>
+                                                                <h5><i class="fas fa-folder-open"></i> Documentos del Entregable</h5>
+
+                                                                <ul class="lista-archivos">
+                                                                    {% for archivo in entregable.archivos.all %}
+                                                                        <li>
+                                                                            <i class="fas fa-file-alt"></i>
+                                                                            <span class="nombre-archivo">{{ archivo.nombre }}</span>
+                                                                            <a href="{{ archivo.archivo.url }}" target="_blank" class="btn-ver">
+                                                                                <i class="fas fa-eye"></i> Ver
+                                                                            </a>
+                                                                            <a href="{{ archivo.archivo.url }}" download class="btn-descargar">
+                                                                                <i class="fas fa-download"></i> Descargar
+                                                                            </a>
+                                                                        </li>
+                                                                    {% empty %}
+                                                                        <p>No hay archivos disponibles para este entregable.</p>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+
+                                                    {% else %}
+                                                        <!-- Caso: NO hay archivos -->
+                                                        <div class="entregable-documentos sin-documentos">
+                                                            <i class="fas fa-file-alt"></i>
+                                                            <p>No hay documentos disponibles</p>
+
+                                                            <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
+                                                                <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Modal para subir archivos -->
+                                                    <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
+                                                        <div class="modal-cont">
+                                                            <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento</h3>
+                                                            <p>Selecciona un archivo para adjuntar al entregable:</p>
+
+                                                            <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
+                                                                method="post" enctype="multipart/form-data">
+                                                                {% csrf_token %}
+                                                                <input type="file" name="archivo" required>
+                                                                <div class="modal-botones">
+                                                                    <button type="submit" class="btn-confirmar">
+                                                                        <i class="fas fa-upload"></i> Subir
+                                                                    </button>
+                                                                    <a class="btn-cancelar">Cancelar</a>
+                                                                </div>
+                                                            </form>
                                                         </div>
                                                     </div>
                                                 </div>
