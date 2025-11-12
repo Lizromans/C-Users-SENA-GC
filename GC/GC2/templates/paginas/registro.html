@@ -33,7 +33,7 @@
       <div class="particle"></div>
   </div>
 
-    <div class="container" id="container">
+    <div class="container active" id="container">
       
       <!-- Panel Azul -->
       <div class="blue-panel" id="bluePanel">
@@ -42,102 +42,69 @@
           <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back" >
         </a>  
         <img src="{% static 'img/logo1.png' %}" alt="Logo SENA">
-        <h2 id="blueTitle">¿Ya tienes cuenta?</h2>
-        <p id="blueText">Inicia sesión para acceder a todas las funcionalidades del sistema</p>
-        <button id="toggleBtn">Iniciar sesión</button>
+        <h2 id="blueTitle">¿Eres un usuario nuevo?</h2>
+        <p id="blueText">Regístrate para acceder al sistema de gestión del conocimiento</p>
+        <button id="toggleBtn">Registrarse</button>
       </div>
 
       <!-- Formulario -->
       <div class="form-container" id="formContainer">
-    <h2 id="formTitle">REGISTRO</h2>
+        <h2 id="formTitle">INICIAR SESIÓN</h2>
 
-    <form class="datos" method="POST" action="{% url 'registro' %}" id="mainForm" novalidate>
-      {% csrf_token %}
+        <form class="datos" method="POST" action="{% url 'iniciarsesion' %}" id="mainForm" novalidate>
+          {% csrf_token %}
 
-      <!-- Cédula -->
-      <div class="form-group m-1">
-        {{ form.cedula }}
-        {% if form.cedula.errors %}
-          <div class="error-container">{{ form.cedula.errors }}</div>
-        {% endif %}
+          <!-- Rol -->
+          <div class="select_container">
+            <select name="rol" class="select" required>
+              <option value="">Selecciona tu rol</option>
+              <option value="Dinamizador" {% if rol == 'Dinamizador' %}selected{% endif %}>Dinamizador</option>
+              <option value="Lider" {% if rol == 'Lider' %}selected{% endif %}>Líder</option>
+              <option value="Investigador" {% if rol == 'Investigador' %}selected{% endif %}>Investigador</option>
+              <option value="Instructor" {% if rol == 'Instructor' %}selected{% endif %}>Instructor</option>
+            </select>
+            {% if error_rol %}
+              <div class="error-rol">{{ error_rol }}</div>
+            {% endif %}
+          </div>
+          
+          <!-- Cedula -->
+          <div class="form-group m-1">
+            <input type="text" name="cedula" class="input" placeholder="Cédula" value="{% if cedula %}{{ cedula }}{% endif %}" required>
+            {% if error_user %}
+              <div class="error-cedula">{{ error_user }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-group m-1">
+            <div class="password-field-container">
+              <input type="password" name="password" id="loginPassword" class="input" placeholder="Contraseña" required>
+              <span class="password-toggle-icon" onclick="togglePasswordLogin()">
+                <i class="fas fa-eye" id="toggleIcon_loginPassword"></i>
+              </span>
+            </div>
+            {% if error_password %}
+              <div class="error-contrase">{{ error_password }}</div>
+            {% endif %}
+          </div>
+
+          <a id="olvido" href="{% url 'mostrar_recuperar_contrasena' %}">¿Olvidó su contraseña?</a>
+
+          <div class="form-group m-1">
+            <button type="submit" class="btn">Iniciar Sesión</button>
+          </div>
+        </form>
       </div>
-
-      <!-- Nombre -->
-      <div class="form-group m-1">
-        {{ form.nom_usu }}
-        {% if form.nom_usu.errors %}
-          <div class="error-container">{{ form.nom_usu.errors }}</div>
-        {% endif %}
-      </div>
-
-      <!-- Apellido -->
-      <div class="form-group m-1">
-        {{ form.ape_usu }}
-        {% if form.ape_usu.errors %}
-          <div class="error-container">{{ form.ape_usu.errors }}</div>
-        {% endif %}
-      </div>
-
-      <!-- Correo Institucional -->
-      <div class="form-group m-1">
-        {{ form.correo_ins }}
-        {% if form.correo_ins.errors %}
-          <div class="error-correo">{{ form.correo_ins.errors }}</div>
-        {% endif %}
-        <small class="form-text text-muted">
-          Se enviará un enlace de verificación a este correo.
-        </small>
-      </div>
-
-      <!-- Rol -->
-      <div class="select_container">
-        {{ form.rol }}
-        {% if form.rol.errors %}
-          <div class="error-container">{{ form.rol.errors }}</div>
-        {% endif %}
-      </div>
-
-      <!-- Contraseña -->
-      <div class="form-group m-1">
-        <div class="password-field-container">
-          {{ form.contraseña }}
-          <span class="password-toggle-icon" onclick="togglePassword('password')">
-            <i class="fas fa-eye" id="toggleIcon_password"></i>
-          </span>
-        </div>
-        {% if form.contraseña.errors %}
-          <div class="error-contra">{{ form.contraseña.errors }}</div>
-        {% endif %}
-      </div>
-
-      <!-- Confirmar Contraseña -->
-      <div class="form-group m-1">
-        <div class="password-field-container">
-          {{ form.conf_contraseña }}
-          <span class="password-toggle-icon" onclick="togglePassword('confpassword')">
-            <i class="fas fa-eye" id="toggleIcon_confpassword"></i>
-          </span>
-        </div>
-        {% if form.non_field_errors %}
-          <div class="error-container">{{ form.non_field_errors }}</div>
-        {% endif %}
-        {% if form.conf_contraseña.errors %}
-          <div class="error-contra">{{ form.conf_contraseña.errors }}</div>
-        {% endif %}
-      </div>
-
-      <!-- Botón -->
-      <div class="form-group m-1">
-        <button type="submit" class="btn">Registrarse</button>
-      </div>
-    </form>
-  </div>
+    </div>
 
   {% if mostrar_modal %}
     <div id="modalOlvido" class="modal modal-visible">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="close"><a href="{% url 'iniciarsesion' %}">&times;</a></span>
+                <a class="modal-perfil-cerrar" id="btnmodalolvido" href="{% url 'iniciarsesion' %}">
+                    <i class="fa fa-times"></i>
+                </a>
                 <h3>Recuperar Contraseña</h3>
             </div>
             <form method="POST" action="{% url 'recuperar_contrasena' %}">
@@ -167,13 +134,8 @@
     const blueText = document.getElementById("blueText");
     const formTitle = document.getElementById("formTitle");
 
-    let isLogin = {% if show_login %}true{% else %}false{% endif %};
-
-    // Si debe mostrar login al cargar la página
-    if (isLogin) {
-      container.classList.add("active");
-      showLoginForm();
-    }
+    // CAMBIO PRINCIPAL: Inicia siempre en true (login)
+    let isLogin = true;
 
     // Función para alternar visibilidad de contraseña
     function togglePassword(fieldId) {
@@ -247,6 +209,78 @@
       `;
     }
 
+    function showRegisterForm() {
+      blueTitle.textContent = "¿Ya tienes cuenta?";
+      blueText.textContent = "Inicia sesión para acceder a todas las funcionalidades del sistema";
+      toggleBtn.textContent = "Iniciar sesión";
+      formTitle.textContent = "REGISTRO";
+      formContainer.innerHTML = `
+        <h2>REGISTRO</h2>
+        <form class="datos" method="POST" action="{% url 'registro' %}" novalidate>
+          {% csrf_token %}
+
+          <!-- Cédula -->
+          <div class="form-group m-1">
+            <input type="text" name="cedula" class="input" placeholder="Cédula" required>
+          </div>
+
+          <!-- Nombre -->
+          <div class="form-group m-1">
+            <input type="text" name="nom_usu" class="input" placeholder="Nombre" required>
+          </div>
+
+          <!-- Apellido -->
+          <div class="form-group m-1">
+            <input type="text" name="ape_usu" class="input" placeholder="Apellido" required>
+          </div>
+
+          <!-- Correo Institucional -->
+          <div class="form-group m-1">
+            <input type="email" name="correo_ins" class="input" placeholder="Correo Institucional" required>
+            <small class="form-text text-muted">
+              Se enviará un enlace de verificación a este correo.
+            </small>
+          </div>
+
+          <!-- Rol -->
+          <div class="select_container">
+            <select name="rol" class="select" required>
+              <option value="">Selecciona tu rol</option>
+              <option value="Dinamizador">Dinamizador</option>
+              <option value="Lider">Líder</option>
+              <option value="Investigador">Investigador</option>
+              <option value="Instructor">Instructor</option>
+            </select>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-group m-1">
+            <div class="password-field-container">
+              <input type="password" name="contraseña" id="password" class="input" placeholder="Contraseña" required>
+              <span class="password-toggle-icon" onclick="togglePassword('password')">
+                <i class="fas fa-eye" id="toggleIcon_password"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Confirmar Contraseña -->
+          <div class="form-group m-1">
+            <div class="password-field-container">
+              <input type="password" name="conf_contraseña" id="confpassword" class="input" placeholder="Confirmar Contraseña" required>
+              <span class="password-toggle-icon" onclick="togglePassword('confpassword')">
+                <i class="fas fa-eye" id="toggleIcon_confpassword"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Botón -->
+          <div class="form-group m-1">
+            <button type="submit" class="btn">Registrarse</button>
+          </div>
+        </form>
+      `;
+    }
+
     toggleBtn.addEventListener("click", () => {
       container.classList.toggle("active");
       isLogin = !isLogin;
@@ -254,8 +288,7 @@
       if (isLogin) {
         showLoginForm();
       } else {
-        // Vista registro - recargar la página para mostrar el formulario original
-        window.location.href = "{% url 'registro' %}";
+        showRegisterForm();
       }
     });
 

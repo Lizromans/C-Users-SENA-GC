@@ -26,6 +26,7 @@ from django.db.models import Case, When, Value, IntegerField
 from django.http import JsonResponse
 from django.core.files.storage import FileSystemStorage
 import os
+from django.contrib.auth import authenticate, login
 
 
 # Create your views here.
@@ -36,40 +37,32 @@ def bienvenido(request):
 def registro(request):
     if request.method == 'POST':
         form = UsuarioRegistroForm(request.POST)
-        
         if form.is_valid():
             try:
-                # Guardar el usuario con las contraseñas hasheadas pero como no verificado
                 usuario = form.save(commit=False)
-                
-                # IMPORTANTE: Hashear ambas contraseñas antes de guardar
-                usuario.contraseña = make_password(form.cleaned_data['contraseña'])
-                usuario.conf_contraseña = make_password(form.cleaned_data['conf_contraseña'])
                 usuario.email_verificado = False
                 usuario.save()
-                
-                # Generar token de verificación y enviar correo
-                usuario.generar_token_verificacion()
-                usuario.enviar_email_verificacion(request)
-                
-                messages.success(
-                    request, 
-                    "¡Registro exitoso! Por favor, verifica tu correo electrónico para activar tu cuenta."
-                )
+
+                # Si tu modelo tiene métodos personalizados:
+                if hasattr(usuario, 'generar_token_verificacion'):
+                    usuario.generar_token_verificacion()
+                if hasattr(usuario, 'enviar_email_verificacion'):
+                    usuario.enviar_email_verificacion(request)
+
+                messages.success(request, "¡Registro exitoso! Verifica tu correo electrónico.")
                 return redirect('iniciarsesion')
-                
             except Exception as e:
-                # Si hay error al guardar o enviar el correo, mostrarlo
-                messages.error(request, f"Error al registrar usuario: {str(e)}")
+                messages.error(request, f"Error al registrar usuario: {e}")
         else:
-            # El formulario tiene errores de validación, se mostrarán automáticamente
-            pass
+            messages.error(request, "Por favor corrige los errores en el formulario.")
     else:
         form = UsuarioRegistroForm()
-    
+
+    # CAMBIO: Ya no enviamos show_login, la página inicia siempre en login
     return render(request, 'paginas/registro.html', {
         'form': form,
-        'current_page_name': 'registro'
+        'current_page_name': 'registro',
+        'show_register': True  # Nueva variable para indicar que queremos mostrar registro
     })
 
 # Vista para verificar el correo electrónico
@@ -99,80 +92,83 @@ def verificar_email(request, token):
 # VISTA DE INICIAR SESION
 def iniciarsesion(request):
     if request.method == 'POST':
-        # --- Obtener datos del formulario ---
+
         cedula = request.POST.get('cedula')
-        contraseña = request.POST.get('password')
+        password = request.POST.get('password')
         rol = request.POST.get('rol')
 
-        # --- Validaciones básicas ---
         errores = {}
 
+        # --- Validaciones ---
         if not rol:
             errores['error_rol'] = "Debe seleccionar un rol."
         if not cedula:
             errores['error_user'] = "La cédula es obligatoria."
-        if not contraseña:
+        if not password:
             errores['error_password'] = "La contraseña es obligatoria."
 
-        # Si hay errores, regresar al formulario
         if errores:
+            # CAMBIO: Ya no necesitamos show_login, siempre inicia en login
             return render(request, 'paginas/registro.html', {
                 **errores,
                 'cedula': cedula,
                 'rol': rol,
-                'show_login': True,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # --- Autenticación ---
-        try:
-            usuario = Usuario.objects.get(cedula=cedula, rol=rol)
+        # --- Autenticación oficial Django ---
+        usuario = authenticate(request, cedula=cedula, password=password)
 
-            if not check_password(contraseña, usuario.contraseña):
-                return render(request, 'paginas/registro.html', {
-                    'error_password': 'Contraseña incorrecta',
-                    'cedula': cedula,
-                    'rol': rol,
-                    'show_login': True,
-                    'current_page_name': 'Iniciar Sesión'
-                })
+        if usuario is None:
+            # Si no pasa autenticación, puede ser que el rol no coincida
+            try:
+                u = Usuario.objects.get(cedula=cedula)
+                if not u.check_password(password):
+                    errores['error_password'] = "Contraseña incorrecta."
+                elif u.rol != rol:
+                    errores['error_rol'] = "El rol seleccionado no coincide con tu usuario."
+                else:
+                    errores['error_user'] = "Usuario no encontrado o inactivo."
+            except Usuario.DoesNotExist:
+                errores['error_user'] = "Usuario no registrado."
 
-            # --- Verificar si el correo está verificado ---
-            if not usuario.email_verificado:
-                return render(request, 'paginas/registro.html', {
-                    'error_user': 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
-                    'cedula': cedula,
-                    'rol': rol,
-                    'show_login': True,
-                    'current_page_name': 'Iniciar Sesión'
-                })
-            
-            
-
-            # --- Inicio de sesión exitoso ---
-            request.session['cedula'] = usuario.cedula
-            request.session['nom_usu'] = usuario.nom_usu
-            request.session['ape_usu'] = usuario.ape_usu
-            request.session['rol'] = usuario.rol
-
-            # ✅ Registrar el último acceso
-            usuario.last_login = now()
-            usuario.save(update_fields=['last_login'])
-
-            return redirect('home')
-
-        except Usuario.DoesNotExist:
+            # CAMBIO: Ya no necesitamos show_login
             return render(request, 'paginas/registro.html', {
-                'error_user': 'Usuario no encontrado con ese rol y cédula.',
+                **errores,
                 'cedula': cedula,
                 'rol': rol,
-                'show_login': True,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-    # --- Si es GET, mostrar formulario ---
+        # --- Verificación de correo electrónico ---
+        if not usuario.email_verificado:
+            return render(request, 'paginas/registro.html', {
+                'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
+                'cedula': cedula,
+                'rol': rol,
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # --- Iniciar sesión ---
+        login(request, usuario)
+
+        # --- Guardar información adicional en sesión ---
+        request.session['cedula'] = usuario.cedula
+        request.session['nom_usu'] = usuario.nom_usu
+        request.session['ape_usu'] = usuario.ape_usu
+        request.session['rol'] = usuario.rol
+        request.session['grupos'] = [usuario.rol]
+
+        # --- Actualizar último acceso ---
+        usuario.last_login = now()
+        usuario.save(update_fields=['last_login'])
+
+        messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
+        return redirect('home')
+
+    # --- Si es GET ---
+    # CAMBIO: Ya no enviamos show_login, la página siempre inicia en login por defecto
     return render(request, 'paginas/registro.html', {
-        'show_login': True,
         'current_page_name': 'Iniciar Sesión'
     })
 
@@ -252,17 +248,17 @@ def recuperar_contrasena(request):
 
 def reset_password(request, uidb64, token):
     """
-    Vista para mostrar el formulario de restablecimiento de contraseña
-    cuando el usuario hace clic en el enlace del correo
+    Vista que muestra el formulario de restablecimiento de contraseña
+    cuando el usuario hace clic en el enlace del correo.
     """
     try:
-        # Decodificar el uid para obtener el ID del usuario
+        # 1️⃣ Decodificar el UID
         uid = force_str(urlsafe_base64_decode(uidb64))
-        admin = Usuario.objects.get(pk=uid)
-        
-        # Verificar que el token sea válido
-        if default_token_generator.check_token(admin, token):
-            print(f"Token válido para el usuario: {admin.nom_usu}")
+        usuario = Usuario.objects.get(pk=uid)
+
+        # 2️⃣ Validar el token
+        if default_token_generator.check_token(usuario, token):
+            print(f"✅ Token válido para el usuario: {usuario.nom_usu}")
             return render(request, 'paginas/reset_password.html', {
                 'valid': True,
                 'uidb64': uidb64,
@@ -270,54 +266,55 @@ def reset_password(request, uidb64, token):
                 'current_page_name': 'Restablecer Contraseña'
             })
         else:
-            print("Token inválido o expirado")
+            print("❌ Token inválido o expirado")
             messages.error(request, "El enlace de restablecimiento no es válido o ha expirado.")
             return redirect('iniciarsesion')
-            
+
     except Exception as e:
-        print(f"Error en reset_password: {e}")
-        messages.error(request, f"Error al procesar el enlace de restablecimiento: {e}")
+        print(f"⚠️ Error en reset_password: {e}")
+        messages.error(request, "Error al procesar el enlace de restablecimiento.")
         return redirect('iniciarsesion')
-    
+
 def reset_password_confirm(request):
     """
-    Vista para procesar el formulario de restablecimiento de contraseña
+    Vista que procesa el formulario de restablecimiento de contraseña.
     """
     if request.method == 'POST':
         uidb64 = request.POST.get('uidb64')
         token = request.POST.get('token')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
-        
-        # Validar que ambas contraseñas coincidan
+
+        # 1️⃣ Validar coincidencia de contraseñas
         if password1 != password2:
             return render(request, 'paginas/reset_password.html', {
                 'valid': True,
                 'uidb64': uidb64,
                 'token': token,
-                'error': 'Las contraseñas no coinciden',
+                'error': 'Las contraseñas no coinciden.',
                 'current_page_name': 'Restablecer Contraseña'
             })
-        
+
         try:
-            # Decodificar el uid para obtener el ID del usuario
+            # 2️⃣ Decodificar el UID y obtener el usuario
             uid = force_str(urlsafe_base64_decode(uidb64))
-            admin = Usuario.objects.get(pk=uid)
-            
-            # Verificar que el token sea válido
-            if default_token_generator.check_token(admin, token):
-                # Cambiar la contraseña usando el nombre correcto del campo (contraseña con ñ)
-                admin.contraseña = make_password(password1)
-                admin.confcontraseña = make_password(password1)  # Actualizar también la confirmación
-                admin.save()
-                
+            usuario = Usuario.objects.get(pk=uid)
+
+            # 3️⃣ Verificar token válido
+            if default_token_generator.check_token(usuario, token):
+
+                # ✅ Guardar contraseña de forma segura
+                usuario.set_password(password1)
+                usuario.save()
+
                 messages.success(request, "Tu contraseña ha sido restablecida con éxito. Ahora puedes iniciar sesión.")
                 return redirect('iniciarsesion')
             else:
                 messages.error(request, "El enlace de restablecimiento no es válido o ha expirado.")
                 return redirect('iniciarsesion')
-                
-        except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist):
+
+        except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist) as e:
+            print(f"⚠️ Error al restablecer contraseña: {e}")
             messages.error(request, "El enlace de restablecimiento no es válido.")
             return redirect('iniciarsesion')
     
@@ -336,26 +333,30 @@ def privacidad(request):
             nueva_contraseña = request.POST.get('nueva_contraseña')
             confirmar_contraseña = request.POST.get('confirmar_contraseña')
             
-            if not check_password(contraseña_actual, usuario.contraseña):
-                messages.error(request, "La contraseña actual es incorrecta")
+            # ✅ Verificar la contraseña actual usando el campo correcto
+            if not check_password(contraseña_actual, usuario.password):
+                messages.error(request, "La contraseña actual es incorrecta.")
                 return redirect('privacidad')
             
+            # ✅ Verificar coincidencia
             if nueva_contraseña != confirmar_contraseña:
-                messages.error(request, "Las contraseñas no coinciden")
+                messages.error(request, "Las contraseñas nuevas no coinciden.")
                 return redirect('privacidad')
             
+            # ✅ Validar longitud mínima
             if len(nueva_contraseña) < 8:
-                messages.error(request, "La contraseña debe tener al menos 8 caracteres")
+                messages.error(request, "La contraseña debe tener al menos 8 caracteres.")
                 return redirect('privacidad')
             
-            usuario.contraseña = make_password(nueva_contraseña)
+            # ✅ Guardar correctamente usando set_password()
+            usuario.set_password(nueva_contraseña)
             usuario.save()
 
-            messages.success(request, "Contraseña actualizada correctamente")
+            messages.success(request, "Contraseña actualizada correctamente.")
             return redirect('home')
             
     except Usuario.DoesNotExist:
-        messages.error(request, "Usuario no encontrado. Por favor inicie sesión nuevamente")
+        messages.error(request, "Usuario no encontrado. Por favor, inicie sesión nuevamente.")
         return redirect('iniciarsesion')
     except Exception as e:
         messages.error(request, f"Error al actualizar la contraseña: {str(e)}")

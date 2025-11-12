@@ -61,6 +61,19 @@ main{
     border-radius: 8px;
 }
 
+.input-con-icono {
+    position: relative;
+}
+
+.input-con-icono .edit-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #555;
+}
+
 .card-header {
     background-color: linear-gradient(#00304D,#0070B3);
     color: #000000 !important;

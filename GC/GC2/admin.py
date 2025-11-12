@@ -9,7 +9,7 @@ class UsuarioGruposInline(admin.TabularInline):
 
 class UsuarioAdmin(admin.ModelAdmin):
     #DESPLEGAR LOS DATOS DE LA TABLA
-    list_display = ("cedula", "nom_usu", "ape_usu", "correo_ins", "rol", "contraseña", "conf_contraseña")
+    list_display = ("cedula", "nom_usu", "ape_usu", "correo_ins", "rol", "password")
     inlines = [UsuarioGruposInline]  # Aquí vinculamos la tabla intermedia
 
 admin.site.register(Usuario, UsuarioAdmin)

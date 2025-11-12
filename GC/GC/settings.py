@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'GC2',
+    'GC2.apps.GC2Config',
 ]
 
 MIDDLEWARE = [
@@ -156,3 +156,5 @@ from django.utils import timezone
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/home/GC/GC2/staticfiles'
+
+AUTH_USER_MODEL = 'GC2.Usuario'

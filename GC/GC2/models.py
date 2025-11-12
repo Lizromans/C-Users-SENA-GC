@@ -1,13 +1,33 @@
 from django.db import models
-import secrets
-import datetime
-from django.core.mail import send_mail
-from django.urls import reverse
-from django.conf import settings
 from django.utils import timezone
-from django.contrib.auth.models import Group
+import secrets, datetime
+from django.urls import reverse
+from django.core.mail import send_mail
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
+from django.conf import settings
 
-class Usuario(models.Model):
+class UsuarioManager(BaseUserManager):
+    def create_user(self, cedula, password=None, **extra_fields):
+        if not cedula:
+            raise ValueError("El usuario debe tener una cédula")
+        user = self.model(cedula=cedula, **extra_fields)
+        user.set_password(password)  # Hashea correctamente la contraseña
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, cedula, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError("El superusuario debe tener is_staff=True.")
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError("El superusuario debe tener is_superuser=True.")
+
+        return self.create_user(cedula, password, **extra_fields)
+
+class Usuario(AbstractBaseUser, PermissionsMixin):
     cedula = models.IntegerField(primary_key=True)
     nom_usu = models.CharField(max_length=250)
     ape_usu = models.CharField(max_length=250)
@@ -19,21 +39,29 @@ class Usuario(models.Model):
     vinculacion_laboral = models.CharField(max_length=250, null=True, blank=True)
     dependencia = models.CharField(max_length=250, null=True, blank=True)
     estado = models.CharField(max_length=250, null=True, blank=True)
-    contraseña = models.CharField(max_length=250)
-    conf_contraseña = models.CharField(max_length=250)
+    password = models.CharField(max_length=128)
     token_verificacion = models.CharField(max_length=250, null=True, blank=True)
     token_expira = models.DateTimeField(null=True, blank=True)
     email_verificado = models.BooleanField(default=False)
     last_login = models.DateTimeField(null=True, blank=True)
     imagen_perfil = models.ImageField(upload_to='fotos_perfil/', null=True, blank=True)
     rol_original = models.CharField(max_length=250, null=True, blank=True)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_superuser = models.BooleanField(default=False)
     
-    grupos = models.ManyToManyField(
-    Group,
-    through='UsuarioGrupos', 
-    related_name='usuarios',   
-    blank=True,
-    verbose_name='Grupos de permisos'
+    groups = models.ManyToManyField(
+        Group,
+        through='UsuarioGrupos', 
+        related_name='custom_usuarios',
+        blank=True
+    )
+
+    user_permissions = models.ManyToManyField(
+        Permission,
+        through='UsuarioUserPermissions',
+        related_name='custom_usuarios_perms',
+        blank=True
     )
 
     # Relación ManyToMany a través de tabla intermedia
@@ -49,52 +77,27 @@ class Usuario(models.Model):
         related_name='usuarios'
     )
 
+    USERNAME_FIELD = 'cedula'
+    REQUIRED_FIELDS = ['correo_ins']
+
+    objects = UsuarioManager()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'usuario'
 
-    @property
-    def password(self):
-        return self.contraseña
-
-    @password.setter
-    def password(self, value):
-        self.contraseña = value
-
-    def get_email_field_name(self):
-        return 'correo'
-
-    def get_username(self):
-        return self.nom_usu
-
-    @property
-    def is_anonymous(self):
-        return False
-
-    @property
-    def is_authenticated(self):
-        return True
-
-    def get_full_name(self):
-        return self.nom_usu
-
-    def get_short_name(self):
-        return self.nom_usu
+    def __str__(self):
+        return f"{self.nom_usu} {self.ape_usu}"
 
     def generar_token_verificacion(self):
-        # Crear un token aleatorio
         self.token_verificacion = secrets.token_urlsafe(32)
-        # El token expirará en 24 horas
         self.token_expira = timezone.now() + datetime.timedelta(hours=24)
         self.save()
 
     def enviar_email_verificacion(self, request):
-        """Envía un correo electrónico con el enlace de verificación"""
         verificacion_url = request.build_absolute_uri(
             reverse('verificar_email', kwargs={'token': self.token_verificacion})
         )
-
         asunto = 'Verifica tu dirección de correo electrónico'
         mensaje = f'''
         Hola {self.nom_usu},
@@ -107,7 +110,6 @@ class Usuario(models.Model):
 
         Si no solicitaste este registro, puedes ignorar este mensaje.
         '''
-
         send_mail(
             asunto,
             mensaje,
@@ -115,13 +117,13 @@ class Usuario(models.Model):
             [self.correo_ins],
             fail_silently=False,
         )
-    
+
     @property
     def get_iniciales(self):
         return f"{self.nom_usu[0]}{self.ape_usu[0]}".upper()
     
 class UsuarioGrupos(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
     grupo = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id')
 
@@ -130,6 +132,15 @@ class UsuarioGrupos(models.Model):
         db_table = 'usuario_grupos'
         unique_together = ('usuario', 'grupo')
 
+class UsuarioUserPermissions(models.Model):
+    id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='usuario_id')
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, db_column='permission_id')
+
+    class Meta:
+        managed = False
+        db_table = 'usuario_user_permissions'
+        unique_together = ('usuario', 'permission')
 
 class Semillero(models.Model):
     id_sem = models.AutoField(primary_key=True)
@@ -257,7 +268,7 @@ class SemilleroDocumento(models.Model):
     cod_doc = models.ForeignKey(Documento, on_delete=models.CASCADE, db_column='cod_doc')
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'semillero_documento'
         unique_together = ('id_sem', 'cod_doc')  # evita duplicados
 
