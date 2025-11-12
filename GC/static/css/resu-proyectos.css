@@ -526,7 +526,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: clamp(6px, 1vw, 8px);
+    gap: clamp(6px, 1vw, 8px)
 }
 
 .tab:hover {
@@ -565,104 +565,6 @@
     display: flex;
     flex-direction: column;
     animation: fadeInTab 0.4s ease;
-}
-
-.entregables-tab-content {
-    gap: clamp(12px, 2vw, 15px);
-}
-/* ====== ENTREGABLE MINI ====== */
-.entregable-mini {
-    display: flex;
-    align-items: center;
-    gap: clamp(12px, 2vw, 15px);
-    padding: clamp(10px, 2vw, 13px);
-    background: #f7fafc;
-    border-radius: 10px;
-    transition: all 0.3s;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    border: 2px solid transparent;
-}
-
-.entregable-mini:hover {
-    background: #edf2f7;
-    transform: translateX(5px);
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-}
-
-.mini-number {
-    width: clamp(32px, 4vw, 35px);
-    height: clamp(32px, 4vw, 35px);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: clamp(14px, 1.8vw, 16px);
-    flex-shrink: 0;
-}
-
-.mini-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.mini-info h6 {
-    font-size: clamp(14px, 1.8vw, 15px);
-    color: #2d3748;
-    margin: 0 0 clamp(3px, 0.5vw, 5px) 0;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.mini-info span {
-    font-size: clamp(11px, 1.4vw, 12px);
-    color: #718096;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.mini-info span i {
-    font-size: clamp(10px, 1.3vw, 11px);
-}
-
-.mini-info span .fa-check-circle {
-    color: #38a169;
-}
-
-.mini-info span .fa-clock {
-    color: #ed8936;
-}
-
-.entregable-mini .fa-chevron-right {
-    color: #cbd5e0;
-}
-
-/* ====== SIN ENTREGABLES ====== */
-.sin-entregables {
-    text-align: center;
-    padding: clamp(30px, 5vw, 50px) clamp(15px, 2vw, 20px);
-    color: #a0aec0;
-}
-
-.sin-entregables i {
-    display: block;
-    margin: 0 auto clamp(12px, 2vw, 15px);
-    font-size: 48px;
-    color: #cbd5e0;
-}
-
-.sin-entregables p {
-    font-size: clamp(13px, 1.7vw, 14px);
-    color: #718096;
-    margin: 0;
 }
 
 /* ====== OCULTAR RADIO BUTTONS ====== */
@@ -916,7 +818,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 }
 
 /* =======MODAL================ */
-.modal-overlay {
+.modal-overlay{
     display: none;
     position: fixed;
     top: 0;
@@ -927,6 +829,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     z-index: 9999;
     overflow-y: auto;
     padding: clamp(20px, 3vw, 40px);
+    transition: opacity 0.15s ease;
 }
 
 .modal-overlay:target {
@@ -936,10 +839,18 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 }
 
 .modal-overlay.activo {
+    background-color: rgba(27, 27, 27, 0.911);
     display: flex;
     justify-content: center;
     align-items: flex-start;
     animation: modalFadeIn 0.3s ease;
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-overlay:not(.activo) {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .modal-contenedor {
@@ -951,6 +862,20 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     animation: modalSlideIn 0.4s ease;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
     margin: auto;
+    max-height: 90vh; /* Limitar altura máxima */
+    overflow-y: auto; /* Scroll en el contenedor principal */
+    overflow-x: hidden;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.modal-overlay:not(.activo) .modal-contenedor {
+    transform: scale(0.95) translateY(-10px);
+    opacity: 0;
+}
+
+.modal-overlay.activo .modal-contenedor {
+    transform: scale(1) translateY(0);
+    opacity: 1;
 }
 
 .modal-cerrar {
@@ -973,6 +898,26 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     text-decoration: none;
 }
 
+.mini {
+    position: absolute;
+    top: clamp(5px, 2vw, 7px);
+    right: clamp(5px, 2vw, 7px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: clamp(30px, 5vw, 40px);
+    height: clamp(30px, 5vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+    color: #666;
+    transition: all 0.3s ease;
+    z-index: 10;
+    text-decoration: none;
+}
+
 .modal-cerrar:hover {
     background: #f44336;
     color: white;
@@ -982,6 +927,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 
 .modal-contenido {
     padding: clamp(30px, 4vw, 50px);
+    overflow: visible; /* Sin scroll aquí */
 }
 
 .modal-header {
@@ -992,6 +938,10 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     margin-bottom: clamp(25px, 3vh, 35px);
     padding-bottom: clamp(15px, 2vh, 20px);
     border-bottom: 3px solid #39A900;
+}
+
+.miembros-header {
+    border-bottom: 2px solid #9747FF;
 }
 
 .modal-header img,
@@ -1235,13 +1185,15 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 
 .modal-btn-cancelar {
     background-color: transparent;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary)!important;
     border: 2px solid #e0e0e0;
+    text-decoration: none!important;
 }
 
-.modal-btn-cancelar:hover {
+.modal-btn-cancelar:hover{
     background-color: #f5f5f5;
-    border-color: var(--color-text-secondary);
+    border-color: var(--color-text-secondary)!important;
+    text-decoration: none!important;
 }
 
 .modal-btn-primario {
@@ -1360,6 +1312,12 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+.modal-filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(12px, 2vw, 24px);
 }
 
 /* ====== GRID DE ENTREGABLES: 2 COLUMNAS, 3 FILAS ====== */
@@ -1775,6 +1733,14 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     font-size: clamp(12px, 1.4vw, 14px);
 }
 
+/* === SECCIÓN DE LÍNEAS (3 COLUMNAS RESPONSIVAS) === */
+.lineas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(clamp(200px, 30%, 350px), 1fr));
+  gap: clamp(10px, 2vw, 25px);
+  margin-top: clamp(10px, 2vh, 20px);
+}
+
 /* ====== SECCIÓN DE EQUIPO ====== */
 .proyecto-equipo {
     margin-bottom: clamp(5px, 2vh, 10px) ;
@@ -1903,8 +1869,8 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 .avatar-item::after {
     content: attr(data-tooltip);
     position: fixed;
-    bottom: 100%;
-    left: 95%;
+    bottom: 80%;
+    left: 150%;
     transform: translateX(-50%) translateY(-100%) scale(0.9);
     background: rgba(45, 55, 72, 0.95);
     color: white;
@@ -1940,6 +1906,1306 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 .equipo-avatares {
     position: relative;
     z-index: auto;
-    overflow: visible !important; /* Importante para que el tooltip no se corte */
+    overflow: visible !important; 
 }
 
+/* ====== DROPDOWN DE CONFIGURACIÓN ====== */
+.config-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle-config {
+    display: none;
+}
+
+.tab-configuracion {
+    flex: 0 0 clamp(50px, 8vw, 70px);
+    padding: clamp(12px, 2vw, 18px);
+    background: none;
+    height: 100%;
+    border: none;
+    font-size: clamp(13px, 1.8vw, 16px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+
+.tab-configuracion:hover {
+    color: #667eea;
+    background: #f7fafc;
+}
+
+/* Menú desplegable */
+.dropdown-menu-config {
+    position: absolute;
+    right: 0;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: clamp(10px, 1.5vw, 14px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+    min-width: clamp(200px, 25vw, 250px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+/* Mostrar menú cuando checkbox está checked */
+.dropdown-toggle-config:checked ~ .dropdown-menu-config {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* Cambiar estilo del label cuando está activo */
+.dropdown-toggle-config:checked ~ .tab-configuracion {
+    color: #667eea;
+    background: #edf2f7;
+}
+
+/* Items del menú */
+.dropdown-item-config {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 1.5vw, 14px);
+    padding: clamp(12px, 2vw, 15px) clamp(15px, 2.5vw, 18px);
+    color: #2d3748;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: clamp(13px, 1.7vw, 15px);
+    font-weight: 500;
+    position: relative;
+}
+
+.dropdown-item-config:hover {
+    background: linear-gradient(90deg, #f7fafc 0%, #edf2f7 100%);
+    color: #667eea;
+    padding-left: clamp(18px, 3vw, 22px);
+}
+
+.dropdown-item-config:first-of-type {
+    border-radius: clamp(10px, 1.5vw, 14px) clamp(10px, 1.5vw, 14px) 0 0;
+}
+
+.dropdown-item-config:last-of-type {
+    border-radius: 0 0 clamp(10px, 1.5vw, 14px) clamp(10px, 1.5vw, 14px);
+}
+
+.dropdown-item-config i {
+    width: clamp(16px, 2vw, 20px);
+    text-align: center;
+    font-size: clamp(14px, 1.8vw, 16px);
+    transition: transform 0.2s ease;
+    color: #000000 !important; /* Agregado !important para forzar el color */
+}
+
+.dropdown-item-config:hover i {
+    transform: scale(1.15);
+    color: #667eea !important; /* Color al hacer hover */
+}
+
+.dropdown-item-config span {
+    flex: 1;
+}
+
+/* Item de peligro */
+.dropdown-item-config.danger {
+    color: #e53e3e;
+}
+
+.dropdown-item-config.danger:hover {
+    background: linear-gradient(90deg, #fff5f5 0%, #fed7d7 100%);
+    color: #c53030;
+}
+
+/* Separador */
+.dropdown-divider-config {
+    margin: clamp(6px, 1vh, 8px) 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Animación de entrada */
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Overlay para cerrar al hacer click fuera (opcional) */
+.dropdown-toggle-config:checked ~ .dropdown-overlay {
+    display: block;
+}
+
+.dropdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    z-index: 999;
+}
+
+/* Efecto de onda al hacer click */
+.dropdown-item-config::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.dropdown-item-config:active::before {
+    width: 100%;
+    height: 100%;
+}
+
+/* === LISTA DE NOTAS === */
+.notas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.lista-notas {
+    list-style-type: disc;
+    padding-left: 20px;
+    color: #333;
+    font-size: 14px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 8px 12px;
+     list-style-type: disc !important;
+    list-style-position: inside !important;
+    display: block !important;  /* fuerza a comportarse como bloque */
+}
+
+.lista-notas li {
+    margin-bottom: 6px;
+}
+
+#notas_edit {
+    width: 100%;
+    height: 200px;
+    resize: none;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* =========LISTA DE MIEMBROS EN MODAL========= */
+.item-miembro-modal {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    background-color: white;
+    border-radius: clamp(10px, 1.5vw, 14px);
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+    overflow: visible; /* Contenido visible */
+    position: relative;
+    padding: clamp(12px, 2vw, 16px) clamp(10px, 1.5vw, 12px);
+    gap: clamp(10px, 2vw, 15px);
+    min-height: fit-content;
+}
+
+.item-miembro-modal:hover {
+    border-color: #9747FF;
+    box-shadow: 0 4px 15px rgba(151, 71, 255, 0.15);
+}
+
+/* Avatar del miembro */
+.item-miembro-modal .avatar-miembro {
+    width: clamp(45px, 8vw, 60px);
+    height: clamp(45px, 8vw, 60px);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(151, 71, 255, 0.3);
+    margin-left: clamp(8px, 1.5vw, 12px);
+}
+
+/* Información del miembro */
+.item-miembro-modal .info-miembro {
+    flex: 1;
+    min-width: 0; /* Importante para que el texto se trunce correctamente */
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1px, 0.4vh, 2px);
+}
+
+.item-miembro-modal .info-miembro h4 {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-miembro-modal .rol-miembro {
+    font-size: clamp(0.8rem, 1.4vw, 0.9rem);
+    color: #666;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-miembro-modal .email-miembro {
+    font-size: clamp(0.75rem, 1.2vw, 0.85rem);
+    color: #999;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Badge de estado */
+.estado-miembro {
+    font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+    font-weight: 600;
+    padding: clamp(4px, 0.8vw, 6px) clamp(10px, 2vw, 14px);
+    border-radius: 20px;
+    text-align: center;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+.estado-miembro.activo {
+    background-color: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+}
+
+.estado-miembro.inactivo {
+    background-color: #F8D7DA;
+    color: #721C24;
+    border: 1px solid #F5C6CB;
+}
+
+/* Acciones del miembro */
+.acciones-miembro {
+    display: flex;
+    width: clamp(140px, 20vw, 190px);
+    gap: clamp(6px, 1.2vw, 10px);
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: clamp(8px, 1.5vw, 12px);
+}
+
+.acciones-miembro i {
+    width: clamp(32px, 4vw, 40px);
+    height: clamp(32px, 4vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: clamp(14px, 1.8vw, 16px);
+    background-color: #f8f9fa;
+    border: 2px solid #e0e0e0;
+}
+
+.acciones-miembro i:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos específicos por tipo de acción */
+.acciones-miembro .fa-edit {
+    color: #667eea;
+}
+
+.acciones-miembro .fa-edit:hover {
+    background-color: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.acciones-miembro .fa-star,
+.acciones-miembro .fa-star-o {
+    color: #FFC107;
+}
+
+.acciones-miembro .fa-star:hover,
+.acciones-miembro .fa-star-o:hover:not(.desactivado) {
+    background-color: #FFC107;
+    color: white;
+    border-color: #FFC107;
+}
+
+.acciones-miembro .fa-toggle-on,
+.acciones-miembro .fa-toggle-off {
+    color: #28a745;
+}
+
+.acciones-miembro .fa-toggle-on:hover:not(.desactivado),
+.acciones-miembro .fa-toggle-off:hover:not(.desactivado) {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.acciones-miembro .fa-eye {
+    color: #17a2b8;
+}
+
+.acciones-miembro .fa-eye:hover:not(.desactivado) {
+    background-color: #17a2b8;
+    color: white;
+    border-color: #17a2b8;
+}
+
+/* Iconos desactivados */
+.acciones-miembro i.desactivado {
+    opacity: 0.4;
+
+}
+
+/* Sin resultados */
+.sin-resultados {
+    margin-top: clamp(10px, 5vh, 20px);
+    text-align: center;
+    padding: clamp(10px, 5vh, 20px);
+    color: #999;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-style: italic;
+    background-color: #f8f9fa;
+    border-radius: clamp(10px, 1.5vw, 14px);
+    border: 2px dashed #dee2e6;
+}
+
+/* Lista de miembros con scroll */
+.lista-miembros-modal {
+    max-height: none; /* Eliminar restricción de altura */
+    overflow-y: visible; /* Sin scroll interno */
+    overflow-x: visible;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 1.5vh, 15px);
+    min-height: fit-content;
+}
+
+.lider-icon {
+    color: #ffc107; /* Color dorado para el líder */
+}
+
+/* Estilos para los iconos de acción */
+.acciones-miembro i {
+    margin: 0 5px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.acciones-miembro i:hover {
+    transform: scale(1.2);
+}
+
+/* Estrella de líder */
+.acciones-miembro .fa-star,
+.acciones-miembro .lider-icon {
+    color: #FFD700;
+}
+
+.acciones-miembro .far.fa-star {
+    color: #ccc;
+}
+
+.acciones-miembro .far.fa-star:hover {
+    color: #ffffff;
+}
+
+/* Toggle de estado */
+.acciones-miembro .fa-toggle-on {
+    color: #4CAF50;
+}
+
+.acciones-miembro .fa-toggle-off {
+    color: #999;
+}
+
+.acciones-miembro .desactivado {
+    opacity: 0.5;
+    color: #999;
+}
+
+/* Icono de ojo */
+.acciones-miembro .fa-eye {
+    color: #2196F3;
+}
+
+.acciones-miembro .fa-eye:hover {
+    color: #1976D2;
+}
+
+/* Estados del miembro */
+.estado-miembro {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.estado-miembro.activo {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+}
+
+.estado-miembro.inactivo {
+    background-color: #FFEBEE;
+    color: #C62828;
+}
+
+/* Animación para cambios de estado */
+@keyframes pulseSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.item-miembro-modal.actualizado {
+    animation: pulseSuccess 0.5s ease;
+}
+
+/* ====== MODAL DE CONFIRMACIÓN ====== */
+.modalConfirmar_miembro {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modalConfirmar_miembro.activo {
+  display: flex;
+}
+
+.modalContenido_miembro {
+    background: #ffffff;
+    padding: clamp(1rem, 2vw, 2rem);
+    border-radius: clamp(10px, 2vw, 16px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: clamp(280px, 60vw, 400px);
+    width: 90%;
+    animation: aparecerMiembro 0.25s ease-out;
+}
+
+@keyframes aparecerMiembro {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modalBotones_miembro {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+}
+
+.btnAceptar_miembro, .btnCancelar_miembro {
+  border: none;
+  border-radius: clamp(20px, 2vw, 25px);
+  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1.2rem, 3vw, 2rem);
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btnAceptar_miembro {
+  background: #38a90091;
+  color: #007832;
+  border: 2px solid #007832;
+}
+
+.btnAceptar_miembro:hover {
+  background: #39A900;
+  color: #ffffff;
+}
+
+.btnCancelar_miembro {
+  background: var(--color-fondo-secundario);
+  color: #181818;
+}
+
+.btnCancelar_miembro:hover {
+  background: #42424294;
+  color: #ffffff;
+}
+
+/* Cursor not-allowed para estrellas desactivadas */
+i.far.fa-star.desactivado,
+i.fa-star.desactivado,
+i.far.fa-star[aria-disabled="true"],
+i.fa-star[aria-disabled="true"] {
+    cursor: not-allowed !important;
+    opacity: 0.4;
+    transform: none !important;
+    pointer-events: auto !important;
+    box-shadow: none !important;
+}
+
+/* Asegurar que las estrellas activas tengan pointer */
+i.far.fa-star:not(.desactivado):not(.lider-icon),
+i.fa-star:not(.desactivado):not(.lider-icon) {
+    cursor: pointer !important;
+}
+/* Desactivar hover para estrellas desactivadas */
+i.far.fa-star.desactivado:hover,
+i.fa-star.desactivado:hover,
+i.far.fa-star[aria-disabled="true"]:hover,
+i.fa-star[aria-disabled="true"]:hover {
+    cursor: not-allowed !important;
+    opacity: 0.4 !important;
+    transform: none !important;
+    color: #99999977 !important;
+    transform: none !important;
+    cursor: not-allowed !important;
+    background-color: transparent !important;
+    background: none !important;
+    border-color: #99999977 !important;
+    border-color: #99999977 !important;
+    box-shadow: none !important;
+}
+
+/* Toggle desactivado para líderes */
+.toggle-desactivado {
+    cursor: not-allowed !important;
+    opacity: 0.4 !important;
+    pointer-events: auto !important;
+    color: #999 !important;
+}
+
+.toggle-desactivado:hover {
+    cursor: not-allowed !important;
+    opacity: 0.4 !important;
+    transform: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    color: #99999977 !important;
+    border-color: #99999977 !important;
+}
+
+/* Asegurar que los toggles activos tengan pointer */
+.acciones-miembro i.fa-toggle-on:not(.toggle-desactivado),
+.acciones-miembro i.fa-toggle-off:not(.toggle-desactivado) {
+    cursor: pointer !important;
+}
+
+/* Estrella llena para líder de proyecto */
+.acciones-miembro i.fa-star.lider-icon {
+    color: #FFD700 !important;
+}
+
+.acciones-miembro i.fa-star.lider-icon:hover {
+    color: #fff5f5 !important;
+}
+/* Animaciones para mensajes toast */
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.botones-item {
+    grid-column: 1 / -1; /* Ocupa todas las columnas del grid */
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.filtrar i, .limpiar i{
+    padding: 0 clamp(6px, 1vw, 10px);
+    transition: opacity 0.3s ease;
+}
+
+.filtrar:hover i, .limpiar:hover i{
+    transform: rotate(10deg);
+}
+
+.botones-item .limpiar {
+    text-decoration: none;
+    width: fit-content;
+    text-align: right;
+    padding: clamp(6px, 1vw, 10px) clamp(12px, 2vw, 18px);
+    background-color:#b6b5b573;
+    color: #000000;
+    border: 2px solid #8F8C8C;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: clamp(0.80rem, 1vw, 0.90rem);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    transition: opacity 0.3s ease;
+}
+
+.botones-item .limpiar:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    background-color: #757575bb;
+    color: var(--color-sidebar-bg);
+}
+
+/* Estilos para el equipo asignado visual */
+.equipo-asignado-actual {
+    background: #f7fafc;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.miembros-asignados-visual {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.miembro-asignado-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 2px solid #48bb78;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.miembro-asignado-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(72, 187, 120, 0.2);
+}
+
+.miembro-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.miembro-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.miembro-nombre-badge {
+    font-weight: 600;
+    font-size: 14px;
+    color: #2d3748;
+    line-height: 1.2;
+}
+
+.miembro-rol-badge {
+    font-size: 12px;
+    color: #718096;
+    line-height: 1.2;
+}
+
+/* ==== MIEMBROS INACTIVOS EN MODAL EDITAR ==== */
+.miembro-asignado-badge.miembro-inactivo {
+    opacity: 0.45;
+    filter: grayscale(40%);
+}
+
+/* Si manejas avatares fuera de .miembro-asignado-badge */
+.avatar-item.avatar-inactivo {
+    opacity: 0.45;
+    filter: grayscale(40%);
+}
+
+/* Separador estético */
+.separador {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* ===== ENTREGABLES DESPLEGABLES (FINAL ORGANIZADO Y RESPONSIVO) ===== */
+
+/* === Estructura general === */
+.entregable-item {
+    display: block;
+    width: 100%;
+    background-color: transparent;
+    border-color: transparent;
+    margin-top: clamp(-16px, 1vh, -20px);
+}
+
+/* Checkbox oculto */
+.entregable-toggle {
+    display: none;
+}
+
+/* === Encabezado clickeable === */
+.entregables-tab-content label.entregable-mini {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;   
+    background: #f7fafc;
+    border-radius: clamp(8px, 1vw, 10px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    color: inherit;
+    border: 2px solid transparent;
+    text-decoration: none;
+}
+
+.entregables-tab-content label.entregable-mini:hover {
+    background: #edf2f7;
+    transform: translateX(5px);
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+/* === Icono Chevron === */
+.entregable-chevron {
+    color: #cbd5e0;
+    font-size: clamp(12px, 1.5vw, 14px);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Rotar chevron y resaltar header al abrir */
+.entregable-toggle:checked + label.entregable-mini {
+    background: #edf2f7;
+    border-color: #667eea;
+}
+
+.entregable-toggle:checked + label.entregable-mini .entregable-chevron {
+    transform: rotate(180deg);
+    color: #667eea;
+}
+
+/* === Contenedor de detalles desplegables === */
+.entregable-detalles-desplegable {
+    display: none;
+    background: #f9fafb;
+    border: 2px solid #e2e8f0;
+    border-top: none;
+    border-radius: 0 0 clamp(10px, 1vw, 12px) clamp(10px, 1vw, 12px);
+    overflow: hidden;
+    padding: 0;
+}
+
+/* Mostrar detalles cuando el checkbox está marcado */
+.entregable-toggle:checked + label.entregable-mini + .entregable-detalles-desplegable {
+    display: block;
+    animation: desplegarEntregable 0.3s ease forwards;
+}
+
+/* === Contenedor de detalles desplegables === */
+.entregable-detalles-desplegable {
+    display: none;
+    background: #f9fafb;
+    border: 2px solid #e2e8f0;
+    border-top: none;
+    border-radius: 0 0 clamp(10px, 1vw, 12px) clamp(10px, 1vw, 12px);
+    overflow: hidden;
+    padding: 0;
+}
+
+/* Mostrar detalles cuando el checkbox está marcado */
+.entregable-toggle:checked + label.entregable-mini + .entregable-detalles-desplegable {
+    display: block;
+    animation: desplegarEntregable 0.3s ease forwards;
+}
+
+/* === Contenido interno de detalles === */
+.entregable-detalles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "descripcion descripcion"
+        "fecha1 fecha2";
+    padding: 0 clamp(10px, 1.5vw, 15px); 
+}
+
+/* Asignar áreas del grid */
+.entregable-detalle-columna.descripcion {
+    grid-area: descripcion;
+    margin-top: clamp(-6px, -1.5vh, -8px);
+}
+
+.entregable-detalle-columna.fecha:nth-of-type(2) {
+    grid-area: fecha1;
+}
+
+.entregable-detalle-columna.fecha:nth-of-type(3) {
+    grid-area: fecha2;
+}
+
+/* Ajustes visuales */
+.entregable-detalle-columna p,
+.entregable-documentos p {
+    font-size: clamp(12px, 1.4vw, 14px);
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+.entregable-detalle-columna strong {
+    color: #2d3748;
+    font-weight: 600;
+    display: block;
+}
+
+.entregable-documentos strong {
+    color: #2d3748;
+    font-weight: 620;
+}
+
+/* === Animación de despliegue === */
+@keyframes desplegarEntregable {
+    from {
+        opacity: 0;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 400px;
+        padding-top: clamp(15px, 2.5vw, 20px);
+        padding-bottom: clamp(15px, 2.5vw, 20px);
+    }
+}
+
+/* ====== ENTREGABLE MINI ====== */
+.entregable-mini {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(10px, 1.8vw, 15px);
+    padding: clamp(10px, 1.5vw, 14px);
+    background: #f7fafc;
+    border-radius: clamp(8px, 1vw, 10px);
+    border: 2px solid transparent;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.entregable-mini:hover {
+    background: #edf2f7;
+    transform: translateX(clamp(3px, 0.8vw, 5px));
+    border-color: #667eea;
+    box-shadow: 0 clamp(2px, 0.8vw, 4px) clamp(8px, 1vw, 12px) rgba(102, 126, 234, 0.15);
+}
+
+/* === Número del entregable === */
+.mini-number {
+    width: clamp(30px, 3.5vw, 36px);
+    height: clamp(30px, 3.5vw, 36px);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: clamp(6px, 0.8vw, 8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: clamp(13px, 1.6vw, 15px);
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+}
+
+/* === Información del entregable === */
+.mini-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.mini-info h6 {
+    font-size: clamp(13px, 1.6vw, 15px);
+    color: #2d3748;
+    margin: 0 0 clamp(2px, 0.5vh, 4px);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-info span {
+    display: flex;
+    align-items: center;
+    gap: clamp(3px, 0.6vw, 6px);
+    font-size: clamp(11px, 1.4vw, 13px);
+    color: #718096;
+}
+
+.mini-info span i {
+    font-size: clamp(10px, 1.2vw, 12px);
+}
+
+.mini-info span .fa-check-circle {
+    color: #38a169;
+}
+
+.mini-info span .fa-clock {
+    color: #ed8936;
+}
+
+/* === Chevron / Ícono de despliegue === */
+.entregable-mini .fa-chevron-down,
+.entregable-mini .fa-chevron-right {
+    color: #cbd5e0;
+    font-size: clamp(12px, 1.5vw, 14px);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Rotación cuando está abierto */
+.entregable-toggle:checked + label.entregable-mini .fa-chevron-down {
+    transform: rotate(180deg);
+    color: #667eea;
+}
+
+/* === Sección “Sin documentos” === */
+.sin-documentos {
+    text-align: center;
+    color: #a0aec0;
+    font-size: clamp(12px, 1.4vw, 13px);
+    background: transparent;
+    border-radius: clamp(6px, 0.8vw, 8px);
+}
+
+.icono-placeholder {
+    display: block;
+    font-size: clamp(30px, 4vw, 40px);
+    margin-bottom: clamp(6px, 1vh, 10px);
+    color: #cbd5e0;
+}
+
+.entregable-documentos {
+    padding: clamp(6px, 2vw, 8px);
+    margin-top: clamp(-10px, 2.5vh, -15px)
+}
+
+/* === Contenedor de botones === */
+.botones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2px, 2vw, 4px);
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: clamp(-10px, 2.5vh, -15px)
+}
+
+/* === Botón base (aplicado a ambos) === */
+.btn-subir,
+.badges-documentos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(4px, 1vw, 8px);
+    width: 100%;
+    font-size: clamp(12px, 1.4vw, 13px);
+    padding: clamp(6px, 1vw, 8px);
+    border-radius: clamp(8px, 1vw, 10px);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: #edf2f7;
+}
+
+/* Botón de subir a pantalla completa cuando no hay archivos */
+.full-width {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: clamp(-10px, 2vh, -14px);
+}
+
+/* === Botón “Subir documento” === */
+.btn-subir {
+    border: 2px solid #667eea;
+    color: #667eea;
+}
+
+.btn-subir:hover {
+    background: #667eea;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+/* === Botón “Ver archivos” === */
+.badges-documentos {
+    border: 2px solid #48bb78;
+    color: #48bb78;
+}
+
+.badges-documentos:hover {
+    background: #48bb78;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2);
+}
+
+/* ====== Estado: Sin entregables ====== */
+.sin-entregables {
+    width: 100%;
+    height: 100%;
+    background: #f7fafc; /* fondo claro */
+    border: 2px dashed #cbd5e0; /* borde gris claro con estilo “vacío” */
+    color: #718096; /* texto gris suave */
+    padding: clamp(16px, 3vw, 24px);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 1vw, 10px);
+    text-align: center;
+
+}
+
+/* Ícono */
+.sin-entregables i {
+    font-size: clamp(28px, 3vw, 36px);
+    color: #a0aec0; /* gris medio */
+}
+
+/* Texto */
+.sin-entregables p {
+    font-size: clamp(13px, 1.4vw, 15px);
+    margin: 0;
+}
+
+/* === Modal === */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999!important;
+}
+
+.modal:target {
+    display: flex;
+}
+
+.modal.activo {
+    display: flex;
+}
+
+/* === Contenido del modal === */
+.modal-cont {
+    position: relative;
+    z-index: 1000!important;
+    background: #fff;
+    padding: clamp(1rem, 3vw, 2rem);
+    border-radius: clamp(10px, 1vw, 14px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    max-width: clamp(280px, 60vw, 400px);
+    width: 90%;
+    text-align: center;
+    animation: aparecer 0.3s ease-out;
+    max-height: clamp(60vh, 70vh, 80vh);
+    overflow-y: auto;
+}
+
+.modal:target {
+    display: flex;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.25s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* === Inputs y botones dentro del modal === */
+.modal input[type="file"] {
+    width: 100%;
+    margin-top: clamp(10px, 1.5vh, 15px);
+    font-size: clamp(12px, 1.2vw, 14px);
+}
+
+.modal-botones {
+    margin-top: clamp(15px, 2vh, 20px);
+    display: flex;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 15px);
+}
+
+.btn-confirmar {
+    background: #667eea;
+    color: #fff;
+    border: none;
+    border-radius: clamp(6px, 1vw, 8px);
+    padding: clamp(6px, 1vw, 10px) clamp(14px, 2vw, 18px);
+    cursor: pointer;
+    font-size: clamp(12px, 1.2vw, 14px);
+    transition: background 0.3s ease;
+}
+
+.btn-confirmar:hover {
+    background: #5a67d8;
+}
+
+.btn-cancelar {
+    background: #edf2f7;
+    color: #4a5568;
+    border-radius: clamp(6px, 1vw, 8px);
+    padding: clamp(6px, 1vw, 10px) clamp(14px, 2vw, 18px);
+    text-decoration: none;
+    font-size: clamp(12px, 1.2vw, 14px);
+    transition: background 0.3s ease;
+}
+
+.btn-cancelar:hover {
+    background: #e2e8f0;
+}
+
+/* === Modal de Ver Archivos === */
+.lista-archivos {
+    list-style: none;
+    padding: 0;
+    margin-top: clamp(10px, 2vh, 15px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.5vh, 12px);
+}
+
+/* Cada archivo listado */
+.lista-archivos li {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: clamp(6px, 1vw, 10px);
+    padding: clamp(8px, 1.2vw, 12px) clamp(10px, 2vw, 14px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(6px, 1vw, 10px);
+    font-size: clamp(12px, 1.3vw, 14px);
+}
+
+/* Nombre del archivo */
+.nombre-archivo {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #2d3748;
+}
+
+/* Botones dentro del modal */
+.btn-ver,
+.btn-descargar {
+    text-decoration: none;
+    font-size: clamp(11px, 1.2vw, 13px);
+    padding: clamp(5px, 0.8vw, 8px) clamp(10px, 1.6vw, 14px);
+    border-radius: clamp(5px, 1vw, 8px);
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(3px, 0.6vw, 5px);
+    transition: all 0.3s ease;
+}
+
+/* Botón Ver */
+.btn-ver {
+    background: #ebf8ff;
+    color: #3182ce;
+    border: 1px solid #90cdf4;
+}
+.btn-ver:hover {
+    background: #3182ce;
+    color: #fff;
+}
+
+/* Botón Descargar */
+.btn-descargar {
+    background: #f0fff4;
+    color: #38a169;
+    border: 1px solid #9ae6b4;
+}
+.btn-descargar:hover {
+    background: #38a169;
+    color: #fff;
+}
+
+/* Scrollbar personalizada */
+.modal-cont::-webkit-scrollbar {
+    width: clamp(4px, 0.5vw, 6px);
+}
+.modal-cont::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: clamp(4px, 1vw, 8px);
+}
+
+/* Menú configuraciones activo */
+.menu-config.activo {
+    display: block;
+}
+
+/* ======= ICONO LÍDER DE SEMILLERO (SIN INTERACTIVIDAD) ======= */
+.lider-sem-icon {
+    color: #E9C46A;
+    font-size: clamp(18px, 1.8vw, 22px);
+    margin-right: clamp(4px, 0.5vw, 8px);
+}
+
+.lider-sem-icon:hover {
+    opacity: 0.55 !important;
+    transform: none !important;
+    cursor: not-allowed;
+}

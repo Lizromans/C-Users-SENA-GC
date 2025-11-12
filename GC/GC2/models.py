@@ -26,7 +26,8 @@ class Usuario(models.Model):
     email_verificado = models.BooleanField(default=False)
     last_login = models.DateTimeField(null=True, blank=True)
     imagen_perfil = models.ImageField(upload_to='fotos_perfil/', null=True, blank=True)
-
+    rol_original = models.CharField(max_length=250, null=True, blank=True)
+    
     grupos = models.ManyToManyField(
     Group,
     through='UsuarioGrupos', 
@@ -192,6 +193,7 @@ class Proyecto(models.Model):
     linea_sem = models.CharField(max_length=250)
     estado_pro = models.CharField(max_length=50)
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
+    notas = models.TextField()
 
     class Meta:
         managed = False
@@ -215,13 +217,26 @@ class Entregable(models.Model):
     fecha_fin = models.CharField(max_length=250)
     desc_entre = models.CharField(max_length=250)
     estado = models.CharField(max_length=45)
-    archivo = models.CharField(max_length=250)
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE,db_column='cod_pro')
 
     class Meta:
         managed = False
         db_table = 'entregable'
 
+class Archivo(models.Model):
+    entregable = models.ForeignKey(
+        Entregable,
+        related_name='archivos',
+        on_delete=models.CASCADE,
+        db_column='cod_entre'
+    )
+    archivo = models.FileField(upload_to='entregables/%Y/%m/%d/')
+    nombre = models.CharField(max_length=255, blank=True, null=True)
+    fecha_subida = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'archivo'
+        managed = True
 
 class Evento(models.Model):
     cod_eve = models.IntegerField(primary_key=True)
@@ -234,7 +249,6 @@ class Evento(models.Model):
     class Meta:
         managed = False
         db_table = 'evento'
-
 
 # Tablas intermedias (relaciones ManyToMany)
 class SemilleroDocumento(models.Model):
@@ -294,7 +308,8 @@ class UsuarioProyecto(models.Model):
     usupro_id = models.AutoField(primary_key=True)
     cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
-    es_lider = models.BooleanField(default=False)
+    es_lider_pro = models.BooleanField(default=False)
+    estado = models.CharField(max_length=10, default="activo")
 
     class Meta:
         managed = False
@@ -305,8 +320,10 @@ class ProyectoAprendiz(models.Model):
     proapre_id = models.AutoField(primary_key=True)
     cedula_apre = models.ForeignKey(Aprendiz, on_delete=models.CASCADE, db_column='cedula_apre')
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
+    estado = models.CharField(max_length=10, default="activo")  
 
     class Meta:
         managed = False
         db_table = 'proyecto_aprendiz'
         unique_together = ('cedula_apre', 'cod_pro')  # evita duplicados
+

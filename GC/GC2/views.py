@@ -1,9 +1,10 @@
+from urllib import request
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm
-from .models import Documento, Usuario, Semillero,SemilleroUsuario, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento
+from .models import Documento, Usuario, Semillero,SemilleroUsuario, Archivo, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento
 from django.utils import timezone 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
@@ -22,6 +23,9 @@ from django.http import Http404
 from django.db.models import Q
 from datetime import datetime
 from django.db.models import Case, When, Value, IntegerField
+from django.http import JsonResponse
+from django.core.files.storage import FileSystemStorage
+import os
 
 
 # Create your views here.
@@ -592,22 +596,22 @@ def resu_miembros(request, id_sem):
 
     total_miembros = usuarios.count() + aprendices.count()
 
-    # Obtener miembros con el campo es_lider ya incluido
+    # Ordenar miembros: primero el líder de semillero, luego líderes de proyecto, luego los demás
     miembros = SemilleroUsuario.objects.filter(
         id_sem=semillero
-    ).select_related('cedula')
+    ).select_related('cedula').order_by('-es_lider', 'cedula__nom_usu')
 
     # Obtener proyectos del semillero
     proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
     codigos_proyectos = proyectos.values_list('cod_pro', flat=True)
 
-    # Solo considerando proyectos del semillero actual
+    # CRÍTICO: Agregar verificación de liderazgo de proyecto a TODOS los miembros
     for miembro in miembros:
         # Verificar si este usuario es líder de algún proyecto del semillero
         miembro.es_lider_proyecto = UsuarioProyecto.objects.filter(
             cedula=miembro.cedula,
-            cod_pro__in=codigos_proyectos,  # Solo proyectos de este semillero
-            es_lider=True
+            cod_pro__in=codigos_proyectos,
+            es_lider_pro=True
         ).exists()
         
         # Obtener nombres de los proyectos que lidera (para mostrar tooltip)
@@ -615,13 +619,39 @@ def resu_miembros(request, id_sem):
             proyectos_liderados = UsuarioProyecto.objects.filter(
                 cedula=miembro.cedula,
                 cod_pro__in=codigos_proyectos,
-                es_lider=True
+                es_lider_pro=True
             ).select_related('cod_pro').values_list('cod_pro__nom_pro', flat=True)
             miembro.proyectos_liderados = list(proyectos_liderados)
 
+    # 🎯 NUEVO: Crear lista de instructores filtrada Y con la misma lógica de liderazgo
+    instructores = SemilleroUsuario.objects.filter(
+        id_sem=semillero
+    ).filter(
+        Q(cedula__rol__icontains='instructor') |
+        Q(cedula__rol__icontains='investigador') |
+        Q(cedula__rol__icontains='líder') |
+        Q(cedula__rol__icontains='lider')
+    ).select_related('cedula').order_by('-es_lider', 'cedula__nom_usu')
+
+    # CRÍTICO: Agregar la misma verificación a la lista de instructores
+    for instructor in instructores:
+        instructor.es_lider_proyecto = UsuarioProyecto.objects.filter(
+            cedula=instructor.cedula,
+            cod_pro__in=codigos_proyectos,
+            es_lider_pro=True
+        ).exists()
+        
+        if instructor.es_lider_proyecto:
+            proyectos_liderados = UsuarioProyecto.objects.filter(
+                cedula=instructor.cedula,
+                cod_pro__in=codigos_proyectos,
+                es_lider_pro=True
+            ).select_related('cod_pro').values_list('cod_pro__nom_pro', flat=True)
+            instructor.proyectos_liderados = list(proyectos_liderados)
+
     # Verificar si hay instructores
     tiene_instructores = any(
-        m.cedula.rol.lower() in ['instructor', 'investigador'] 
+        m.cedula.rol.lower() in ['instructor', 'investigador', 'líder', 'lider'] 
         for m in miembros
     )
 
@@ -644,7 +674,8 @@ def resu_miembros(request, id_sem):
         'proyectos': proyectos,
         'tiene_instructores': tiene_instructores,
         'total_proyectos': total_proyectos,
-        'total_entregables': total_entregables
+        'total_entregables': total_entregables,
+        'instructores': instructores,  
     }
 
     return render(request, 'paginas/resu-miembros.html', context)
@@ -710,7 +741,7 @@ def asignar_lider_semillero(request, id_sem):
             usuario_anterior = relacion_lider_anterior.cedula
             
             # Cambiar rol del antiguo líder a "Miembro" o "Instructor"
-            if usuario_anterior.rol == 'Líder':
+            if usuario_anterior.rol == 'Líder de Semillero':
                 usuario_anterior.rol = 'Instructor'  # o 'Miembro', según tu necesidad
                 usuario_anterior.save()
             
@@ -728,7 +759,7 @@ def asignar_lider_semillero(request, id_sem):
 
         # Paso 3: Cambiar el rol del nuevo líder en la tabla Usuario
         nuevo_usuario_lider = nueva_relacion_lider.cedula
-        nuevo_usuario_lider.rol = 'Líder'
+        nuevo_usuario_lider.rol = 'Líder de Semillero'
         nuevo_usuario_lider.save()
 
         messages.success(
@@ -737,7 +768,6 @@ def asignar_lider_semillero(request, id_sem):
         )
         return redirect("resu-miembros", semillero.id_sem)
     
-def asignar_lider_proyecto(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
     if request.method == "POST":
@@ -775,7 +805,7 @@ def asignar_lider_proyecto(request, id_sem):
                     usuario_anterior.save()
                 
                 # Quitar liderazgo
-                relacion_anterior.es_lider = False
+                relacion_anterior.es_lider_pro = False
                 relacion_anterior.save()
                 
             except UsuarioProyecto.DoesNotExist:
@@ -789,7 +819,7 @@ def asignar_lider_proyecto(request, id_sem):
                     cod_pro=proyecto
                 )
                 # Si existe, actualizar el liderazgo
-                relacion.es_lider = True
+                relacion.es_lider_pro = True
                 relacion.save()
                 creada = False
             except UsuarioProyecto.DoesNotExist:
@@ -826,13 +856,185 @@ def asignar_lider_proyecto(request, id_sem):
 
     # Si es GET, redirigir a resu-miembros (el modal se abre desde allí)
     return redirect("resu-miembros", id_sem=id_sem)
+
 def resu_proyectos(request, id_sem, cod_pro=None):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
-    
-    # 🔹 Obtener todos los proyectos asociados al semillero
-    proyectos = semillero.proyectos.all()
 
-    # Si hay un proyecto seleccionado
+    proyecto_editar = None
+    mostrar_modal_editar = False
+    mostrar_modal_gestionar = False
+    lineas_tec_lista = []
+    lineas_inv_lista = []
+    lineas_sem_lista = []
+    miembros_proyecto_actual = []
+
+    mostrar_gestionar = request.GET.get('gestionar_equipo')
+
+    # GUARDAR CAMBIOS DEL PROYECTO
+    if request.method == 'POST' and cod_pro:
+        proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
+
+        try:
+            proyecto_editar.nom_pro = request.POST.get('nom_pro', '').strip()
+            proyecto_editar.tipo = request.POST.get('tipo', '').strip().lower()
+            proyecto_editar.desc_pro = request.POST.get('desc_pro', '').strip()
+
+            lineas_tec = request.POST.getlist('lineastec[]')
+            lineas_inv = request.POST.getlist('lineasinv[]')
+            lineas_sem = request.POST.getlist('lineassem[]')
+
+            proyecto_editar.linea_tec = "\n".join(lineas_tec)
+            proyecto_editar.linea_inv = "\n".join(lineas_inv)
+            proyecto_editar.linea_sem = "\n".join(lineas_sem)
+
+            nueva_nota = request.POST.get('notas', '').strip()
+            if nueva_nota:
+                if proyecto_editar.notas:
+                    proyecto_editar.notas += f"\n{nueva_nota}"
+                else:
+                    proyecto_editar.notas = nueva_nota
+
+            proyecto_editar.save()
+
+            miembros_seleccionados = request.POST.getlist('miembros_proyecto[]')
+
+            for cedula in miembros_seleccionados:
+
+                # Primero verificar si es usuario
+                usuario = Usuario.objects.filter(cedula=cedula).first()
+                if usuario:
+                    ya_existe = UsuarioProyecto.objects.filter(
+                        cedula=usuario, 
+                        cod_pro=proyecto_editar
+                    ).exists()
+                    if not ya_existe:
+                        UsuarioProyecto.objects.create(
+                            cedula=usuario, 
+                            cod_pro=proyecto_editar, 
+                            estado="activo"
+                        )
+                    continue
+                
+                # Sino, intentar como aprendiz
+                aprendiz = Aprendiz.objects.filter(cedula_apre=cedula).first()
+                if aprendiz:
+                    ya_existe = ProyectoAprendiz.objects.filter(
+                        cedula_apre=aprendiz, 
+                        cod_pro=proyecto_editar
+                    ).exists()
+                    if not ya_existe:
+                        ProyectoAprendiz.objects.create(
+                            cedula_apre=aprendiz, 
+                            cod_pro=proyecto_editar, 
+                            estado="activo"
+                        )
+
+            messages.success(request, f'Proyecto "{proyecto_editar.nom_pro}" actualizado correctamente.')
+            return redirect('resu-proyectos', id_sem=id_sem)
+
+        except Exception as e:
+            messages.error(request, f'Error al actualizar proyecto: {str(e)}')
+            return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
+
+    # MODAL GESTIONAR EQUIPO
+    if mostrar_gestionar and cod_pro and request.method == 'GET':
+        proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
+        mostrar_modal_gestionar = True
+
+        usuarios_proyecto = UsuarioProyecto.objects.filter(cod_pro=proyecto_editar).select_related('cedula')
+        aprendices_proyecto = ProyectoAprendiz.objects.filter(cod_pro=proyecto_editar).select_related('cedula_apre')
+
+        miembros_equipo = []
+
+        for up in usuarios_proyecto:
+            # Traer si este usuario es líder de semillero
+            su = SemilleroUsuario.objects.filter(cedula=up.cedula, id_sem=semillero).first()
+            es_lider_sem = su.es_lider if su else False
+
+            miembros_equipo.append({
+                'cedula': up.cedula.cedula,
+                'nombre_completo': f"{up.cedula.nom_usu} {up.cedula.ape_usu}",
+                'nom_usu': up.cedula.nom_usu,
+                'ape_usu': up.cedula.ape_usu,
+                'email': up.cedula.correo_ins if up.cedula.correo_ins else up.cedula.correo_per,
+                'iniciales': up.cedula.get_iniciales,
+                'tipo': 'Usuario',
+                'rol': up.cedula.rol,
+                'estado': up.estado,
+                'es_lider': up.es_lider_pro,
+                'es_lider_sem': es_lider_sem
+            })
+
+        for ap in aprendices_proyecto:
+            miembros_equipo.append({
+                'cedula': ap.cedula_apre.cedula_apre,
+                'nombre_completo': f"{ap.cedula_apre.nombre} {ap.cedula_apre.apellido}",
+                'nom_usu': ap.cedula_apre.nombre,
+                'ape_usu': ap.cedula_apre.apellido,
+                'email': ap.cedula_apre.correo_ins if hasattr(ap.cedula_apre, 'correo_ins') and ap.cedula_apre.correo_ins else (ap.cedula_apre.correo_per if hasattr(ap.cedula_apre, 'correo_per') else ''),
+                'iniciales': ap.cedula_apre.get_iniciales,
+                'tipo': 'Aprendiz',
+                'rol': 'Aprendiz',
+                'estado': ap.estado,
+                'es_lider': False,
+            })
+
+        # FILTROS
+        busqueda = request.GET.get('busqueda_usuario', '').strip().lower()
+        filtro_rol = request.GET.get('filtro_rol', '').strip().lower()
+        filtro_estado = request.GET.get('filtro_estado', '').strip().lower()
+
+        if busqueda:
+            miembros_equipo = [
+                m for m in miembros_equipo
+                if busqueda in m['nombre_completo'].lower() or busqueda in m['email'].lower()
+            ]
+
+        if filtro_rol:
+            if filtro_rol == 'es_lider':
+                miembros_equipo = [m for m in miembros_equipo if m.get('es_lider', False)]
+            else:
+                miembros_equipo = [m for m in miembros_equipo if m['rol'].lower() == filtro_rol]
+
+        if filtro_estado:
+            miembros_equipo = [m for m in miembros_equipo if m['estado'].lower() == filtro_estado]
+
+        miembros_proyecto_actual = miembros_equipo
+
+    # MODAL EDITAR
+    elif cod_pro and request.method == 'GET' and not mostrar_gestionar:
+        proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
+        mostrar_modal_editar = True
+
+        lineas_tec_lista = [l.strip() for l in proyecto_editar.linea_tec.split('\n') if l.strip()] if proyecto_editar.linea_tec else []
+        lineas_inv_lista = [l.strip() for l in proyecto_editar.linea_inv.split('\n') if l.strip()] if proyecto_editar.linea_inv else []
+        lineas_sem_lista = [l.strip() for l in proyecto_editar.linea_sem.split('\n') if l.strip()] if proyecto_editar.linea_sem else []
+
+        usuarios_proyecto = UsuarioProyecto.objects.filter(cod_pro=proyecto_editar).select_related('cedula')
+        aprendices_proyecto = ProyectoAprendiz.objects.filter(cod_pro=proyecto_editar).select_related('cedula_apre')
+
+        for up in usuarios_proyecto:
+            miembros_proyecto_actual.append({
+                'cedula': up.cedula.cedula,
+                'nombre_completo': f"{up.cedula.nom_usu} {up.cedula.ape_usu}",
+                'iniciales': up.cedula.get_iniciales,
+                'tipo': 'Usuario',
+                'rol': up.cedula.rol,
+                'estado': up.estado
+            })
+
+        for ap in aprendices_proyecto:
+            miembros_proyecto_actual.append({
+                'cedula': ap.cedula_apre.cedula_apre,
+                'nombre_completo': f"{ap.cedula_apre.nombre} {ap.cedula_apre.apellido}",
+                'iniciales': ap.cedula_apre.get_iniciales,
+                'tipo': 'Aprendiz',
+                'rol': 'Aprendiz',
+                'estado': ap.estado
+            })
+
+    proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
+
     tipo_seleccionado = None
     if cod_pro:
         proyectos = proyectos.order_by(
@@ -843,97 +1045,76 @@ def resu_proyectos(request, id_sem, cod_pro=None):
             )
         )
 
-        # Obtenemos el tipo del proyecto seleccionado (para el scroll)
         proyecto_sel = proyectos.filter(cod_pro=cod_pro).first()
         if proyecto_sel:
             tipo_seleccionado = proyecto_sel.tipo.lower()
 
-    # Filtrar por tipo
     proyectos_sennova = list(proyectos.filter(tipo__iexact="sennova"))
     proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
-    proyectos_formativos = list(proyectos.filter(tipo__iexact="Formativo"))
+    proyectos_formativos = list(proyectos.filter(tipo__iexact="formativo"))
 
-    # 🔄 Procesar cada proyecto para obtener líneas y miembros
     for proyecto in proyectos_sennova + proyectos_capacidad + proyectos_formativos:
-        # Líneas tecnológicas, investigación y semillero
-        proyecto.lineas_tec_lista = [l.strip() for l in proyecto.linea_tec.split('\n') if l.strip()] if proyecto.linea_tec else []
-        proyecto.lineas_inv_lista = [l.strip() for l in proyecto.linea_inv.split('\n') if l.strip()] if proyecto.linea_inv else []
-        proyecto.lineas_sem_lista = [l.strip() for l in proyecto.linea_sem.split('\n') if l.strip()] if proyecto.linea_sem else []
-        
-        # 🧑‍💻 OBTENER MIEMBROS DEL PROYECTO
-        usuarios_proyecto = UsuarioProyecto.objects.filter(
-            cod_pro=proyecto
-        ).select_related('cedula')
-        
-        aprendices_proyecto = ProyectoAprendiz.objects.filter(
-            cod_pro=proyecto
-        ).select_related('cedula_apre')
-        
+        usuarios_proyecto = UsuarioProyecto.objects.filter(cod_pro=proyecto).select_related('cedula')
+        aprendices_proyecto = ProyectoAprendiz.objects.filter(cod_pro=proyecto).select_related('cedula_apre')
+
         miembros_lista = []
-        
-        # Agregar usuarios
+
         for up in usuarios_proyecto:
             miembros_lista.append({
                 'cedula': up.cedula.cedula,
                 'nombre_completo': f"{up.cedula.nom_usu} {up.cedula.ape_usu}",
                 'iniciales': up.cedula.get_iniciales,
                 'tipo': 'Usuario',
-                'rol': up.cedula.rol
+                'rol': up.cedula.rol,
+                'estado': up.estado
             })
-        
-        # Agregar aprendices
+
         for ap in aprendices_proyecto:
             miembros_lista.append({
                 'cedula': ap.cedula_apre.cedula_apre,
                 'nombre_completo': f"{ap.cedula_apre.nombre} {ap.cedula_apre.apellido}",
                 'iniciales': ap.cedula_apre.get_iniciales,
                 'tipo': 'Aprendiz',
-                'rol': 'Aprendiz'
+                'rol': 'Aprendiz',
+                'estado': ap.estado
             })
-        
+
         proyecto.miembros_lista = miembros_lista
-    
-    # 📊 Estadísticas generales del semillero
+        proyecto.miembros_activos = [m for m in miembros_lista if m['estado'] == 'activo']
+        
+        proyecto.lineas_tec_lista = [l.strip() for l in proyecto.linea_tec.split('\n') if l.strip()] if proyecto.linea_tec else []
+        proyecto.lineas_inv_lista = [l.strip() for l in proyecto.linea_inv.split('\n') if l.strip()] if proyecto.linea_inv else []
+        proyecto.lineas_sem_lista = [l.strip() for l in proyecto.linea_sem.split('\n') if l.strip()] if proyecto.linea_sem else []
+
     proyectos_count = SemilleroProyecto.objects.filter(id_sem=semillero)
     total_proyectos = proyectos_count.count()
-    # Usuarios vinculados al semillero
+
     usuarios = SemilleroUsuario.objects.filter(id_sem=semillero)
-# Aprendices asociados al semillero
     aprendices = Aprendiz.objects.filter(id_sem=semillero)
-# Total de miembros (usuarios + aprendices)
     total_miembros = usuarios.count() + aprendices.count()
-# Obtener los miembros con el campo es_lider
     miembros = usuarios.select_related('cedula')
-# Entregables asociados a proyectos del semillero
+
     total_entregables = Entregable.objects.filter(
         cod_pro__in=proyectos_count.values('cod_pro')
     ).count()
-    
-    # OBTENER MIEMBROS DEL SEMILLERO QUE NO ESTÁN EN NINGÚN PROYECTO
-    # Obtener todos los proyectos del semillero
-    proyectos_semillero = proyectos_count.values_list('cod_pro', flat=True)
 
+    proyectos_semillero = proyectos_count.values_list('cod_pro', flat=True)
     usuarios_asignados = UsuarioProyecto.objects.filter(
         cod_pro__in=proyectos_semillero
     ).values_list('cedula__cedula', flat=True)
-
     aprendices_asignados = ProyectoAprendiz.objects.filter(
         cod_pro__in=proyectos_semillero
     ).values_list('cedula_apre__cedula_apre', flat=True)
-    
+
     cedulas_asignadas = set(str(c) for c in usuarios_asignados) | set(str(c) for c in aprendices_asignados)
 
     usuarios_semillero = SemilleroUsuario.objects.filter(id_sem=semillero).select_related('cedula')
     usuarios_disponibles = [u for u in usuarios_semillero if str(u.cedula.cedula) not in cedulas_asignadas]
 
     aprendices_semillero = Aprendiz.objects.filter(id_sem=semillero)
-
     aprendices_disponibles = [a for a in aprendices_semillero if str(a.cedula_apre) not in cedulas_asignadas]
-    
 
     miembros_semillero = []
-    
-
     for u in usuarios_disponibles:
         miembros_semillero.append({
             'cedula': u.cedula.cedula,
@@ -942,7 +1123,6 @@ def resu_proyectos(request, id_sem, cod_pro=None):
             'tipo': 'Usuario',
             'rol': u.cedula.rol
         })
-    
 
     for a in aprendices_disponibles:
         miembros_semillero.append({
@@ -967,10 +1147,251 @@ def resu_proyectos(request, id_sem, cod_pro=None):
         'miembros_semillero': miembros_semillero,
         'proyecto_seleccionado': cod_pro,
         'tipo_seleccionado': tipo_seleccionado,
+        'miembros_proyecto_actual': miembros_proyecto_actual,
+        'mostrar_modal_editar': mostrar_modal_editar,
+        'mostrar_modal_gestionar': mostrar_modal_gestionar,
+        'proyecto_editar': proyecto_editar,
+        'lineas_tec_lista': lineas_tec_lista,
+        'lineas_inv_lista': lineas_inv_lista,
+        'lineas_sem_lista': lineas_sem_lista,
+        'busqueda_usuario': request.GET.get('busqueda_usuario', ''),
+        'filtro_rol': request.GET.get('filtro_rol', ''),
+        'filtro_estado': request.GET.get('filtro_estado', ''),
     }
-    
+
     return render(request, 'paginas/resu-proyectos.html', context)
 
+def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
+    """
+    Asigna o quita el rol de líder de proyecto mediante AJAX
+    """
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
+    cedula_miembro = request.POST.get('cedula_miembro')
+    
+    if not cedula_miembro:
+        return JsonResponse({'success': False, 'error': 'No se especificó el miembro'})
+    
+    try:
+        # Verificar que el proyecto pertenece al semillero
+        if not SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).exists():
+            return JsonResponse({'success': False, 'error': 'El proyecto no pertenece a este semillero'})
+        
+        # Intentar obtener el miembro (solo usuarios pueden ser líderes)
+        try:
+            miembro = Usuario.objects.get(cedula=cedula_miembro)
+        except Usuario.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Solo los usuarios pueden ser líderes de proyecto'})
+        
+        # Verificar que el usuario pertenece al semillero
+        if not SemilleroUsuario.objects.filter(id_sem=semillero, cedula=miembro).exists():
+            return JsonResponse({'success': False, 'error': 'El usuario no pertenece a este semillero'})
+        
+        # Verificar si el usuario ya está en el proyecto
+        try:
+            relacion_actual = UsuarioProyecto.objects.get(cedula=miembro, cod_pro=proyecto)
+            es_lider_actual = relacion_actual.es_lider_pro
+        except UsuarioProyecto.DoesNotExist:
+            # Si no existe la relación, crearla
+            relacion_actual = UsuarioProyecto.objects.create(
+                cedula=miembro,
+                cod_pro=proyecto,
+                es_lider_pro=False,
+                estado='activo'
+            )
+            es_lider_actual = False
+        
+        # Si ya es líder, informar
+        if es_lider_actual:
+            return JsonResponse({
+                'success': True,
+                'es_lider_pro': True,
+                'mensaje': f'{miembro.nom_usu} {miembro.ape_usu} ya es líder de este proyecto'
+            })
+        
+        # Quitar liderazgo al líder anterior y restaurar su rol
+        try:
+            relacion_anterior = UsuarioProyecto.objects.get(cod_pro=proyecto, es_lider_pro=True)
+            usuario_anterior = relacion_anterior.cedula
+            
+            # Guardar el rol original ANTES de cambiar a líder (si no está guardado)
+            if not hasattr(usuario_anterior, 'rol_original') or not usuario_anterior.rol_original:
+                # Si no existe el campo, buscar el rol en el perfil base
+                rol_original = usuario_anterior.rol
+                if rol_original == 'Líder de Proyecto':
+                    # Si ya era líder, buscar en otros proyectos o usar Instructor/Investigador
+                    rol_original = 'Instructor'  # valor temporal
+            
+            # Verificar si el rol actual es "Líder de Proyecto" antes de cambiarlo
+            if usuario_anterior.rol == 'Líder de Proyecto':
+                # Buscar otros proyectos donde también sea líder
+                otros_proyectos_lider = UsuarioProyecto.objects.filter(
+                    cedula=usuario_anterior,
+                    es_lider_pro=True
+                ).exclude(cod_pro=proyecto).exists()
+                
+                # Solo cambiar rol si NO es líder en otros proyectos
+                if not otros_proyectos_lider:
+                    # Buscar el rol original guardado o determinarlo
+                    if hasattr(usuario_anterior, 'rol_original') and usuario_anterior.rol_original:
+                        usuario_anterior.rol = usuario_anterior.rol_original
+                    else:
+                        # Determinar basado en el contexto del usuario
+                        # Verificar si tiene vinculación laboral como instructor
+                        if usuario_anterior.vinculacion_laboral and 'instructor' in usuario_anterior.vinculacion_laboral.lower():
+                            usuario_anterior.rol = 'Instructor'
+                        else:
+                            usuario_anterior.rol = 'Investigador'
+                    
+                    usuario_anterior.save()
+            
+            # Quitar liderazgo del proyecto
+            relacion_anterior.es_lider_pro = False
+            relacion_anterior.save()
+            
+        except UsuarioProyecto.DoesNotExist:
+            pass
+        
+        # Guardar el rol original del nuevo líder ANTES de cambiarlo
+        if miembro.rol != 'Líder de Proyecto':
+            if hasattr(miembro, 'rol_original'):
+                miembro.rol_original = miembro.rol
+        
+        # Asignar nuevo líder
+        relacion_actual.es_lider_pro = True
+        relacion_actual.save()
+        
+        # Actualizar rol del nuevo líder
+        if miembro.rol != 'Líder de Proyecto':
+            miembro.rol = 'Líder de Proyecto'
+            miembro.save()
+        
+        return JsonResponse({
+            'success': True,
+            'es_lider_pro': True,
+            'mensaje': f'{miembro.nom_usu} {miembro.ape_usu} ha sido asignado como líder del proyecto'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+def alternar_estado_miembro(request, id_sem, cod_pro):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
+    cedula_miembro = request.POST.get('cedula_miembro')
+
+    if not cedula_miembro:
+        return JsonResponse({'success': False, 'error': 'No se especificó el miembro'})
+
+    try:
+        # Verificar si es usuario o aprendiz
+        try:
+            relacion = UsuarioProyecto.objects.get(cedula__cedula=cedula_miembro, cod_pro=proyecto)
+            
+            # 👇 AGREGAR ESTA VALIDACIÓN
+            # Verificar si es líder antes de cambiar a inactivo
+            if relacion.estado == "activo" and relacion.es_lider_pro:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'No se puede desactivar al líder del proyecto. Primero asigne otro líder.'
+                })
+            
+        except UsuarioProyecto.DoesNotExist:
+            relacion = ProyectoAprendiz.objects.get(cedula_apre__cedula_apre=cedula_miembro, cod_pro=proyecto)
+
+        # Cambiar estado
+        relacion.estado = "inactivo" if relacion.estado == "activo" else "activo"
+        relacion.save()
+
+        return JsonResponse({
+            'success': True,
+            'nuevo_estado': relacion.estado,
+            'mensaje': f'Estado actualizado a {relacion.estado}'
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+    """
+    Asigna o quita el rol de líder de proyecto mediante AJAX
+    """
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
+    cedula_miembro = request.POST.get('cedula_miembro')
+    
+    if not cedula_miembro:
+        return JsonResponse({'success': False, 'error': 'No se especificó el miembro'})
+    
+    try:
+        # Verificar que el proyecto pertenece al semillero
+        if not SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).exists():
+            return JsonResponse({'success': False, 'error': 'El proyecto no pertenece a este semillero'})
+        
+        # Intentar obtener el miembro (solo usuarios pueden ser líderes)
+        try:
+            miembro = Usuario.objects.get(cedula=cedula_miembro)
+        except Usuario.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Solo los usuarios pueden ser líderes de proyecto'})
+        
+        # Verificar que el usuario pertenece al semillero
+        if not SemilleroUsuario.objects.filter(id_sem=semillero, cedula=miembro).exists():
+            return JsonResponse({'success': False, 'error': 'El usuario no pertenece a este semillero'})
+        
+        # Verificar si el usuario ya está en el proyecto
+        try:
+            relacion_actual = UsuarioProyecto.objects.get(cedula=miembro, cod_pro=proyecto)
+            es_lider_actual = relacion_actual.es_lider_pro
+        except UsuarioProyecto.DoesNotExist:
+            # Si no existe la relación, crearla
+            relacion_actual = UsuarioProyecto.objects.create(
+                cedula=miembro,
+                cod_pro=proyecto,
+                es_lider_pro=False
+            )
+            es_lider_actual = False
+        
+        # Si ya es líder, informar
+        if es_lider_actual:
+            return JsonResponse({
+                'success': True,
+                'es_lider_pro': True,
+                'mensaje': f'{miembro.nom_usu} {miembro.ape_usu} ya es líder de este proyecto'
+            })
+        
+        # Quitar liderazgo al líder anterior
+        try:
+            relacion_anterior = UsuarioProyecto.objects.get(cod_pro=proyecto, es_lider_pro=True)
+            usuario_anterior = relacion_anterior.cedula
+            
+            # Cambiar rol si era "Líder de Proyecto"
+            if usuario_anterior.rol == 'Líder de Proyecto':
+                usuario_anterior.rol = 'Instructor'
+                usuario_anterior.save()
+            
+            # Quitar liderazgo
+            relacion_anterior.es_lider_pro = False
+            relacion_anterior.save()
+            
+        except UsuarioProyecto.DoesNotExist:
+            pass
+        
+        # Asignar nuevo líder
+        relacion_actual.es_lider_pro= True
+        relacion_actual.save()
+        
+        # Actualizar rol del nuevo líder
+        miembro.rol = 'Líder de Proyecto'
+        miembro.save()
+        
+        return JsonResponse({
+            'success': True,
+            'es_lider_pro': True,
+            'mensaje': f'{miembro.nom_usu} {miembro.ape_usu} ha sido asignado como líder del proyecto'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
 def crear_proyecto(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
 
@@ -1033,7 +1454,7 @@ def crear_proyecto(request, id_sem):
             usuario_actual = Usuario.objects.get(cedula=cedula_usuario)
 
             nom_pro = request.POST.get('nom_pro', '').strip()
-            tipo = request.POST.get('tipo', '').strip()
+            tipo = request.POST.get('tipo', '').strip().lower()
             desc_pro = request.POST.get('desc_pro', '').strip()
             lineas_tec = request.POST.getlist('lineastec[]')
             lineas_inv = request.POST.getlist('lineasinv[]')
@@ -1100,7 +1521,6 @@ def crear_proyecto(request, id_sem):
                     nom_entre=entregable_data["nombre"],
                     desc_entre=entregable_data["descripcion"],
                     estado="Pendiente",
-                    archivo="",
                     cod_pro=proyecto
                 )
 
@@ -1111,11 +1531,149 @@ def crear_proyecto(request, id_sem):
             messages.error(request, f'Error al crear proyecto: {str(e)}')
             return redirect('resu-proyectos', id_sem=id_sem)
 
-    # 🔹 Renderizar con miembros realmente NO asignados
+    # Renderizar con miembros realmente NO asignados
     return render(request, 'crear_proyecto.html', {
         'semillero': semillero,
         'miembros_semillero': miembros_semillero
     })
+
+def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    entregable = get_object_or_404(Entregable, cod_pro=cod_pro, cod_entre=cod_entre)
+
+    if request.method == 'POST':
+        archivo = request.FILES.get('archivo')
+
+        if not archivo:
+            messages.error(request, '⚠️ Debes seleccionar un archivo para subir.')
+            return redirect('resu-proyectos', id_sem=id_sem)
+
+        # Guardar registro correctamente en la BD
+        Archivo.objects.create(
+            entregable=entregable,
+            archivo=archivo,
+            nombre=archivo.name
+        )
+
+        messages.success(
+            request,
+            f'✅ Archivo "{archivo.name}" subido correctamente al entregable "{entregable.nom_entre}".'
+        )
+        return redirect('resu-proyectos', id_sem=id_sem)
+
+    messages.error(request, 'Método no permitido.')
+    return redirect('resu-proyectos', id_sem=id_sem)
+
+def actualizar_progreso_proyecto(proyecto):
+    """
+    Función auxiliar para calcular y actualizar el progreso de un proyecto
+    basado en el estado de sus entregables
+    """
+    entregables = Entregable.objects.filter(cod_pro=proyecto)
+    total_entregables = entregables.count()
+    
+    if total_entregables == 0:
+        proyecto.progreso = 0
+    else:
+        entregables_completados = entregables.filter(estado='Completado').count()
+        proyecto.progreso = round((entregables_completados / total_entregables) * 100)
+    
+    proyecto.save(update_fields=['progreso'])
+
+def eliminar_entregable(request, id_sem, cod_pro, cod_entre):
+    """
+    Vista para eliminar un archivo de un entregable (opcional)
+    """
+    if request.method == 'POST':
+        semillero = get_object_or_404(Semillero, id_sem=id_sem)
+        proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
+        entregable = get_object_or_404(Entregable, cod_entre=cod_entre, cod_pro=proyecto)
+        
+        # Verificar que el proyecto pertenece al semillero
+        if not SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).exists():
+            messages.error(request, 'El proyecto no pertenece a este semillero')
+            return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
+        
+        try:
+            # Eliminar el archivo
+            if entregable.archivo:
+                entregable.archivo.delete(save=False)
+                entregable.archivo = None
+                entregable.estado = 'Pendiente'
+                entregable.save()
+                
+                # Actualizar progreso del proyecto
+                actualizar_progreso_proyecto(proyecto)
+                
+                messages.success(request, f'Archivo eliminado de "{entregable.nom_entre}"')
+            else:
+                messages.info(request, 'No hay archivo para eliminar')
+            
+            return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
+            
+        except Exception as e:
+            messages.error(request, f'Error al eliminar el archivo: {str(e)}')
+            return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
+    return redirect('resu-proyectos', id_sem=id_sem)
+
+def eliminar_proyecto_semillero(request, id_sem, cod_pro):
+    try:
+        semillero = get_object_or_404(Semillero, id_sem=id_sem)
+        proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
+
+        # Restaurar roles de los líderes de proyecto
+        lideres_proyecto = UsuarioProyecto.objects.filter(
+            cod_pro=proyecto, es_lider_pro=True
+        ).select_related('cedula')
+
+        for relacion_lider in lideres_proyecto:
+            usuario_lider = relacion_lider.cedula
+            if usuario_lider.rol == 'Líder de Proyecto':
+                otros_proyectos_lider = UsuarioProyecto.objects.filter(
+                    cedula=usuario_lider, es_lider_pro=True
+                ).exclude(cod_pro=proyecto).exists()
+
+                if not otros_proyectos_lider:
+                    if hasattr(usuario_lider, 'rol_original') and usuario_lider.rol_original:
+                        usuario_lider.rol = usuario_lider.rol_original
+                    else:
+                        es_lider_semillero = SemilleroUsuario.objects.filter(
+                            cedula=usuario_lider, es_lider=True
+                        ).exists()
+                        if es_lider_semillero:
+                            usuario_lider.rol = 'Líder de Semillero'
+                        elif usuario_lider.vinculacion_laboral and 'instructor' in usuario_lider.vinculacion_laboral.lower():
+                            usuario_lider.rol = 'Instructor'
+                        else:
+                            usuario_lider.rol = 'Investigador'
+                    usuario_lider.save()
+
+        # Eliminar entregables y sus archivos asociados
+        entregables = Entregable.objects.filter(cod_pro=proyecto)
+        for entregable in entregables:
+            archivos = Archivo.objects.filter(entregable=entregable)
+            for archivo in archivos:
+                archivo.archivo.delete(save=False)  # eliminar físicamente
+            archivos.delete()
+        entregables.delete()
+
+        # Eliminar relaciones con usuarios y aprendices
+        UsuarioProyecto.objects.filter(cod_pro=proyecto).delete()
+        ProyectoAprendiz.objects.filter(cod_pro=proyecto).delete()
+
+        # Eliminar relación con semillero
+        SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).delete()
+
+        # Eliminar proyecto
+        nombre_proyecto = proyecto.nom_pro
+        proyecto.delete()
+
+        messages.success(request, f'✅ Proyecto "{nombre_proyecto}" eliminado correctamente y roles restaurados.')
+
+    except Exception as e:
+        messages.error(request, f'⚠️ Error al eliminar el proyecto: {e}')
+
+    return redirect('resu-proyectos', id_sem=id_sem)
 
 def recursos(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
@@ -1213,6 +1771,33 @@ def agregar_recurso(request, id_sem):
             return redirect('recursos', id_sem=id_sem)
     
     # Si la solicitud no es POST, redirigir a la página de recursos
+    return redirect('recursos', id_sem=id_sem)
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from .models import Documento, SemilleroDocumento
+
+def eliminar_recurso(request, id_sem, cod_doc):
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    documento = get_object_or_404(Documento, cod_doc=cod_doc)
+
+    try:
+        # Borrar el archivo físico si existe
+        if hasattr(documento, 'archivo') and documento.archivo:
+            documento.archivo.delete(save=False)
+
+        # Eliminar la relación con el semillero
+        SemilleroDocumento.objects.filter(
+            id_sem=semillero, cod_doc=documento
+        ).delete()
+
+        # Eliminar el documento en sí
+        documento.delete()
+
+        messages.success(request, f'✅ Recurso "{documento.nom_doc}" eliminado correctamente.')
+    except Exception as e:
+        messages.error(request, f'⚠️ Error al eliminar el recurso: {e}')
+
     return redirect('recursos', id_sem=id_sem)
 
 # VISTAS DE PROYECTOS

@@ -7,6 +7,13 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
     <div class="resumen">
         <div class="grupo">
             <div class="card">

@@ -418,11 +418,12 @@
     left: clamp(8px, 2vw, 15px);
 }
 
-.lider img{
-    width: clamp(2rem, 3vw, 2.5rem);
-    height: clamp(2rem, 3vw, 2.5rem);
+.fa-medal,
+.fa-star{
+    color: #E9C46A;
+    font-size: clamp(18px, 1.8vw, 22px);
+    margin-right: clamp(4px, 0.5vw, 8px);
 }
-
 
 /* =======ESTADO DEL MIEMBRO========== */
 .estado-miembro {

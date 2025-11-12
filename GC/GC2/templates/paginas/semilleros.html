@@ -13,16 +13,14 @@
 
 {% block main %}
    <!-- Mensajes de alerta -->
-    <div class="mensajes-container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="close-btn" onclick="this.parentElement.style.display='none'">&times;</button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
+
 
     <div class="contenedor1">
         <div class="contenedor-titulo">

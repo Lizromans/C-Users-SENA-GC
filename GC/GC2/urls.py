@@ -24,15 +24,26 @@ urlpatterns = [
     path('resumen/<int:id_sem>/', views.resumen, name='resumen'),
     path('resu-miembros/<int:id_sem>/', views.resu_miembros, name='resu-miembros'),
     path('semillero/<int:id_sem>/asignar-lider/', views.asignar_lider_semillero, name='asignar-lider-semillero'),
-    path('semillero/<int:id_sem>/asignar-lider-proyecto/', views.asignar_lider_proyecto, name='asignar-lider-proyecto'),
     path('agregar-miembros/<int:id_sem>/', views.agregar_miembros, name='agregar_miembros'),
     path('resu-proyectos/<int:id_sem>/', views.resu_proyectos, name='resu-proyectos'),
+    path('semillero/<int:id_sem>/proyectos/', views.resu_proyectos, name='resu-proyectos'),
+    path('semillero/<int:id_sem>/proyectos/<int:cod_pro>/', views.resu_proyectos, name='resu-proyectos'),
     path('semillero/<int:id_sem>/crear_proyecto/', views.crear_proyecto, name='crear_proyecto'),
+    
+    path('resu-proyectos/<int:id_sem>/', views.resu_proyectos, name='resu-proyectos'),
+    path('resu-proyectos/<int:id_sem>/<int:cod_pro>/', views.resu_proyectos, name='resu-proyectos'),
+    path('semilleros/<int:id_sem>/proyectos/<int:cod_pro>/alternar-estado/', views.alternar_estado_miembro, name='alternar-estado-miembro'),
+    
+    path('semilleros/<int:id_sem>/proyectos/<int:cod_pro>/asignar-lider/', views.asignar_lider_proyecto_ajax, name='asignar-lider-proyecto-ajax'),
     path('recursos/<int:id_sem>/', views.recursos, name='recursos'),
     path('agregar_recurso/<int:id_sem>/', views.agregar_recurso, name='agregar_recurso'),
+    path('semillero/<int:id_sem>/proyecto/<int:cod_pro>/entregable/<int:cod_entre>/subir/', views.subir_archivo_entregable, name='subir_archivo_entregable'),
+    path('semillero/<int:id_sem>/proyecto/<int:cod_pro>/entregable/<int:cod_entre>/eliminar/', views.eliminar_entregable, name='eliminar_entregable'),
+    path('semillero/<int:id_sem>/eliminar-proyecto/<str:cod_pro>/', views.eliminar_proyecto_semillero, name='eliminar_proyecto_sem'),
+    path('recursos/<int:id_sem>/eliminar/<int:cod_doc>/', views.eliminar_recurso, name='eliminar_recurso'),
+
     
     path('proyectos/', views.proyectos, name='proyectos'),
-    path('resu-proyectos/<int:id_sem>/<int:cod_pro>/', views.resu_proyectos, name='resu-proyectos'),
 
     #MIEMBROS
     path('miembros/', views.miembros, name='miembros'),

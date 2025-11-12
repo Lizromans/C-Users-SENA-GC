@@ -9,14 +9,21 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
     <div class="resumen">
         <div class="cont-1">
-            <button class="btn btn-anadir" data-bs-toggle="modal" data-bs-target="#modal-crear">
+            <button class="btn btn-anadir" data-bs-target="#modal-crear">
                 <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
                 Crear Proyecto
             </button>
         </div>
-        
+
         <div class="cont-2">
             <div class="header-proyectos">
                 <img src="{% static 'img/project.png' %}" alt="Proyectos">
@@ -65,8 +72,37 @@
                                     <label for="tab-entregables-{{ proyecto.cod_pro }}" class="tab">
                                         <i class="fas fa-clipboard-list"></i> Entregables ({{ proyecto.entregable_set.count }})
                                     </label>
-                                </div>
+                                    <div class="config-dropdown-wrapper">
+                                        <input type="checkbox" id="dropdown-config-{{ proyecto.cod_pro }}" class="dropdown-toggle-config" hidden>
+                                        
+                                        <label for="dropdown-config-{{ proyecto.cod_pro }}" class="tab-configuracion">
+                                            <i class="fas fa-ellipsis-v"></i> 
+                                        </label>
+                                        
+                                        <div class="dropdown-menu-config">
+                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
+                                            class="dropdown-item-config">
+                                                <i class="fas fa-edit"></i> 
+                                                <span>Editar Proyecto</span>
+                                            </a>
 
+                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                                class="dropdown-item-config">
+                                                <i class="fas fa-users-cog"></i> 
+                                                <span>Gestionar Equipo</span>
+                                            </a>
+                                            <hr class="dropdown-divider-config">
+                                            <a href="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}" 
+                                                class="dropdown-item-config danger btn-eliminar-proyecto"
+                                                data-nombre="{{ proyecto.nom_pro }}"
+                                                data-url="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}">
+                                                <i class="fas fa-trash-alt"></i>
+                                                <span>Eliminar</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            
                                 <div class="tab-content" data-tab="resumen">
                                     <div class="proyecto-card-content">
                                         <div class="proyecto-header">
@@ -92,17 +128,32 @@
                                                 <span>Equipo</span>
                                             </div>
                                             <div class="equipo-avatares">
-                                                {% for miembro in proyecto.miembros_lista %}
-                                                    <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
-                                                        <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
-                                                    </div>
-                                                {% empty %}
-                                                    <span class="sin-equipo">Sin miembros asignados</span>
-                                                {% endfor %}
+                                                {% if proyecto.miembros_lista|length == 0 %}
+                                                    <span class="sin-equipo" style="color:#6b7280; font-style:italic;">
+                                                        Sin miembros asignados
+                                                    </span>
+
+                                                {% elif proyecto.miembros_activos|length == 0 %}
+                                                    <span class="sin-equipo" style="color:#6b7280; font-style:italic;">
+                                                        No hay miembros activos
+                                                    </span>
+
+                                                {% else %}
+                                                    {% for miembro in proyecto.miembros_activos %}
+                                                        <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                            <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endif %}
+
+
+
                                                 {% if proyecto.miembros_lista|length > 5 %}
-                                                    <div class="avatar-item avatar-mas">
-                                                        <span class="avatar-iniciales">+{{ proyecto.miembros_lista|length|add:"-5" }}</span>
-                                                    </div>
+                                                    {% if miembro.estado == 'activo' %}
+                                                        <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                            <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
+                                                        </div>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -154,34 +205,126 @@
                                     <div class="entregables-tab-content">
                                         {% if proyecto.entregable_set.all %}
                                             {% for entregable in proyecto.entregable_set.all %}
-                                            <a href="#" class="entregable-mini">
-                                                <div class="mini-number">{{ forloop.counter }}</div>
-                                                <div class="mini-info">
-                                                    <h6>{{ entregable.nom_entre }}</h6>
-                                                    <span>
-                                                        {% if entregable.estado == "Completado" %}
-                                                        <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
-                                                        {% else %}
-                                                        <i class="fas fa-clock" style="color: #ed8936;"></i> {{ entregable.estado }}
-                                                        {% endif %}
-                                                        {% if entregable.fecha_entre %}
-                                                        • {{ entregable.fecha_entre }}
-                                                        {% endif %}
-                                                    </span>
+
+                                            <!-- Contenedor del entregable -->
+                                            <div class="entregable-item">
+                                                
+                                                <!-- Checkbox oculto para controlar el desplegable -->
+                                                <input type="checkbox" id="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-toggle">
+
+                                                <!-- Header clickeable -->
+                                                <label for="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-mini">
+                                                    <div class="mini-number">{{ forloop.counter }}</div>
+                                                    <div class="mini-info">
+                                                        <h6>{{ entregable.nom_entre }}</h6>
+                                                        <span>
+                                                            {% if entregable.estado == "Completado" %}
+                                                            <i class="fas fa-check-circle"></i> Completado
+                                                            {% else %}
+                                                            <i class="fas fa-clock"></i> {{ entregable.estado }}
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
+                                                    <i class="fas fa-chevron-down entregable-chevron"></i>
+                                                </label>
+
+                                                <!-- Detalles desplegables -->
+                                                <div class="entregable-detalles-desplegable">
+                                                    <div class="entregable-detalles-grid">
+                                                        <div class="entregable-detalle-columna descripcion">
+                                                            <p><strong>Descripción:</strong> {{ entregable.desc_entre|default:"Sin descripción" }}</p>
+                                                        </div>
+                                                        <div class="entregable-detalle-columna fecha">
+                                                            <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                        <div class="entregable-detalle-columna fecha">
+                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {% if entregable.archivos.exists %}
+                                                        <!-- Caso: hay archivos -->
+                                                        <div class="entregable-documentos">
+                                                            <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
+                                                            <div class="botones">
+                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                                    <i class="fas fa-eye"></i> Ver Archivos
+                                                                </a>
+                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Modal de archivos -->
+                                                        <div id="modal-archivos-{{ entregable.cod_entre }}" class="modal">
+                                                            <div class="modal-cont">
+                                                            <a href="#" class="modal-cerrar mini">&times;</a>
+                                                                <h5><i class="fas fa-folder-open"></i> Documentos del Entregable</h5>
+
+                                                                <ul class="lista-archivos">
+                                                                    {% for archivo in entregable.archivos.all %}
+                                                                        <li>
+                                                                            <i class="fas fa-file-alt"></i>
+                                                                            <span class="nombre-archivo">{{ archivo.nombre }}</span>
+                                                                            <a href="{{ archivo.archivo.url }}" target="_blank" class="btn-ver">
+                                                                                <i class="fas fa-eye"></i> Ver
+                                                                            </a>
+                                                                            <a href="{{ archivo.archivo.url }}" download class="btn-descargar">
+                                                                                <i class="fas fa-download"></i> Descargar
+                                                                            </a>
+                                                                        </li>
+                                                                    {% empty %}
+                                                                        <p>No hay archivos disponibles para este entregable.</p>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+
+                                                    {% else %}
+                                                        <!-- Caso: NO hay archivos -->
+                                                        <div class="entregable-documentos sin-documentos">
+                                                            <i class="fas fa-file-alt"></i>
+                                                            <p>No hay documentos disponibles</p>
+
+                                                            <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
+                                                                <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Modal para subir archivos -->
+                                                    <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
+                                                        <div class="modal-cont">
+                                                            <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento</h3>
+                                                            <p>Selecciona un archivo para adjuntar al entregable:</p>
+
+                                                            <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
+                                                                method="post" enctype="multipart/form-data">
+                                                                {% csrf_token %}
+                                                                <input type="file" name="archivo" required>
+                                                                <div class="modal-botones">
+                                                                    <button type="submit" class="btn-confirmar">
+                                                                        <i class="fas fa-upload"></i> Subir
+                                                                    </button>
+                                                                    <a class="btn-cancelar">Cancelar</a>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <i class="fas fa-chevron-right" style="color: #cbd5e0;"></i>
-                                            </a>
+
+                                            </div>
                                             {% endfor %}
                                         {% else %}
                                             <div class="sin-entregables">
-                                                <i class="fas fa-inbox" style="font-size: 48px; color: #cbd5e0; margin-bottom: 15px;"></i>
+                                                <i class="fas fa-inbox"></i>
                                                 <p>No hay entregables registrados para este proyecto</p>
                                             </div>
                                         {% endif %}
                                     </div>
                                 </div>
                             </div>
-                            
                             {% endfor %}
                         </div>
                         
@@ -221,6 +364,36 @@
                                     <label for="tab-entregables-{{ proyecto.cod_pro }}" class="tab">
                                         <i class="fas fa-clipboard-list"></i> Entregables ({{ proyecto.entregable_set.count }})
                                     </label>
+                                     <div class="config-dropdown-wrapper">
+                                        <input type="checkbox" id="dropdown-config-{{ proyecto.cod_pro }}" class="dropdown-toggle-config" hidden>
+                                        
+                                        <label for="dropdown-config-{{ proyecto.cod_pro }}" class="tab-configuracion">
+                                            <i class="fas fa-ellipsis-v"></i> 
+                                        </label>
+                                        
+                                        <div class="dropdown-menu-config">
+                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
+                                            class="dropdown-item-config">
+                                                <i class="fas fa-edit"></i> 
+                                                <span>Editar Proyecto</span>
+                                            </a>
+
+                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                                class="dropdown-item-config">
+                                                <i class="fas fa-users-cog"></i> 
+                                                <span>Gestionar Equipo</span>
+                                            </a>
+                                            <hr class="dropdown-divider-config">
+                                            <a href="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}" 
+                                                class="dropdown-item-config danger btn-eliminar-proyecto"
+                                                data-nombre="{{ proyecto.nom_pro }}"
+                                                data-url="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}">
+                                                <i class="fas fa-trash-alt"></i>
+                                                <span>Eliminar</span>
+                                            </a>
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <div class="tab-content" data-tab="resumen">
@@ -248,13 +421,26 @@
                                                 <span>Equipo</span>
                                             </div>
                                             <div class="equipo-avatares">
-                                                {% for miembro in proyecto.miembros_lista %}
-                                                    <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
-                                                        <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
-                                                    </div>
-                                                {% empty %}
-                                                    <span class="sin-equipo">Sin miembros asignados</span>
-                                                {% endfor %}
+                                                {% if proyecto.miembros_lista|length == 0 %}
+                                                    <span class="sin-equipo" style="color:#6b7280; font-style:italic;">
+                                                        Sin miembros asignados
+                                                    </span>
+
+                                                {% elif proyecto.miembros_activos|length == 0 %}
+                                                    <span class="sin-equipo" style="color:#6b7280; font-style:italic;">
+                                                        No hay miembros activos
+                                                    </span>
+
+                                                {% else %}
+                                                    {% for miembro in proyecto.miembros_activos %}
+                                                        <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                            <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endif %}
+
+
+
                                                 {% if proyecto.miembros_lista|length > 5 %}
                                                     <div class="avatar-item avatar-mas">
                                                         <span class="avatar-iniciales">+{{ proyecto.miembros_lista|length|add:"-5" }}</span>
@@ -311,27 +497,48 @@
                                     <div class="entregables-tab-content">
                                         {% if proyecto.entregable_set.all %}
                                             {% for entregable in proyecto.entregable_set.all %}
-                                            <a href="#" class="entregable-mini">
-                                                <div class="mini-number">{{ forloop.counter }}</div>
-                                                <div class="mini-info">
-                                                    <h6>{{ entregable.nom_entre }}</h6>
-                                                    <span>
-                                                        {% if entregable.estado == "Completado" %}
-                                                        <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
-                                                        {% else %}
-                                                        <i class="fas fa-clock" style="color: #ed8936;"></i> {{ entregable.estado }}
-                                                        {% endif %}
-                                                        {% if entregable.fecha_entre %}
-                                                        • {{ entregable.fecha_entre }}
-                                                        {% endif %}
-                                                    </span>
+
+                                            <!-- Contenedor del entregable -->
+                                            <div class="entregable-item">
+                                                
+                                                <!-- Checkbox oculto para controlar el desplegable -->
+                                                <input type="checkbox" id="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-toggle">
+
+                                                <!-- Header clickeable -->
+                                                <label for="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-mini">
+                                                    <div class="mini-number">{{ forloop.counter }}</div>
+                                                    <div class="mini-info">
+                                                        <h6>{{ entregable.nom_entre }}</h6>
+                                                        <span>
+                                                            {% if entregable.estado == "Completado" %}
+                                                            <i class="fas fa-check-circle"></i> Completado
+                                                            {% else %}
+                                                            <i class="fas fa-clock"></i> {{ entregable.estado }}
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
+                                                    <i class="fas fa-chevron-down entregable-chevron"></i>
+                                                </label>
+
+                                                <!-- Detalles desplegables -->
+                                                <div class="entregable-detalles-desplegable">
+                                                    <div class="entregable-detalles-grid">
+                                                        <div class="entregable-detalle-columna descripcion">
+                                                            <p><strong>Descripción:</strong>{{ entregable.desc_entre|default:"Sin descripción" }}</p>
+                                                        </div>
+                                                        <div class="entregable-detalle-columna fecha">
+                                                            <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                        <div class="entregable-detalle-columna fecha">
+                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <i class="fas fa-chevron-right" style="color: #cbd5e0;"></i>
-                                            </a>
+                                            </div>
                                             {% endfor %}
                                         {% else %}
                                             <div class="sin-entregables">
-                                                <i class="fas fa-inbox" style="font-size: 48px; color: #cbd5e0; margin-bottom: 15px;"></i>
+                                                <i class="fas fa-inbox"></i>
                                                 <p>No hay entregables registrados para este proyecto</p>
                                             </div>
                                         {% endif %}
@@ -378,6 +585,35 @@
                                     <label for="tab-entregables-{{ proyecto.cod_pro }}" class="tab">
                                         <i class="fas fa-clipboard-list"></i> Entregables ({{ proyecto.entregable_set.count }})
                                     </label>
+                                     <div class="config-dropdown-wrapper">
+                                        <input type="checkbox" id="dropdown-config-{{ proyecto.cod_pro }}" class="dropdown-toggle-config" hidden>
+                                        
+                                        <label for="dropdown-config-{{ proyecto.cod_pro }}" class="tab-configuracion">
+                                            <i class="fas fa-ellipsis-v"></i> 
+                                        </label>
+                                        
+                                        <div class="dropdown-menu-config">
+                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
+                                            class="dropdown-item-config">
+                                                <i class="fas fa-edit"></i> 
+                                                <span>Editar Proyecto</span>
+                                            </a>
+
+                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                                class="dropdown-item-config">
+                                                <i class="fas fa-users-cog"></i> 
+                                                <span>Gestionar Equipo</span>
+                                            </a>
+                                            <hr class="dropdown-divider-config">
+                                            <a href="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}" 
+                                                class="dropdown-item-config danger btn-eliminar-proyecto"
+                                                data-nombre="{{ proyecto.nom_pro }}"
+                                                data-url="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}">
+                                                <i class="fas fa-trash-alt"></i>
+                                                <span>Eliminar</span>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="tab-content" data-tab="resumen">
@@ -404,13 +640,24 @@
                                                 <span>Equipo</span>
                                             </div>
                                             <div class="equipo-avatares">
-                                                {% for miembro in proyecto.miembros_lista %}
-                                                    <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
-                                                        <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
-                                                    </div>
-                                                {% empty %}
-                                                    <span class="sin-equipo">Sin miembros asignados</span>
-                                                {% endfor %}
+                                                {% if proyecto.miembros_lista|length == 0 %}
+                                                    <span class="sin-equipo" style="color:#6b7280; font-style:italic;">
+                                                        Sin miembros asignados
+                                                    </span>
+
+                                                {% elif proyecto.miembros_activos|length == 0 %}
+                                                    <span class="sin-equipo" style="color:#6b7280; font-style:italic;">
+                                                        No hay miembros activos
+                                                    </span>
+
+                                                {% else %}
+                                                    {% for miembro in proyecto.miembros_activos %}
+                                                        <div class="avatar-item" data-tooltip="{{ miembro.nombre_completo }} - {{ miembro.rol }}">
+                                                            <span class="avatar-iniciales">{{ miembro.iniciales|upper }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endif %}
+
                                                 {% if proyecto.miembros_lista|length > 5 %}
                                                     <div class="avatar-item avatar-mas">
                                                         <span class="avatar-iniciales">+{{ proyecto.miembros_lista|length|add:"-5" }}</span>
@@ -467,27 +714,48 @@
                                     <div class="entregables-tab-content">
                                         {% if proyecto.entregable_set.all %}
                                             {% for entregable in proyecto.entregable_set.all %}
-                                            <a href="#" class="entregable-mini">
-                                                <div class="mini-number">{{ forloop.counter }}</div>
-                                                <div class="mini-info">
-                                                    <h6>{{ entregable.nom_entre }}</h6>
-                                                    <span>
-                                                        {% if entregable.estado == "Completado" %}
-                                                        <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
-                                                        {% else %}
-                                                        <i class="fas fa-clock" style="color: #ed8936;"></i> {{ entregable.estado }}
-                                                        {% endif %}
-                                                        {% if entregable.fecha_entre %}
-                                                        • {{ entregable.fecha_entre }}
-                                                        {% endif %}
-                                                    </span>
+
+                                            <!-- Contenedor del entregable -->
+                                            <div class="entregable-item">
+                                                
+                                                <!-- Checkbox oculto para controlar el desplegable -->
+                                                <input type="checkbox" id="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-toggle">
+
+                                                <!-- Header clickeable -->
+                                                <label for="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-mini">
+                                                    <div class="mini-number">{{ forloop.counter }}</div>
+                                                    <div class="mini-info">
+                                                        <h6>{{ entregable.nom_entre }}</h6>
+                                                        <span>
+                                                            {% if entregable.estado == "Completado" %}
+                                                            <i class="fas fa-check-circle"></i> Completado
+                                                            {% else %}
+                                                            <i class="fas fa-clock"></i> {{ entregable.estado }}
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
+                                                    <i class="fas fa-chevron-down entregable-chevron"></i>
+                                                </label>
+
+                                                <!-- Detalles desplegables -->
+                                                <div class="entregable-detalles-desplegable">
+                                                    <div class="entregable-detalles-grid">
+                                                        <div class="entregable-detalle-columna descripcion">
+                                                            <p><strong>Descripción:</strong>{{ entregable.desc_entre|default:"Sin descripción" }}</p>
+                                                        </div>
+                                                        <div class="entregable-detalle-columna fecha">
+                                                            <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                        <div class="entregable-detalle-columna fecha">
+                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <i class="fas fa-chevron-right" style="color: #cbd5e0;"></i>
-                                            </a>
+                                            </div>
                                             {% endfor %}
                                         {% else %}
                                             <div class="sin-entregables">
-                                                <i class="fas fa-inbox" style="font-size: 48px; color: #cbd5e0; margin-bottom: 15px;"></i>
+                                                <i class="fas fa-inbox"></i>
                                                 <p>No hay entregables registrados para este proyecto</p>
                                             </div>
                                         {% endif %}
@@ -522,333 +790,908 @@
         </div>
     </div>
 
-<!-- MODAL CREAR PROYECTO -->
-<div id="modal-crear" class="modal-overlay">
-    <div class="modal-contenedor">
-        <!-- Botón cerrar (X) -->
-        <a href="{% url 'resu-proyectos' semillero.id_sem %}" 
-           class="modal-cerrar" 
-           onclick="cerrarModal('modal-semillero'); return false;">&times;</a>
+    <!-- MODAL CREAR PROYECTO -->
+    <div id="modal-crear" class="modal-overlay">
+        <div class="modal-contenedor">
+            <!-- Botón cerrar (X) -->
+            <a href="#" 
+                class="modal-cerrar">&times;</a>
 
-        
-        <div class="modal-contenido">
-            <!-- Header del modal -->
-            <div class="modal-header">
-                <img src="{% static 'img/project.png' %}" alt="Proyectos">
-                <h2 class="modal-titulo">Crear Nuevo Proyecto</h2>
-            </div>
             
-            <!-- Formulario -->
-            <form method="POST" action="{% url 'crear_proyecto' semillero.id_sem %}">
-                {% csrf_token %}
+            <div class="modal-contenido">
+                <!-- Header del modal -->
+                <div class="modal-header">
+                    <img src="{% static 'img/project.png' %}" alt="Proyectos">
+                    <h2 class="modal-titulo">Crear Nuevo Proyecto</h2>
+                </div>
                 
-                <!-- Wrapper de dos columnas -->
-                <div class="modal-form-wrapper">
+                <!-- Formulario -->
+                <form method="POST" action="{% url 'crear_proyecto' semillero.id_sem %}">
+                    {% csrf_token %}
                     
-                    <!-- COLUMNA 1 -->
-                    <!-- Sección: Información Básica -->
+                    <!-- Wrapper de dos columnas -->
+                    <div class="modal-form-wrapper">
+                        
+                        <!-- COLUMNA 1 -->
+                        <!-- Sección: Información Básica -->
+                        <div class="modal-seccion">
+                            <div class="modal-seccion-titulo">
+                                <i class="fas fa-info-circle"></i>
+                                <h6>Información Básica</h6>
+                            </div>
+                            <hr class="modal-hr modal-hr-primario">
+                            
+                            <div class="modal-campo" id="sub-campo">
+                                <label for="nom_pro">Nombre del Proyecto *</label>
+                                <input type="text" id="nom_pro" name="nom_pro" placeholder="Ej: Sistema de Riego Inteligente" required>
+                            </div>
+                            
+                            <div class="modal-campo" id="sub-campo">
+                                <label for="tipo">Tipo *</label>
+                                <select id="tipo" name="tipo" required>
+                                    <option value="" disabled selected>Selecciona una opción</option>
+                                    <option value="sennova">Sennova</option>
+                                    <option value="capacidadinstalada">Capacidad Instalada</option>
+                                    <option value="formativo">Formativo</option>
+                                </select>
+                            </div>
+                            
+                            <div class="modal-campo">
+                                <label for="desc_pro">Descripción *</label>
+                                <textarea id="desc_pro" name="desc_pro" placeholder="Describe el propósito del proyecto..." required></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- COLUMNA 2 -->
+                        <!-- Sección: Líneas -->
+                        <div class="modal-seccion">
+                            <div class="modal-seccion-titulo">
+                                <i class="fa-solid fa-flask"></i>
+                                <h6>Líneas</h6>
+                            </div>
+                            <hr class="modal-hr modal-hr-terciario">
+                            
+                            <div class="modal-campo" id="sub-campo">
+                                <label>Líneas Tecnológicas *</label>
+                                <div class="modal-check-group">
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Diseño de Productos"> Línea de Diseño de Productos</label>
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Producción y Transformación"> Línea de Producción y Transformación</label>
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Materiales y Biotecnología"> Línea de Materiales y Biotecnología</label>
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de TICs e Inteligencia Artificial"> Línea de TICs e Inteligencia Artificial</label>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-campo" id="sub-campo">
+                                <label>Líneas de Investigación *</label>
+                                <div class="modal-check-group">
+                                    <label><input type="checkbox" name="lineasinv[]" value="Investigación Aplicada"> Investigación Aplicada</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Desarrollo Tecnológico"> Desarrollo Tecnológico</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Innovación"> Innovación</label>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-campo" id="sub-campo">
+                                <label>Líneas de Semillero *</label>
+                                <div class="modal-check-group">
+                                    <label><input type="checkbox" name="lineassem[]" value="Formación en Investigación"> Formación en Investigación</label>
+                                    <label><input type="checkbox" name="lineassem[]" value="Proyectos de Aula"> Proyectos de Aula</label>
+                                    <label><input type="checkbox" name="lineassem[]" value="Extensión Tecnológica"> Extensión Tecnológica</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <!-- FIN del wrapper de dos columnas -->
+                    
+                    <!-- ANCHO COMPLETO: Asignar Miembros -->
                     <div class="modal-seccion">
                         <div class="modal-seccion-titulo">
-                            <i class="fas fa-info-circle"></i>
-                            <h6>Información Básica</h6>
+                            <i class="fas fa-users"></i>       
+                            <h6>Asignar Miembros al Proyecto</h6>
                         </div>
-                        <hr class="modal-hr modal-hr-primario">
-                        
-                        <div class="modal-campo" id="sub-campo">
-                            <label for="nom_pro">Nombre del Proyecto *</label>
-                            <input type="text" id="nom_pro" name="nom_pro" placeholder="Ej: Sistema de Riego Inteligente" required>
+                        <hr class="modal-hr modal-hr-terciario">
+
+                        {% if miembros_semillero %}
+                            <div class="miembros-seleccion">
+                                {% for miembro in miembros_semillero %}
+                                    <div class="miembro-item">
+                                        <input 
+                                            type="checkbox" 
+                                            name="miembros_proyecto[]"
+                                            value="{{ miembro.cedula }}"
+                                            id="miembro_{{ miembro.cedula }}"
+                                            style="display: none;"
+                                        >
+                                        
+                                        <label class="miembro-label" for="miembro_{{ miembro.cedula }}">
+                                            <div class="miembro-badge">
+                                                <span class="miembro-icon">{{ miembro.iniciales|upper }}</span>
+                                                <div class="miembro-info">
+                                                    <span class="miembro-nombre">{{ miembro.nombre_completo }}</span>
+                                                    <span class="miembro-rol">{{ miembro.rol }}</span>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i> 
+                                Selecciona los miembros que formarán parte del proyecto 
+                            </small>
+
+                        {% else %}
+                            <div class="empty-team">
+                                <i class="fas fa-user-slash"></i>
+                                <p>No hay miembros disponibles en este semillero</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- ANCHO COMPLETO: Entregables con grid 2x3 -->
+                    <div class="modal-seccion entregables-full-width">
+                        <div class="modal-seccion-titulo">
+                            <i class="fas fa-clipboard-check"></i>
+                            <h6>Entregables del Proyecto</h6>
                         </div>
+                        <hr class="modal-hr modal-hr-terciario">
                         
-                        <div class="modal-campo" id="sub-campo">
-                            <label for="tipo">Tipo *</label>
-                            <select id="tipo" name="tipo" required>
-                                <option value="" disabled selected>Selecciona una opción</option>
-                                <option value="sennova">Sennova</option>
-                                <option value="capacidadinstalada">Capacidad Instalada</option>
-                                <option value="formativo">Formativo</option>
-                            </select>
-                        </div>
-                        
-                        <div class="modal-campo">
-                            <label for="desc_pro">Descripción *</label>
-                            <textarea id="desc_pro" name="desc_pro" placeholder="Describe el propósito del proyecto..." required></textarea>
+                        <div id="entregables-container">
+                            <!-- Entregable 1: Formalización de Proyecto -->
+                            <div class="entregable-item" data-obligatorio="true">
+                                <div class="modal-campo">
+                                    <label for="entregable_1">
+                                        Formalización de Proyecto *
+                                        <span class="badge-obligatorio">Obligatorio</span>
+                                    </label>
+                                    <p class="descripcion-entregable">
+                                        Documento que establece el marco formal del proyecto, incluyendo título, justificación, alcance, participantes y recursos necesarios.
+                                    </p>
+                                    <div class="calendar-container">
+                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_1')"></i>
+                                        <input type="text" 
+                                            name="fecha_entregable_1" 
+                                            id="fechaRango_1" 
+                                            placeholder="Selecciona rango de fechas" 
+                                            readonly 
+                                            required>
+                                        <input type="hidden" name="fecha_inicio_1" id="fecha_inicio_1">
+                                        <input type="hidden" name="fecha_fin_1" id="fecha_fin_1">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Entregable 2: Diagnóstico -->
+                            <div class="entregable-item" data-obligatorio="true">
+                                <div class="modal-campo">
+                                    <label for="entregable_2">
+                                        Diagnóstico *
+                                        <span class="badge-obligatorio">Obligatorio</span>
+                                    </label>
+                                    <p class="descripcion-entregable">
+                                        Análisis de la situación actual, identificación de problemáticas, necesidades y oportunidades del contexto donde se desarrollará el proyecto.
+                                    </p>
+                                    <div class="calendar-container">
+                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_2')"></i>
+                                        <input type="text" 
+                                            name="fecha_entregable_2" 
+                                            id="fechaRango_2" 
+                                            placeholder="Selecciona rango de fechas" 
+                                            readonly 
+                                            required>
+                                        <input type="hidden" name="fecha_inicio_2" id="fecha_inicio_2">
+                                        <input type="hidden" name="fecha_fin_2" id="fecha_fin_2">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Entregable 3: Planeación -->
+                            <div class="entregable-item" data-obligatorio="true">
+                                <div class="modal-campo">
+                                    <label for="entregable_3">
+                                        Planeación *
+                                        <span class="badge-obligatorio">Obligatorio</span>
+                                    </label>
+                                    <p class="descripcion-entregable">
+                                        Planificación detallada con cronograma, actividades, metodología, recursos, responsables y estrategias para el desarrollo del proyecto.
+                                    </p>
+                                    <div class="calendar-container">
+                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_3')"></i>
+                                        <input type="text" 
+                                            name="fecha_entregable_3" 
+                                            id="fechaRango_3" 
+                                            placeholder="Selecciona rango de fechas" 
+                                            readonly 
+                                            required>
+                                        <input type="hidden" name="fecha_inicio_3" id="fecha_inicio_3">
+                                        <input type="hidden" name="fecha_fin_3" id="fecha_fin_3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Entregable 4: Ejecución -->
+                            <div class="entregable-item" data-obligatorio="true">
+                                <div class="modal-campo">
+                                    <label for="entregable_4">
+                                        Ejecución *
+                                        <span class="badge-obligatorio">Obligatorio</span>
+                                    </label>
+                                    <p class="descripcion-entregable">
+                                        Informe de implementación del proyecto, evidencias de actividades realizadas, resultados obtenidos y ajustes aplicados durante el proceso.
+                                    </p>
+                                    <div class="calendar-container">
+                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_4')"></i>
+                                        <input type="text" 
+                                            name="fecha_entregable_4" 
+                                            id="fechaRango_4" 
+                                            placeholder="Selecciona rango de fechas" 
+                                            readonly 
+                                            required>
+                                        <input type="hidden" name="fecha_inicio_4" id="fecha_inicio_4">
+                                        <input type="hidden" name="fecha_fin_4" id="fecha_fin_4">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Entregable 5: Evaluación -->
+                            <div class="entregable-item" data-obligatorio="true">
+                                <div class="modal-campo">
+                                    <label for="entregable_5">
+                                        Evaluación *
+                                        <span class="badge-obligatorio">Obligatorio</span>
+                                    </label>
+                                    <p class="descripcion-entregable">
+                                        Análisis del cumplimiento de objetivos, medición de impacto, identificación de logros, dificultades y lecciones aprendidas del proyecto.
+                                    </p>
+                                    <div class="calendar-container">
+                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_5')"></i>
+                                        <input type="text" 
+                                            name="fecha_entregable_5" 
+                                            id="fechaRango_5" 
+                                            placeholder="Selecciona rango de fechas" 
+                                            readonly 
+                                            required>
+                                        <input type="hidden" name="fecha_inicio_5" id="fecha_inicio_5">
+                                        <input type="hidden" name="fecha_fin_5" id="fecha_fin_5">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Entregable 6: Conclusiones -->
+                            <div class="entregable-item" data-obligatorio="true">
+                                <div class="modal-campo">
+                                    <label for="entregable_6">
+                                        Conclusiones *
+                                        <span class="badge-obligatorio">Obligatorio</span>
+                                    </label>
+                                    <p class="descripcion-entregable">
+                                        Reflexiones finales, recomendaciones para futuros proyectos, aportes al conocimiento y perspectivas de continuidad o réplica del proyecto.
+                                    </p>
+                                    <div class="calendar-container">
+                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_6')"></i>
+                                        <input type="text" 
+                                            name="fecha_entregable_6" 
+                                            id="fechaRango_6" 
+                                            placeholder="Selecciona rango de fechas" 
+                                            readonly 
+                                            required>
+                                        <input type="hidden" name="fecha_inicio_6" id="fecha_inicio_6">
+                                        <input type="hidden" name="fecha_fin_6" id="fecha_fin_6">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- COLUMNA 2 -->
-                    <!-- Sección: Líneas -->
+                    <hr class="modal-hr modal-hr-final">
+                    
+                    <!-- Acciones del modal -->
+                    <div class="modal-acciones">
+                        <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="modal-btn modal-btn-primario">
+                            <i class="fas fa-check"></i> Crear Proyecto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR PROYECTO -->
+    {% if mostrar_modal_editar and proyecto_editar %}
+    <div id="modal-editar" class="modal-overlay activo">
+        <div class="modal-contenedor">
+
+            <!-- BOTÓN CERRAR -->
+            <a href="#" class="modal-cerrar">&times;</a>
+
+            <div class="modal-contenido">
+
+                <!-- ========== HEADER ========== -->
+                <div class="modal-header">
+                    <img src="{% static 'img/project.png' %}" alt="Proyectos">
+                    <h2 class="modal-titulo">Editar Proyecto</h2>
+                </div>
+
+                <!-- ========== FORMULARIO ========== -->
+                <form method="POST" action="{% url 'resu-proyectos' semillero.id_sem proyecto_editar.cod_pro %}">
+                    {% csrf_token %}
+
+                    <!-- ========== INFORMACIÓN GENERAL ========== -->
+                    <div class="modal-seccion">
+                        <div class="modal-seccion-titulo">
+                            <i class="fas fa-info-circle"></i>
+                            <h6>Información General</h6>
+                        </div>
+                        <hr class="modal-hr modal-hr-primario">
+
+                        <div class="modal-campo" id="sub-campo">
+                            <label for="nom_pro_edit">Nombre del Proyecto *</label>
+                            <input 
+                                type="text" 
+                                id="nom_pro_edit" 
+                                name="nom_pro" 
+                                value="{{ proyecto_editar.nom_pro }}" 
+                                required
+                            >
+                        </div>
+
+                        <div class="modal-campo" id="sub-campo">
+                            <label for="tipo_edit">Tipo *</label>
+                            <select id="tipo_edit" name="tipo" required>
+                                <option value="" disabled>Selecciona una opción</option>
+                                <option value="sennova" {% if proyecto_editar.tipo == 'sennova' %}selected{% endif %}>Sennova</option>
+                                <option value="capacidadinstalada" {% if proyecto_editar.tipo == 'capacidadinstalada' %}selected{% endif %}>Capacidad Instalada</option>
+                                <option value="formativo" {% if proyecto_editar.tipo == 'formativo' %}selected{% endif %}>Formativo</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-campo" id="sub-campo">
+                            <label for="desc_pro_edit">Descripción *</label>
+                            <textarea id="desc_pro_edit" name="desc_pro" required>{{ proyecto_editar.desc_pro }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- ========== LÍNEAS (3 COLUMNAS) ========== -->
                     <div class="modal-seccion">
                         <div class="modal-seccion-titulo">
                             <i class="fa-solid fa-flask"></i>
                             <h6>Líneas</h6>
                         </div>
                         <hr class="modal-hr modal-hr-terciario">
-                        
-                        <div class="modal-campo" id="sub-campo">
-                            <label>Líneas Tecnológicas *</label>
-                            <div class="modal-check-group">
-                                <label><input type="checkbox" name="lineastec[]" value="Línea de Diseño de Productos"> Línea de Diseño de Productos</label>
-                                <label><input type="checkbox" name="lineastec[]" value="Línea de Producción y Transformación"> Línea de Producción y Transformación</label>
-                                <label><input type="checkbox" name="lineastec[]" value="Línea de Materiales y Biotecnología"> Línea de Materiales y Biotecnología</label>
-                                <label><input type="checkbox" name="lineastec[]" value="Línea de TICs e Inteligencia Artificial"> Línea de TICs e Inteligencia Artificial</label>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-campo" id="sub-campo">
-                            <label>Líneas de Investigación *</label>
-                            <div class="modal-check-group">
-                                <label><input type="checkbox" name="lineasinv[]" value="Investigación Aplicada"> Investigación Aplicada</label>
-                                <label><input type="checkbox" name="lineasinv[]" value="Desarrollo Tecnológico"> Desarrollo Tecnológico</label>
-                                <label><input type="checkbox" name="lineasinv[]" value="Innovación"> Innovación</label>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-campo" id="sub-campo">
-                            <label>Líneas de Semillero *</label>
-                            <div class="modal-check-group">
-                                <label><input type="checkbox" name="lineassem[]" value="Formación en Investigación"> Formación en Investigación</label>
-                                <label><input type="checkbox" name="lineassem[]" value="Proyectos de Aula"> Proyectos de Aula</label>
-                                <label><input type="checkbox" name="lineassem[]" value="Extensión Tecnológica"> Extensión Tecnológica</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-                <!-- FIN del wrapper de dos columnas -->
-                
-                <!-- ANCHO COMPLETO: Asignar Miembros -->
-                <div class="modal-seccion">
-                    <div class="modal-seccion-titulo">
-                        <i class="fas fa-users"></i>       
-                        <h6>Asignar Miembros al Proyecto</h6>
-                    </div>
-                    <hr class="modal-hr modal-hr-terciario">
 
-                    {% if miembros_semillero %}
-                        <div class="miembros-seleccion">
-                            {% for miembro in miembros_semillero %}
-                                <div class="miembro-item">
-                                    <input 
-                                        type="checkbox" 
-                                        name="miembros_proyecto[]"
-                                        value="{{ miembro.cedula }}"
-                                        id="miembro_{{ miembro.cedula }}"
-                                        style="display: none;"
-                                    >
-                                    
-                                    <label class="miembro-label" for="miembro_{{ miembro.cedula }}">
-                                        <div class="miembro-badge">
-                                            <span class="miembro-icon">{{ miembro.iniciales|upper }}</span>
-                                            <div class="miembro-info">
-                                                <span class="miembro-nombre">{{ miembro.nombre_completo }}</span>
-                                                <span class="miembro-rol">{{ miembro.rol }}</span>
+                        <div class="lineas-grid">
+                            <!-- LÍNEAS TECNOLÓGICAS -->
+                            <div class="linea-columna">
+                                <label>Líneas Tecnológicas *</label>
+                                <div class="modal-check-group">
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Diseño de Productos" {% if "Línea de Diseño de Productos" in lineas_tec_lista %}checked{% endif %}> Línea de Diseño de Productos</label>
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Producción y Transformación" {% if "Línea de Producción y Transformación" in lineas_tec_lista %}checked{% endif %}> Línea de Producción y Transformación</label>
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Materiales y Biotecnología" {% if "Línea de Materiales y Biotecnología" in lineas_tec_lista %}checked{% endif %}> Línea de Materiales y Biotecnología</label>
+                                    <label><input type="checkbox" name="lineastec[]" value="Línea de TICs e Inteligencia Artificial" {% if "Línea de TICs e Inteligencia Artificial" in lineas_tec_lista %}checked{% endif %}> Línea de TICs e Inteligencia Artificial</label>
+                                </div>
+                            </div>
+
+                            <!-- LÍNEAS DE INVESTIGACIÓN -->
+                            <div class="linea-columna">
+                                <label>Líneas de Investigación *</label>
+                                <div class="modal-check-group">
+                                    <label><input type="checkbox" name="lineasinv[]" value="Investigación Aplicada" {% if "Investigación Aplicada" in lineas_inv_lista %}checked{% endif %}> Investigación Aplicada</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Desarrollo Tecnológico" {% if "Desarrollo Tecnológico" in lineas_inv_lista %}checked{% endif %}> Desarrollo Tecnológico</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Innovación" {% if "Innovación" in lineas_inv_lista %}checked{% endif %}> Innovación</label>
+                                </div>
+                            </div>
+
+                            <!-- LÍNEAS DE SEMILLERO -->
+                            <div class="linea-columna">
+                                <label>Líneas de Semillero *</label>
+                                <div class="modal-check-group">
+                                    <label><input type="checkbox" name="lineassem[]" value="Formación en Investigación" {% if "Formación en Investigación" in lineas_sem_lista %}checked{% endif %}> Formación en Investigación</label>
+                                    <label><input type="checkbox" name="lineassem[]" value="Proyectos de Aula" {% if "Proyectos de Aula" in lineas_sem_lista %}checked{% endif %}> Proyectos de Aula</label>
+                                    <label><input type="checkbox" name="lineassem[]" value="Extensión Tecnológica" {% if "Extensión Tecnológica" in lineas_sem_lista %}checked{% endif %}> Extensión Tecnológica</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== ASIGNAR MIEMBROS ========== -->
+                    <div class="modal-seccion">
+                        <div class="modal-seccion-titulo">
+                            <i class="fas fa-users"></i>
+                            <h6>Asignar Miembros al Proyecto</h6>
+                        </div>
+                        <hr class="modal-hr modal-hr-terciario">
+
+                        <!-- Mostrar equipo actual asignado -->
+                        {% if miembros_proyecto_actual %}
+                            <div class="equipo-asignado-actual">
+                                <label style="font-weight: 600; margin-bottom: 10px; display: block;">
+                                    <i class="fas fa-users-cog"></i> Equipo Asignado Actualmente
+                                </label>
+                                <div class="miembros-asignados-visual">
+                                    {% for miembro in miembros_proyecto_actual %}
+                                        <div class="miembro-asignado-badge {% if miembro.estado == 'inactivo' %}miembro-inactivo{% endif %}">
+                                            <span class="miembro-avatar {% if miembro.estado == 'inactivo' %}miembro-inactivo{% endif %}">{{ miembro.iniciales|upper }}</span>
+                                            <div class="miembro-detalle">
+                                                <span class="miembro-nombre-badge">{{ miembro.nombre_completo }}</span>
+                                                <span class="miembro-rol-badge">{{ miembro.rol }}</span>
                                             </div>
                                         </div>
-                                    </label>
+                                    {% endfor %}
                                 </div>
-                            {% endfor %}
-                        </div>
+                            </div>
+                            <hr class="separador">
+                        {% endif %}
 
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle"></i> 
-                            Selecciona los miembros que formarán parte del proyecto 
-                        </small>
+                        <!-- Sección para modificar miembros -->
+                        <label style="font-weight: 600; margin-bottom: 10px; display: block;">
+                            <i class="fas fa-edit"></i> Modificar Equipo del Proyecto
+                        </label>
 
-                    {% else %}
-                        <div class="empty-team">
-                            <i class="fas fa-user-slash"></i>
-                            <p>No hay miembros disponibles en este semillero</p>
-                        </div>
-                    {% endif %}
-                </div>
+                        {% if miembros_semillero %}
+                            <div class="miembros-seleccion">
+                                {% for miembro in miembros_semillero %}
+                                    <div class="miembro-item">
+                                        <input 
+                                            type="checkbox" 
+                                            name="miembros_proyecto[]" 
+                                            value="{{ miembro.cedula }}" 
+                                            id="miembro_edit_{{ miembro.cedula }}" 
+                                            style="display: none;"
+                                            {% if miembro.esta_asignado %}checked{% endif %}
+                                        >
+                                        <label class="miembro-label" for="miembro_edit_{{ miembro.cedula }}">
+                                            <div class="miembro-badge">
+                                                <span class="miembro-icon">{{ miembro.iniciales|upper }}</span>
+                                                <div class="miembro-info">
+                                                    <span class="miembro-nombre">{{ miembro.nombre_completo }}</span>
+                                                    <span class="miembro-rol">{{ miembro.rol }}</span>
+                                                </div>
+                                                {% if miembro.esta_asignado %}
+                                                    <span class="badge-ya-asignado">
+                                                        <i class="fas fa-check-circle"></i> Asignado
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
 
-                <!-- ANCHO COMPLETO: Entregables con grid 2x3 -->
-                <div class="modal-seccion entregables-full-width">
-                    <div class="modal-seccion-titulo">
-                        <i class="fas fa-clipboard-check"></i>
-                        <h6>Entregables del Proyecto</h6>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i> 
+                                Marca o desmarca los miembros según necesites agregar o quitar del proyecto.
+                            </small>
+
+                        {% else %}
+                            <div class="empty-team">
+                                <i class="fas fa-user-slash"></i>
+                                <p>No hay miembros disponibles en este semillero.</p>
+                            </div>
+                        {% endif %}
                     </div>
-                    <hr class="modal-hr modal-hr-terciario">
-                    
-                    <div id="entregables-container">
-                        <!-- Entregable 1: Formalización de Proyecto -->
-                        <div class="entregable-item" data-obligatorio="true">
-                            <div class="modal-campo">
-                                <label for="entregable_1">
-                                    Formalización de Proyecto *
-                                    <span class="badge-obligatorio">Obligatorio</span>
-                                </label>
-                                <p class="descripcion-entregable">
-                                    Documento que establece el marco formal del proyecto, incluyendo título, justificación, alcance, participantes y recursos necesarios.
-                                </p>
-                                <div class="calendar-container">
-                                    <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_1')"></i>
-                                    <input type="text" 
-                                        name="fecha_entregable_1" 
-                                        id="fechaRango_1" 
-                                        placeholder="Selecciona rango de fechas" 
-                                        readonly 
-                                        required>
-                                    <input type="hidden" name="fecha_inicio_1" id="fecha_inicio_1">
-                                    <input type="hidden" name="fecha_fin_1" id="fecha_fin_1">
-                                </div>
-                            </div>
+                    <!-- ========== CONFIGURACIÓN AVANZADA ========== -->
+                    <div class="modal-seccion">
+                        <div class="modal-seccion-titulo">
+                            <i class="fas fa-cogs"></i>
+                            <h6>Configuración Avanzada</h6>
                         </div>
+                        <hr class="modal-hr modal-hr-secundary">
 
-                        <!-- Entregable 2: Diagnóstico -->
-                        <div class="entregable-item" data-obligatorio="true">
-                            <div class="modal-campo">
-                                <label for="entregable_2">
-                                    Diagnóstico *
-                                    <span class="badge-obligatorio">Obligatorio</span>
-                                </label>
-                                <p class="descripcion-entregable">
-                                    Análisis de la situación actual, identificación de problemáticas, necesidades y oportunidades del contexto donde se desarrollará el proyecto.
-                                </p>
-                                <div class="calendar-container">
-                                    <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_2')"></i>
-                                    <input type="text" 
-                                        name="fecha_entregable_2" 
-                                        id="fechaRango_2" 
-                                        placeholder="Selecciona rango de fechas" 
-                                        readonly 
-                                        required>
-                                    <input type="hidden" name="fecha_inicio_2" id="fecha_inicio_2">
-                                    <input type="hidden" name="fecha_fin_2" id="fecha_fin_2">
-                                </div>
-                            </div>
-                        </div>
+                        <div class="modal-campo notas-dos-columnas" id="sub-campo">
+                            <label for="notas_edit">Notas Adicionales</label>
 
-                        <!-- Entregable 3: Planeación -->
-                        <div class="entregable-item" data-obligatorio="true">
-                            <div class="modal-campo">
-                                <label for="entregable_3">
-                                    Planeación *
-                                    <span class="badge-obligatorio">Obligatorio</span>
-                                </label>
-                                <p class="descripcion-entregable">
-                                    Planificación detallada con cronograma, actividades, metodología, recursos, responsables y estrategias para el desarrollo del proyecto.
-                                </p>
-                                <div class="calendar-container">
-                                    <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_3')"></i>
-                                    <input type="text" 
-                                        name="fecha_entregable_3" 
-                                        id="fechaRango_3" 
-                                        placeholder="Selecciona rango de fechas" 
-                                        readonly 
-                                        required>
-                                    <input type="hidden" name="fecha_inicio_3" id="fecha_inicio_3">
-                                    <input type="hidden" name="fecha_fin_3" id="fecha_fin_3">
-                                </div>
-                            </div>
-                        </div>
+                            <div class="notas-grid">
+                                <ul class="lista-notas">
+                                    {% for nota in proyecto_editar.notas.splitlines %}
+                                        {% if nota %}
+                                            <li>{{ nota }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
 
-                        <!-- Entregable 4: Ejecución -->
-                        <div class="entregable-item" data-obligatorio="true">
-                            <div class="modal-campo">
-                                <label for="entregable_4">
-                                    Ejecución *
-                                    <span class="badge-obligatorio">Obligatorio</span>
-                                </label>
-                                <p class="descripcion-entregable">
-                                    Informe de implementación del proyecto, evidencias de actividades realizadas, resultados obtenidos y ajustes aplicados durante el proceso.
-                                </p>
-                                <div class="calendar-container">
-                                    <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_4')"></i>
-                                    <input type="text" 
-                                        name="fecha_entregable_4" 
-                                        id="fechaRango_4" 
-                                        placeholder="Selecciona rango de fechas" 
-                                        readonly 
-                                        required>
-                                    <input type="hidden" name="fecha_inicio_4" id="fecha_inicio_4">
-                                    <input type="hidden" name="fecha_fin_4" id="fecha_fin_4">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Entregable 5: Evaluación -->
-                        <div class="entregable-item" data-obligatorio="true">
-                            <div class="modal-campo">
-                                <label for="entregable_5">
-                                    Evaluación *
-                                    <span class="badge-obligatorio">Obligatorio</span>
-                                </label>
-                                <p class="descripcion-entregable">
-                                    Análisis del cumplimiento de objetivos, medición de impacto, identificación de logros, dificultades y lecciones aprendidas del proyecto.
-                                </p>
-                                <div class="calendar-container">
-                                    <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_5')"></i>
-                                    <input type="text" 
-                                        name="fecha_entregable_5" 
-                                        id="fechaRango_5" 
-                                        placeholder="Selecciona rango de fechas" 
-                                        readonly 
-                                        required>
-                                    <input type="hidden" name="fecha_inicio_5" id="fecha_inicio_5">
-                                    <input type="hidden" name="fecha_fin_5" id="fecha_fin_5">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Entregable 6: Conclusiones -->
-                        <div class="entregable-item" data-obligatorio="true">
-                            <div class="modal-campo">
-                                <label for="entregable_6">
-                                    Conclusiones *
-                                    <span class="badge-obligatorio">Obligatorio</span>
-                                </label>
-                                <p class="descripcion-entregable">
-                                    Reflexiones finales, recomendaciones para futuros proyectos, aportes al conocimiento y perspectivas de continuidad o réplica del proyecto.
-                                </p>
-                                <div class="calendar-container">
-                                    <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_6')"></i>
-                                    <input type="text" 
-                                        name="fecha_entregable_6" 
-                                        id="fechaRango_6" 
-                                        placeholder="Selecciona rango de fechas" 
-                                        readonly 
-                                        required>
-                                    <input type="hidden" name="fecha_inicio_6" id="fecha_inicio_6">
-                                    <input type="hidden" name="fecha_fin_6" id="fecha_fin_6">
-                                </div>
+                                <textarea id="notas_edit" name="notas" placeholder="Escribe una nueva nota aquí..."></textarea>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <hr class="modal-hr modal-hr-final">
-                
-                <!-- Acciones del modal -->
-                <div class="modal-acciones">
-                    <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
-                        <i class="fas fa-times"></i> Cancelar
-                    </a>
-                    <button type="submit" class="modal-btn modal-btn-primario">
-                        <i class="fas fa-check"></i> Crear Proyecto
-                    </button>
-                </div>
-            </form>
+
+                    <hr class="modal-hr modal-hr-final">
+
+                    <!-- ========== ACCIONES ========== -->
+                    <div class="modal-acciones">
+                        <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="modal-btn modal-btn-primario">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-{% if tipo_seleccionado %}
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const tipo = "{{ tipo_seleccionado }}";
-    const seccion = document.getElementById(tipo);
-    if (seccion) {
-      seccion.scrollIntoView({ behavior: "smooth", block: "start" });
+    {% endif %}
+
+
+    <!-- MODAL GESTIONAR MIEMBROS -->
+    {% if mostrar_modal_gestionar %}
+    <div id="modal-gestionar-miembros" class="modal-overlay activo">
+        <div class="modal-contenedor">
+            <!-- Botón cerrar -->
+            <a href="#" class="modal-cerrar">&times;</a>
+
+            <div class="modal-contenido">
+                <!-- HEADER -->
+                <div class="modal-header miembros-header">
+                    <img src="{% static 'img/People2.png' %}" alt="Equipo">
+                    <h2 class="modal-titulo">Gestionar Equipo - {{ proyecto_editar.nom_pro }}</h2>
+                </div>
+
+                <!-- FORMULARIO -->
+                <form method="GET" action="{% url 'resu-proyectos' semillero.id_sem proyecto_editar.cod_pro %}">
+                    <input type="hidden" name="gestionar_equipo" value="1">
+                    
+                    <div class="modal-seccion">
+                        <div class="modal-seccion-titulo">
+                            <i class="fas fa-search"></i>
+                            <h6>Buscar y Filtrar</h6>
+                        </div>
+                        <hr class="modal-hr modal-hr-primario">
+
+                        <div class="modal-filtros-grid">
+                            <!-- Campo de búsqueda -->
+                            <div class="modal-campo">
+                                <label for="busqueda_usuario">Buscar por nombre o correo</label>
+                                <input type="text" 
+                                    id="busqueda_usuario" 
+                                    name="busqueda_usuario" 
+                                    value="{{ busqueda_usuario }}"
+                                    placeholder="Escribe para buscar...">
+                            </div>
+
+                            <!-- Filtro por rol -->
+                            <div class="modal-campo">
+                                <label for="filtro_rol">Filtrar por rol</label>
+                                <select id="filtro_rol" name="filtro_rol" onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    <option value="es_lider" {% if filtro_rol == 'es_lider' %}selected{% endif %}>Líder De Proyecto</option>
+                                    <option value="instructor" {% if filtro_rol == 'instructor' %}selected{% endif %}>Instructor</option>
+                                    <option value="investigador" {% if filtro_rol == 'investigador' %}selected{% endif %}>Investigador</option>
+                                    <option value="aprendiz" {% if filtro_rol == 'aprendiz' %}selected{% endif %}>Aprendiz</option>
+                                </select>
+                            </div>
+
+                            <!-- Filtro por estado -->
+                            <div class="modal-campo">
+                                <label for="filtro_estado">Filtrar por estado</label>
+                                <select id="filtro_estado" name="filtro_estado" onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    <option value="activo" {% if filtro_estado == 'activo' %}selected{% endif %}>Activo</option>
+                                    <option value="inactivo" {% if filtro_estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                                </select>
+                            </div>
+
+                            <!-- Reemplaza el botón actual por este -->
+                            <div class="botones-item">
+                                <a href="{% url 'resu-proyectos' semillero.id_sem proyecto_editar.cod_pro %}?gestionar_equipo=1" 
+                                    class="limpiar">
+                                    <i class="fas fa-sync-alt"></i>Limpiar                
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-seccion lista-miembros-modal">
+                        {% for miembro in miembros_proyecto_actual %}
+                            <div class="item-miembro-modal" data-cedula="{{ miembro.cedula }}">
+                                <!-- Avatar -->
+                                <div class="avatar-miembro" data-color="{{ forloop.counter }}">
+                                    {{ miembro.iniciales }}
+                                </div>
+                                
+                                <!-- Información del miembro -->
+                                <div class="info-miembro">
+                                    <h4>{{ miembro.nombre_completo }}</h4>
+                                    <span class="rol-miembro">{{ miembro.rol }}</span>
+                                    {% if miembro.email %}
+                                        <span class="email-miembro">{{ miembro.email }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Estado -->
+                                {% if miembro.estado == 'activo' %}
+                                    <span class="estado-miembro activo">Activo</span>
+                                {% else %}
+                                    <span class="estado-miembro inactivo">Inactivo</span>
+                                {% endif %}
+                                
+                                <!-- Acciones -->
+                                <div class="acciones-miembro">
+                                    <!-- Verificar primero si es Líder de Semillero -->
+                                    {% if miembro.es_lider_sem %}
+                                        <i class="fas fa-medal lider-sem-icon" title="Líder del Semillero"></i>
+                                    
+                                    <!-- Si no es líder de semillero, verificar otros roles -->
+                                    {% elif miembro.rol|lower == 'instructor' or miembro.rol|lower == 'investigador' or miembro.rol|lower == 'líder de proyecto' or miembro.rol|lower == 'lider de proyecto' %}
+                                        
+                                        {% if miembro.es_lider %}
+                                            <!-- Ya es líder de proyecto -->
+                                            <i class="fas fa-star lider-icon" title="Líder del Proyecto"></i>
+                                        {% elif miembro.estado == 'inactivo' %}
+                                            <!-- Inactivo -->
+                                            <i class="far fa-star desactivado" 
+                                            title="Miembro inactivo – no puede ser líder" 
+                                            aria-disabled="true"
+                                            style="cursor: not-allowed; opacity: 0.5;"></i>
+                                        {% else %}
+                                            <!-- Puede ser asignado como líder -->
+                                            <i class="far fa-star" 
+                                            title="Asignar como Líder" 
+                                            onclick="asignarLiderProyecto('{{ miembro.cedula }}')"
+                                            style="cursor: pointer; color: #cbd5e0;"></i>
+                                        {% endif %}
+                                        
+                                    {% else %}
+                                        <!-- Otros roles -->
+                                        <span style="width: 24px; display: inline-block;"></span>
+                                    {% endif %}
+                                    
+                                    <!-- Toggle de estado -->
+                                    {% if miembro.es_lider %}
+                                        <!-- Si es líder de PROYECTO, mostrar toggle desactivado -->
+                                        <i class="fas fa-toggle-{% if miembro.estado == 'activo' %}on{% else %}off{% endif %} toggle-desactivado"
+                                        title="No se puede desactivar al líder del proyecto"
+                                        aria-disabled="true"
+                                        style="cursor: not-allowed; opacity: 0.5;"></i>
+                                        
+                                    {% elif miembro.rol|lower == 'líder de semillero' or miembro.rol|lower == 'lider de semillero' %}
+                                        <!-- Si es líder de SEMILLERO, mostrar toggle desactivado -->
+                                        <i class="fas fa-toggle-{% if miembro.estado == 'activo' %}on{% else %}off{% endif %} toggle-desactivado"
+                                        title="No se puede desactivar al líder del semillero"
+                                        aria-disabled="true"
+                                        style="cursor: not-allowed; opacity: 0.5;"></i>
+                                        
+                                    {% else %}
+                                        <!-- Si no es líder, toggle normal -->
+                                        <i class="fas {% if miembro.estado == 'activo' %}fa-toggle-on{% else %}fa-toggle-off{% endif %}"
+                                        title="Alternar Estado"
+                                        onclick="alternarEstadoMiembro('{{ miembro.cedula }}')"
+                                        style="cursor: pointer;"></i>
+                                    {% endif %}
+                                    
+                                    <!-- Ver detalles -->
+                                    <i class="fas fa-eye"
+                                    title="Ver Detalles"
+                                    onclick="verDetallesMiembro('{{ miembro.cedula }}')"
+                                    style="cursor: pointer;"></i>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="sin-resultados">
+                                {% if busqueda_usuario or filtro_rol or filtro_estado %}
+                                    No se encontraron miembros con los filtros aplicados.
+                                {% else %}
+                                    Este proyecto no tiene miembros asignados.
+                                {% endif %}
+                            </p>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+
+    {% if proyecto_editar %}
+    <script>
+    // Función para obtener el token CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
-  });
-</script>
-{% endif %}
-<script src="{% static 'js/proyectos-carousel.js' %}"></script>
-<script src="{% static 'js/avatars.js' %}"></script>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/calendario.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
+    const csrftoken = getCookie('csrftoken');
 
+    // Función para asignar líder de proyecto
+    function asignarLiderProyecto(cedula) {
+        // Obtener información del miembro
+        const itemMiembro = document.querySelector(`[data-cedula="${cedula}"]`);
+        if (!itemMiembro) {
+            console.error('No se encontró el miembro con cédula:', cedula);
+            return;
+        }
+
+        // Obtener el nombre del miembro del DOM
+        const nombreMiembro = itemMiembro.querySelector('.info-miembro h4').textContent;
+
+        const estadoSpan = itemMiembro.querySelector('.estado-miembro');
+        const estadoActual = estadoSpan.textContent.toLowerCase();
+
+        if (estadoActual === 'inactivo') {
+            mostrarMensajeError('No se puede asignar como líder a un miembro inactivo');
+            return;
+        }
+
+        fetch("{% url 'asignar-lider-proyecto-ajax' semillero.id_sem proyecto_editar.cod_pro %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: `cedula_miembro=${cedula}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarMensajeExito(data.mensaje);
+                // Recargar la página después de mostrar el mensaje
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                mostrarMensajeError('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarMensajeError('Ocurrió un error al asignar el líder');
+        });
+    }
+
+    // Función para alternar estado del miembro
+    function alternarEstadoMiembro(cedula) {
+        const itemMiembro = document.querySelector(`[data-cedula="${cedula}"]`);
+        if (!itemMiembro) {
+            console.error('No se encontró el miembro con cédula:', cedula);
+            return;
+        }
+
+        fetch("{% url 'alternar-estado-miembro' semillero.id_sem proyecto_editar.cod_pro %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `cedula_miembro=${cedula}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar el estado visual sin recargar la página
+                const estadoSpan = itemMiembro.querySelector('.estado-miembro');
+                const toggleIcon = itemMiembro.querySelector('.acciones-miembro .fa-toggle-on, .acciones-miembro .fa-toggle-off');
+                const starIcon = itemMiembro.querySelector('.acciones-miembro .fa-star:not(.lider-icon), .acciones-miembro .far.fa-star:not(.lider-icon)');
+                
+                // Cambiar texto y clases del estado
+                estadoSpan.textContent = data.nuevo_estado.charAt(0).toUpperCase() + data.nuevo_estado.slice(1);
+                estadoSpan.className = `estado-miembro ${data.nuevo_estado}`;
+                
+                // Cambiar ícono del toggle
+                if (data.nuevo_estado === 'activo') {
+                    toggleIcon.classList.remove('fa-toggle-off');
+                    toggleIcon.classList.add('fa-toggle-on');
+                    
+                    // SOLO reactivar la estrella si existe Y no es líder actual
+                    if (starIcon) {
+                        starIcon.classList.remove('desactivado');
+                        starIcon.removeAttribute('aria-disabled');
+                        starIcon.setAttribute('title', 'Asignar como Líder');
+                        starIcon.setAttribute('onclick', `asignarLiderProyecto('${cedula}')`);
+                        starIcon.style.cursor = 'pointer';
+                        starIcon.style.opacity = '1';
+                    }
+                } else {
+                    toggleIcon.classList.remove('fa-toggle-on');
+                    toggleIcon.classList.add('fa-toggle-off');
+                    
+                    // SOLO desactivar la estrella si existe Y no es líder actual
+                    if (starIcon) {
+                        starIcon.classList.add('desactivado');
+                        starIcon.setAttribute('aria-disabled', 'true');
+                        starIcon.setAttribute('title', 'Miembro inactivo – no puede ser líder');
+                        starIcon.removeAttribute('onclick');
+                        starIcon.style.cursor = 'not-allowed';
+                        starIcon.style.opacity = '0.5';
+                    }
+                }
+
+                // Mostrar mensaje visual de éxito
+                mostrarMensajeExito(data.mensaje);
+            } else {
+                // Mostrar mensaje de error
+                mostrarMensajeError(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarMensajeError('Ocurrió un error al cambiar el estado');
+        });
+    }
+
+    // Función para mostrar mensaje de éxito
+    function mostrarMensajeExito(mensaje, tipo) {
+        // Paleta de colores según el tipo de mensaje
+        const colores = {
+            success: "#4CAF50",   // Verde
+            error: "#E53935",     // Rojo
+            warning: "#FF9800",   // Naranja
+            info: "#2196F3"       // Azul
+        };
+
+        const mensajeDiv = document.createElement('div');
+        mensajeDiv.textContent = mensaje;
+        mensajeDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${colores[tipo] || "#4CAF50"};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            font-weight: 500;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity .3s ease, transform .3s ease;
+        `;
+
+        document.body.appendChild(mensajeDiv);
+
+        // Activar animación (entrada)
+        setTimeout(() => {
+            mensajeDiv.style.opacity = "1";
+            mensajeDiv.style.transform = "translateX(0)";
+        }, 50);
+
+        // Ocultar después de 2.5s
+        setTimeout(() => {
+            mensajeDiv.style.opacity = "0";
+            mensajeDiv.style.transform = "translateX(50px)";
+            setTimeout(() => mensajeDiv.remove(), 300);
+        }, 2500);
+    }
+
+    // Función para ver detalles del miembro
+    function verDetallesMiembro(cedula) {
+        // Redirigir a la página de miembros con el ID del miembro seleccionado
+        window.location.href = "{% url 'miembros' %}?miembro_id=" + cedula;
+    }
+    </script>
+    {% endif %}
+    <script src="{% static 'js/modales.js' %}"></script>
+    <script src="{% static 'js/entregables.js' %}"></script>
+    <script src="{% static 'js/proyectos-carousel.js' %}"></script>
+    <script src="{% static 'js/avatars.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/calendario.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    {% if tipo_seleccionado %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tipo = "{{ tipo_seleccionado }}";
+        const seccion = document.getElementById(tipo);
+        if (seccion) {
+        seccion.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+    </script>
+
+    {% endif %}
 {% endblock %}

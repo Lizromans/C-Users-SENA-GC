@@ -277,7 +277,8 @@
     color: #252525;
 }
 
-.descargar {
+.descargar,
+.eliminar-recurso {
     flex-shrink: 0;
     margin-left: auto;
     font-size: clamp(1rem, 2vw, 1.3rem);
@@ -294,6 +295,12 @@
     border-radius: 50%;
 }
 
+.eliminar-recurso:hover{
+    color: #c00000;
+    transform: scale(1.2);
+    background-color: rgba(169, 0, 0, 0.1);
+    border-radius: 50%;
+}
 .modal-overlay {
     display: none;
     position: fixed;
@@ -525,4 +532,46 @@
         transform: translateY(0);
         opacity: 1;
     }
+}
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-overlay.activo { display: flex; }
+
+.modal-contenedor {
+  background: #fff;
+  padding: 20px 25px;
+  border-radius: 10px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.modal-botones {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+.btn-cancelar {
+  background: #aaa;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-confirmar {
+  background: #e63946;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
 }

@@ -7,6 +7,13 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
     <div class="resumen">
         <div class="cont-1">
             <div class="boton-agregar">
@@ -38,11 +45,20 @@
                                 <span class="subtitulo">{{ documento.tipo }}</span>
                             </div>
                             {% if documento.archivo %}
+                            <div  class="recurso-item">
                                 <a href="{{ documento.archivo.url }}" 
                                     class="fa fa-download descargar" 
                                     aria-hidden="true" 
                                     target="_blank">
                                 </a>
+                                <!-- Botón eliminar con modal -->
+                                <a
+                                    class="fa fa-trash-alt eliminar-recurso"
+                                    data-nombre="{{ documento.nom_doc }}"
+                                    data-url="{% url 'eliminar_recurso' semillero.id_sem documento.cod_doc %}"
+                                    title="Eliminar {{ documento.nom_doc }}">
+                                </a>
+                            </div>
                             {% endif %}
                         </li>
                     </ul>
@@ -77,11 +93,20 @@
                                 <span class="subtitulo">{{ ficha.tipo }}</span>
                             </div>
                             {% if ficha.archivo %}
+                            <div  class="recurso-item">
                                 <a href="{{ ficha.archivo.url }}" 
                                     class="fa fa-download descargar" 
                                     aria-hidden="true" 
                                     target="_blank">
                                 </a>
+                                <!-- Botón eliminar con modal -->
+                                <a
+                                    class="fa fa-trash-alt eliminar-recurso"
+                                    data-nombre="{{ ficha.nom_doc }}"
+                                    data-url="{% url 'eliminar_recurso' semillero.id_sem ficha.cod_doc %}"
+                                    title="Eliminar {{ ficha.nom_doc }}">
+                                </a>
+                            </div>
                             {% endif %}
                         </li>
                     </ul>
@@ -95,6 +120,22 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL CONFIRMAR ELIMINACIÓN DE RECURSO -->
+<div id="modal-eliminar-recurso" class="modal-overlay">
+    <div class="modal-contenedor">
+        <h3>¿Confirmar eliminación?</h3>
+        <p id="texto-modal-recurso">¿Deseas eliminar este recurso?</p>
+        <div class="modal-botones">
+            <button id="cancelar-recurso" type="button" class="btn-cancelar">Cancelar</button>
+            <form id="form-eliminar-recurso" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn-confirmar">Eliminar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <!-- Modal Crear Recurso -->
 <div id="modal-crear" class="modal-overlay">
@@ -147,5 +188,6 @@
     </div>
 </div>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/modalrecursos.js' %}"></script>
 
 {% endblock %}

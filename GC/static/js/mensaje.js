@@ -1,56 +1,86 @@
-// Función para hacer que los mensajes de alerta desaparezcan
-function setupAutoHideAlerts(duration = 1800) {
-  // Selecciona todos los elementos con las clases de alerta
-  const alerts = document.querySelectorAll('.alert-info, .alert-danger, .alert-success');
-  
-  // Para cada alerta, configura un temporizador para ocultarla
-  alerts.forEach(alert => {
-    // Primero asegúrate que la posición sea relativa para los efectos
-    alert.style.position = 'relative';
-    
-    // Agrega transición para un efecto suave
-    alert.style.transition = 'opacity 0.5s ease-in-out';
-    
-    // Configura el temporizador para ocultar la alerta después del tiempo especificado
-    setTimeout(() => {
-      // Reduce la opacidad primero
-      alert.style.opacity = '0';
-      
-      // Después de que termine la transición, oculta completamente el elemento
-      setTimeout(() => {
-        alert.style.display = 'none';
-      }, 500);
-    }, duration);
-  });
-}
+function mostrarMensajeExito(mensaje, tipo) {
+    const estilos = {
+        success: {
+            background: "#dff0d8",
+            border: "1px solid #d6e9c6",
+            color: "#3c763d"
+        },
+        error: {
+            background: "#f2dede",
+            border: "1px solid #ebccd1",
+            color: "#a94442"
+        },
+        danger: {
+            background: "#f2dede",
+            border: "1px solid #ebccd1",
+            color: "#a94442"
+        },
+        warning: {
+            background: "#fcf8e3",
+            border: "1px solid #faebcc",
+            color: "#8a6d3b"
+        },
+        info: {
+            background: "#d9edf7",
+            border: "1px solid #bce8f1",
+            color: "black"
+        }
+    };
 
-// Ejecutar la función cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-  // Llamar a la función con 2000ms (2 segundos) como duración predeterminada
-  setupAutoHideAlerts(2000);
-  
-  // Para alertas nuevas que puedan ser agregadas dinámicamente
-  // Define un observador de mutaciones
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
-      if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-        // Comprueba si alguno de los nodos agregados es una alerta
-        mutation.addedNodes.forEach(node => {
-          if (node.nodeType === 1 && // Es un elemento
-              (node.classList.contains('alert-info') || 
-               node.classList.contains('alert-danger') || 
-               node.classList.contains('alert-success'))) {
-            // Configura el ocultamiento automático para esta nueva alerta
-            setupAutoHideAlerts.call([node], 2000);
-          }
-        });
-      }
-    });
-  });
-  
-  // Configurar y comenzar la observación del documento
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-});
+    const estiloSeleccionado = estilos[tipo] || estilos.info;
+
+    const mensajeDiv = document.createElement('div');
+    mensajeDiv.textContent = mensaje;
+    mensajeDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${estiloSeleccionado.background};
+        color: ${estiloSeleccionado.color};
+        border: ${estiloSeleccionado.border};
+        padding: 15px 30px 15px 20px;
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        font-weight: 500;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: opacity .3s ease, transform .3s ease;
+    `;
+
+    // Botón de cerrar
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+        position: absolute;
+        top: 2px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: inherit;
+    `;
+    
+    closeBtn.onclick = function() {
+        mensajeDiv.style.opacity = "0";
+        mensajeDiv.style.transform = "translateY(-20px)";
+        setTimeout(() => mensajeDiv.remove(), 300);
+    };
+
+    mensajeDiv.appendChild(closeBtn);
+    document.body.appendChild(mensajeDiv);
+
+    // Animación de entrada
+    setTimeout(() => {
+        mensajeDiv.style.opacity = "1";
+        mensajeDiv.style.transform = "translateY(0)";
+    }, 50);
+
+    // Auto-cierre después de 4 segundos
+    setTimeout(() => {
+        mensajeDiv.style.opacity = "0";
+        mensajeDiv.style.transform = "translateY(-20px)";
+        setTimeout(() => mensajeDiv.remove(), 300);
+    }, 4000);
+}
