@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %} Gestión de Proyectos {% endblock %}
+{% block titulo %} Centro de Ayuda {% endblock %}
 {% block css %}
 <link href="{% static 'css/centroayuda.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -106,42 +106,6 @@
                 </div>
             </div>
 
-            <!-- Sección: Eventos -->
-            <div class="grupo">
-                <div class="card">
-                    <div class="icon-cont eventos">
-                        <img class="icon" src="{% static 'img/evento.png' %}" alt="Icono Eventos">
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Eventos</h5>
-                        <p>En esta sección encontrarás información sobre los eventos académicos vinculados a los semilleros de investigación, como simposios, ponencias, conferencias, talleres y otras actividades formativas.</p>           
-                    </div>
-                </div>
-                <div class="scrollable-list">
-                    {% for evento in eventos %}
-                    <ul class="lista">
-                        <li>
-                            <div class="icon-cont">
-                                <img src="{% static 'img/calendar.png' %}" alt="Icono" class="icono">
-                            </div>
-                            <div class="texto-lista">
-                                <span class="titulo">{{ evento.nom_eve }}</span><br>
-                                <span class="subtitulo">{{ evento.fecha_eve }}</span>
-                            </div>
-                            <div class="acciones">
-                                <a href="#modal-evento-{{ evento.id }}" class="fas fa-eye" title="Ver detalles"></a>
-                            </div>
-                        </li>
-                    </ul>
-                    {% empty %}
-                    <div class="empty-message">
-                        <i class="fa fa-folder-open"></i>
-                        <p>No hay eventos disponibles en este momento</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
             <!-- Sección: Preguntas y Soporte -->
             <div class="grupo">
                 <div class="card">
@@ -178,39 +142,6 @@
                 </div>
             </div>
         </div>
-        
     </div>
-
-<!-- Modales para Eventos -->
-{% for evento in eventos %}
-<div id="modal-evento-{{ evento.id }}" class="modal-overlay">
-    <div class="modal-contenido">
-        <a class="modal-perfil-cerrar" href="{% url 'centroayuda' %}">
-            <i class="fa fa-times"></i>
-        </a>
-        <h3>{{ evento.nom_eve }}</h3>
-        <div class="modal-info">
-            <div class="modal-info-item">
-                <strong>Fecha:</strong>
-                <p>{{ evento.fecha_eve|date:"d/m/Y" }}</p>
-            </div>
-            <div class="modal-info-item">
-                <strong>Descripción:</strong>
-                <p>{{ evento.desc_eve }}</p>
-            </div>
-            <div class="modal-info-item">
-                <strong>Modalidad:</strong>
-                <p>{{ evento.modalidad_eve }}</p>
-            </div>
-            {% if evento.direccion_eve %}
-            <div class="modal-info-item">
-                <strong>Dirección:</strong>
-                <p>{{ evento.direccion_eve }}</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{% endfor %}
      
 {% endblock %}

@@ -75,31 +75,44 @@
         </div>
 
         <div class="busqueda">
-            <h3>Busqueda y Filtrados</h3>
+            <h3>Búsqueda y Filtrados</h3>
             <form method="GET" action="">
                 <div class="filtros">
-                    <input type="text" name="buscar" placeholder="Buscar proyecto..." class="buscador" value="{{ request.GET.buscar }}">
-                    <select name="estado" class="filtro">
+                    <div class="search-container">
+                        <input type="text" name="buscar" placeholder="Buscar proyecto..." class="buscador" value="{{ request.GET.buscar }}">
+                        <button type="submit" class="search-icon">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <select name="estado" class="filtro" onchange="this.form.submit()">
                         <option value="">Todos los estados</option>
                         <option value="diagnostico" {% if request.GET.estado == 'diagnostico' %}selected{% endif %}>En diagnóstico</option>
                         <option value="planeacion" {% if request.GET.estado == 'planeacion' %}selected{% endif %}>En planeación</option>
                         <option value="ejecucion" {% if request.GET.estado == 'ejecucion' %}selected{% endif %}>En ejecución</option>
                         <option value="completado" {% if request.GET.estado == 'completado' %}selected{% endif %}>Completado</option>
                     </select>
-                    <select name="tipo" class="filtro">
+
+                    <select name="tipo" class="filtro" onchange="this.form.submit()">
                         <option value="">Todos los tipos</option>
-                        {% for tipo in tipos_proyecto %}
-                        <option value="{{ tipo }}" {% if request.GET.tipo == tipo %}selected{% endif %}>{{ tipo }}</option>
-                        {% endfor %}
+                        <option value="sennova" {% if request.GET.tipo == "sennova" %}selected{% endif %}>Sennova</option>
+                        <option value="capacidad instalada" {% if request.GET.tipo == "capacidad instalada" %}selected{% endif %}>Capacidad Instalada</option>
+                        <option value="formativa" {% if request.GET.tipo == "formativa" %}selected{% endif %}>Formativa</option>
                     </select>
                     <select name="orden" class="filtro" onchange="this.form.submit()">
                         <option value="">Ordenar por</option>
                         <option value="fecha_creacion" {% if request.GET.orden == 'fecha_creacion' %}selected{% endif %}>Fecha de creación</option>
                         <option value="nombre" {% if request.GET.orden == 'nombre' %}selected{% endif %}>Nombre</option>
                     </select>
+                    <div class="botones-item">
+                        <button type="button" class="limpiar" onclick="window.location.href= {% url 'proyectos' %}">
+                            <i class="fas fa-sync-alt"></i>Limpiar filtros
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
+
 
         <div class="tabla-container">
             <h3>Lista de Proyectos</h3>

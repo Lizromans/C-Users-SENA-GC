@@ -87,31 +87,55 @@
                         class="input-miembros"
                         value="{{ busqueda }}"
                     >
+                    <button type="submit" class="search-icon">
+                        <i class="fa fa-search"></i>
+                    </button>
                 </div>
             </form>
 
-            <div class="filtros-rol">
-                <label>Rol:</label>
-                <div class="botones-rol">
-                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=todos&busqueda={{ busqueda }}" class="btn-rol {% if rol_filtro == 'todos' %}activo{% endif %}" data-estado="todos">Todos</a>
-                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=investigadores&busqueda={{ busqueda }}" class="btn-rol investigadores {% if rol_filtro == 'investigadores' %}activo{% endif %}" data-estado="investigadores">Investigadores</a>
-                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=instructores&busqueda={{ busqueda }}" class="btn-rol instructores {% if rol_filtro == 'instructores' %}activo{% endif %}" data-estado="instructores">Instructores</a>
-                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol=aprendices&busqueda={{ busqueda }}" class="btn-rol aprendices {% if rol_filtro == 'aprendices' %}activo{% endif %}" data-estado="aprendices">Aprendices</a>
+            <!-- === FILTRO DE ESTADO (BOTONES) === -->
+            <div class="filtros-estado">
+                <label>Estado:</label>
+                <div class="botones-estado">
+                    <a href="?vista={{ vista }}&estado=todos&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
+                    class="btn-estado {% if estado_filtro == 'todos' or not estado_filtro %}activo{% endif %}" 
+                    data-estado="todos">Todos</a>
+
+                    <a href="?vista={{ vista }}&estado=Activo&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
+                    class="btn-estado {% if estado_filtro == 'Activo' %}activo{% endif %}" 
+                    data-estado="Activo">Activo</a>
+
+                    <a href="?vista={{ vista }}&estado=Inactivo&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
+                    class="btn-estado {% if estado_filtro == 'Inactivo' %}activo{% endif %}" 
+                    data-estado="Inactivo">Inactivo</a>
                 </div>
             </div>
 
-            <div class="estado">
+            <!-- === FILTRO DE ROL (SELECT) === -->
+            <div class="filtro-rol">
                 <form method="get">
                     <input type="hidden" name="vista" value="{{ vista }}">
-                    <input type="hidden" name="rol" value="{{ rol_filtro }}">
+                    <input type="hidden" name="estado" value="{{ estado_filtro }}">
                     <input type="hidden" name="busqueda" value="{{ busqueda }}">
                     
-                    <select name="estado" class="filtro" onchange="this.form.submit()">
-                        <option value="">Todos los estados</option>
-                        <option value="Activo" {% if request.GET.estado == 'Activo' %}selected{% endif %}>Activo</option>
-                        <option value="Inactivo" {% if request.GET.estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+                    <label for="rol">Rol:</label>
+                    <select name="rol" id="rol" class="filtro" onchange="this.form.submit()">
+                        <option value="todos" {% if rol_filtro == 'todos' %}selected{% endif %}>Todos</option>
+                        <option value="investigadores" {% if rol_filtro == 'investigadores' %}selected{% endif %}>Investigadores</option>
+                        <option value="instructores" {% if rol_filtro == 'instructores' %}selected{% endif %}>Instructores</option>
+                        <option value="aprendices" {% if rol_filtro == 'aprendices' %}selected{% endif %}>Aprendices</option>
+                        <option value="lider_semillero" {% if rol_filtro == 'lider_semillero' %}selected{% endif %}>Líder de Semillero</option>
+                        <option value="dinamizador" {% if rol_filtro == 'dinamizador' %}selected{% endif %}>Dinamizador</option>
+                        <option value="lider_proyecto" {% if rol_filtro == 'lider_proyecto' %}selected{% endif %}>Líder de Proyecto</option>
                     </select>
                 </form>
+            </div>
+
+            <!-- 🔹 Botón para limpiar -->
+            <div class="botones-item">
+                <button type="button" class="limpiar" onclick="window.location.href= {% url 'miembros' %}">
+                    <i class="fas fa-sync-alt"></i>Limpiar filtros
+                </button>
             </div>
         </div>
 
@@ -134,7 +158,7 @@
                     {% for miembro in miembros %}
                     <tr>
                         <td class="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</td>
-                        <td>{{ miembro.correo_personal }}</td>
+                        <td>{{ miembro.correo_sena }}</td>
                         <td>{{ miembro.celular }}</td>
                         <td>{{ miembro.rol }}</td>
                         <td>{{ miembro.ultima_sesion|default:"No disponible" }}</td>
@@ -163,12 +187,24 @@
                     <div class="card {% if miembro.rol == 'Instructor' %}amarillo{% elif miembro.rol == 'Investigador' %}azul{% else %}morado{% endif %}">
                         <div class="icon-cont">
                             <span class="user-icon">
-                                <i class="fa fa-user-circle" aria-hidden="true"></i>
+                                {% if miembro.rol == 'Aprendiz' %}
+                                    {% if miembro.imagen_perfil %}
+                                        <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil aprendiz" class="user-perfil">
+                                    {% else %}
+                                        <img src="{% static 'img/Student.png' %}" alt="Foto de perfil aprendiz" class="user-perfil">
+                                    {% endif %}
+                                {% else %}
+                                    {% if miembro.imagen_perfil %}
+                                        <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil" class="user-perfil">
+                                    {% else %}
+                                        <img src="{% static 'img/cam.png' %}" alt="Foto de perfil por defecto" class="user-perfil">
+                                    {% endif %}
+                                {% endif %}
                             </span>
                         </div>
                         <div class="card-body">
                             <h5 id="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</h5>
-                            <p id="correo">{{ miembro.correo_personal }}</p>
+                            <p id="correo">{{ miembro.correo_sena }}</p>
                             <p id="celular">{{ miembro.celular }}</p>
                         </div>
                         <div class="info-badge">
@@ -176,7 +212,7 @@
                                 <span>{{ miembro.rol }}</span>
                             </div>
                             <div class="ultima-sesion">
-                                <span>{{ miembro.ultima_sesion|default:"No disponible" }}</span>
+                                <span>{{ miembro.ultima_sesion|default:"" }}</span>
                             </div>
                         </div>
                         <div class="info-icon">
@@ -206,10 +242,13 @@
                 <div class="perfil-miembro-sidebar">
                     <!-- Foto de perfil -->
                     <div class="perfil-foto-contenedor">
-                        <img src="{% static 'img/cam.png' %}" alt="foto de perfil" id="perfilFotoImg">
-                        <div class="perfil-foto-edit">
-                            <img src="{% static 'img/edit.png' %}" alt="Editar foto">
-                        </div>
+                        {% if tipo_miembro == 'usuario' and miembro_seleccionado.imagen_perfil %}
+                            <img src="{{ miembro_seleccionado.imagen_perfil.url }}" alt="foto de perfil" id="perfilFotoImg">
+                        {% elif tipo_miembro == 'aprendiz' %}
+                            <img src="{% static 'img/Student.png' %}" alt="foto de perfil aprendiz" id="perfilFotoImg">
+                        {% else %}
+                            <img src="{% static 'img/cam.png' %}" alt="foto de perfil" id="perfilFotoImg">
+                        {% endif %}
                     </div>
 
                     <!-- Card de resumen -->

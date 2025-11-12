@@ -243,18 +243,36 @@
     position: relative;
 }
 
-.buscador {
+.search-container {
+    position: relative;
     flex: 1;
     min-width: clamp(100px, 30%, 200px);
-    padding: clamp(0.3rem, 0.6vw, 0.5rem) clamp(2.5rem, 4vw, 3rem) clamp(0.3rem, 0.6vw, 0.5rem) clamp(1rem, 2vw, 1.5rem);    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.buscador {
+    width: 100%;
+    padding: clamp(0.3rem, 0.6vw, 0.5rem) clamp(2.5rem, 4vw, 3rem) clamp(0.3rem, 0.6vw, 0.5rem) clamp(1rem, 2vw, 1.5rem);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: clamp(8px, 1.5vw, 12px);
     font-size: clamp(0.9rem, 1.5vw, 1rem);
     backdrop-filter: blur(10px);
 }
 
-.filtros .fa-search {
+.search-icon {
     position: absolute;
-    left: clamp(47rem, 50vw, 47rem);
+    right: clamp(0.8rem, 2vw, 1.2rem);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+    transition: color 0.3s ease;
+}
+
+.search-icon:hover{
+    color: #4CAF50;
 }
 
 .filtro {
@@ -270,6 +288,43 @@
 
 .filtro:hover {
     border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ====== BOTON LIMPIAR FILTROS ====== */
+.botones-item {
+    display: grid;
+    grid-auto-flow: column; 
+    justify-content: end; 
+    gap: clamp(8px, 2vw, 16px);
+    flex-basis: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.botones-item .limpiar {
+    width: fit-content;
+    text-align: right;
+    padding: clamp(6px, 1vw, 10px) clamp(10px, 1vw, 16px);
+    background-color:#b6b5b573;
+    color: #000000;
+    border: 2px solid #8F8C8C;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: clamp(0.80rem, 1vw, 0.90rem);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    transition: opacity 0.3s ease;
+}
+
+.limpiar i {
+    transform: rotate(10deg);
+}
+
+.limpiar:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    background-color: #757575bb;
+    color: var(--color-sidebar-bg);
 }
 
 /* ====== TABLA- LISTADOD DE PROYECTOS ====== */
@@ -336,7 +391,11 @@ tbody td {
     font-weight: 700;
 }
 
-.estado {
+td.estado {
+    vertical-align: middle;
+}
+
+span.estado {
     display: inline-block;
     padding: clamp(0.3rem, 0.8vw, 0.4rem) clamp(0.7rem, 1.5vw, 1rem);
     border-radius: clamp(15px, 3vw, 20px);
@@ -345,24 +404,22 @@ tbody td {
     white-space: nowrap;
 }
 
-.estado.en-diagnostico,
-.estad.en.diagnostico {
+span.estado.en-diagnostico {
     background-color: #fd000079;
     color: #fd0000;
 }
 
-.estado.planeacion {
+span.estado.planeacion {
     background-color: #fd870079;
     color: #FD8700;
 }
 
-.estado.en-ejecucion,
-.estado.en.ejecuncion {
+span.estado.en-ejecucion {
     background-color: #0c536079;
     color: #0c5460;
 }
 
-.estado.completado {
+span.estado.completado {
     background-color: #38a90079;
     color: #007832;
 }

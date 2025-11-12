@@ -78,13 +78,22 @@ body {
 
 .user-icon {
   font-size: clamp(1.2rem, 3vw, 2.2rem);
-  width: clamp(28px, 2vw, 48px);
-  height: clamp(28px, 2vh, 48px);
+  width: clamp(30px, 4vw, 50px);
+  height: clamp(30px, 4vw, 50px);
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  border-radius: 50%; 
+  background-color: #f0f0f0; 
 }
 
+.user-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
 .user {
   display: flex;
   flex-direction: column;
@@ -375,12 +384,10 @@ body.sidebar-collapsed .main-content {
   color: var(--color-text-active);
 }
 
-
-
 /* ======= PIE DE PÁGINA DEL SIDEBAR ======= */
 .nav-footer {
     list-style: none;
-    padding: clamp(20px, 4%, 40px) 0;
+    padding: clamp(15px, 3%, 25px) 0;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -449,7 +456,6 @@ body.sidebar-collapsed .main-content {
 .sidebar.collapsed .config-btn,
 .sidebar.collapsed .logout-btn {
     padding-left: clamp(15px, 3%, 25px);
-    justify-content: center;
 }
 
 .sidebar.collapsed .config-btn .nav-icon,

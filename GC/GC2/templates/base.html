@@ -31,7 +31,13 @@
                 <div class="header-right">
                     <div class="user-info">
                         <span class="user-icon">
-                            <i class="fa fa-user-circle" aria-hidden="true"> </i>
+                            {% if usuario.imagen_perfil %}
+                                <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="user-perfil">
+                            {% else %}
+                                <div class="foto-placeholder">
+                                    <img src="{% static 'img/cam.png' %}" alt="user-perfil">
+                                </div>
+                            {% endif %}
                         </span>
                         <span class="user">
                             <a>{{ request.session.nom_usu }}</a>
@@ -97,7 +103,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {%if request.resolver_match.url_name == 'resportes' %}active{% endif %}" 
+                                <a class="nav-link {%if request.resolver_match.url_name == 'reportes' %}active{% endif %}" 
                                     href="{% url 'reportes' %}">
                                     <span class="nav-icon">📋</span>
                                     <span class="nav-text">Reportes</span>
@@ -186,7 +192,6 @@
     <!-- Contenido principal -->
     <div class="main-content">
         <main>
-            <script src="{% static 'js/mensaje.js' %}"></script>
             {% block main %}{% endblock %}
         </main>
     </div>

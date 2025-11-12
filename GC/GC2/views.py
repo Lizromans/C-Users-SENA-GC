@@ -369,9 +369,17 @@ def privacidad(request):
 
 # VISTAS DE HOME 
 def home(request):
-    usuario = {
-        'nom_usu': request.session.get('nom_usu')
-    }
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    # Obtener usuario
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
 
     return render(request, 'paginas/home.html',{
         'current_page': 'home',
@@ -478,6 +486,18 @@ def actualizar_foto(request):
 
 # VISTAS SEMILLEROS
 def semilleros(request):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    # Obtener usuario
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
     semilleros = Semillero.objects.all()
     
     # Calcular totales para cada semillero
@@ -504,7 +524,8 @@ def semilleros(request):
         semillero.total_entregables = total_entregables
         
     return render(request, 'paginas/semilleros.html', {
-        'semilleros': semilleros
+        'semilleros': semilleros,
+        'usuario' : usuario
     })
 
 def crear_semillero(request):
@@ -689,6 +710,17 @@ def eliminar_semilleros(request):
     return redirect('semilleros')
 
 def resumen(request, id_sem):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
     # Convertir los objetivos a lista
@@ -722,10 +754,22 @@ def resumen(request, id_sem):
         'objetivos_lista': objetivos_lista,
         'total_miembros': total_miembros,
         'total_proyectos': total_proyectos,
-        'total_entregables': total_entregables
+        'total_entregables': total_entregables,
+        'usuario' : usuario
     })
 
 def resu_miembros(request, id_sem):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion') 
+    
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
 
     cedulas_en_semillero = SemilleroUsuario.objects.filter(
@@ -820,7 +864,8 @@ def resu_miembros(request, id_sem):
         'tiene_instructores': tiene_instructores,
         'total_proyectos': total_proyectos,
         'total_entregables': total_entregables,
-        'instructores': instructores,  
+        'instructores': instructores, 
+        'usuario' : usuario,
     }
 
     return render(request, 'paginas/resu-miembros.html', context)
@@ -1003,6 +1048,17 @@ def asignar_lider_semillero(request, id_sem):
     return redirect("resu-miembros", id_sem=id_sem)
 
 def resu_proyectos(request, id_sem, cod_pro=None):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion') 
+    
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
 
     proyecto_editar = None
@@ -1302,6 +1358,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
         'busqueda_usuario': request.GET.get('busqueda_usuario', ''),
         'filtro_rol': request.GET.get('filtro_rol', ''),
         'filtro_estado': request.GET.get('filtro_estado', ''),
+        'usuario' : usuario
     }
 
     return render(request, 'paginas/resu-proyectos.html', context)
@@ -1821,6 +1878,17 @@ def eliminar_proyecto_semillero(request, id_sem, cod_pro):
     return redirect('resu-proyectos', id_sem=id_sem)
 
 def recursos(request, id_sem):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion') 
+    
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
     # Obtener todos los documentos del semillero
@@ -1860,7 +1928,8 @@ def recursos(request, id_sem):
         'fichas': fichas,
         'total_miembros': total_miembros,
         'total_proyectos': total_proyectos,
-        'total_entregables': total_entregables
+        'total_entregables': total_entregables,
+        'usuario' : usuario,
     })
 
 def agregar_recurso(request, id_sem):
@@ -1943,6 +2012,17 @@ def eliminar_recurso(request, id_sem, cod_doc):
 
 # VISTAS DE PROYECTOS
 def proyectos(request):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion') 
+    
     """
     Vista para la gestión de proyectos con búsqueda, filtros y estadísticas
     """
@@ -2033,48 +2113,53 @@ def proyectos(request):
         'pendientes_mes': pendientes_mes,
         'proyectos': proyectos_list,
         'tipos_proyecto': tipos_proyecto,
+        'usuario' : usuario,
     }
     return render(request, 'paginas/proyectos.html', context)
 
 # VISTAS DE MIEMBROS
 def miembros(request):
-    """Vista principal de gestión de miembros."""
-    
-    # Obtener parámetros GET
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    # Obtener usuario
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+
     vista = request.GET.get('vista', 'tarjeta')
     estado_filtro = request.GET.get('estado', '')
     rol_filtro = request.GET.get('rol', 'todos')
     busqueda = request.GET.get('busqueda', '').strip().lower()
     miembro_id = request.GET.get('miembro_id')
 
-    # Manejar actualización del estado (POST)
+
     if request.method == "POST":
         cedula = request.POST.get("cedula")
         nuevo_estado = request.POST.get("estado")
 
         if cedula and nuevo_estado:
-            # Buscar primero en Usuario
+            
             usuario = Usuario.objects.filter(cedula=cedula).first()
+            aprendiz = Aprendiz.objects.filter(cedula_apre=cedula).first()
             if usuario:
                 usuario.estado = nuevo_estado
                 usuario.save()
                 messages.success(request, f"Estado de {usuario.nom_usu} actualizado a {nuevo_estado}.")
-            else:
-                # Buscar en Aprendiz
-                aprendiz = Aprendiz.objects.filter(cedula_apre=cedula).first()
-                if aprendiz:
-                    aprendiz.estado_apre = nuevo_estado
-                    aprendiz.save()
-                    messages.success(request, f"Estado de {aprendiz.nombre} actualizado a {nuevo_estado}.")
+            elif aprendiz:
+                aprendiz.estado_apre = nuevo_estado
+                aprendiz.save()
+                messages.success(request, f"Estado de {aprendiz.nombre} actualizado a {nuevo_estado}.")
 
-        # Redirigir para evitar reenvíos del formulario
         return redirect(f"{request.path}?miembro_id={cedula}")
 
-    # Obtener todos los usuarios y aprendices
     usuarios = Usuario.objects.all()
     aprendices = Aprendiz.objects.all()
 
-    # Aplicar filtros
     if busqueda:
         usuarios = usuarios.filter(
             Q(nom_usu__icontains=busqueda) |
@@ -2087,39 +2172,89 @@ def miembros(request):
             Q(cedula_apre__icontains=busqueda)
         )
 
-    if estado_filtro:
+    # Solo filtrar si estado_filtro existe Y no es 'todos'
+    if estado_filtro and estado_filtro != 'todos':
         usuarios = usuarios.filter(estado=estado_filtro)
         aprendices = aprendices.filter(estado_apre=estado_filtro)
+
+    rol_filtro = request.GET.get('rol', 'todos').strip().lower()
 
     if rol_filtro == 'investigadores':
         usuarios = usuarios.filter(rol__iexact='Investigador')
         aprendices = aprendices.none()
+
     elif rol_filtro == 'instructores':
         usuarios = usuarios.filter(rol__iexact='Instructor')
         aprendices = aprendices.none()
+
+    elif rol_filtro == 'lider_semillero':
+        # Coincide con "Lider de Semillero", "Líder Semillero", etc.
+        usuarios = usuarios.filter(rol__iregex=r'l[ií]der(\s+de)?\s+semillero')
+        aprendices = aprendices.none()
+
+    elif rol_filtro == 'dinamizador':
+        usuarios = usuarios.filter(rol__iexact='Dinamizador')
+        aprendices = aprendices.none()
+
+    elif rol_filtro == 'lider_proyecto':
+        # Coincide con "Lider de Proyecto", "Líder Proyecto", etc.
+        usuarios = usuarios.filter(rol__iregex=r'l[ií]der(\s+de)?\s+proyecto')
+        aprendices = aprendices.none()
+
     elif rol_filtro == 'aprendices':
         usuarios = usuarios.none()
 
-    # Normalizar miembros
+
     miembros = []
+
     for u in usuarios:
+        ultimo_acceso = "Sin registro"
+        if u.last_login:
+            tiempo = now() - u.last_login
+            dias, segundos = tiempo.days, tiempo.seconds
+
+            if dias == 0:
+                if segundos < 60:
+                    ultimo_acceso = "Hace unos segundos"
+                elif segundos < 3600:
+                    minutos = segundos // 60
+                    ultimo_acceso = f"Hace {minutos} minuto{'s' if minutos != 1 else ''}"
+                else:
+                    horas = segundos // 3600
+                    ultimo_acceso = f"Hace {horas} hora{'s' if horas != 1 else ''}"
+            elif dias == 1:
+                ultimo_acceso = "Ayer"
+            elif dias < 7:
+                ultimo_acceso = f"Hace {dias} día{'s' if dias != 1 else ''}"
+            elif dias < 30:
+                semanas = dias // 7
+                ultimo_acceso = f"Hace {semanas} semana{'s' if semanas != 1 else ''}"
+            elif dias < 365:
+                meses = dias // 30
+                ultimo_acceso = f"Hace {meses} mes{'es' if meses != 1 else ''}"
+            else:
+                años = dias // 365
+                ultimo_acceso = f"Hace {años} año{'s' if años != 1 else ''}"
+
         miembros.append({
             'id': u.cedula,
             'nombres': u.nom_usu,
             'apellidos': u.ape_usu,
-            'correo_personal': u.correo_per,
+            'correo_sena': u.correo_ins,
             'celular': u.telefono,
             'rol': u.rol,
-            'ultima_sesion': u.last_login,
+            'ultima_sesion': ultimo_acceso,
             'tipo': 'usuario',
+            'imagen_perfil': u.imagen_perfil.url if u.imagen_perfil else None,
             'objeto': u
         })
+
     for a in aprendices:
         miembros.append({
             'id': a.cedula_apre,
             'nombres': a.nombre,
             'apellidos': a.apellido,
-            'correo_personal': a.correo_per,
+            'correo_sena': a.correo_ins,
             'celular': a.telefono,
             'rol': 'Aprendiz',
             'ultima_sesion': None,
@@ -2127,12 +2262,10 @@ def miembros(request):
             'objeto': a
         })
 
-    # Totales
     total_instructores = Usuario.objects.filter(rol='Instructor').count()
     total_investigadores = Usuario.objects.filter(rol='Investigador').count()
     total_aprendices = Aprendiz.objects.count()
 
-    # Miembro seleccionado
     miembro_seleccionado = None
     tipo_miembro = None
 
@@ -2151,6 +2284,7 @@ def miembros(request):
                 'vinculacion': usuario.vinculacion_laboral,
                 'dependencia': usuario.dependencia,
                 'rol': usuario.rol,
+                'imagen_perfil': usuario.imagen_perfil,
                 'estado': usuario.estado,
                 'semilleros': usuario.semilleros.all() if hasattr(usuario, 'semilleros') else [],
                 'proyectos': usuario.proyectos.all() if hasattr(usuario, 'proyectos') else [],
@@ -2188,19 +2322,48 @@ def miembros(request):
         'estado_filtro': estado_filtro,
         'rol_filtro': rol_filtro,
         'busqueda': busqueda,
+        'usuario': usuario
     }
 
     return render(request, 'paginas/miembros.html', contexto)
 
 # VISTAS DE CENTRO DE AYUDA
 def centroayuda(request):
-    return render(request, 'paginas/centroayuda.html',
-    {'current_page': 'centroayuda'})
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    # Obtener usuario
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
+    contexto = {
+        'usuario': usuario
+    }
+    return render(request, 'paginas/centroayuda.html', contexto)
 
 # VISTAS DE REPORTES
 def reportes(request):
-    return render(request, 'paginas/reportes.html',
-    {'current_page': 'reportes'})
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        return redirect('iniciarsesion')
+
+    # Obtener usuario
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
+    contexto = {
+        'usuario': usuario
+    }
+    return render(request, 'paginas/reportes.html', contexto)
 
 # VISTA DE LOGOUT
 def logout(request):

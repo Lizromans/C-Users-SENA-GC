@@ -104,7 +104,7 @@
                     </div>
                     <div class="info">
                         <label for="fecha">Fecha de Nacimiento:</label>
-                        <input type="text" id="fecha" name="fecha" value="{{ usuario.fecha_nacimiento|default_if_none:"" }}"placeholder="Ingrese su fecha de nacimiento">
+                        <input type="date" id="fecha" name="fecha" value="{% if usuario.fecha_nacimiento %}{{ usuario.fecha_nacimiento|date:'Y-m-d' }}{% endif %}" placeholder="Ingrese su fecha de nacimiento">
                     </div>
                 </div>
             </div>
