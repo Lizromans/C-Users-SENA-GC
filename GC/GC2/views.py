@@ -1773,10 +1773,6 @@ def agregar_recurso(request, id_sem):
     # Si la solicitud no es POST, redirigir a la página de recursos
     return redirect('recursos', id_sem=id_sem)
 
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-from .models import Documento, SemilleroDocumento
-
 def eliminar_recurso(request, id_sem, cod_doc):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     documento = get_object_or_404(Documento, cod_doc=cod_doc)
