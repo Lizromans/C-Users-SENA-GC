@@ -10,11 +10,21 @@
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
-    /* Nuevas variables para colores de fondo */
     --color-fondo-principal: #f5f5f5;
     --color-fondo-secundario: #e9ecef;
-    /* Variables para gradiente */
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
+}
+
+.resumen {
+    display: flex;
+    flex-direction: column;    
+    gap: clamp(1rem, 2vw, 2rem);
+    width: 100%;
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(20px, 3vh, 40px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 .contenedor-principal{
@@ -365,12 +375,13 @@ thead th {
 
 /* Cuerpo de la tabla */
 tbody tr {
-    border-bottom: 1px solid #f0f0f0;
+    background-color: var(--color-fondo-principal);
+    border-bottom: 1px solid #ffffff;
     transition: all 0.3s ease;
 }
 
 tbody tr:hover {
-    background: #f8f9ff;
+    background: #ffffff;
     transform: scale(1.005);
     box-shadow: 0 clamp(1px, 0.3vw, 2px) clamp(5px, 1vw, 8px) rgba(102, 126, 234, 0.2);
 }
@@ -400,27 +411,27 @@ span.estado {
     padding: clamp(0.3rem, 0.8vw, 0.4rem) clamp(0.7rem, 1.5vw, 1rem);
     border-radius: clamp(15px, 3vw, 20px);
     font-size: clamp(0.7rem, 1.4vw, 0.85rem);
-    font-weight: 600;
+    
     white-space: nowrap;
 }
 
-span.estado.en-diagnostico {
-    background-color: #fd000079;
+span.estado.diagnostico {
+    background-color: #fd00004f;
     color: #fd0000;
 }
 
 span.estado.planeacion {
-    background-color: #fd870079;
+    background-color: #fd870049;
     color: #FD8700;
 }
 
-span.estado.en-ejecucion {
-    background-color: #0c536079;
+span.estado.ejecucion {
+    background-color: #0c53604f;
     color: #0c5460;
 }
 
 span.estado.completado {
-    background-color: #38a90079;
+    background-color: #38a90048;
     color: #007832;
 }
 
@@ -457,18 +468,24 @@ span.estado.completado {
 }
 
 /* Porcentaje */
-.barra {
-      width: 100%;
-      background-color: #eee;
-      border-radius: clamp(6px, 1.2vw, 8px);
-      overflow: hidden;
-    }
-
-.relleno {
-    height: clamp(1rem, 2vw, 1.5rem); /* altura responsiva */
-    background-color: #4CAF50;
-    text-align: center;
-    color: white;
-    font-size: clamp(0.5rem, 1vw, 0.9rem); /* texto responsivo */
-    white-space: nowrap;
+.progress-bar {
+    width: 100%;
+    background-color: #eee;
+    border-radius: clamp(6px, 1.2vw, 8px);
+    overflow: hidden;
+    
 }
+
+.progress-fill {
+    height: clamp(1rem, 2vw, 1.5rem); 
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: clamp(5px, 0.8vw, 8px);
+    transition: width 0.6s ease;
+    text-align: center;
+    color: rgb(0, 0, 0);
+    font-size: clamp(0.5rem, 1vw, 0.9rem);
+    white-space: nowrap;
+    padding: 0 clamp(2px, 2vw, 4px);
+}
+
+

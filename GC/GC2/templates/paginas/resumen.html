@@ -59,7 +59,16 @@
                 </div>
             </div>
             <div class="texto-inferior">
-                <p>{{ progreso|floatformat:0 }}% completado</p>
+                <p>{{ semillero.progreso_sem|floatformat:0 }}% completado</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" 
+                        role="progressbar"
+                        style="width: {{ semillero.progreso_sem }}%"
+                        aria-valuenow="{{ semillero.progreso_sem }}" 
+                        aria-valuemin="0" 
+                        aria-valuemax="100">
+                    </div>
+                </div>
             </div>
         </div>
     </div>     

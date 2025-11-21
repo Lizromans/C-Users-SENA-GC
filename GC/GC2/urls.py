@@ -26,9 +26,6 @@ urlpatterns = [
     path('resu-miembros/<int:id_sem>/', views.resu_miembros, name='resu-miembros'),
     path('semillero/<int:id_sem>/asignar-lider/', views.asignar_lider_semillero, name='asignar-lider-semillero'),
     path('agregar-miembros/<int:id_sem>/', views.agregar_miembros, name='agregar_miembros'),
-    path('resu-proyectos/<int:id_sem>/', views.resu_proyectos, name='resu-proyectos'),
-    path('semillero/<int:id_sem>/proyectos/', views.resu_proyectos, name='resu-proyectos'),
-    path('semillero/<int:id_sem>/proyectos/<int:cod_pro>/', views.resu_proyectos, name='resu-proyectos'),
     path('semillero/<int:id_sem>/crear_proyecto/', views.crear_proyecto, name='crear_proyecto'),
     
     path('resu-proyectos/<int:id_sem>/', views.resu_proyectos, name='resu-proyectos'),
@@ -54,7 +51,12 @@ urlpatterns = [
 
     #REPORTES
     path('reportes/', views.reportes, name='reportes'),
-
+    path("reporte-semilleros/", views.reporte_general_semilleros, name="reporte_semilleros"),
+    path("reporte-proyectos/", views.reporte_general_proyectos, name="reporte_proyectos"),
+    path("reporte-entregables/", views.reporte_entregables, name="reporte_entregables"),
+    path("reporte-participantes/", views.reporte_participantes, name="reporte_participantes"),
+    path("reporte-dinamico/", views.generar_reporte_dinamico, name="generar_reporte_dinamico"),
+    
     #CONFIGURACIONES ADICIONES 
     path('privacidad/', views.privacidad, name='privacidad'),
     path('logout/', views.logout, name='logout'),

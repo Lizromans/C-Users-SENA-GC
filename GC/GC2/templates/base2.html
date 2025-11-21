@@ -191,14 +191,12 @@
             </div>
         </div>
     </div>
-
-
     <!-- Contenido principal -->
     <div class="main-content">
         <main>
             
             <!-- Contenedor Principal con Gradiente y Círculos -->
-            <div class="contenedor-principal">
+            <div class="contenedor-principal" data-semillero-id="{{ semillero.id_sem }}">
                 <div class="bienvenida">
                     <div class="card-body">
                         <h4>{{ semillero.nombre }}</h4>
@@ -237,6 +235,7 @@
                     Recursos</a>            
             </div>
             <div class="contenido">
+                <script src="{% static 'js/mensaje.js' %}"></script>
                 {% block main %}{% endblock %}
             </div>
         </main>
@@ -247,6 +246,33 @@
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/sidebar.js' %}"></script>
     <script src="{% static 'js/contraseña.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contenedor = document.querySelector('.contenedor-principal');
+        
+        if (contenedor) {
+            const semilleroId = parseInt(contenedor.getAttribute('data-semillero-id'));
+            
+            // Array de gradientes que coinciden exactamente con los colores de las cards
+            const colores = [
+                'linear-gradient(90deg, rgba(151, 71, 255, 1) 0%, rgba(151, 71, 255, 0.884) 75%)',  // 1. Morado
+                'linear-gradient(90deg, rgba(255, 71, 151, 1) 0%, rgba(255, 71, 151, 0.884) 75%)',  // 2. Rosa
+                'linear-gradient(90deg, rgba(71, 255, 151, 1) 0%, rgba(71, 255, 151, 0.884) 75%)',  // 3. Verde
+                'linear-gradient(90deg, rgba(255, 151, 71, 1) 0%, rgba(255, 151, 71, 0.884) 75%)',  // 4. Naranja
+                'linear-gradient(90deg, rgba(71, 151, 255, 1) 0%, rgba(71, 151, 255, 0.884) 75%)'   // 5. Azul
+            ];
+            
+            // Usar el mismo cálculo que las cards: nth-child usa posición, no ID
+            // Para hacer coincidir con las cards, usamos el ID del semillero
+            const colorIndex = ((semilleroId - 1) % 5);
+            
+            // Aplica el color directamente al elemento
+            contenedor.style.background = colores[colorIndex];
+            
+            console.log(`Semillero ID: ${semilleroId}, Color Index: ${colorIndex}, Gradiente aplicado: Color ${colorIndex + 1}`);
+        }
+    });
+    </script>
   
 </body>
 </html>

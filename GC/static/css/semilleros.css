@@ -10,10 +10,8 @@
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
-    /* Nuevas variables para colores de fondo */
     --color-fondo-principal: #f5f5f5;
     --color-fondo-secundario: #e9ecef;
-    /* Variables para gradiente */
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
 }
 
@@ -33,7 +31,7 @@
 
 .buscador {
     background-color: var(--color-fondo-secundario);
-    width: calc(94vw - var(--sidebar-width));
+    width: 98%;
     height: clamp(40px, 15vh, 55px);
     display: grid;
     grid-template-columns: 48vw auto;
@@ -219,36 +217,36 @@
     z-index: -1;
 }
 
-.card-semillero:nth-child(5n+1) {
+.card-semillero:nth-child(5n+3) {
   background:
-    linear-gradient(to bottom, #9747ff99 0%, transparent 6%) top,
+    linear-gradient(to bottom, #9747ff99 0%, transparent 5%) top,
     linear-gradient(to right, #9747ff99 0%, transparent 3%) left,
     linear-gradient(to left, #9747ff99 0%, transparent 3%) right;
 }
 
-.card-semillero:nth-child(5n+2) {
+.card-semillero:nth-child(5n+4) {
   background:
-    linear-gradient(to bottom, #ff479799 0%, transparent 7%) top,
-    linear-gradient(to right, #ff479799 0%, transparent 3%) left,
-    linear-gradient(to left, #ff479799 0%, transparent 3%) right;
+    linear-gradient(to bottom, #f34d9599 0%, transparent 5%) top,
+    linear-gradient(to right, #f34d9599 0%, transparent 3%) left,
+    linear-gradient(to left, #f34d9599 0%, transparent 3%) right;
 }
 
-.card-semillero:nth-child(5n+3) {
+.card-semillero:nth-child(5n+5) {
   background:
-    linear-gradient(to bottom, #47ff9799 0%, transparent 7%) top,
+    linear-gradient(to bottom, #47ff9799 0%, transparent 5%) top,
     linear-gradient(to right, #47ff9799 0%, transparent 3%) left,
     linear-gradient(to left, #47ff9799 0%, transparent 3%) right;
 }
 
-.card-semillero:nth-child(5n+4) {
+.card-semillero:nth-child(5n+1) {
   background:
-    linear-gradient(to bottom, #ff974799 0%, transparent 7%) top,
+    linear-gradient(to bottom, #ff974799 0%, transparent 5%) top,
     linear-gradient(to right, #ff974799 0%, transparent 3%) left,
     linear-gradient(to left, #ff974799 0%, transparent 3%) right;
 
 }
 
-.card-semillero:nth-child(5n+5) {
+.card-semillero:nth-child(5n+2) {
   background:
     linear-gradient(to bottom, #4797ff99 0%, transparent 7%) top,
     linear-gradient(to right, #4797ff99 0%, transparent 3%) left,
@@ -311,11 +309,11 @@
     margin-bottom: 3%;
 }
 
-.card-semillero:nth-of-type(5n+1) .badge.bg-secondary { color: #9747ff !important; }
-.card-semillero:nth-of-type(5n+2) .badge.bg-secondary { color: #ff4797 !important; }
-.card-semillero:nth-of-type(5n+3) .badge.bg-secondary { color: #007832 !important; }
-.card-semillero:nth-of-type(5n+4) .badge.bg-secondary { color: #ff9747 !important; }
-.card-semillero:nth-of-type(5n+5) .badge.bg-secondary { color: #4797ff !important; }
+.card-semillero:nth-of-type(5n+3) .badge.bg-secondary { color: #9747ff !important; }
+.card-semillero:nth-of-type(5n+4) .badge.bg-secondary { color: #ff4797 !important; }
+.card-semillero:nth-of-type(5n+5) .badge.bg-secondary { color: #007832 !important; }
+.card-semillero:nth-of-type(5n+1) .badge.bg-secondary { color: #ff9747 !important; }
+.card-semillero:nth-of-type(5n+2) .badge.bg-secondary { color: #4797ff !important; }
 
 /* Botones "Ver más" dentro de las tarjetas */
 .card-body .btn-primary {
@@ -398,7 +396,6 @@
     background-color: rgba(94, 93, 93, 0.267);
     z-index: 9999;
     overflow-y: auto;
-
     padding: clamp(20px, 3vw, 40px);
 }
 

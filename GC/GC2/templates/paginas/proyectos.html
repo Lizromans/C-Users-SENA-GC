@@ -7,6 +7,7 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+
     <div class="contenedor-principal">
         <div class="titulo">
             <h3>📊 Proyectos</h3>
@@ -106,71 +107,78 @@
                     </select>
                     <div class="botones-item">
                         <button type="button" class="limpiar" onclick="window.location.href= {% url 'proyectos' %}">
-                            <i class="fas fa-sync-alt"></i>Limpiar filtros
+                            <i class="fas fa-sync-alt"></i> Limpiar filtros
                         </button>
                     </div>
                 </div>
             </form>
         </div>
 
+        <div class="resumen">
+            <div class="tabla-container">
+                <h3>Lista de Proyectos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre del Proyecto</th>
+                            <th>Semillero</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Progreso</th>
+                            <th>Fecha creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
 
-        <div class="tabla-container">
-            <h3>Lista de Proyectos</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nombre del Proyecto</th>
-                        <th>Semillero</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Progreso</th>
-                        <th>Fecha creación</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for proyecto in proyectos %}
-                    <tr>
-                        <td class="nombre">{{ proyecto.nom_pro }}</td>
-                        <td>
-                            {% for semillero in proyecto.semilleros.all %}
-                                {{ semillero.nombre }}{% if not forloop.last %}, {% endif %}
-                            {% empty %}
-                                Sin semillero
-                            {% endfor %}
-                        </td>
-                        <td>{{ proyecto.tipo }}</td>
-                        <td class="estado">
-                            {% if proyecto.estado_pro == 'diagnostico' %}
-                                <span class="estado en-diagnostico">En diagnóstico</span>
-                            {% elif proyecto.estado_pro == 'planeacion' %}
-                                <span class="estado planeacion">Planeación</span>
-                            {% elif proyecto.estado_pro == 'ejecucion' %}
-                                <span class="estado en-ejecucion">Ejecución</span>
-                            {% elif proyecto.estado_pro == 'completado' %}
-                                <span class="estado completado">Completado</span>
-                            {% else %}
-                                <span class="estado desconocido">Sin estado</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="barra">
-                                <div class="relleno" >{{ proyecto.progreso }}%</div>
-                            </div>
-                        </td>
-                        <td>{{ proyecto.fecha_creacion|date:"d/m/Y" }}</td>
-                        <td>
-                            <a href="{% url 'resu-proyectos' proyecto.semilleros.first.id_sem proyecto.cod_pro %}" class="btn">Ver</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center">No hay proyectos disponibles</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    <tbody>
+                        {% for proyecto in proyectos %}
+                        <tr>
+                            <td class="nombre">{{ proyecto.nom_pro }}</td>
+                            <td>
+                                {% for semillero in proyecto.semilleros.all %}
+                                    {{ semillero.nombre }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Sin semillero
+                                {% endfor %}
+                            </td>
+                            <td>{{ proyecto.tipo }}</td>
+                            <td class="estado">
+                                {% if proyecto.estado_pro == 'diagnostico' %}
+                                    <span class="estado diagnostico">En diagnóstico</span>
+                                {% elif proyecto.estado_pro == 'planeacion' %}
+                                    <span class="estado planeacion">Planeación</span>
+                                {% elif proyecto.estado_pro == 'ejecucion' %}
+                                    <span class="estado ejecucion">En ejecución</span>
+                                {% elif proyecto.estado_pro == 'completado' %}
+                                    <span class="estado completado">Completado</span>
+                                {% else %}
+                                    <span class="estado desconocido">Sin estado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" 
+                                        role="progressbar"
+                                        style="width: {{ proyecto.progreso }}%"
+                                        aria-valuenow="{{ proyecto.progreso }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100"> {{ proyecto.progreso }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ proyecto.fecha_creacion|date:"d/m/Y" }}</td>
+                            <td>
+                                <a href="{% url 'resu-proyectos' proyecto.semilleros.first.id_sem proyecto.cod_pro %}" class="btn">Ver</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No hay proyectos disponibles</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

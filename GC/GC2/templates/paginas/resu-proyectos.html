@@ -9,6 +9,7 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+    <!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -216,9 +217,13 @@
                                                         <h6>{{ entregable.nom_entre }}</h6>
                                                         <span>
                                                             {% if entregable.estado == "Completado" %}
-                                                            <i class="fas fa-check-circle"></i> Completado
+                                                                <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
+                                                            {% elif entregable.estado == "Entrega Tardía" or entregable.estado == "Entrega Tardia" %}
+                                                                <i class="fas fa-exclamation-triangle" style="color: #dd6b20;"></i> Entrega Tardía
+                                                            {% elif entregable.estado == "Retrasado" %}
+                                                                <i class="fas fa-times-circle" style="color: #e53e3e;"></i> Retrasado
                                                             {% else %}
-                                                            <i class="fas fa-clock"></i> {{ entregable.estado }}
+                                                                <i class="fas fa-clock" style="color: #4299e1;"></i> Pendiente
                                                             {% endif %}
                                                         </span>
                                                     </div>
@@ -235,7 +240,7 @@
                                                             <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
-                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_fin|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                     </div>
 
@@ -299,7 +304,7 @@
                                                             <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
                                                                 method="post" enctype="multipart/form-data">
                                                                 {% csrf_token %}
-                                                                <input type="file" name="archivo" required>
+                                                                <input type="file" name="archivo" multiple required>
                                                                 <div class="modal-botones">
                                                                     <button type="submit" class="btn-confirmar">
                                                                         <i class="fas fa-upload"></i> Subir
@@ -507,9 +512,13 @@
                                                         <h6>{{ entregable.nom_entre }}</h6>
                                                         <span>
                                                             {% if entregable.estado == "Completado" %}
-                                                            <i class="fas fa-check-circle"></i> Completado
+                                                                <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
+                                                            {% elif entregable.estado == "Entrega Tardía" or entregable.estado == "Entrega Tardia" %}
+                                                                <i class="fas fa-exclamation-triangle" style="color: #dd6b20;"></i> Entrega Tardía
+                                                            {% elif entregable.estado == "Retrasado" %}
+                                                                <i class="fas fa-times-circle" style="color: #e53e3e;"></i> Retrasado
                                                             {% else %}
-                                                            <i class="fas fa-clock"></i> {{ entregable.estado }}
+                                                                <i class="fas fa-clock" style="color: #4299e1;"></i> Pendiente
                                                             {% endif %}
                                                         </span>
                                                     </div>
@@ -526,7 +535,7 @@
                                                             <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
-                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_fin|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                     </div>
 
@@ -795,9 +804,13 @@
                                                         <h6>{{ entregable.nom_entre }}</h6>
                                                         <span>
                                                             {% if entregable.estado == "Completado" %}
-                                                            <i class="fas fa-check-circle"></i> Completado
+                                                                <i class="fas fa-check-circle" style="color: #38a169;"></i> Completado
+                                                            {% elif entregable.estado == "Entrega Tardía" or entregable.estado == "Entrega Tardia" %}
+                                                                <i class="fas fa-exclamation-triangle" style="color: #dd6b20;"></i> Entrega Tardía
+                                                            {% elif entregable.estado == "Retrasado" %}
+                                                                <i class="fas fa-times-circle" style="color: #e53e3e;"></i> Retrasado
                                                             {% else %}
-                                                            <i class="fas fa-clock"></i> {{ entregable.estado }}
+                                                                <i class="fas fa-clock" style="color: #4299e1;"></i> Pendiente
                                                             {% endif %}
                                                         </span>
                                                     </div>
@@ -814,7 +827,7 @@
                                                             <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
-                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_entre|date:"d/m/Y"|default:"No especificada" }}</p>
+                                                            <p><strong>Fecha entrega:</strong> {{ entregable.fecha_fin|date:"d/m/Y"|default:"No especificada" }}</p>
                                                         </div>
                                                     </div>
 
@@ -972,6 +985,11 @@
                                     <option value="capacidadinstalada">Capacidad Instalada</option>
                                     <option value="formativo">Formativo</option>
                                 </select>
+                            </div>
+                            
+                            <div id="campo_programa" class="modal-campo" style="display:none;">
+                                <label for="programa_formacion">Programa de formación:</label>
+                                <input type="text" name="programa_formacion" id="programa_formacion">
                             </div>
                             
                             <div class="modal-campo">
@@ -1306,10 +1324,29 @@
                             <div class="linea-columna">
                                 <label>Líneas Tecnológicas *</label>
                                 <div class="modal-check-group">
-                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Diseño de Productos" {% if "Línea de Diseño de Productos" in lineas_tec_lista %}checked{% endif %}> Línea de Diseño de Productos</label>
-                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Producción y Transformación" {% if "Línea de Producción y Transformación" in lineas_tec_lista %}checked{% endif %}> Línea de Producción y Transformación</label>
-                                    <label><input type="checkbox" name="lineastec[]" value="Línea de Materiales y Biotecnología" {% if "Línea de Materiales y Biotecnología" in lineas_tec_lista %}checked{% endif %}> Línea de Materiales y Biotecnología</label>
-                                    <label><input type="checkbox" name="lineastec[]" value="Línea de TICs e Inteligencia Artificial" {% if "Línea de TICs e Inteligencia Artificial" in lineas_tec_lista %}checked{% endif %}> Línea de TICs e Inteligencia Artificial</label>
+                                        <label>
+                                            <input type="checkbox" name="lineastec[]" value="Línea de Diseño de Productos"
+                                            {% if "Línea de Diseño de Productos" in lineas_tec_lista %}checked{% endif %}>
+                                            Línea de Diseño de Productos
+                                        </label>
+
+                                        <label>
+                                            <input type="checkbox" name="lineastec[]" value="Línea de Producción y Transformación"
+                                            {% if "Línea de Producción y Transformación" in lineas_tec_lista %}checked{% endif %}>
+                                            Línea de Producción y Transformación
+                                        </label>
+
+                                        <label>
+                                            <input type="checkbox" name="lineastec[]" value="Línea de Materiales y Biotecnología"
+                                            {% if "Línea de Materiales y Biotecnología" in lineas_tec_lista %}checked{% endif %}>
+                                            Línea de Materiales y Biotecnología
+                                        </label>
+
+                                        <label>
+                                            <input type="checkbox" name="lineastec[]" value="Línea de TICs e Inteligencia Artificial"
+                                            {% if "Línea de TICs e Inteligencia Artificial" in lineas_tec_lista %}checked{% endif %}>
+                                            Línea de TICs e Inteligencia Artificial
+                                        </label>
                                 </div>
                             </div>
 
@@ -1317,9 +1354,23 @@
                             <div class="linea-columna">
                                 <label>Líneas de Investigación *</label>
                                 <div class="modal-check-group">
-                                    <label><input type="checkbox" name="lineasinv[]" value="Investigación Aplicada" {% if "Investigación Aplicada" in lineas_inv_lista %}checked{% endif %}> Investigación Aplicada</label>
-                                    <label><input type="checkbox" name="lineasinv[]" value="Desarrollo Tecnológico" {% if "Desarrollo Tecnológico" in lineas_inv_lista %}checked{% endif %}> Desarrollo Tecnológico</label>
-                                    <label><input type="checkbox" name="lineasinv[]" value="Innovación" {% if "Innovación" in lineas_inv_lista %}checked{% endif %}> Innovación</label>
+                                    <label>
+                                        <input type="checkbox" name="lineasinv[]" value="Investigación Aplicada"
+                                        {% if "Investigación Aplicada" in lineas_inv_lista %}checked{% endif %}>
+                                        Investigación Aplicada
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="lineasinv[]" value="Desarrollo Tecnológico"
+                                        {% if "Desarrollo Tecnológico" in lineas_inv_lista %}checked{% endif %}>
+                                        Desarrollo Tecnológico
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="lineasinv[]" value="Innovación"
+                                        {% if "Innovación" in lineas_inv_lista %}checked{% endif %}>
+                                        Innovación
+                                    </label>
                                 </div>
                             </div>
 
@@ -1327,9 +1378,23 @@
                             <div class="linea-columna">
                                 <label>Líneas de Semillero *</label>
                                 <div class="modal-check-group">
-                                    <label><input type="checkbox" name="lineassem[]" value="Formación en Investigación" {% if "Formación en Investigación" in lineas_sem_lista %}checked{% endif %}> Formación en Investigación</label>
-                                    <label><input type="checkbox" name="lineassem[]" value="Proyectos de Aula" {% if "Proyectos de Aula" in lineas_sem_lista %}checked{% endif %}> Proyectos de Aula</label>
-                                    <label><input type="checkbox" name="lineassem[]" value="Extensión Tecnológica" {% if "Extensión Tecnológica" in lineas_sem_lista %}checked{% endif %}> Extensión Tecnológica</label>
+                                    <label>
+                                        <input type="checkbox" name="lineassem[]" value="Formación en Investigación"
+                                        {% if "Formación en Investigación" in lineas_sem_lista %}checked{% endif %}>
+                                        Formación en Investigación
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="lineassem[]" value="Proyectos de Aula"
+                                        {% if "Proyectos de Aula" in lineas_sem_lista %}checked{% endif %}>
+                                        Proyectos de Aula
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="lineassem[]" value="Extensión Tecnológica"
+                                        {% if "Extensión Tecnológica" in lineas_sem_lista %}checked{% endif %}>
+                                        Extensión Tecnológica
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -1452,7 +1517,6 @@
         </div>
     </div>
     {% endif %}
-
 
     <!-- MODAL GESTIONAR MIEMBROS -->
     {% if mostrar_modal_gestionar %}
@@ -1622,8 +1686,6 @@
         </div>
     </div>
     {% endif %}
-
-
 
     {% if proyecto_editar %}
     <script>
@@ -1812,6 +1874,15 @@
     }
     </script>
     {% endif %}
+
+    <script>
+    document.getElementById("tipo").addEventListener("change", function () {
+        let campo = document.getElementById("campo_programa");
+        campo.style.display = (this.value === "formativo") ? "block" : "none";
+    });
+    </script>
+
+    <script src="{% static 'js/mensaje.js' %}"></script>
     <script src="{% static 'js/modales.js' %}"></script>
     <script src="{% static 'js/entregables.js' %}"></script>
     <script src="{% static 'js/proyectos-carousel.js' %}"></script>
@@ -1820,16 +1891,4 @@
     <script src="{% static 'js/calendario.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
-    {% if tipo_seleccionado %}
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const tipo = "{{ tipo_seleccionado }}";
-        const seccion = document.getElementById(tipo);
-        if (seccion) {
-        seccion.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-    });
-    </script>
-
-    {% endif %}
 {% endblock %}

@@ -139,95 +139,99 @@
             </div>
         </div>
 
+        
         <!-- Vista de Lista -->
         <div class="lista-container" style="display: {% if request.GET.vista == 'lista' %}block{% else %}none{% endif %};">
-            <h3>Lista de Miembros</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Correo Electrónico</th>
-                        <th>Celular</th>
-                        <th>Rol</th>
-                        <th>Última Sesión</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
+            <div class="resumen">
+                <h3>Lista de Miembros</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo Electrónico</th>
+                            <th>Celular</th>
+                            <th>Rol</th>
+                            <th>Última Sesión</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    {% for miembro in miembros %}
-                    <tr>
-                        <td class="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</td>
-                        <td>{{ miembro.correo_sena }}</td>
-                        <td>{{ miembro.celular }}</td>
-                        <td>{{ miembro.rol }}</td>
-                        <td>{{ miembro.ultima_sesion|default:"No disponible" }}</td>
-                        <td>
-                            <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" class="btn">Ver perfil</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6">No hay miembros registrados</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    <tbody>
+                        {% for miembro in miembros %}
+                        <tr>
+                            <td class="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</td>
+                            <td>{{ miembro.correo_sena }}</td>
+                            <td>{{ miembro.celular }}</td>
+                            <td>{{ miembro.rol }}</td>
+                            <td>{{ miembro.ultima_sesion|default:"No disponible" }}</td>
+                            <td>
+                                <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" class="btn">Ver perfil</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">No hay miembros registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Vista de Tarjetas -->
         <div class="tabla-container" style="display: {% if request.GET.vista == 'lista' %}none{% else %}flex{% endif %};">
-            <div class="titulo-tarjeta">
-                <h3>Lista de Miembros</h3>
-            </div>
-            
-            <div class="tarjetas-grid">
-                {% for miembro in miembros %}
-                <div class="grupo">
-                    <div class="card {% if miembro.rol == 'Instructor' %}amarillo{% elif miembro.rol == 'Investigador' %}azul{% else %}morado{% endif %}">
-                        <div class="icon-cont">
-                            <span class="user-icon">
-                                {% if miembro.rol == 'Aprendiz' %}
-                                    {% if miembro.imagen_perfil %}
-                                        <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil aprendiz" class="user-perfil">
+            <div class="resumen">
+                <div class="titulo-tarjeta">
+                    <h3>Lista de Miembros</h3>
+                </div>
+                
+                <div class="tarjetas-grid">
+                    {% for miembro in miembros %}
+                    <div class="grupo">
+                        <div class="card {% if miembro.rol == 'Instructor' %}amarillo{% elif miembro.rol == 'Investigador' %}azul{% else %}morado{% endif %}">
+                            <div class="icon-cont">
+                                <span class="user-icon">
+                                    {% if miembro.rol == 'Aprendiz' %}
+                                        {% if miembro.imagen_perfil %}
+                                            <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil aprendiz" class="user-perfil">
+                                        {% else %}
+                                            <img src="{% static 'img/Student.png' %}" alt="Foto de perfil aprendiz" class="user-perfil">
+                                        {% endif %}
                                     {% else %}
-                                        <img src="{% static 'img/Student.png' %}" alt="Foto de perfil aprendiz" class="user-perfil">
+                                        {% if miembro.imagen_perfil %}
+                                            <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil" class="user-perfil">
+                                        {% else %}
+                                            <img src="{% static 'img/cam.png' %}" alt="Foto de perfil por defecto" class="user-perfil">
+                                        {% endif %}
                                     {% endif %}
-                                {% else %}
-                                    {% if miembro.imagen_perfil %}
-                                        <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil" class="user-perfil">
-                                    {% else %}
-                                        <img src="{% static 'img/cam.png' %}" alt="Foto de perfil por defecto" class="user-perfil">
-                                    {% endif %}
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="card-body">
-                            <h5 id="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</h5>
-                            <p id="correo">{{ miembro.correo_sena }}</p>
-                            <p id="celular">{{ miembro.celular }}</p>
-                        </div>
-                        <div class="info-badge">
-                            <div class="rol {% if miembro.rol == 'Instructor' %}instructores{% elif miembro.rol == 'Investigador' %}investigadores{% else %}aprendices{% endif %}">
-                                <span>{{ miembro.rol }}</span>
+                                </span>
                             </div>
-                            <div class="ultima-sesion">
-                                <span>{{ miembro.ultima_sesion|default:"" }}</span>
+                            <div class="card-body">
+                                <h5 id="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</h5>
+                                <p id="correo">{{ miembro.correo_sena }}</p>
+                                <p id="celular">{{ miembro.celular }}</p>
                             </div>
-                        </div>
-                        <div class="info-icon">
-                            <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                            </a>
+                            <div class="info-badge">
+                                <div class="rol {% if miembro.rol == 'Instructor' %}instructores{% elif miembro.rol == 'Investigador' %}investigadores{% else %}aprendices{% endif %}">
+                                    <span>{{ miembro.rol }}</span>
+                                </div>
+                                <div class="ultima-sesion">
+                                    <span>{{ miembro.ultima_sesion|default:"" }}</span>
+                                </div>
+                            </div>
+                            <div class="info-icon">
+                                <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
+                    {% empty %}
+                    <p>No hay miembros registrados</p>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <p>No hay miembros registrados</p>
-                {% endfor %}
             </div>
         </div>
-    </div>
 
     <!-- MODAL DE INFORMACIÓN DEL MIEMBRO -->
     <div id="modalPerfilMiembro" class="modal-perfil-overlay" 

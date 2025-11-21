@@ -151,6 +151,7 @@ class Semillero(models.Model):
     objetivo = models.TextField()
     estado = models.CharField(max_length=250)
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
+    progreso_sem = models.IntegerField(default=0)
 
     # Relación ManyToMany con Proyecto (a través de tabla intermedia)
     proyectos = models.ManyToManyField(
@@ -163,9 +164,23 @@ class Semillero(models.Model):
     class Meta:
         db_table = 'semillero'
 
+    def calcular_progreso(self):
+        proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=self)
+        total_proyectos = proyectos.count()
+        
+        if total_proyectos == 0:
+            self.progreso = 0
+        else:
+            suma_progreso = sum(p.progreso for p in proyectos)
+            self.progreso = round(suma_progreso / total_proyectos)
+        
+        self.save(update_fields=['progreso'])
+        return self.progreso
+
 
 class Aprendiz(models.Model):
     cedula_apre = models.IntegerField(primary_key=True)
+    tipo_doc = models.CharField(max_length=60)
     nombre = models.CharField(max_length=60)
     apellido = models.CharField(max_length=60)
     fecha_nacimiento = models.CharField(max_length=45)
@@ -178,10 +193,10 @@ class Aprendiz(models.Model):
     modalidad = models.CharField(max_length=45)
     telefono = models.CharField(max_length=45)
     estado_apre = models.CharField(max_length=45)
-    id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
+    id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem',  null=True, blank=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'aprendiz'
 
     @property
@@ -202,12 +217,15 @@ class Proyecto(models.Model):
     linea_tec = models.CharField(max_length=250)
     linea_inv = models.CharField(max_length=250)
     linea_sem = models.CharField(max_length=250)
-    estado_pro = models.CharField(max_length=50)
+    estado_pro = models.CharField(max_length=50, default='diagnostico')
+    progreso = models.IntegerField(default=0)
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
     notas = models.TextField()
+    programa_formacion = models.CharField(max_length=250, null=True, blank=True)
+
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'proyecto'
 
 class Documento(models.Model):
@@ -224,8 +242,8 @@ class Documento(models.Model):
 class Entregable(models.Model):
     cod_entre = models.IntegerField(primary_key=True)
     nom_entre = models.CharField(max_length=250)
-    fecha_inicio = models.CharField(max_length=250)
-    fecha_fin = models.CharField(max_length=250)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
     desc_entre = models.CharField(max_length=250)
     estado = models.CharField(max_length=45)
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE,db_column='cod_pro')
@@ -310,8 +328,10 @@ class SemilleroUsuario(models.Model):
     )
 
     class Meta:
+        managed = True
         db_table = 'semillero_usuario'
         unique_together = (('id_sem', 'cedula'),)
+        
 
     def __str__(self):
         return f"{self.cedula.nom_usu} en {self.id_sem.nom_sem}"

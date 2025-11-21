@@ -17,6 +17,16 @@
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
 }
 
+.resumen {   
+    gap: clamp(1rem, 2vw, 2rem);
+    width: 100%;
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(10px, 2vw, 15px);
+    padding: clamp(20px, 3vh, 40px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
 .contenedor-principal{
     display: flex;
     flex-direction: column;
@@ -472,6 +482,7 @@ thead th {
 
 /* Cuerpo de la tabla */
 tbody tr {
+    background-color: var(--color-fondo-principal);
     border-bottom: 1px solid #f0f0f0;
     transition: all 0.3s ease;
 }
