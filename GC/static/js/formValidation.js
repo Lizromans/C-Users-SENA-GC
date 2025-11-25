@@ -1,14 +1,88 @@
-// FORMULARIO DE REGISTRO APRENDIZ SENA - VALIDACIÓN
+// FORMULARIO DE REGISTRO APRENDIZ SENA - VALIDACIÓN COMPLETA
 
 document.addEventListener('DOMContentLoaded', function() {
     
     // ===== ELEMENTOS DEL DOM =====
     const form = document.getElementById('aprendizForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const progressBar = document.getElementById('progressBar');
-    const progressLabel = document.getElementById('progressLabel');
     const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     const autosaveIndicator = document.getElementById('autosaveIndicator');
+    
+    // Variables de control
+    let currentSection = 1;
+    
+    // ===== DETECTAR ERRORES DEL BACKEND Y NAVEGAR =====
+    function detectAndNavigateToErrors() {
+        // Buscar todos los campos con errores
+        const invalidFields = document.querySelectorAll('.is-invalid');
+        
+        if (invalidFields.length > 0) {
+            // Encontrar la primera sección con error
+            const firstInvalidField = invalidFields[0];
+            const section = firstInvalidField.closest('.form-section');
+            
+            if (section) {
+                const sectionNumber = parseInt(section.getAttribute('data-section'));
+                
+                // Navegar a esa sección
+                goToSection(sectionNumber);
+                
+                // Scroll al primer campo con error
+                setTimeout(() => {
+                    firstInvalidField.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                    
+                    // Resaltar el campo con error
+                    firstInvalidField.focus();
+                    
+                    // Mostrar mensaje
+                    console.log(`⚠️ Error encontrado en Sección ${sectionNumber}`);
+                }, 400);
+                
+                // Marcar pasos con errores en el sidebar
+                markSectionsWithErrors();
+            }
+        }
+    }
+    
+    // Marcar visualmente las secciones con errores
+    function markSectionsWithErrors() {
+        const sections = document.querySelectorAll('.form-section[data-section]');
+        
+        sections.forEach(section => {
+            const sectionNumber = parseInt(section.getAttribute('data-section'));
+            const hasErrors = section.querySelectorAll('.is-invalid').length > 0;
+            const progressStep = document.querySelector(`.progress-step[data-step="${sectionNumber}"]`);
+            
+            if (progressStep) {
+                const stepNumber = progressStep.querySelector('.step-number');
+                
+                if (hasErrors) {
+                    // Marcar con error
+                    progressStep.classList.remove('completed');
+                    progressStep.classList.add('has-error');
+                    
+                    if (stepNumber) {
+                        stepNumber.style.borderColor = '#dc3545';
+                        stepNumber.style.borderWidth = '3px';
+                        stepNumber.style.background = 'rgba(220, 53, 69, 0.1)';
+                    }
+                } else {
+                    progressStep.classList.remove('has-error');
+                    
+                    if (stepNumber) {
+                        stepNumber.style.borderColor = '';
+                        stepNumber.style.borderWidth = '';
+                        stepNumber.style.background = '';
+                    }
+                }
+            }
+        });
+    }
+    
+    // Ejecutar detección de errores al cargar
+    setTimeout(detectAndNavigateToErrors, 100);
     
     // ===== INICIALIZAR TOOLTIPS =====
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -16,13 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // ===== ACTUALIZAR BARRA DE PROGRESO =====
+    // ===== ACTUALIZAR PROGRESO Y MARCAR SECCIONES COMPLETAS =====
     function updateProgress() {
-        const sections = document.querySelectorAll('fieldset[data-section]');
-        const totalSections = sections.length;
-        let completedSections = 0;
+        const sections = document.querySelectorAll('.form-section[data-section]');
         
         sections.forEach((section, index) => {
+            const sectionNumber = parseInt(section.getAttribute('data-section'));
             const inputs = section.querySelectorAll('input, select');
             let allFilled = true;
             
@@ -32,23 +105,107 @@ document.addEventListener('DOMContentLoaded', function() {
                         allFilled = false;
                     }
                 } else {
-                    if (!input.value.trim()) {
+                    if (!input.value.trim() || input.classList.contains('is-invalid')) {
                         allFilled = false;
                     }
                 }
             });
             
-            if (allFilled) {
-                completedSections++;
+            // Actualizar el paso en el sidebar
+            const progressStep = document.querySelector(`.progress-step[data-step="${sectionNumber}"]`);
+            if (progressStep) {
+                if (allFilled) {
+                    progressStep.classList.add('completed');
+                    // Cambiar el número por un check
+                    const stepNumber = progressStep.querySelector('.step-number');
+                    if (stepNumber && !stepNumber.classList.contains('checked')) {
+                        stepNumber.classList.add('checked');
+                        stepNumber.innerHTML = '<i class="bi bi-check-lg"></i>';
+                    }
+                } else {
+                    progressStep.classList.remove('completed');
+                    // Restaurar el número
+                    const stepNumber = progressStep.querySelector('.step-number');
+                    if (stepNumber && stepNumber.classList.contains('checked')) {
+                        stepNumber.classList.remove('checked');
+                        stepNumber.textContent = sectionNumber;
+                    }
+                }
             }
         });
+    }
+    
+    // ===== NAVEGACIÓN ENTRE SECCIONES =====
+    const nextButtons = document.querySelectorAll('.btn-next');
+    const prevButtons = document.querySelectorAll('.btn-prev');
+    
+    nextButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const nextSection = parseInt(this.getAttribute('data-next'));
+            const currentSectionEl = document.querySelector('.form-section.active');
+            
+            // Validar sección actual antes de avanzar
+            const inputs = currentSectionEl.querySelectorAll('input, select');
+            let allValid = true;
+            
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    allValid = false;
+                }
+            });
+            
+            if (!allValid) {
+                // Mostrar alerta
+                const errorCount = currentSectionEl.querySelectorAll('.is-invalid').length;
+                alert(`Por favor, completa correctamente ${errorCount} campo(s) antes de continuar.`);
+                
+                // Scroll al primer error
+                const firstError = currentSectionEl.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+                return;
+            }
+            
+            // Cambiar de sección
+            goToSection(nextSection);
+        });
+    });
+    
+    prevButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const prevSection = parseInt(this.getAttribute('data-prev'));
+            goToSection(prevSection);
+        });
+    });
+    
+    function goToSection(sectionNumber) {
+        // Ocultar sección actual
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.classList.remove('active');
+        });
         
-        const progressPercentage = (completedSections / totalSections) * 100;
-        progressBar.style.width = progressPercentage + '%';
-        progressBar.setAttribute('aria-valuenow', progressPercentage);
+        // Mostrar nueva sección
+        const targetSection = document.querySelector(`.form-section[data-section="${sectionNumber}"]`);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
         
-        const currentSection = Math.min(completedSections + 1, totalSections);
-        progressLabel.textContent = `Sección ${currentSection} de ${totalSections}`;
+        // Actualizar sidebar
+        document.querySelectorAll('.progress-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        const activeStep = document.querySelector(`.progress-step[data-step="${sectionNumber}"]`);
+        if (activeStep) {
+            activeStep.classList.add('active');
+        }
+        
+        currentSection = sectionNumber;
+        
+        // Scroll al inicio del formulario
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
     // ===== VALIDACIÓN EN TIEMPO REAL =====
@@ -63,6 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Actualizar progreso mientras escribe
         input.addEventListener('input', function() {
+            // Remover error mientras escribe
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
             updateProgress();
             updateCharCounter(this);
         });
@@ -89,19 +250,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 isValid = emailRegex.test(value);
             }
             
-            // Teléfono (solo números, 10 dígitos)
+            // Teléfono (solo números, 10 dígitos, comienza con 3)
             if (field.name === 'telefono' || field.id.includes('telefono')) {
-                const phoneRegex = /^\d{10}$/;
+                const phoneRegex = /^3\d{9}$/;
                 isValid = phoneRegex.test(value.replace(/\D/g, ''));
             }
             
             // Número de documento
             if (field.name === 'cedula_apre' || field.id.includes('cedula')) {
-                const docRegex = /^\d{6,10}$/;
+                const docRegex = /^\d{7,10}$/;
                 isValid = docRegex.test(value);
             }
             
-            // Fecha de nacimiento (debe ser mayor de edad)
+            // Número de cuenta
+            if (field.name === 'numero_cuenta') {
+                const accountRegex = /^\d{6,20}$/;
+                isValid = accountRegex.test(value);
+            }
+            
+            // Fecha de nacimiento (debe tener entre 14 y 100 años)
             if (field.type === 'date' && field.name === 'fecha_nacimiento') {
                 const birthDate = new Date(value);
                 const today = new Date();
@@ -116,15 +283,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        // Checkbox requerido
+        if (field.type === 'checkbox' && field.hasAttribute('required')) {
+            isValid = field.checked;
+        }
+        
         // Aplicar clases visuales
-        if (isValid && value) {
+        if (isValid && (value || field.type === 'checkbox')) {
             field.classList.remove('is-invalid');
-            field.classList.add('valid');
+            field.classList.add('is-valid');
         } else if (!isValid) {
             field.classList.add('is-invalid');
-            field.classList.remove('valid');
+            field.classList.remove('is-valid');
         } else {
-            field.classList.remove('is-invalid', 'valid');
+            field.classList.remove('is-invalid', 'is-valid');
         }
         
         return isValid;
@@ -179,6 +351,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ===== FORMATO AUTOMÁTICO DE NÚMERO DE CUENTA =====
+    const accountInput = document.querySelector('input[name="numero_cuenta"]');
+    if (accountInput) {
+        accountInput.addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 20) {
+                value = value.slice(0, 20);
+            }
+            this.value = value;
+        });
+    }
+    
     // ===== GUARDADO AUTOMÁTICO (localStorage) =====
     let saveTimeout;
     
@@ -208,7 +392,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         messageSpan.textContent = message;
         autosaveIndicator.classList.add('show');
-        
         if (saved) {
             spinner.style.display = 'none';
             autosaveIndicator.classList.add('saved');
@@ -269,13 +452,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         if (!allValid) {
-            alert('Por favor, completa todos los campos requeridos correctamente.');
-            // Scroll al primer error
-            const firstError = document.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstError.focus();
-            }
+            // Encontrar sección con error y navegar
+            detectAndNavigateToErrors();
+            
+            const errorCount = document.querySelectorAll('.is-invalid').length;
+            alert(`Se encontraron ${errorCount} error(es). Por favor, corrígelos antes de continuar.`);
             return;
         }
         
@@ -331,22 +512,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== CONFIRMAR Y ENVIAR =====
     document.getElementById('confirmSubmit').addEventListener('click', function() {
         confirmModal.hide();
-        submitForm();
-    });
-    
-    function submitForm() {
-        // Mostrar loading en botón
-        submitBtn.classList.add('btn-loading');
-        submitBtn.disabled = true;
-        submitBtn.querySelector('.spinner-border').classList.remove('d-none');
-        submitBtn.querySelector('.btn-text').textContent = 'Enviando...';
         
         // Limpiar localStorage después del envío
         localStorage.removeItem('aprendizFormData');
         
         // Enviar formulario
         form.submit();
-    }
+    });
     
     // ===== ADVERTENCIA AL SALIR SIN GUARDAR =====
     let formModified = false;
@@ -371,23 +543,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== INICIALIZAR PROGRESO =====
     updateProgress();
-    
-    // ===== ACCESIBILIDAD: ANUNCIAR ERRORES =====
-    function announceErrors() {
-        const errors = document.querySelectorAll('.is-invalid');
-        if (errors.length > 0) {
-            const announcement = document.createElement('div');
-            announcement.setAttribute('role', 'alert');
-            announcement.setAttribute('aria-live', 'assertive');
-            announcement.className = 'sr-only';
-            announcement.textContent = `Se encontraron ${errors.length} errores en el formulario. Por favor, corrígelos antes de continuar.`;
-            document.body.appendChild(announcement);
-            
-            setTimeout(() => {
-                document.body.removeChild(announcement);
-            }, 3000);
-        }
-    }
     
     console.log('✅ Formulario de Aprendiz SENA inicializado correctamente');
 });

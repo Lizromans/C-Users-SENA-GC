@@ -2401,6 +2401,10 @@ def miembros(request):
 
     return render(request, 'paginas/miembros.html', contexto)
 
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.utils import timezone
+
 def registro_aprendiz(request):  
     if request.method == 'POST':
         form = AprendizForm(request.POST)
@@ -2416,12 +2420,27 @@ def registro_aprendiz(request):
                 aprendiz.save()
                 
                 messages.success(request, f'¡Aprendiz {aprendiz.nombre} {aprendiz.apellido} registrado exitosamente!')
-                form = AprendizForm()
+                
+                # Redirigir después del éxito para evitar re-submit
+                return redirect('registro_aprendiz')  # Cambia esto por el nombre de tu URL
                 
             except Exception as e:
                 messages.error(request, f'Error al guardar: {str(e)}')
         else:
-            messages.error(request, 'Por favor corrija los errores del formulario.')
+            # Agregar mensaje de error general
+            messages.error(request, 'Por favor corrija los errores señalados en el formulario.')
+            
+            # Crear diccionario con información de errores para JavaScript
+            errores_info = {}
+            for field_name, errors in form.errors.items():
+                if field_name != '__all__':
+                    errores_info[field_name] = str(errors[0])
+            
+            # Pasar errores al contexto
+            return render(request, 'paginas/formaprendiz.html', {
+                'form': form,
+                'errores_info': errores_info
+            })
     else:
         form = AprendizForm()
     

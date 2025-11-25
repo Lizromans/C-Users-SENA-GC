@@ -31,313 +31,370 @@
         <span class="message">Guardando...</span>
     </div>
 
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="form-container">
-                    <div class="sena-header">
-                        <h1 class="text-center mb-0 h2">Registro de Aprendiz SENA</h1>
-                    </div>
-                    
-                    <!-- Barra de progreso -->
-                    <div class="progress-container">
-                        <div class="progress">
-                            <div class="progress-bar" id="progressBar" role="progressbar" 
-                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
-                                 style="width: 0%"></div>
-                        </div>
-                        <div class="progress-label" id="progressLabel">Sección 1 de 4</div>
-                    </div>
-                    
-                    <form method="post" id="aprendizForm" novalidate>
-                        {% csrf_token %}
-                        
-                        <!-- SECCIÓN 1: Información Personal -->
-                        <fieldset data-section="1">
-                            <div class="section-header">
-                                <div class="section-icon">
-                                    <i class="bi bi-person-fill"></i>
-                                </div>
-                                <h5 class="section-title">Información Personal</h5>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.tipo_doc.id_for_label }}">
-                                        {{ form.tipo_doc.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                        <span class="tooltip-icon" data-bs-toggle="tooltip" 
-                                              title="Selecciona el tipo de documento de identidad">?</span>
-                                    </label>
-                                    {{ form.tipo_doc }}
-                                    {% if form.tipo_doc.errors %}
-                                        <div class="text-danger" role="alert">{{ form.tipo_doc.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.cedula_apre.id_for_label }}">
-                                        {{ form.cedula_apre.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                    </label>
-                                    {{ form.cedula_apre }}
-                                    <div class="char-counter" data-max="20" data-field="cedula_apre">
-                                        <span class="current">0</span>/<span class="max">20</span>
-                                    </div>
-                                    {% if form.cedula_apre.errors %}
-                                        <div class="text-danger" role="alert">{{ form.cedula_apre.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.nombre.id_for_label }}">
-                                        {{ form.nombre.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                    </label>
-                                    {{ form.nombre }}
-                                    {% if form.nombre.errors %}
-                                        <div class="text-danger" role="alert">{{ form.nombre.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.apellido.id_for_label }}">
-                                        {{ form.apellido.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                    </label>
-                                    {{ form.apellido }}
-                                    {% if form.apellido.errors %}
-                                        <div class="text-danger" role="alert">{{ form.apellido.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.fecha_nacimiento.id_for_label }}">
-                                        {{ form.fecha_nacimiento.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                    </label>
-                                    {{ form.fecha_nacimiento }}
-                                    {% if form.fecha_nacimiento.errors %}
-                                        <div class="text-danger" role="alert">{{ form.fecha_nacimiento.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.telefono.id_for_label }}">
-                                        {{ form.telefono.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                        <span class="tooltip-icon" data-bs-toggle="tooltip" 
-                                              title="Ingresa tu número de teléfono celular">?</span>
-                                    </label>
-                                    {{ form.telefono }}
-                                    <div class="char-counter" data-max="10" data-field="telefono">
-                                        <span class="current">0</span>/<span class="max">10</span>
-                                    </div>
-                                    {% if form.telefono.errors %}
-                                        <div class="text-danger" role="alert">{{ form.telefono.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </fieldset>
-                        
-                        <hr class="my-4">
-                        
-                        <!-- SECCIÓN 2: Información Académica -->
-                        <fieldset data-section="2">
-                            <div class="section-header">
-                                <div class="section-icon">
-                                    <i class="bi bi-book-fill"></i>
-                                </div>
-                                <h5 class="section-title">Información Académica</h5>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.ficha.id_for_label }}">
-                                        {{ form.ficha.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                        <span class="tooltip-icon" data-bs-toggle="tooltip" 
-                                              title="Número de tu ficha de formación">?</span>
-                                    </label>
-                                    {{ form.ficha }}
-                                    {% if form.ficha.errors %}
-                                        <div class="text-danger" role="alert">{{ form.ficha.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.modalidad.id_for_label }}">
-                                        {{ form.modalidad.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                    </label>
-                                    {{ form.modalidad }}
-                                    {% if form.modalidad.errors %}
-                                        <div class="text-danger" role="alert">{{ form.modalidad.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label" for="{{ form.programa.id_for_label }}">
-                                    {{ form.programa.label }}
-                                    <span class="required-asterisk" aria-label="requerido">*</span>
-                                </label>
-                                {{ form.programa }}
-                                {% if form.programa.errors %}
-                                    <div class="text-danger" role="alert">{{ form.programa.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.correo_per.id_for_label }}">
-                                        {{ form.correo_per.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                        <span class="tooltip-icon" data-bs-toggle="tooltip" 
-                                              title="Tu correo electrónico personal">?</span>
-                                    </label>
-                                    {{ form.correo_per }}
-                                    {% if form.correo_per.errors %}
-                                        <div class="text-danger" role="alert">{{ form.correo_per.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.correo_ins.id_for_label }}">
-                                        {{ form.correo_ins.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                        <span class="tooltip-icon" data-bs-toggle="tooltip" 
-                                              title="Tu correo institucional @soy.sena.edu.co">?</span>
-                                    </label>
-                                    {{ form.correo_ins }}
-                                    {% if form.correo_ins.errors %}
-                                        <div class="text-danger" role="alert">{{ form.correo_ins.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </fieldset>
-                        
-                        <hr class="my-4">
-                        
-                        <!-- SECCIÓN 3: Información Bancaria -->
-                        <fieldset data-section="3">
-                            <div class="section-header">
-                                <div class="section-icon">
-                                    <i class="bi bi-credit-card-fill"></i>
-                                </div>
-                                <h5 class="section-title">Información Bancaria</h5>
-                            </div>
-                            
-                            <div class="alert alert-info" role="alert">
-                                <strong><i class="bi bi-info-circle-fill"></i> ¿Por qué necesitamos esta información?</strong><br>
-                                Los datos bancarios son necesarios únicamente para la consignación de biáticos 
-                                cuando seas asignado a un semillero de investigación. Esta información será 
-                                tratada de forma confidencial y segura.
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.medio_bancario.id_for_label }}">
-                                        {{ form.medio_bancario.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                        <span class="tooltip-icon" data-bs-toggle="tooltip" 
-                                              title="Selecciona el banco donde tienes tu cuenta">?</span>
-                                    </label>
-                                    {{ form.medio_bancario }}
-                                    {% if form.medio_bancario.errors %}
-                                        <div class="text-danger" role="alert">{{ form.medio_bancario.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="{{ form.numero_cuenta.id_for_label }}">
-                                        {{ form.numero_cuenta.label }}
-                                        <span class="required-asterisk" aria-label="requerido">*</span>
-                                        <span class="tooltip-icon" data-bs-toggle="tooltip" 
-                                              title="Número de cuenta de ahorros o corriente">?</span>
-                                    </label>
-                                    {{ form.numero_cuenta }}
-                                    <div class="char-counter" data-max="20" data-field="numero_cuenta">
-                                        <span class="current">0</span>/<span class="max">20</span>
-                                    </div>
-                                    {% if form.numero_cuenta.errors %}
-                                        <div class="text-danger" role="alert">{{ form.numero_cuenta.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </fieldset>
-                        
-                        <hr class="my-4">
-                        
-                        <!-- SECCIÓN 4: Autorización de Tratamiento de Datos -->
-                        <fieldset data-section="4">
-                            <div class="section-header">
-                                <h5 class="section-title">Autorización de Tratamiento de Datos</h5>
-                            </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <div class="consentimiento-box">
-                                        <h6 class="fw-bold mb-3">Política de Tratamiento de Datos Personales</h6>
-                                        <div class="texto-consentimiento" tabindex="0" role="region" 
-                                             aria-label="Texto de política de tratamiento de datos">
-                                            <p><strong>Autorizo de manera voluntaria, previa, explícita, informada e inequívoca</strong> 
-                                            al SENA para tratar mis datos personales, incluyendo datos financieros, de acuerdo con lo siguiente:</p>
-                                            
-                                            <p><strong>Finalidad:</strong></p>
-                                            <ul>
-                                                <li>Gestión administrativa y académica como aprendiz SENA</li>
-                                                <li>Consignación de biáticos cuando sea asignado a un semillero de investigación</li>
-                                                <li>Comunicaciones relacionadas con actividades del semillero</li>
-                                                <li>Cumplimiento de obligaciones legales</li>
-                                            </ul>
-                                            
-                                            <p><strong>Derechos del titular:</strong> Conocer, actualizar, rectificar y solicitar 
-                                            la supresión de mis datos personales, así como revocar esta autorización.</p>
-                                            
-                                            <p><strong>Confidencialidad:</strong> El SENA se compromete a proteger la confidencialidad 
-                                            de mis datos bancarios y utilizarlos únicamente para los fines autorizados.</p>
-                                            
-                                            <p class="mb-0"><small>Para más información sobre el tratamiento de datos personales, 
-                                            puede consultar nuestra política completa en la página web del SENA o contactar al 
-                                            responsable de protección de datos.</small></p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-check mt-3">
-                                        {{ form.acepta_tratamiento_datos }}
-                                        <label class="form-check-label fw-bold" for="{{ form.acepta_tratamiento_datos.id_for_label }}">
-                                            He leído y acepto la política de tratamiento de datos personales y financieros
-                                            <span class="required-asterisk" aria-label="requerido">*</span>
-                                        </label>
-                                    </div>
-                                    {% if form.acepta_tratamiento_datos.errors %}
-                                        <div class="text-danger mt-2" role="alert">{{ form.acepta_tratamiento_datos.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </fieldset>
-                        
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
-                                <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
-                                <span class="btn-text">Registrar Aprendiz</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+    <div class="form-wrapper">
+        <!-- SIDEBAR DE PROGRESO -->
+        <div class="progress-sidebar">
+            <div class="logo-section">
+                <h2>SENA</h2>
+                <p>Registro de Aprendiz</p>
             </div>
+
+            <ul class="progress-steps">
+                <li class="progress-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <div class="step-title">Datos Personales</div>
+                        <div class="step-subtitle">Información básica</div>
+                    </div>
+                </li>
+                <li class="progress-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <div class="step-title">Información Académica</div>
+                        <div class="step-subtitle">Ficha y programa</div>
+                    </div>
+                </li>
+                <li class="progress-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <div class="step-title">Datos Bancarios</div>
+                        <div class="step-subtitle">Para viáticos</div>
+                    </div>
+                </li>
+                <li class="progress-step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-info">
+                        <div class="step-title">Consentimiento</div>
+                        <div class="step-subtitle">Tratamiento de datos</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="form-content">
+            <form id="aprendizForm" method="POST" novalidate>
+                {% csrf_token %}
+                
+                <!-- SECCIÓN 1: Datos Personales -->
+                <div class="form-section active" data-section="1">
+                    <div class="form-header">
+                        <h3><i class="bi bi-person-fill me-2"></i>Datos Personales</h3>
+                        <p>Ingresa tu información personal básica</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_tipo_doc">
+                                Tipo de Documento <span class="required">*</span>
+                            </label>
+                            <select class="form-select {% if form.tipo_doc.errors %}is-invalid{% endif %}" 
+                                    id="id_tipo_doc" name="tipo_doc" required>
+                                <option value="">Seleccione tipo de documento</option>
+                                <option value="CC" {% if form.tipo_doc.value == 'CC' %}selected{% endif %}>Cédula de Ciudadanía</option>
+                                <option value="TI" {% if form.tipo_doc.value == 'TI' %}selected{% endif %}>Tarjeta de Identidad</option>
+                                <option value="CE" {% if form.tipo_doc.value == 'CE' %}selected{% endif %}>Cédula de Extranjería</option>
+                                <option value="PEP" {% if form.tipo_doc.value == 'PEP' %}selected{% endif %}>Permiso Especial de Permanencia</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                {% if form.tipo_doc.errors %}{{ form.tipo_doc.errors.0 }}{% else %}Debe seleccionar un tipo de documento{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_cedula_apre">
+                                Número de Documento <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control {% if form.cedula_apre.errors %}is-invalid{% endif %}" 
+                                   id="id_cedula_apre" name="cedula_apre" 
+                                   value="{{ form.cedula_apre.value|default:'' }}"
+                                   placeholder="Ej: 1234567890" maxlength="10" required>
+                            <div class="char-counter" data-max="10" data-field="cedula_apre">
+                                <span class="current">{{ form.cedula_apre.value|default:''|length }}</span>/<span class="max">10</span>
+                            </div>
+                            <div class="invalid-feedback">
+                                {% if form.cedula_apre.errors %}{{ form.cedula_apre.errors.0 }}{% else %}Ingrese un número de documento válido (7-10 dígitos){% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_nombre">
+                                Nombre <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control {% if form.nombre.errors %}is-invalid{% endif %}" 
+                                   id="id_nombre" name="nombre" 
+                                   value="{{ form.nombre.value|default:'' }}"
+                                   placeholder="Nombre" required>
+                            <div class="invalid-feedback">
+                                {% if form.nombre.errors %}{{ form.nombre.errors.0 }}{% else %}El nombre es obligatorio{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_apellido">
+                                Apellido <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control {% if form.apellido.errors %}is-invalid{% endif %}" 
+                                   id="id_apellido" name="apellido" 
+                                   value="{{ form.apellido.value|default:'' }}"
+                                   placeholder="Apellido" required>
+                            <div class="invalid-feedback">
+                                {% if form.apellido.errors %}{{ form.apellido.errors.0 }}{% else %}El apellido es obligatorio{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_fecha_nacimiento">
+                                Fecha de Nacimiento <span class="required">*</span>
+                            </label>
+                            <input type="date" class="form-control {% if form.fecha_nacimiento.errors %}is-invalid{% endif %}" 
+                                   id="id_fecha_nacimiento" name="fecha_nacimiento" 
+                                   value="{{ form.fecha_nacimiento.value|default:'' }}" required>
+                            <div class="invalid-feedback">
+                                {% if form.fecha_nacimiento.errors %}{{ form.fecha_nacimiento.errors.0 }}{% else %}Debe tener entre 14 y 100 años{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_telefono">
+                                Teléfono <span class="required">*</span>
+                                <span class="info-icon" title="Ingresa tu número de celular">?</span>
+                            </label>
+                            <input type="tel" class="form-control {% if form.telefono.errors %}is-invalid{% endif %}" 
+                                   id="id_telefono" name="telefono" 
+                                   value="{{ form.telefono.value|default:'' }}"
+                                   placeholder="3001234567" maxlength="10" required>
+                            <div class="char-counter" data-max="10" data-field="telefono">
+                                <span class="current">{{ form.telefono.value|default:''|length }}</span>/<span class="max">10</span>
+                            </div>
+                            <div class="invalid-feedback">
+                                {% if form.telefono.errors %}{{ form.telefono.errors.0 }}{% else %}Debe tener 10 dígitos y comenzar con 3{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn btn-prev" disabled>
+                            <i class="bi bi-arrow-left me-2"></i>Anterior
+                        </button>
+                        <button type="button" class="btn btn-next" data-next="2">
+                            Siguiente<i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: Información Académica -->
+                <div class="form-section" data-section="2">
+                    <div class="form-header">
+                        <h3><i class="bi bi-book-fill me-2"></i>Información Académica</h3>
+                        <p>Datos de tu formación en el SENA</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_ficha">
+                                Número de Ficha <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control {% if form.ficha.errors %}is-invalid{% endif %}" 
+                                   id="id_ficha" name="ficha" 
+                                   value="{{ form.ficha.value|default:'' }}"
+                                   placeholder="Número de ficha" required>
+                            <div class="invalid-feedback">
+                                {% if form.ficha.errors %}{{ form.ficha.errors.0 }}{% else %}El número de ficha es obligatorio{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_modalidad">
+                                Modalidad <span class="required">*</span>
+                            </label>
+                            <select class="form-select {% if form.modalidad.errors %}is-invalid{% endif %}" 
+                                    id="id_modalidad" name="modalidad" required>
+                                <option value="">Seleccione modalidad</option>
+                                <option value="Presencial" {% if form.modalidad.value == 'Presencial' %}selected{% endif %}>Presencial</option>
+                                <option value="Virtual" {% if form.modalidad.value == 'Virtual' %}selected{% endif %}>Virtual</option>
+                                <option value="A Distancia" {% if form.modalidad.value == 'A Distancia' %}selected{% endif %}>A Distancia</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                {% if form.modalidad.errors %}{{ form.modalidad.errors.0 }}{% else %}Debe seleccionar una modalidad{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_programa">
+                            Programa de Formación <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-control {% if form.programa.errors %}is-invalid{% endif %}" 
+                               id="id_programa" name="programa" 
+                               value="{{ form.programa.value|default:'' }}"
+                               placeholder="Nombre del programa" required>
+                        <div class="invalid-feedback">
+                            {% if form.programa.errors %}{{ form.programa.errors.0 }}{% else %}El programa es obligatorio{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_correo_per">
+                                Correo Personal <span class="required">*</span>
+                            </label>
+                            <input type="email" class="form-control {% if form.correo_per.errors %}is-invalid{% endif %}" 
+                                   id="id_correo_per" name="correo_per" 
+                                   value="{{ form.correo_per.value|default:'' }}"
+                                   placeholder="correo@personal.com" required>
+                            <div class="invalid-feedback">
+                                {% if form.correo_per.errors %}{{ form.correo_per.errors.0 }}{% else %}Ingrese un correo válido{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_correo_ins">
+                                Correo Institucional <span class="required">*</span>
+                            </label>
+                            <input type="email" class="form-control {% if form.correo_ins.errors %}is-invalid{% endif %}" 
+                                   id="id_correo_ins" name="correo_ins" 
+                                   value="{{ form.correo_ins.value|default:'' }}"
+                                   placeholder="correo@soy.sena.edu.co" required>
+                            <div class="invalid-feedback">
+                                {% if form.correo_ins.errors %}{{ form.correo_ins.errors.0 }}{% else %}Ingrese un correo institucional válido{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn btn-prev" data-prev="1">
+                            <i class="bi bi-arrow-left me-2"></i>Anterior
+                        </button>
+                        <button type="button" class="btn btn-next" data-next="3">
+                            Siguiente<i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: Datos Bancarios -->
+                <div class="form-section" data-section="3">
+                    <div class="form-header">
+                        <h3><i class="bi bi-credit-card-fill me-2"></i>Datos Bancarios</h3>
+                        <p>Para consignación de viáticos</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>¿Por qué necesitamos esta información?</strong><br>
+                        Los datos bancarios son necesarios únicamente para la consignación de viáticos 
+                        cuando seas asignado a un semillero de investigación.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_medio_bancario">
+                                Entidad Bancaria <span class="required">*</span>
+                            </label>
+                            <select class="form-select {% if form.medio_bancario.errors %}is-invalid{% endif %}" 
+                                    id="id_medio_bancario" name="medio_bancario" required>
+                                <option value="">Seleccione entidad bancaria</option>
+                                <option value="Llave" {% if form.medio_bancario.value == 'Llave' %}selected{% endif %}>Llave</option>
+                                <option value="Bancolombia" {% if form.medio_bancario.value == 'Bancolombia' %}selected{% endif %}>Bancolombia</option>
+                                <option value="Davivienda" {% if form.medio_bancario.value == 'Davivienda' %}selected{% endif %}>Davivienda</option>
+                                <option value="Banco de Bogotá" {% if form.medio_bancario.value == 'Banco de Bogotá' %}selected{% endif %}>Banco de Bogotá</option>
+                                <option value="BBVA" {% if form.medio_bancario.value == 'BBVA' %}selected{% endif %}>BBVA</option>
+                                <option value="Nequi" {% if form.medio_bancario.value == 'Nequi' %}selected{% endif %}>Nequi</option>
+                                <option value="Daviplata" {% if form.medio_bancario.value == 'Daviplata' %}selected{% endif %}>Daviplata</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                {% if form.medio_bancario.errors %}{{ form.medio_bancario.errors.0 }}{% else %}Debe seleccionar una entidad bancaria{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_numero_cuenta">
+                                Número de Cuenta <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control {% if form.numero_cuenta.errors %}is-invalid{% endif %}" 
+                                   id="id_numero_cuenta" name="numero_cuenta" 
+                                   value="{{ form.numero_cuenta.value|default:'' }}"
+                                   placeholder="Número de cuenta" maxlength="20" required>
+                            <div class="char-counter" data-max="20" data-field="numero_cuenta">
+                                <span class="current">{{ form.numero_cuenta.value|default:''|length }}</span>/<span class="max">20</span>
+                            </div>
+                            <div class="invalid-feedback">
+                                {% if form.numero_cuenta.errors %}{{ form.numero_cuenta.errors.0 }}{% else %}El número debe tener entre 6 y 20 dígitos{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn btn-prev" data-prev="2">
+                            <i class="bi bi-arrow-left me-2"></i>Anterior
+                        </button>
+                        <button type="button" class="btn btn-next" data-next="4">
+                            Siguiente<i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: Consentimiento -->
+                <div class="form-section" data-section="4">
+                    <div class="form-header">
+                        <h3><i class="bi bi-shield-check-fill me-2"></i>Autorización de Tratamiento de Datos</h3>
+                        <p>Lee y acepta nuestra política de tratamiento de datos</p>
+                    </div>
+
+                    <div class="consent-box">
+                        <h6><strong>Política de Tratamiento de Datos Personales</strong></h6>
+                        <p><strong>Autorizo de manera voluntaria, previa, explícita, informada e inequívoca</strong> 
+                        al SENA para tratar mis datos personales, incluyendo datos financieros, de acuerdo con lo siguiente:</p>
+                        
+                        <p><strong>Finalidad:</strong></p>
+                        <ul>
+                            <li>Gestión administrativa y académica como aprendiz SENA</li>
+                            <li>Consignación de viáticos cuando sea asignado a un semillero de investigación</li>
+                            <li>Comunicaciones relacionadas con actividades del semillero</li>
+                            <li>Cumplimiento de obligaciones legales</li>
+                        </ul>
+                        
+                        <p><strong>Derechos del titular:</strong> Conocer, actualizar, rectificar y solicitar 
+                        la supresión de mis datos personales, así como revocar esta autorización.</p>
+                        
+                        <p><strong>Confidencialidad:</strong> El SENA se compromete a proteger la confidencialidad 
+                        de mis datos bancarios y utilizarlos únicamente para los fines autorizados.</p>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input {% if form.acepta_tratamiento_datos.errors %}is-invalid{% endif %}" 
+                               type="checkbox" id="id_acepta_tratamiento_datos" 
+                               name="acepta_tratamiento_datos" 
+                               {% if form.acepta_tratamiento_datos.value %}checked{% endif %} required>
+                        <label class="form-check-label" for="id_acepta_tratamiento_datos">
+                            He leído y acepto la política de tratamiento de datos personales y financieros
+                            <span class="required">*</span>
+                        </label>
+                        <div class="invalid-feedback">
+                            {% if form.acepta_tratamiento_datos.errors %}{{ form.acepta_tratamiento_datos.errors.0 }}{% else %}Debe aceptar el tratamiento de datos para continuar{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn btn-prev" data-prev="3">
+                            <i class="bi bi-arrow-left me-2"></i>Anterior
+                        </button>
+                        <button type="submit" class="btn btn-submit">
+                            <i class="bi bi-check-circle-fill me-2"></i>Registrarme
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Modal de confirmación -->
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        Confirmar Registro
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle-fill me-2"></i>Confirmar Registro
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <p class="mb-3">Por favor, revisa que todos tus datos sean correctos antes de enviar:</p>
@@ -354,6 +411,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Script para pasar errores a JavaScript -->
+    <script>
+        window.djangoFormErrors = {{ errores_info|safe|default:'{}' }};
+    </script>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/mensaje.js' %}"></script>
@@ -366,5 +428,6 @@
             {% endfor %}
         {% endif %}
     </script>
+
 </body>
 </html>
