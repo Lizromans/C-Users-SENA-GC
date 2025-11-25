@@ -49,6 +49,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
+    fecha_registro = models.DateTimeField(auto_now_add=True, null=True)
     
     groups = models.ManyToManyField(
         Group,
@@ -153,7 +154,6 @@ class Semillero(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
     progreso_sem = models.IntegerField(default=0)
 
-    # Relación ManyToMany con Proyecto (a través de tabla intermedia)
     proyectos = models.ManyToManyField(
         'Proyecto',
         through='SemilleroProyecto',
@@ -183,7 +183,7 @@ class Aprendiz(models.Model):
     tipo_doc = models.CharField(max_length=60)
     nombre = models.CharField(max_length=60)
     apellido = models.CharField(max_length=60)
-    fecha_nacimiento = models.CharField(max_length=45)
+    fecha_nacimiento = models.DateField()
     ficha = models.IntegerField()
     programa = models.CharField(max_length=100)
     correo_per = models.CharField(max_length=250)
@@ -194,6 +194,10 @@ class Aprendiz(models.Model):
     telefono = models.CharField(max_length=45)
     estado_apre = models.CharField(max_length=45)
     id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem',  null=True, blank=True)
+    fecha_registro = models.DateTimeField(auto_now_add=True, null=True)
+    # CAMPO DE CONSENTIMIENTO
+    acepta_tratamiento_datos = models.BooleanField(default=False)
+    fecha_aceptacion_datos = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         managed = True

@@ -134,7 +134,7 @@
             <!-- 🔹 Botón para limpiar -->
             <div class="botones-item">
                 <button type="button" class="limpiar" onclick="window.location.href= {% url 'miembros' %}">
-                    <i class="fas fa-sync-alt"></i>Limpiar filtros
+                    <i class="fas fa-sync-alt"></i> Limpiar filtros
                 </button>
             </div>
         </div>
@@ -143,7 +143,12 @@
         <!-- Vista de Lista -->
         <div class="lista-container" style="display: {% if request.GET.vista == 'lista' %}block{% else %}none{% endif %};">
             <div class="resumen">
-                <h3>Lista de Miembros</h3>
+                <div class="header">
+                    <h3>Lista de Miembros</h3>
+                    <button class="link">
+                        <i class="fa-solid fa-link"></i> Invitar Aprendiz
+                    </button>
+                </div>
                 <table>
                     <thead>
                         <tr>

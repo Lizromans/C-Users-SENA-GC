@@ -46,6 +46,7 @@ function mostrarMensajeExito(mensaje, tipo) {
         opacity: 0;
         transform: translateY(-20px);
         transition: opacity .3s ease, transform .3s ease;
+        max-width: 400px;
     `;
 
     // Botón de cerrar
@@ -60,7 +61,18 @@ function mostrarMensajeExito(mensaje, tipo) {
         font-size: 20px;
         cursor: pointer;
         color: inherit;
+        line-height: 1;
+        opacity: 0.7;
+        transition: opacity 0.2s;
     `;
+    
+    closeBtn.onmouseover = function() {
+        closeBtn.style.opacity = "1";
+    };
+    
+    closeBtn.onmouseout = function() {
+        closeBtn.style.opacity = "0.7";
+    };
     
     closeBtn.onclick = function() {
         mensajeDiv.style.opacity = "0";

@@ -416,7 +416,8 @@
 }
 
 /* ====== BOTÓN EXCEL ====== */
-.boton-excel {
+.boton-excel,
+.boton-excel:hover {
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -427,7 +428,10 @@
     white-space: nowrap;
     font-size: clamp(0.75rem, 1vw, 0.85rem);
     font-weight: 500;
+    text-decoration: none;
 }
+
+
 
 .boton-excel i {
     font-size: clamp(0.90rem, 1vw, 0.95rem);
@@ -688,13 +692,6 @@
 
 /* ====== GUARDAR PLANTILLA ====== */
 
-.guardar-plantilla {
-    display: flex;
-    gap: clamp(0.5rem, 1.5vw, 1rem);
-    margin: clamp(1rem, 2vw, 1.5rem) 0;
-    flex-wrap: wrap;
-}
-
 .input-plantilla {
     flex: 1;
     min-width: 250px;
@@ -712,64 +709,6 @@
 
 .input-plantilla::placeholder {
     color: #adb5bd;
-}
-
-.btn-guardar-plantilla {
-    padding: clamp(0.5rem, 1vw, 0.65rem) clamp(1rem, 2vw, 1.5rem);
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: clamp(0.85rem, 1.4vw, 0.95rem);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.btn-guardar-plantilla:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-}
-
-.btn-guardar-plantilla i {
-    font-size: 1rem;
-}
-
-/* ====== BOTÓN VISTA PREVIA ====== */
-
-.vista-previa {
-    width: fit-content;
-    padding: clamp(6px, 1vw, 10px) clamp(12px, 2vw, 18px);
-    background-color: #17a2b8;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: clamp(0.80rem, 1vw, 0.90rem);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.vista-previa:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
-    background-color: #138496;
-}
-
-.vista-previa i {
-    transition: transform 0.3s ease;
-}
-
-.vista-previa:hover i {
-    transform: scale(1.1);
 }
 
 /* ====== ANIMACIONES ====== */

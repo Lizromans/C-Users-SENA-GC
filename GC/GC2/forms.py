@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
-from .models import Usuario
+from .models import Usuario, Aprendiz
 
 
 class UsuarioRegistroForm(forms.ModelForm):
@@ -110,3 +110,239 @@ class UsuarioRegistroForm(forms.ModelForm):
         if commit:
             usuario.save()
         return usuario
+
+class AprendizForm(forms.ModelForm):
+    TIPO_DOC_CHOICES = [
+        ('', 'Seleccione tipo de documento'), 
+        ('CC', 'Cédula de Ciudadanía'),
+        ('TI', 'Tarjeta de Identidad'),
+        ('CE', 'Cédula de Extranjería'),
+        ('PEP', 'Permiso Especial de Permanencia'),
+    ]
+    
+    MEDIO_BANCARIO_CHOICES = [
+        ('', 'Seleccione entidad bancaria'), 
+        ('Llave', 'Llave'), 
+        ('Bancolombia', 'Bancolombia'),
+        ('Davivienda', 'Davivienda'),
+        ('Banco de Bogotá', 'Banco de Bogotá'),
+        ('BBVA', 'BBVA'),
+        ('Nequi', 'Nequi'),
+        ('Daviplata', 'Daviplata'),
+    ]
+    
+    MODALIDAD_CHOICES = [
+        ('', 'Seleccione modalidad'),  
+        ('Presencial', 'Presencial'),
+        ('Virtual', 'Virtual'),
+        ('A Distancia', 'A Distancia'),
+    ]
+    
+    tipo_doc = forms.ChoiceField(
+        label='Tipo de Documento',
+        choices=TIPO_DOC_CHOICES, 
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        required=True
+    )
+    medio_bancario = forms.ChoiceField(
+        label='Entidad Bancaria',
+        choices=MEDIO_BANCARIO_CHOICES, 
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        required=True
+    )
+    modalidad = forms.ChoiceField(
+        label='Modalidad de Estudio',
+        choices=MODALIDAD_CHOICES, 
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        required=True
+    )
+    
+    # CAMPO DE CONSENTIMIENTO
+    acepta_tratamiento_datos = forms.BooleanField(
+        required=True,
+        label='',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        error_messages={
+            'required': 'Debe aceptar el tratamiento de datos personales para continuar.'
+        }
+    )
+    
+    class Meta:
+        model = Aprendiz
+        exclude = ['proyectos', 'estado_apre', 'id_sem', 'fecha_registro', 'fecha_aceptacion_datos']
+        
+        widgets = {
+            'cedula_apre': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Ej: 1234567890'
+            }),
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Nombre'
+            }),
+            'apellido': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Apellido'
+            }),
+            'fecha_nacimiento': forms.DateInput(attrs={
+                'class': 'form-control', 
+                'type': 'date'
+            }),
+            'ficha': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Número de ficha'
+            }),
+            'programa': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Nombre del programa'
+            }),
+            'correo_per': forms.EmailInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'correo@personal.com'
+            }),
+            'correo_ins': forms.EmailInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'correo@institucional.edu.co'
+            }),
+            'numero_cuenta': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Número de cuenta'
+            }),
+            'telefono': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': '3001234567'
+            }),
+        }
+        
+        labels = {
+            'cedula_apre': 'Cédula',
+            'nombre': 'Nombre',
+            'apellido': 'Apellido',
+            'fecha_nacimiento': 'Fecha de Nacimiento',
+            'ficha': 'Número de Ficha',
+            'programa': 'Programa de Formación',
+            'correo_per': 'Correo Personal',
+            'correo_ins': 'Correo Institucional',
+            'numero_cuenta': 'Número de Cuenta',
+            'telefono': 'Teléfono',
+        }
+    
+    # =================== VALIDACIONES ===================
+    
+    def clean_acepta_tratamiento_datos(self):
+        acepta = self.cleaned_data.get('acepta_tratamiento_datos')
+        if not acepta:
+            raise ValidationError(
+                "Debe aceptar el tratamiento de datos personales y financieros "
+                "para poder registrarse y recibir viáticos del semillero."
+            )
+        return acepta
+    
+    def clean_tipo_doc(self):
+        tipo_doc = self.cleaned_data.get('tipo_doc')
+        if not tipo_doc:
+            raise ValidationError("Debe seleccionar un tipo de documento.")
+        return tipo_doc
+    
+    def clean_medio_bancario(self):
+        medio = self.cleaned_data.get('medio_bancario')
+        if not medio:
+            raise ValidationError("Debe seleccionar una entidad bancaria.")
+        return medio
+    
+    def clean_modalidad(self):
+        modalidad = self.cleaned_data.get('modalidad')
+        if not modalidad:
+            raise ValidationError("Debe seleccionar una modalidad.")
+        return modalidad
+    
+    def clean_cedula_apre(self):
+        cedula = self.cleaned_data.get('cedula_apre')
+        if not cedula:
+            raise ValidationError("La cédula es obligatoria.")
+            
+        queryset = Aprendiz.objects.filter(cedula_apre=cedula)
+        if self.instance and self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        
+        if queryset.exists():
+            raise ValidationError("Esta cédula ya está registrada.")
+        
+        cedula_str = str(cedula)
+        if len(cedula_str) < 7 or len(cedula_str) > 10:
+            raise ValidationError("La cédula debe tener entre 7 y 10 dígitos.")
+        
+        return cedula
+    
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        if not telefono:
+            raise ValidationError("El teléfono es obligatorio.")
+            
+        telefono = telefono.replace(' ', '').replace('-', '')
+        
+        if not telefono.isdigit():
+            raise ValidationError("El teléfono debe contener solo números.")
+        
+        if len(telefono) != 10:
+            raise ValidationError("El teléfono debe tener exactamente 10 dígitos.")
+        
+        if not telefono.startswith('3'):
+            raise ValidationError("El número debe comenzar con 3.")
+        
+        return telefono
+    
+    def clean_correo_ins(self):
+        correo = self.cleaned_data.get('correo_ins')
+        if not correo:
+            raise ValidationError("El correo institucional es obligatorio.")
+            
+        queryset = Aprendiz.objects.filter(correo_ins=correo)
+        if self.instance and self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+            
+        if queryset.exists():
+            raise ValidationError("Este correo institucional ya está registrado.")
+        
+        return correo
+    
+    def clean_correo_per(self):
+        correo = self.cleaned_data.get('correo_per')
+        if not correo:
+            raise ValidationError("El correo personal es obligatorio.")
+            
+        queryset = Aprendiz.objects.filter(correo_per=correo)
+        if self.instance and self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+            
+        if queryset.exists():
+            raise ValidationError("Este correo personal ya está registrado.")
+        
+        return correo
+    
+    def clean_ficha(self):
+        ficha = self.cleaned_data.get('ficha')
+        if not ficha:
+            raise ValidationError("El número de ficha es obligatorio.")
+        return ficha
+    
+    def clean_programa(self):
+        programa = self.cleaned_data.get('programa')
+        if not programa or not programa.strip():
+            raise ValidationError("El programa de formación es obligatorio.")
+        return programa.strip()
+    
+    def clean_numero_cuenta(self):
+        numero = self.cleaned_data.get('numero_cuenta')
+        if not numero:
+            raise ValidationError("El número de cuenta es obligatorio.")
+        
+        numero = numero.replace(' ', '').replace('-', '')
+        
+        if not numero.isdigit():
+            raise ValidationError("El número de cuenta debe contener solo números.")
+        
+        if len(numero) < 6 or len(numero) > 20:
+            raise ValidationError("El número de cuenta debe tener entre 6 y 20 dígitos.")
+        
+        return numero

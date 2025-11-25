@@ -16,10 +16,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import permission_required
 from django.views.decorators.cache import never_cache
 from functools import wraps
-from django.utils import timezone
 from django.utils.timezone import now
-from datetime import timedelta
-from django.http import Http404
 from django.db.models import Q, Avg
 from datetime import datetime
 from django.db.models import Case, When, Value, IntegerField
@@ -32,15 +29,16 @@ import openpyxl
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, LineChart, PieChart, Reference
 from datetime import date
-from openpyxl.styles import Border, Side, Font
+from openpyxl.styles import Border, Side, Font, PatternFill
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
-from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER
 from io import BytesIO
-
+from dateutil.relativedelta import relativedelta
+from django.utils import timezone
+from .forms import AprendizForm
 
 # Create your views here.
 def bienvenido(request):
@@ -2402,6 +2400,32 @@ def miembros(request):
     }
 
     return render(request, 'paginas/miembros.html', contexto)
+
+def registro_aprendiz(request):  
+    if request.method == 'POST':
+        form = AprendizForm(request.POST)
+        if form.is_valid():
+            try:
+                aprendiz = form.save(commit=False)
+                aprendiz.estado_apre = 'Activo'
+                
+                # Registrar fecha de aceptación del tratamiento de datos
+                if aprendiz.acepta_tratamiento_datos:
+                    aprendiz.fecha_aceptacion_datos = timezone.now()
+                
+                aprendiz.save()
+                
+                messages.success(request, f'¡Aprendiz {aprendiz.nombre} {aprendiz.apellido} registrado exitosamente!')
+                form = AprendizForm()
+                
+            except Exception as e:
+                messages.error(request, f'Error al guardar: {str(e)}')
+        else:
+            messages.error(request, 'Por favor corrija los errores del formulario.')
+    else:
+        form = AprendizForm()
+    
+    return render(request, 'paginas/formaprendiz.html', {'form': form})
 
 # VISTAS DE CENTRO DE AYUDA
 def centroayuda(request):
@@ -4846,6 +4870,333 @@ def generar_reporte_pdf(request):
     buffer.close()
     response.write(pdf)
     
+    return response
+
+def reporte_tendencias_crecimiento(request):
+    from collections import defaultdict
+    
+    # WORKBOOK
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Tendencias de Crecimiento"
+
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+
+    # TÍTULO
+    ws.merge_cells('A1:E1')
+    titulo = ws['A1']
+    titulo.value = "TENDENCIAS DE CRECIMIENTO"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+
+    # ENCABEZADOS
+    ws.append([])
+    ws.append(["Período", "Semilleros Creados", "Proyectos Creados", "Participantes Activos", "Entregables Completados"])
+
+    for cell in ws[3]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+
+    # FECHAS AWARE
+    fecha_actual = timezone.now()
+    
+    fecha_inicio = (fecha_actual - relativedelta(months=11)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    # Obtener TODOS los registros (no filtrar por fecha aquí)
+    semilleros = Semillero.objects.filter(
+        fecha_creacion__isnull=False
+    ).values_list('fecha_creacion', flat=True)
+    
+    proyectos = Proyecto.objects.filter(
+        fecha_creacion__isnull=False
+    ).values_list('fecha_creacion', flat=True)
+
+    # Organizar SEMILLEROS por mes (conteo por mes, no acumulado)
+    sem_dict = defaultdict(int)
+    for fecha in semilleros:
+        if timezone.is_naive(fecha):
+            fecha = timezone.make_aware(fecha)
+        # Convertir a fecha local y luego crear clave como string YYYY-MM
+        fecha_local = timezone.localtime(fecha)
+        clave_mes = fecha_local.strftime("%Y-%m")
+        sem_dict[clave_mes] += 1
+
+    # Organizar PROYECTOS por mes (conteo por mes, no acumulado)
+    proy_dict = defaultdict(int)
+    for fecha in proyectos:
+        if timezone.is_naive(fecha):
+            fecha = timezone.make_aware(fecha)
+        # Convertir a fecha local y luego crear clave como string YYYY-MM
+        fecha_local = timezone.localtime(fecha)
+        clave_mes = fecha_local.strftime("%Y-%m")
+        proy_dict[clave_mes] += 1
+
+    # GENERAR FILAS PARA 12 MESES (desde hace 11 meses hasta el mes actual = 12 meses)
+    for i in range(12):
+        mes_actual = fecha_inicio + relativedelta(months=i)
+        mes_siguiente = mes_actual + relativedelta(months=1)
+        periodo = mes_actual.strftime("%b %Y")
+
+        # Crear clave como string YYYY-MM para buscar en los diccionarios
+        clave_mes = mes_actual.strftime("%Y-%m")
+
+        # Semilleros CREADOS en este mes específico
+        semilleros_mes = sem_dict.get(clave_mes, 0)
+        
+        # Proyectos CREADOS en este mes específico
+        proyectos_mes = proy_dict.get(clave_mes, 0)
+
+        participantes = Usuario.objects.filter(
+            fecha_registro__lte=mes_siguiente
+        ).count() + Aprendiz.objects.filter(
+            fecha_registro__lte=mes_siguiente
+        ).count()
+
+        # Entregables COMPLETADOS durante este mes específico
+        entregables_mes = Entregable.objects.filter(
+            estado__in=['Completado', 'Entrega Tardía'],
+            fecha_fin__gte=mes_actual,
+            fecha_fin__lt=mes_siguiente
+        ).count()
+
+        ws.append([periodo, semilleros_mes, proyectos_mes, participantes, entregables_mes])
+
+    # BORDES
+    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=5):
+        for cell in row:
+            cell.border = thin_border
+
+    # GRÁFICO
+    chart = LineChart()
+    chart.title = "Evolución Temporal"
+    chart.style = 15
+    chart.y_axis.title = 'Cantidad'
+    chart.x_axis.title = 'Período'
+
+    data = Reference(ws, min_col=2, min_row=3, max_col=5, max_row=ws.max_row)
+    cats = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+
+    chart.add_data(data, titles_from_data=True)
+    chart.set_categories(cats)
+    
+    ws.add_chart(chart, "G3")
+
+    # RESUMEN ESTADÍSTICO
+    fila_resumen = ws.max_row + 3
+    ws.cell(row=fila_resumen, column=1, value="RESUMEN ESTADÍSTICO").font = Font(bold=True, size=12)
+    fila_resumen += 1
+    ws.append([])
+
+    ws.append(["Métrica", "Valor"])
+    ws.cell(row=fila_resumen + 1, column=1).font = Font(bold=True)
+    ws.cell(row=fila_resumen + 1, column=2).font = Font(bold=True)
+
+    # Calcular totales de semilleros y proyectos creados en los últimos 12 meses
+    total_sem_12m = sum(sem_dict.values())
+    total_proy_12m = sum(proy_dict.values())
+    
+    # Tasas de crecimiento (comparando primer mes vs último mes)
+    if ws.max_row > 4:
+        primer_mes_sem = ws.cell(row=4, column=2).value or 0
+        ultimo_mes_sem = ws.cell(row=ws.max_row, column=2).value or 0
+        
+        primer_mes_proy = ws.cell(row=4, column=3).value or 0
+        ultimo_mes_proy = ws.cell(row=ws.max_row, column=3).value or 0
+        
+        # Crecimiento basado en el cambio mensual
+        crec_sem = ((ultimo_mes_sem - primer_mes_sem) / primer_mes_sem * 100) if primer_mes_sem > 0 else 0
+        crec_proy = ((ultimo_mes_proy - primer_mes_proy) / primer_mes_proy * 100) if primer_mes_proy > 0 else 0
+    else:
+        crec_sem = crec_proy = 0
+
+    ws.append([f"Total Semilleros Creados (últimos 12 meses)", total_sem_12m])
+    ws.append([f"Total Proyectos Creados (últimos 12 meses)", total_proy_12m])
+    ws.append([f"Variación Mensual Semilleros", f"{crec_sem:.1f}%"])
+    ws.append([f"Variación Mensual Proyectos", f"{crec_proy:.1f}%"])
+    ws.append([f"Total Participantes Actuales", Usuario.objects.count() + Aprendiz.objects.count()])
+    ws.append([f"Total Entregables Completados (histórico)", Entregable.objects.filter(estado__in=['Completado', 'Entrega Tardía']).count()])
+
+    # RESPUESTA
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="tendencias_crecimiento.xlsx"'
+
+    wb.save(response)
+    return response
+
+def reporte_productividad_semillero(request):
+    """
+    Genera reporte Excel con productividad por semillero
+    """
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Productividad"
+
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+
+    # TÍTULO
+    ws.merge_cells('A1:F1')
+    titulo = ws['A1']
+    titulo.value = "PRODUCTIVIDAD POR SEMILLERO"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+
+    # ENCABEZADOS
+    ws.append([])
+    ws.append([
+        "Semillero",
+        "Proyectos Finalizados",
+        "Entregables Completados",
+        "Total Participantes",
+        "Tasa de Finalización (%)",
+        "Productividad Promedio"
+    ])
+    
+    # Aplicar estilo a encabezados
+    for cell in ws[3]:
+        cell.font = Font(bold=True)
+        cell.fill = openpyxl.styles.PatternFill(start_color="27AE60", end_color="27AE60", fill_type="solid")
+        cell.font = Font(bold=True, color="FFFFFF")
+
+    # OBTENER DATOS
+    semilleros = Semillero.objects.all()
+    
+    for sem in semilleros:
+        # Proyectos del semillero
+        proyectos = SemilleroProyecto.objects.filter(id_sem=sem)
+        total_proyectos = proyectos.count()
+        
+        # Proyectos finalizados
+        proyectos_finalizados = Proyecto.objects.filter(
+            semilleroproyecto__id_sem=sem,
+            estado_pro='completado'
+        ).count()
+        
+        # Entregables completados
+        entregables_completados = Entregable.objects.filter(
+            cod_pro__in=proyectos.values('cod_pro'),
+            estado__in=['Completado', 'Entrega Tardía']
+        ).count()
+        
+        # Total entregables
+        total_entregables = Entregable.objects.filter(
+            cod_pro__in=proyectos.values('cod_pro')
+        ).count()
+        
+        # Participantes
+        usuarios = SemilleroUsuario.objects.filter(id_sem=sem).count()
+        aprendices = Aprendiz.objects.filter(id_sem=sem).count()
+        total_participantes = usuarios + aprendices
+        
+        # Tasa de finalización
+        tasa_finalizacion = (proyectos_finalizados / total_proyectos * 100) if total_proyectos > 0 else 0
+        
+        # Productividad promedio (entregables completados / participantes)
+        productividad = (entregables_completados / total_participantes) if total_participantes > 0 else 0
+        
+        ws.append([
+            sem.nombre,
+            proyectos_finalizados,
+            entregables_completados,
+            total_participantes,
+            round(tasa_finalizacion, 1),
+            round(productividad, 2)
+        ])
+
+    # APLICAR BORDES
+    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=6):
+        for cell in row:
+            cell.border = thin_border
+
+    # GRÁFICO DE BARRAS - ENTREGABLES COMPLETADOS
+    chart1 = BarChart()
+    chart1.title = "Entregables Completados por Semillero"
+    chart1.style = 10
+    chart1.y_axis.title = 'Cantidad'
+    chart1.x_axis.title = 'Semillero'
+    
+    data1 = Reference(ws, min_col=3, min_row=3, max_row=ws.max_row)
+    cats1 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    
+    chart1.add_data(data1, titles_from_data=True)
+    chart1.set_categories(cats1)
+    
+    ws.add_chart(chart1, "H3")
+
+    # GRÁFICO DE BARRAS - PROYECTOS FINALIZADOS
+    chart2 = BarChart()
+    chart2.title = "Proyectos Finalizados por Semillero"
+    chart2.style = 11
+    chart2.y_axis.title = 'Cantidad'
+    chart2.x_axis.title = 'Semillero'
+    
+    data2 = Reference(ws, min_col=2, min_row=3, max_row=ws.max_row)
+    cats2 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    
+    chart2.add_data(data2, titles_from_data=True)
+    chart2.set_categories(cats2)
+    
+    ws.add_chart(chart2, "H20")
+
+    # GRÁFICO DE DISPERSIÓN - PRODUCTIVIDAD
+    chart3 = BarChart()
+    chart3.title = "Productividad Promedio por Semillero"
+    chart3.style = 12
+    chart3.y_axis.title = 'Productividad'
+    chart3.x_axis.title = 'Semillero'
+    
+    data3 = Reference(ws, min_col=6, min_row=3, max_row=ws.max_row)
+    cats3 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    
+    chart3.add_data(data3, titles_from_data=True)
+    chart3.set_categories(cats3)
+    
+    ws.add_chart(chart3, "H37")
+
+    # RANKING DE SEMILLEROS
+    fila_ranking = ws.max_row + 3
+    
+    ws.cell(row=fila_ranking, column=1, value="TOP 5 SEMILLEROS MÁS PRODUCTIVOS").font = Font(bold=True, size=12)
+    fila_ranking += 1
+    
+    ws.append([])
+    ws.append(["Posición", "Semillero", "Productividad"])
+    
+    for cell in ws[fila_ranking + 1]:
+        cell.font = Font(bold=True)
+    
+    # Ordenar semilleros por productividad
+    datos_ranking = []
+    for row in range(4, ws.max_row + 1):
+        if ws.cell(row=row, column=1).value:  # Si hay nombre de semillero
+            datos_ranking.append({
+                'nombre': ws.cell(row=row, column=1).value,
+                'productividad': ws.cell(row=row, column=6).value or 0
+            })
+    
+    datos_ranking.sort(key=lambda x: x['productividad'], reverse=True)
+    
+    for i, dato in enumerate(datos_ranking[:5], 1):
+        ws.append([i, dato['nombre'], dato['productividad']])
+
+    # Preparar respuesta
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="productividad_semillero.xlsx"'
+    
+    wb.save(response)
     return response
 
 # VISTA DE LOGOUT

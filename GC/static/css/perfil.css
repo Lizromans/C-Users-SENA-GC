@@ -10,10 +10,8 @@
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
-    /* Nuevas variables para colores de fondo */
     --color-fondo-principal: #f5f5f5;
     --color-fondo-secundario: #e9ecef;
-    /* Variables para gradiente */
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
 }
 

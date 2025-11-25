@@ -45,6 +45,7 @@ urlpatterns = [
 
     #MIEMBROS
     path('miembros/', views.miembros, name='miembros'),
+    path('registro_aprendiz/', views.registro_aprendiz, name='registro_aprendiz'),
 
     #CENTRO DE AYUDA
     path('centroayuda/', views.centroayuda, name='centroayuda'),
@@ -56,6 +57,8 @@ urlpatterns = [
     path("reporte-entregables/", views.reporte_entregables, name="reporte_entregables"),
     path("reporte-participantes/", views.reporte_participantes, name="reporte_participantes"),
     path("reporte-dinamico/", views.generar_reporte_dinamico, name="generar_reporte_dinamico"),
+    path('reportes/tendencias-crecimiento/', views.reporte_tendencias_crecimiento, name='reporte_tendencias'),
+    path('reportes/productividad-semillero/', views.reporte_productividad_semillero, name='reporte_productividad'),
     
     #CONFIGURACIONES ADICIONES 
     path('privacidad/', views.privacidad, name='privacidad'),
