@@ -39,7 +39,32 @@ from io import BytesIO
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 from .forms import AprendizForm
+from cryptography.fernet import Fernet
+from django.conf import settings
+import base64
+import hashlib
 
+# Funciones de cifrado/descifrado
+def cifrar_numero(numero):
+    if not numero:
+        return numero
+    try:
+        key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
+        cipher = Fernet(base64.urlsafe_b64encode(key))
+        return cipher.encrypt(str(numero).encode()).decode()
+    except:
+        return numero
+
+def descifrar_numero(numero_cifrado):
+    if not numero_cifrado:
+        return numero_cifrado
+    try:
+        key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
+        cipher = Fernet(base64.urlsafe_b64encode(key))
+        return cipher.decrypt(numero_cifrado.encode()).decode()
+    except:
+        return "****"  # Mostrar asteriscos si falla
+    
 # Create your views here.
 def bienvenido(request):
     return render(request, 'paginas/bienvenido.html')
@@ -73,7 +98,7 @@ def registro(request):
     return render(request, 'paginas/registro.html', {
         'form': form,
         'current_page_name': 'registro',
-        'show_register': True  # Nueva variable para indicar que queremos mostrar registro
+        'show_register': True  
     })
 
 # Vista para verificar el correo electrónico
@@ -177,8 +202,6 @@ def iniciarsesion(request):
         messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
         return redirect('home')
 
-    # --- Si es GET ---
-    # CAMBIO: Ya no enviamos show_login, la página siempre inicia en login por defecto
     return render(request, 'paginas/registro.html', {
         'current_page_name': 'Iniciar Sesión'
     })
@@ -341,22 +364,22 @@ def privacidad(request):
             nueva_contraseña = request.POST.get('nueva_contraseña')
             confirmar_contraseña = request.POST.get('confirmar_contraseña')
             
-            # ✅ Verificar la contraseña actual usando el campo correcto
+            #  Verificar la contraseña actual usando el campo correcto
             if not check_password(contraseña_actual, usuario.password):
                 messages.error(request, "La contraseña actual es incorrecta.")
                 return redirect('privacidad')
             
-            # ✅ Verificar coincidencia
+            #  Verificar coincidencia
             if nueva_contraseña != confirmar_contraseña:
                 messages.error(request, "Las contraseñas nuevas no coinciden.")
                 return redirect('privacidad')
             
-            # ✅ Validar longitud mínima
+            # Validar longitud mínima
             if len(nueva_contraseña) < 8:
                 messages.error(request, "La contraseña debe tener al menos 8 caracteres.")
                 return redirect('privacidad')
             
-            # ✅ Guardar correctamente usando set_password()
+            # Guardar correctamente usando set_password()
             usuario.set_password(nueva_contraseña)
             usuario.save()
 
@@ -2367,6 +2390,14 @@ def miembros(request):
             aprendiz = Aprendiz.objects.filter(cedula_apre=miembro_id).first()
             if aprendiz:
                 tipo_miembro = 'aprendiz'
+                # Descifrar el número
+                numero_descifrado = descifrar_numero(aprendiz.numero_cuenta)
+                # Formatear para mostrar solo últimos 4 dígitos
+                if numero_descifrado and numero_descifrado != "****":
+                    numero_visible = f"*********{numero_descifrado[-4:]}"
+                else:
+                    numero_visible = "**********"
+                
                 miembro_seleccionado = {
                     'cedula': aprendiz.cedula_apre,
                     'nombres': aprendiz.nombre,
@@ -2375,7 +2406,8 @@ def miembros(request):
                     'fecha_nacimiento': aprendiz.fecha_nacimiento,
                     'correo_sena': aprendiz.correo_ins,
                     'medio_bancario': aprendiz.medio_bancario,
-                    'numero_cuenta': aprendiz.numero_cuenta,
+                    'numero_cuenta': aprendiz.numero_cuenta,  # Cifrado (no se usa)
+                    'numero_cuenta_visible': numero_visible,
                     'celular': aprendiz.telefono,
                     'ficha': aprendiz.ficha,
                     'programa': aprendiz.programa,
@@ -2384,7 +2416,7 @@ def miembros(request):
                     'semilleros': [aprendiz.id_sem] if aprendiz.id_sem else [],
                     'proyectos': Proyecto.objects.filter(proyectoaprendiz__cedula_apre=aprendiz).distinct(),
                 }
-
+    
     contexto = {
         'miembros': miembros,
         'total_instructores': total_instructores,
@@ -2400,10 +2432,6 @@ def miembros(request):
     }
 
     return render(request, 'paginas/miembros.html', contexto)
-
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.utils import timezone
 
 def registro_aprendiz(request):  
     if request.method == 'POST':

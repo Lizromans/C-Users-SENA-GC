@@ -38,32 +38,32 @@ body {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     display: flex;
-    height: 70vh;
+    height: 72vh;
     animation: fadeInUp 0.6s ease-out;
 }
 
 /* ===== SIDEBAR DE PROGRESO ===== */
 .progress-sidebar {
-    width: 280px;
+    width: clamp(180px, 22vw, 280px);
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 40px 20px;
+    padding: clamp(20px, 4vw, 40px) clamp(10px, 2.5vw, 20px);
     color: white;
     position: relative;
 }
 
 .logo-section {
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: clamp(20px, 6vw, 50px);
 }
 
 .logo-section h2 {
-    font-size: 2rem;
+    font-size: clamp(1.4rem, 3vw, 2rem);
     font-weight: 700;
-    margin-bottom: 5px;
+    margin-bottom: clamp(3px, 0.8vw, 5px);
 }
 
 .logo-section p {
-    font-size: 0.9rem;
+    font-size: clamp(0.75rem, 1.6vw, 0.9rem);
     opacity: 0.9;
 }
 
@@ -75,7 +75,7 @@ body {
 .progress-step {
     display: flex;
     align-items: center;
-    margin-bottom: 35px;
+    margin-bottom: clamp(20px, 6vw, 35px);
     position: relative;
     cursor: pointer;
     transition: var(--transition);
@@ -84,10 +84,10 @@ body {
 .progress-step::before {
     content: '';
     position: absolute;
-    left: 20px;
-    top: 45px;
-    width: 2px;
-    height: 35px;
+    left: clamp(12px, 2.2vw, 20px);
+    top: clamp(28px, 6vw, 45px);
+    width: clamp(1.5px, 0.4vw, 2.5px);
+    height: clamp(18px, 4.5vw, 35px);
     background: rgba(255, 255, 255, 0.3);
 }
 
@@ -96,16 +96,16 @@ body {
 }
 
 .step-number {
-    width: 40px;
-    height: 40px;
+    width: clamp(30px, 6vw, 40px);
+    height: clamp(30px, 6vw, 40px);
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.1rem;
-    margin-right: 15px;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    margin-right: clamp(10px, 2vw, 15px);
     transition: var(--transition);
     border: 2px solid transparent;
 }
@@ -128,8 +128,8 @@ body {
 
 .step-title {
     font-weight: 600;
-    font-size: 1rem;
-    margin-bottom: 2px;
+    font-size: clamp(1rem, 2.5vw, 1rem);
+    margin-bottom: clamp(2px, 0.5vw, 2px);
     opacity: 0.8;
     transition: var(--transition);
 }
@@ -140,35 +140,34 @@ body {
 }
 
 .step-subtitle {
-    font-size: 0.75rem;
+    font-size: clamp(0.6rem, 1.5vw, 0.75rem);
     opacity: 0.7;
 }
 
 /* ===== CONTENIDO PRINCIPAL ===== */
 .form-content {
     flex: 1;
-    padding: 50px 60px;
+    padding: clamp(30px, 6vw, 50px) clamp(40px, 8vw, 60px);
     background: #fafafa;
     overflow-y: auto;
     max-height: 90vh;
 }
 
 .form-header {
-    margin-bottom: 40px;
+    margin-bottom: clamp(20px, 5vw, 40px);
 }
-
 .form-header h3 {
     color: #333;
-    font-size: 1.8rem;
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: clamp(8px, 2vw, 14px);
     display: flex;
     align-items: center;
 }
 
 .form-header p {
     color: #6c757d;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
 }
 
 /* ===== SECCIONES DEL FORMULARIO ===== */
@@ -185,11 +184,11 @@ body {
 .form-label {
     font-weight: 600;
     color: #333;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
+    margin-bottom: clamp(4px, 0.7vw, 8px);
+    font-size: clamp(0.85rem, calc(0.9rem + 0.2vw), 1rem);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: clamp(5px, 0.8vw, 12px);
 }
 
 .required {
@@ -199,8 +198,8 @@ body {
 .form-control, .form-select {
     border: 2px solid #e0e0e0;
     border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 0.95rem;
+    padding: clamp(10px, 2vw, 16px);
+    font-size: clamp(0.85rem, 2vw, 1rem);
     transition: var(--transition);
 }
 
@@ -228,8 +227,8 @@ body {
 .invalid-feedback {
     display: none;
     color: var(--color-error);
-    font-size: 0.85rem;
-    margin-top: 5px;
+    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+    margin-top: clamp(3px, 0.5vw, 5px);
 }
 
 .form-control.is-invalid ~ .invalid-feedback,
@@ -240,10 +239,10 @@ body {
 
 /* ===== CONTADOR DE CARACTERES ===== */
 .char-counter {
-    font-size: 0.75rem;
+    font-size: clamp(0.7rem, 1.2vw, 0.85rem);
     color: var(--color-secondary);
     text-align: right;
-    margin-top: 2px;
+    margin-top: clamp(1px, 0.3vw, 3px);
 }
 
 .char-counter.warning {
@@ -258,8 +257,8 @@ body {
 
 /* ===== CHECKBOX PERSONALIZADO ===== */
 .form-check-input {
-    width: 1.3em;
-    height: 1.3em;
+    width: clamp(1.2em, 2vw, 1.5em);
+    height: clamp(1.2em, 2vw, 1.5em);
     cursor: pointer;
     transition: var(--transition);
 }
@@ -284,16 +283,16 @@ body {
     background: #fff;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
-    padding: 20px;
-    max-height: 300px;
+    padding: clamp(15px, 3vw, 20px);
+    max-height: clamp(250px, 35vh, 400px);
     overflow-y: auto;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
+    margin-bottom: clamp(15px, 3vw, 20px);
+    font-size: clamp(0.85rem, 1.5vw, 0.95rem);
     line-height: 1.6;
 }
 
 .consent-box::-webkit-scrollbar {
-    width: 8px;
+    width: clamp(6px, 1.5vw, 10px);
 }
 
 .consent-box::-webkit-scrollbar-track {
@@ -310,12 +309,12 @@ body {
 .navigation-buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 40px;
-    gap: 15px;
+    margin-top: clamp(30px, 6vw, 40px);
+    gap: clamp(10px, 2vw, 15px);
 }
 
 .btn {
-    padding: 12px 30px;
+    padding: clamp(10px, 2vw, 16px) clamp(20px, 4vw, 30px);
     border-radius: 8px;
     font-weight: 600;
     transition: var(--transition);
@@ -373,15 +372,15 @@ body {
 /* ===== TOOLTIP ===== */
 .info-icon {
     display: inline-block;
-    width: 18px;
-    height: 18px;
+    width: clamp(16px, 2vw, 20px);
+    height: clamp(16px, 2vw, 20px);
     background: #6c757d;
     color: white;
     border-radius: 50%;
     text-align: center;
-    line-height: 18px;
-    font-size: 12px;
-    margin-left: 5px;
+    line-height: clamp(16px, 2vw, 20px);
+    font-size: clamp(10px, 1.5vw, 14px);
+    margin-left: clamp(3px, 0.5vw, 8px);
     cursor: help;
     transition: var(--transition);
 }
@@ -422,19 +421,19 @@ body {
 }
 
 .modal-body {
-    padding: 30px;
+    padding: clamp(20px, 5vw, 30px);
 }
 
 #summaryContent {
-    max-height: 400px;
+    max-height: clamp(500px, 70vh, 700px);
     overflow-y: auto;
 }
 
 .summary-item {
-    padding: 12px;
+    padding: clamp(8px, 2vw, 12px);
     background: #f8f9fa;
     border-radius: 8px;
-    margin-bottom: 10px;
+    margin-bottom: clamp(8px, 1.5vw, 10px);
     display: flex;
     justify-content: space-between;
 }
@@ -452,16 +451,16 @@ body {
 /* ===== INDICADOR DE GUARDADO ===== */
 .autosave-indicator {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: clamp(15px, 3vw, 20px);
+    right: clamp(15px, 3vw, 20px);
     background: white;
-    padding: 10px 20px;
+    padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 20px);
     border-radius: 25px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
+    gap: clamp(8px, 1.5vw, 10px);
+    font-size: clamp(0.85rem, 1.5vw, 0.9rem);
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 1000;
@@ -472,9 +471,9 @@ body {
 }
 
 .autosave-indicator .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--color-primary);
+    width: clamp(14px, 2vw, 18px);
+    height: clamp(14px, 2vw, 18px);
+    border: clamp(1.5px, 0.3vw, 2.5px) solid var(--color-primary);
     border-top-color: transparent;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;

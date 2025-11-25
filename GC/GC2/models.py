@@ -189,7 +189,7 @@ class Aprendiz(models.Model):
     correo_per = models.CharField(max_length=250)
     correo_ins = models.CharField(max_length=250)
     medio_bancario = models.CharField(max_length=45)
-    numero_cuenta = models.CharField(max_length=15)
+    numero_cuenta = models.CharField(max_length=255)
     modalidad = models.CharField(max_length=45)
     telefono = models.CharField(max_length=45)
     estado_apre = models.CharField(max_length=45)
@@ -212,6 +212,8 @@ class Aprendiz(models.Model):
         through='ProyectoAprendiz',
         related_name='aprendices'
     )
+    
+
 
 class Proyecto(models.Model):
     cod_pro = models.IntegerField(primary_key=True)

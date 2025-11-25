@@ -145,8 +145,9 @@
             <div class="resumen">
                 <div class="header">
                     <h3>Lista de Miembros</h3>
-                    <button class="link">
-                        <i class="fa-solid fa-link"></i> Invitar Aprendiz
+                    <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
+                        <i class="fa-solid fa-link"></i> 
+                        Invitar Aprendiz
                     </button>
                 </div>
                 <table>
@@ -188,6 +189,10 @@
             <div class="resumen">
                 <div class="titulo-tarjeta">
                     <h3>Lista de Miembros</h3>
+                    <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
+                        <i class="fa-solid fa-link"></i> 
+                        Invitar Aprendiz
+                    </button>
                 </div>
                 
                 <div class="tarjetas-grid">
@@ -200,7 +205,7 @@
                                         {% if miembro.imagen_perfil %}
                                             <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil aprendiz" class="user-perfil">
                                         {% else %}
-                                            <img src="{% static 'img/Student.png' %}" alt="Foto de perfil aprendiz" class="user-perfil">
+                                            <img src="{% static 'img/student.png' %}" alt="Foto de perfil aprendiz" class="user-perfil">
                                         {% endif %}
                                     {% else %}
                                         {% if miembro.imagen_perfil %}
@@ -421,7 +426,7 @@
                                 <div class="perfil-campo">
                                     <label for="perfilCuenta">Número de Cuenta:</label>
                                     <input type="text" id="perfilCuenta" name="numero_cuenta"
-                                        value="{{ miembro_seleccionado.numero_cuenta }}" readonly>
+                                        value="{{ miembro_seleccionado.numero_cuenta_visible }}" readonly>
                                 </div>
                             </div>
                         </div>
@@ -472,6 +477,42 @@
             </div>
         </div>
     </div>
+
+<div class="modal fade" id="modalLinkAprendiz" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-share-nodes"></i> 
+                    Enlace de Registro
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <p class="mb-2">Comparte este enlace para que el aprendiz realice su registro:</p>
+
+                <!-- INPUT + BOTÓN COPIAR -->
+                <div class="input-group">
+                    <input type="text" id="linkRegistroApre" 
+                           class="form-control" readonly
+                           value="https://{{ request.get_host }}{% url 'registro_aprendiz' %}">
+
+                    <button class="btn btn-success" type="button"
+                            onclick="navigator.clipboard.writeText(document.getElementById('linkRegistroApre').value)">
+                        <i class="fa fa-copy"></i>
+                    </button>
+                </div>
+
+                <p class="text-muted text-center mt-2">Haz clic en el icono para copiar el enlace</p>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 {% endblock %}

@@ -2,6 +2,10 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from .models import Usuario, Aprendiz
+from cryptography.fernet import Fernet
+from django.conf import settings
+import base64
+import hashlib
 
 
 class UsuarioRegistroForm(forms.ModelForm):
@@ -111,6 +115,25 @@ class UsuarioRegistroForm(forms.ModelForm):
             usuario.save()
         return usuario
 
+def cifrar(dato):
+    key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
+    return Fernet(base64.urlsafe_b64encode(key)).encrypt(str(dato).encode()).decode()
+
+from django import forms
+from django.core.exceptions import ValidationError
+from .models import Aprendiz
+from cryptography.fernet import Fernet
+from django.conf import settings
+from django.utils import timezone
+import base64
+import hashlib
+
+def cifrar(dato):
+    if not dato:
+        return dato
+    key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
+    return Fernet(base64.urlsafe_b64encode(key)).encrypt(str(dato).encode()).decode()
+
 class AprendizForm(forms.ModelForm):
     TIPO_DOC_CHOICES = [
         ('', 'Seleccione tipo de documento'), 
@@ -157,7 +180,6 @@ class AprendizForm(forms.ModelForm):
         required=True
     )
     
-    # CAMPO DE CONSENTIMIENTO
     acepta_tratamiento_datos = forms.BooleanField(
         required=True,
         label='',
@@ -172,46 +194,16 @@ class AprendizForm(forms.ModelForm):
         exclude = ['proyectos', 'estado_apre', 'id_sem', 'fecha_registro', 'fecha_aceptacion_datos']
         
         widgets = {
-            'cedula_apre': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Ej: 1234567890'
-            }),
-            'nombre': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre'
-            }),
-            'apellido': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Apellido'
-            }),
-            'fecha_nacimiento': forms.DateInput(attrs={
-                'class': 'form-control', 
-                'type': 'date'
-            }),
-            'ficha': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Número de ficha'
-            }),
-            'programa': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre del programa'
-            }),
-            'correo_per': forms.EmailInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'correo@personal.com'
-            }),
-            'correo_ins': forms.EmailInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'correo@institucional.edu.co'
-            }),
-            'numero_cuenta': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Número de cuenta'
-            }),
-            'telefono': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': '3001234567'
-            }),
+            'cedula_apre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 1234567890'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellido'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'ficha': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Número de ficha'}),
+            'programa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del programa'}),
+            'correo_per': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@personal.com'}),
+            'correo_ins': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@institucional.edu.co'}),
+            'numero_cuenta': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número de cuenta'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '3001234567'}),
         }
         
         labels = {
@@ -346,3 +338,22 @@ class AprendizForm(forms.ModelForm):
             raise ValidationError("El número de cuenta debe tener entre 6 y 20 dígitos.")
         
         return numero
+    
+    # =================== GUARDAR (CIFRAR NÚMERO DE CUENTA) ===================
+    def save(self, commit=True):
+        aprendiz = super().save(commit=False)
+        
+        # Cifrar el número de cuenta
+        numero_cuenta = self.cleaned_data.get('numero_cuenta')
+        if numero_cuenta:
+            aprendiz.numero_cuenta = cifrar(numero_cuenta)
+        
+        # Guardar fecha de aceptación
+        if self.cleaned_data.get('acepta_tratamiento_datos'):
+            aprendiz.fecha_aceptacion_datos = timezone.now()
+        
+        if commit:
+            aprendiz.save()
+        
+        return aprendiz
+    

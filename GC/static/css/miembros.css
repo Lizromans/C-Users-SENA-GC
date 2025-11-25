@@ -10,10 +10,8 @@
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
-    /* Nuevas variables para colores de fondo */
     --color-fondo-principal: #f5f5f5;
     --color-fondo-secundario: #e9ecef;
-    /* Variables para gradiente */
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
 }
 
@@ -35,11 +33,15 @@
     padding-bottom: clamp(40px, 1vh, 60px); /* Espacio al final */
 }
 
-.contenedor-principal img{
+.perfil-foto-contenedor img,
+.perfil-resumen-body img,
+.perfil-seccion img {
     transition: transform 0.3s ease;
 }
 
-.contenedor-principal:hover img {
+.perfil-foto-contenedor:hover img,
+.perfil-resumen-body:hover img,
+.perfil-seccion:hover img {
   transform: rotate(10deg);
 }
 
@@ -71,7 +73,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: all 0.3s ease;
-    width:100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     height: fit-content;
@@ -454,7 +456,7 @@
   margin: 0;                  /* Quita márgenes extra del título */
 }
 
-.header .link {
+.link {
     padding: clamp(5px, 2vw, 7px);
     background-color: #760eff73;
     color: white;
@@ -589,10 +591,14 @@ tbody td {
 
 .titulo-tarjeta {
     width: 100%;
+    display: flex;              /* Activa flexbox */
+    justify-content: space-between; /* Separa los elementos a extremos opuestos */
+    align-items: center;        /* Centra verticalmente */
 }
 
 .titulo-tarjeta h3 {
     color: #333;
+    margin: 0;
     margin-bottom: clamp(0.5rem, 1vw, 1rem);
     font-size: clamp(1.5rem, 4vw, 2.5rem);
     font-weight: 700;
@@ -601,7 +607,7 @@ tbody td {
 .tarjetas-grid {
     display: grid;
     gap: clamp(0.8rem, 1.5vw, 1.2rem);
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     width: 100%;
 }
 
@@ -632,6 +638,7 @@ tbody td {
     position: relative;
     z-index: 0;
     gap: 1rem; 
+    height: fit-content;
     flex-wrap: nowrap; 
     overflow: hidden; 
 }
@@ -678,7 +685,8 @@ tbody td {
 .tabla-container .card-body {
     flex: 1;
     padding: clamp(0.5rem, 1.2vh, 0.8rem);
-    margin: clamp(12px, 2vh, 16px) 0 0 0;    display: flex;
+    margin: clamp(12px, 2vh, 16px) 0 0 0;    
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -718,16 +726,25 @@ tbody td {
     width: clamp(45px, 8vw, 60px);
     height: clamp(45px, 8vw, 60px);
     margin: clamp(24px, 3vh, 26px) 0 clamp(8px, 1.5vh, 12px) clamp(10px, 2vw, 14px);
-    border-radius: clamp(6px, 1vw, 10px);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
+    border-radius: clamp(6px, 1.2vw, 8px);
+    background: transparent !important;
+}
+
+.tabla-container .card .icon-cont img {
+    border-radius: 0 !important;
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
 }
 
 .tabla-container .user-icon {
     font-size: clamp(1.5rem, 3vw, 2.2rem);
+    background-color: transparent!important;
 }
 
 /* ====== BADGE INFO (MÁS PEQUEÑO) ====== */
@@ -837,7 +854,6 @@ tbody td {
 }
 
 /* ======== MODAL DE PERFIL DEL MIEMBRO =========== */
-/* Bloquear scroll del body cuando el modal está abierto */
 body:has(#modalPerfilMiembro[style*="display: flex"]) {
     overflow: hidden !important;
 }
@@ -1176,8 +1192,7 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     border: 3px solid #39A900;
     border-radius: clamp(10px, 2vw, 14px);
     padding: clamp(10px, 2vh, 15px) clamp(25px, 5vw, 40px);
-    width: fit-content;
-    min-width: clamp(150px, 25%, 220px);
+    width: 100%;
     margin: 0 auto;
     color: #007832;
     font-weight: 700;
@@ -1210,3 +1225,11 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     }
 }
 
+.btn-success {
+    width: 5vw;
+}
+
+.btn-success:hover i{
+    color:#ffffff;
+    transform: scale(1.2);
+}
