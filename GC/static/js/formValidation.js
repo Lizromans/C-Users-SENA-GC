@@ -1,4 +1,4 @@
-// FORMULARIO DE REGISTRO APRENDIZ SENA - VALIDACIÓN
+// FORMULARIO DE REGISTRO APRENDIZ SENA - VALIDACIÓN COMPLETA
 
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -9,6 +9,80 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Variables de control
     let currentSection = 1;
+    
+    // ===== DETECTAR ERRORES DEL BACKEND Y NAVEGAR =====
+    function detectAndNavigateToErrors() {
+        // Buscar todos los campos con errores
+        const invalidFields = document.querySelectorAll('.is-invalid');
+        
+        if (invalidFields.length > 0) {
+            // Encontrar la primera sección con error
+            const firstInvalidField = invalidFields[0];
+            const section = firstInvalidField.closest('.form-section');
+            
+            if (section) {
+                const sectionNumber = parseInt(section.getAttribute('data-section'));
+                
+                // Navegar a esa sección
+                goToSection(sectionNumber);
+                
+                // Scroll al primer campo con error
+                setTimeout(() => {
+                    firstInvalidField.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                    
+                    // Resaltar el campo con error
+                    firstInvalidField.focus();
+                    
+                    // Mostrar mensaje
+                    console.log(`⚠️ Error encontrado en Sección ${sectionNumber}`);
+                }, 400);
+                
+                // Marcar pasos con errores en el sidebar
+                markSectionsWithErrors();
+            }
+        }
+    }
+    
+    // Marcar visualmente las secciones con errores
+    function markSectionsWithErrors() {
+        const sections = document.querySelectorAll('.form-section[data-section]');
+        
+        sections.forEach(section => {
+            const sectionNumber = parseInt(section.getAttribute('data-section'));
+            const hasErrors = section.querySelectorAll('.is-invalid').length > 0;
+            const progressStep = document.querySelector(`.progress-step[data-step="${sectionNumber}"]`);
+            
+            if (progressStep) {
+                const stepNumber = progressStep.querySelector('.step-number');
+                
+                if (hasErrors) {
+                    // Marcar con error
+                    progressStep.classList.remove('completed');
+                    progressStep.classList.add('has-error');
+                    
+                    if (stepNumber) {
+                        stepNumber.style.borderColor = '#dc3545';
+                        stepNumber.style.borderWidth = '3px';
+                        stepNumber.style.background = 'rgba(220, 53, 69, 0.1)';
+                    }
+                } else {
+                    progressStep.classList.remove('has-error');
+                    
+                    if (stepNumber) {
+                        stepNumber.style.borderColor = '';
+                        stepNumber.style.borderWidth = '';
+                        stepNumber.style.background = '';
+                    }
+                }
+            }
+        });
+    }
+    
+    // Ejecutar detección de errores al cargar
+    setTimeout(detectAndNavigateToErrors, 100);
     
     // ===== INICIALIZAR TOOLTIPS =====
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -81,7 +155,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (!allValid) {
-                alert('Por favor, completa todos los campos correctamente antes de continuar.');
+                // Mostrar alerta
+                const errorCount = currentSectionEl.querySelectorAll('.is-invalid').length;
+                alert(`Por favor, completa correctamente ${errorCount} campo(s) antes de continuar.`);
+                
+                // Scroll al primer error
+                const firstError = currentSectionEl.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
                 return;
             }
             
@@ -137,6 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Actualizar progreso mientras escribe
         input.addEventListener('input', function() {
+            // Remover error mientras escribe
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
             updateProgress();
             updateCharCounter(this);
         });
@@ -306,176 +393,156 @@ document.addEventListener('DOMContentLoaded', function() {
         messageSpan.textContent = message;
         autosaveIndicator.classList.add('show');
         if (saved) {
-        spinner.style.display = 'none';
-        autosaveIndicator.classList.add('saved');
-        
-        setTimeout(() => {
-            autosaveIndicator.classList.remove('show', 'saved');
+            spinner.style.display = 'none';
+            autosaveIndicator.classList.add('saved');
+            
+            setTimeout(() => {
+                autosaveIndicator.classList.remove('show', 'saved');
+                spinner.style.display = 'block';
+            }, 2000);
+        } else {
             spinner.style.display = 'block';
-        }, 2000);
-    } else {
-        spinner.style.display = 'block';
-        autosaveIndicator.classList.remove('saved');
+            autosaveIndicator.classList.remove('saved');
+        }
     }
-}
-
-// Escuchar cambios para autosave
-inputs.forEach(input => {
-    input.addEventListener('input', autosave);
-    input.addEventListener('change', autosave);
-});
-
-// ===== CARGAR DATOS GUARDADOS =====
-function loadSavedData() {
-    const savedData = localStorage.getItem('aprendizFormData');
     
-    if (savedData) {
-        const formData = JSON.parse(savedData);
-        
-        Object.keys(formData).forEach(key => {
-            const input = document.querySelector(`[name="${key}"], #${key}`);
-            if (input) {
-                if (input.type === 'checkbox') {
-                    input.checked = formData[key];
-                } else {
-                    input.value = formData[key];
-                }
-                validateField(input);
-                updateCharCounter(input);
-            }
-        });
-        
-        updateProgress();
-    }
-}
-
-// Cargar datos al inicio
-loadSavedData();
-
-// ===== MODAL DE CONFIRMACIÓN =====
-form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Validar todos los campos
-    let allValid = true;
+    // Escuchar cambios para autosave
     inputs.forEach(input => {
-        if (!validateField(input)) {
-            allValid = false;
-        }
+        input.addEventListener('input', autosave);
+        input.addEventListener('change', autosave);
     });
     
-    if (!allValid) {
-        alert('Por favor, completa todos los campos requeridos correctamente.');
-        // Scroll al primer error
-        const firstError = document.querySelector('.is-invalid');
-        if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstError.focus();
+    // ===== CARGAR DATOS GUARDADOS =====
+    function loadSavedData() {
+        const savedData = localStorage.getItem('aprendizFormData');
+        
+        if (savedData) {
+            const formData = JSON.parse(savedData);
+            
+            Object.keys(formData).forEach(key => {
+                const input = document.querySelector(`[name="${key}"], #${key}`);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        input.checked = formData[key];
+                    } else {
+                        input.value = formData[key];
+                    }
+                    validateField(input);
+                    updateCharCounter(input);
+                }
+            });
+            
+            updateProgress();
         }
-        return;
     }
     
-    // Generar resumen
-    generateSummary();
+    // Cargar datos al inicio
+    loadSavedData();
     
-    // Mostrar modal
-    confirmModal.show();
-});
-
-// ===== GENERAR RESUMEN PARA MODAL =====
-function generateSummary() {
-    const summaryContent = document.getElementById('summaryContent');
-    let html = '';
-    
-    const sections = [
-        { title: 'Información Personal', fields: ['tipo_doc', 'cedula_apre', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono'] },
-        { title: 'Información Académica', fields: ['ficha', 'modalidad', 'programa', 'correo_per', 'correo_ins'] },
-        { title: 'Información Bancaria', fields: ['medio_bancario', 'numero_cuenta'] }
-    ];
-    
-    sections.forEach(section => {
-        html += `<h6 class="fw-bold mt-3 mb-2"><i class="bi bi-chevron-right"></i> ${section.title}</h6>`;
+    // ===== MODAL DE CONFIRMACIÓN =====
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        section.fields.forEach(fieldName => {
-            const input = document.querySelector(`[name="${fieldName}"], #${fieldName}`);
-            if (input) {
-                const label = document.querySelector(`label[for="${input.id}"]`);
-                let value = input.value;
-                
-                if (input.tagName === 'SELECT') {
-                    value = input.options[input.selectedIndex].text;
-                }
-                
-                // Ocultar parcialmente datos sensibles
-                if (fieldName === 'numero_cuenta') {
-                    value = '****' + value.slice(-4);
-                }
-                
-                html += `
-                    <div class="summary-item">
-                        <span class="summary-label">${label ? label.textContent.replace('*', '').replace('?', '').trim() : fieldName}:</span>
-                        <span class="summary-value">${value}</span>
-                    </div>
-                `;
+        // Validar todos los campos
+        let allValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                allValid = false;
             }
+        });
+        
+        if (!allValid) {
+            // Encontrar sección con error y navegar
+            detectAndNavigateToErrors();
+            
+            const errorCount = document.querySelectorAll('.is-invalid').length;
+            alert(`Se encontraron ${errorCount} error(es). Por favor, corrígelos antes de continuar.`);
+            return;
+        }
+        
+        // Generar resumen
+        generateSummary();
+        
+        // Mostrar modal
+        confirmModal.show();
+    });
+    
+    // ===== GENERAR RESUMEN PARA MODAL =====
+    function generateSummary() {
+        const summaryContent = document.getElementById('summaryContent');
+        let html = '';
+        
+        const sections = [
+            { title: 'Información Personal', fields: ['tipo_doc', 'cedula_apre', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono'] },
+            { title: 'Información Académica', fields: ['ficha', 'modalidad', 'programa', 'correo_per', 'correo_ins'] },
+            { title: 'Información Bancaria', fields: ['medio_bancario', 'numero_cuenta'] }
+        ];
+        
+        sections.forEach(section => {
+            html += `<h6 class="fw-bold mt-3 mb-2"><i class="bi bi-chevron-right"></i> ${section.title}</h6>`;
+            
+            section.fields.forEach(fieldName => {
+                const input = document.querySelector(`[name="${fieldName}"], #id_${fieldName}`);
+                if (input) {
+                    const label = document.querySelector(`label[for="${input.id}"]`);
+                    let value = input.value;
+                    
+                    if (input.tagName === 'SELECT') {
+                        value = input.options[input.selectedIndex].text;
+                    }
+                    
+                    // Ocultar parcialmente datos sensibles
+                    if (fieldName === 'numero_cuenta') {
+                        value = '****' + value.slice(-4);
+                    }
+                    
+                    html += `
+                        <div class="summary-item">
+                            <span class="summary-label">${label ? label.textContent.replace('*', '').replace('?', '').trim() : fieldName}:</span>
+                            <span class="summary-value">${value}</span>
+                        </div>
+                    `;
+                }
+            });
+        });
+        
+        summaryContent.innerHTML = html;
+    }
+    
+    // ===== CONFIRMAR Y ENVIAR =====
+    document.getElementById('confirmSubmit').addEventListener('click', function() {
+        confirmModal.hide();
+        
+        // Limpiar localStorage después del envío
+        localStorage.removeItem('aprendizFormData');
+        
+        // Enviar formulario
+        form.submit();
+    });
+    
+    // ===== ADVERTENCIA AL SALIR SIN GUARDAR =====
+    let formModified = false;
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', () => {
+            formModified = true;
         });
     });
     
-    summaryContent.innerHTML = html;
-}
-
-// ===== CONFIRMAR Y ENVIAR =====
-document.getElementById('confirmSubmit').addEventListener('click', function() {
-    confirmModal.hide();
-    
-    // Limpiar localStorage después del envío
-    localStorage.removeItem('aprendizFormData');
-    
-    // Enviar formulario
-    form.submit();
-});
-
-// ===== ADVERTENCIA AL SALIR SIN GUARDAR =====
-let formModified = false;
-
-inputs.forEach(input => {
-    input.addEventListener('change', () => {
-        formModified = true;
+    window.addEventListener('beforeunload', function(e) {
+        if (formModified) {
+            e.preventDefault();
+            e.returnValue = '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.';
+        }
     });
+    
+    // No mostrar advertencia después del submit
+    form.addEventListener('submit', function() {
+        formModified = false;
+    });
+    
+    // ===== INICIALIZAR PROGRESO =====
+    updateProgress();
+    
+    console.log('✅ Formulario de Aprendiz SENA inicializado correctamente');
 });
-
-window.addEventListener('beforeunload', function(e) {
-    if (formModified) {
-        e.preventDefault();
-        e.returnValue = '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.';
-    }
-});
-
-// No mostrar advertencia después del submit
-form.addEventListener('submit', function() {
-    formModified = false;
-});
-
-// ===== INICIALIZAR PROGRESO =====
-updateProgress();
-
-// ===== ACCESIBILIDAD: ANUNCIAR ERRORES =====
-function announceErrors() {
-    const errors = document.querySelectorAll('.is-invalid');
-    if (errors.length > 0) {
-        const announcement = document.createElement('div');
-        announcement.setAttribute('role', 'alert');
-        announcement.setAttribute('aria-live', 'assertive');
-        announcement.className = 'sr-only';
-        announcement.textContent = `Se encontraron ${errors.length} errores en el formulario. Por favor, corrígelos antes de continuar.`;
-        document.body.appendChild(announcement);
-        
-        setTimeout(() => {
-            document.body.removeChild(announcement);
-        }, 3000);
-    }
-}
-
-console.log('✅ Formulario de Aprendiz SENA inicializado correctamente');
-});
-

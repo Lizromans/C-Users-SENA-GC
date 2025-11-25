@@ -85,70 +85,92 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="tipo_doc">
+                            <label class="form-label" for="id_tipo_doc">
                                 Tipo de Documento <span class="required">*</span>
                             </label>
-                            <select class="form-select" id="tipo_doc" name="tipo_doc" required>
+                            <select class="form-select {% if form.tipo_doc.errors %}is-invalid{% endif %}" 
+                                    id="id_tipo_doc" name="tipo_doc" required>
                                 <option value="">Seleccione tipo de documento</option>
-                                <option value="CC">Cédula de Ciudadanía</option>
-                                <option value="TI">Tarjeta de Identidad</option>
-                                <option value="CE">Cédula de Extranjería</option>
-                                <option value="PEP">Permiso Especial de Permanencia</option>
+                                <option value="CC" {% if form.tipo_doc.value == 'CC' %}selected{% endif %}>Cédula de Ciudadanía</option>
+                                <option value="TI" {% if form.tipo_doc.value == 'TI' %}selected{% endif %}>Tarjeta de Identidad</option>
+                                <option value="CE" {% if form.tipo_doc.value == 'CE' %}selected{% endif %}>Cédula de Extranjería</option>
+                                <option value="PEP" {% if form.tipo_doc.value == 'PEP' %}selected{% endif %}>Permiso Especial de Permanencia</option>
                             </select>
-                            <div class="invalid-feedback">Debe seleccionar un tipo de documento</div>
+                            <div class="invalid-feedback">
+                                {% if form.tipo_doc.errors %}{{ form.tipo_doc.errors.0 }}{% else %}Debe seleccionar un tipo de documento{% endif %}
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="cedula_apre">
+                            <label class="form-label" for="id_cedula_apre">
                                 Número de Documento <span class="required">*</span>
                             </label>
-                            <input type="text" class="form-control" id="cedula_apre" name="cedula_apre" 
+                            <input type="text" class="form-control {% if form.cedula_apre.errors %}is-invalid{% endif %}" 
+                                   id="id_cedula_apre" name="cedula_apre" 
+                                   value="{{ form.cedula_apre.value|default:'' }}"
                                    placeholder="Ej: 1234567890" maxlength="10" required>
                             <div class="char-counter" data-max="10" data-field="cedula_apre">
-                                <span class="current">0</span>/<span class="max">10</span>
+                                <span class="current">{{ form.cedula_apre.value|default:''|length }}</span>/<span class="max">10</span>
                             </div>
-                            <div class="invalid-feedback">Ingrese un número de documento válido (7-10 dígitos)</div>
+                            <div class="invalid-feedback">
+                                {% if form.cedula_apre.errors %}{{ form.cedula_apre.errors.0 }}{% else %}Ingrese un número de documento válido (7-10 dígitos){% endif %}
+                            </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="nombre">
+                            <label class="form-label" for="id_nombre">
                                 Nombre <span class="required">*</span>
                             </label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" 
+                            <input type="text" class="form-control {% if form.nombre.errors %}is-invalid{% endif %}" 
+                                   id="id_nombre" name="nombre" 
+                                   value="{{ form.nombre.value|default:'' }}"
                                    placeholder="Nombre" required>
-                            <div class="invalid-feedback">El nombre es obligatorio</div>
+                            <div class="invalid-feedback">
+                                {% if form.nombre.errors %}{{ form.nombre.errors.0 }}{% else %}El nombre es obligatorio{% endif %}
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="apellido">
+                            <label class="form-label" for="id_apellido">
                                 Apellido <span class="required">*</span>
                             </label>
-                            <input type="text" class="form-control" id="apellido" name="apellido" 
+                            <input type="text" class="form-control {% if form.apellido.errors %}is-invalid{% endif %}" 
+                                   id="id_apellido" name="apellido" 
+                                   value="{{ form.apellido.value|default:'' }}"
                                    placeholder="Apellido" required>
-                            <div class="invalid-feedback">El apellido es obligatorio</div>
+                            <div class="invalid-feedback">
+                                {% if form.apellido.errors %}{{ form.apellido.errors.0 }}{% else %}El apellido es obligatorio{% endif %}
+                            </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="fecha_nacimiento">
+                            <label class="form-label" for="id_fecha_nacimiento">
                                 Fecha de Nacimiento <span class="required">*</span>
                             </label>
-                            <input type="date" class="form-control" id="fecha_nacimiento" 
-                                   name="fecha_nacimiento" required>
-                            <div class="invalid-feedback">Debe tener entre 14 y 100 años</div>
+                            <input type="date" class="form-control {% if form.fecha_nacimiento.errors %}is-invalid{% endif %}" 
+                                   id="id_fecha_nacimiento" name="fecha_nacimiento" 
+                                   value="{{ form.fecha_nacimiento.value|default:'' }}" required>
+                            <div class="invalid-feedback">
+                                {% if form.fecha_nacimiento.errors %}{{ form.fecha_nacimiento.errors.0 }}{% else %}Debe tener entre 14 y 100 años{% endif %}
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="telefono">
+                            <label class="form-label" for="id_telefono">
                                 Teléfono <span class="required">*</span>
                                 <span class="info-icon" title="Ingresa tu número de celular">?</span>
                             </label>
-                            <input type="tel" class="form-control" id="telefono" name="telefono" 
+                            <input type="tel" class="form-control {% if form.telefono.errors %}is-invalid{% endif %}" 
+                                   id="id_telefono" name="telefono" 
+                                   value="{{ form.telefono.value|default:'' }}"
                                    placeholder="3001234567" maxlength="10" required>
                             <div class="char-counter" data-max="10" data-field="telefono">
-                                <span class="current">0</span>/<span class="max">10</span>
+                                <span class="current">{{ form.telefono.value|default:''|length }}</span>/<span class="max">10</span>
                             </div>
-                            <div class="invalid-feedback">Debe tener 10 dígitos y comenzar con 3</div>
+                            <div class="invalid-feedback">
+                                {% if form.telefono.errors %}{{ form.telefono.errors.0 }}{% else %}Debe tener 10 dígitos y comenzar con 3{% endif %}
+                            </div>
                         </div>
                     </div>
 
@@ -171,52 +193,71 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="ficha">
+                            <label class="form-label" for="id_ficha">
                                 Número de Ficha <span class="required">*</span>
                             </label>
-                            <input type="text" class="form-control" id="ficha" name="ficha" 
+                            <input type="text" class="form-control {% if form.ficha.errors %}is-invalid{% endif %}" 
+                                   id="id_ficha" name="ficha" 
+                                   value="{{ form.ficha.value|default:'' }}"
                                    placeholder="Número de ficha" required>
-                            <div class="invalid-feedback">El número de ficha es obligatorio</div>
+                            <div class="invalid-feedback">
+                                {% if form.ficha.errors %}{{ form.ficha.errors.0 }}{% else %}El número de ficha es obligatorio{% endif %}
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="modalidad">
+                            <label class="form-label" for="id_modalidad">
                                 Modalidad <span class="required">*</span>
                             </label>
-                            <select class="form-select" id="modalidad" name="modalidad" required>
+                            <select class="form-select {% if form.modalidad.errors %}is-invalid{% endif %}" 
+                                    id="id_modalidad" name="modalidad" required>
                                 <option value="">Seleccione modalidad</option>
-                                <option value="Presencial">Presencial</option>
-                                <option value="Virtual">Virtual</option>
-                                <option value="A Distancia">A Distancia</option>
+                                <option value="Presencial" {% if form.modalidad.value == 'Presencial' %}selected{% endif %}>Presencial</option>
+                                <option value="Virtual" {% if form.modalidad.value == 'Virtual' %}selected{% endif %}>Virtual</option>
+                                <option value="A Distancia" {% if form.modalidad.value == 'A Distancia' %}selected{% endif %}>A Distancia</option>
                             </select>
-                            <div class="invalid-feedback">Debe seleccionar una modalidad</div>
+                            <div class="invalid-feedback">
+                                {% if form.modalidad.errors %}{{ form.modalidad.errors.0 }}{% else %}Debe seleccionar una modalidad{% endif %}
+                            </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="programa">
+                        <label class="form-label" for="id_programa">
                             Programa de Formación <span class="required">*</span>
                         </label>
-                        <input type="text" class="form-control" id="programa" name="programa" 
+                        <input type="text" class="form-control {% if form.programa.errors %}is-invalid{% endif %}" 
+                               id="id_programa" name="programa" 
+                               value="{{ form.programa.value|default:'' }}"
                                placeholder="Nombre del programa" required>
-                        <div class="invalid-feedback">El programa es obligatorio</div>
+                        <div class="invalid-feedback">
+                            {% if form.programa.errors %}{{ form.programa.errors.0 }}{% else %}El programa es obligatorio{% endif %}
+                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="correo_per">
+                            <label class="form-label" for="id_correo_per">
                                 Correo Personal <span class="required">*</span>
                             </label>
-                            <input type="email" class="form-control" id="correo_per" name="correo_per" 
+                            <input type="email" class="form-control {% if form.correo_per.errors %}is-invalid{% endif %}" 
+                                   id="id_correo_per" name="correo_per" 
+                                   value="{{ form.correo_per.value|default:'' }}"
                                    placeholder="correo@personal.com" required>
-                            <div class="invalid-feedback">Ingrese un correo válido</div>
+                            <div class="invalid-feedback">
+                                {% if form.correo_per.errors %}{{ form.correo_per.errors.0 }}{% else %}Ingrese un correo válido{% endif %}
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="correo_ins">
+                            <label class="form-label" for="id_correo_ins">
                                 Correo Institucional <span class="required">*</span>
                             </label>
-                            <input type="email" class="form-control" id="correo_ins" name="correo_ins" 
+                            <input type="email" class="form-control {% if form.correo_ins.errors %}is-invalid{% endif %}" 
+                                   id="id_correo_ins" name="correo_ins" 
+                                   value="{{ form.correo_ins.value|default:'' }}"
                                    placeholder="correo@soy.sena.edu.co" required>
-                            <div class="invalid-feedback">Ingrese un correo institucional válido</div>
+                            <div class="invalid-feedback">
+                                {% if form.correo_ins.errors %}{{ form.correo_ins.errors.0 }}{% else %}Ingrese un correo institucional válido{% endif %}
+                            </div>
                         </div>
                     </div>
 
@@ -246,31 +287,38 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="medio_bancario">
+                            <label class="form-label" for="id_medio_bancario">
                                 Entidad Bancaria <span class="required">*</span>
                             </label>
-                            <select class="form-select" id="medio_bancario" name="medio_bancario" required>
+                            <select class="form-select {% if form.medio_bancario.errors %}is-invalid{% endif %}" 
+                                    id="id_medio_bancario" name="medio_bancario" required>
                                 <option value="">Seleccione entidad bancaria</option>
-                                <option value="Llave">Llave</option>
-                                <option value="Bancolombia">Bancolombia</option>
-                                <option value="Davivienda">Davivienda</option>
-                                <option value="Banco de Bogotá">Banco de Bogotá</option>
-                                <option value="BBVA">BBVA</option>
-                                <option value="Nequi">Nequi</option>
-                                <option value="Daviplata">Daviplata</option>
+                                <option value="Llave" {% if form.medio_bancario.value == 'Llave' %}selected{% endif %}>Llave</option>
+                                <option value="Bancolombia" {% if form.medio_bancario.value == 'Bancolombia' %}selected{% endif %}>Bancolombia</option>
+                                <option value="Davivienda" {% if form.medio_bancario.value == 'Davivienda' %}selected{% endif %}>Davivienda</option>
+                                <option value="Banco de Bogotá" {% if form.medio_bancario.value == 'Banco de Bogotá' %}selected{% endif %}>Banco de Bogotá</option>
+                                <option value="BBVA" {% if form.medio_bancario.value == 'BBVA' %}selected{% endif %}>BBVA</option>
+                                <option value="Nequi" {% if form.medio_bancario.value == 'Nequi' %}selected{% endif %}>Nequi</option>
+                                <option value="Daviplata" {% if form.medio_bancario.value == 'Daviplata' %}selected{% endif %}>Daviplata</option>
                             </select>
-                            <div class="invalid-feedback">Debe seleccionar una entidad bancaria</div>
+                            <div class="invalid-feedback">
+                                {% if form.medio_bancario.errors %}{{ form.medio_bancario.errors.0 }}{% else %}Debe seleccionar una entidad bancaria{% endif %}
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="numero_cuenta">
+                            <label class="form-label" for="id_numero_cuenta">
                                 Número de Cuenta <span class="required">*</span>
                             </label>
-                            <input type="text" class="form-control" id="numero_cuenta" name="numero_cuenta" 
+                            <input type="text" class="form-control {% if form.numero_cuenta.errors %}is-invalid{% endif %}" 
+                                   id="id_numero_cuenta" name="numero_cuenta" 
+                                   value="{{ form.numero_cuenta.value|default:'' }}"
                                    placeholder="Número de cuenta" maxlength="20" required>
                             <div class="char-counter" data-max="20" data-field="numero_cuenta">
-                                <span class="current">0</span>/<span class="max">20</span>
+                                <span class="current">{{ form.numero_cuenta.value|default:''|length }}</span>/<span class="max">20</span>
                             </div>
-                            <div class="invalid-feedback">El número debe tener entre 6 y 20 dígitos</div>
+                            <div class="invalid-feedback">
+                                {% if form.numero_cuenta.errors %}{{ form.numero_cuenta.errors.0 }}{% else %}El número debe tener entre 6 y 20 dígitos{% endif %}
+                            </div>
                         </div>
                     </div>
 
@@ -312,13 +360,17 @@
                     </div>
 
                     <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="acepta_tratamiento_datos" 
-                               name="acepta_tratamiento_datos" required>
-                        <label class="form-check-label" for="acepta_tratamiento_datos">
+                        <input class="form-check-input {% if form.acepta_tratamiento_datos.errors %}is-invalid{% endif %}" 
+                               type="checkbox" id="id_acepta_tratamiento_datos" 
+                               name="acepta_tratamiento_datos" 
+                               {% if form.acepta_tratamiento_datos.value %}checked{% endif %} required>
+                        <label class="form-check-label" for="id_acepta_tratamiento_datos">
                             He leído y acepto la política de tratamiento de datos personales y financieros
                             <span class="required">*</span>
                         </label>
-                        <div class="invalid-feedback">Debe aceptar el tratamiento de datos para continuar</div>
+                        <div class="invalid-feedback">
+                            {% if form.acepta_tratamiento_datos.errors %}{{ form.acepta_tratamiento_datos.errors.0 }}{% else %}Debe aceptar el tratamiento de datos para continuar{% endif %}
+                        </div>
                     </div>
 
                     <div class="navigation-buttons">
@@ -360,6 +412,10 @@
         </div>
     </div>
 
+    <!-- Script para pasar errores a JavaScript -->
+    <script>
+        window.djangoFormErrors = {{ errores_info|safe|default:'{}' }};
+    </script>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/mensaje.js' %}"></script>
