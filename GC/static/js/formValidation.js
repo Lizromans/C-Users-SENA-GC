@@ -4,11 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== ELEMENTOS DEL DOM =====
     const form = document.getElementById('aprendizForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const progressBar = document.getElementById('progressBar');
-    const progressLabel = document.getElementById('progressLabel');
     const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     const autosaveIndicator = document.getElementById('autosaveIndicator');
+    
+    // Variables de control
+    let currentSection = 1;
     
     // ===== INICIALIZAR TOOLTIPS =====
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -16,13 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // ===== ACTUALIZAR BARRA DE PROGRESO =====
+    // ===== ACTUALIZAR PROGRESO Y MARCAR SECCIONES COMPLETAS =====
     function updateProgress() {
-        const sections = document.querySelectorAll('fieldset[data-section]');
-        const totalSections = sections.length;
-        let completedSections = 0;
+        const sections = document.querySelectorAll('.form-section[data-section]');
         
         sections.forEach((section, index) => {
+            const sectionNumber = parseInt(section.getAttribute('data-section'));
             const inputs = section.querySelectorAll('input, select');
             let allFilled = true;
             
@@ -32,23 +31,98 @@ document.addEventListener('DOMContentLoaded', function() {
                         allFilled = false;
                     }
                 } else {
-                    if (!input.value.trim()) {
+                    if (!input.value.trim() || input.classList.contains('is-invalid')) {
                         allFilled = false;
                     }
                 }
             });
             
-            if (allFilled) {
-                completedSections++;
+            // Actualizar el paso en el sidebar
+            const progressStep = document.querySelector(`.progress-step[data-step="${sectionNumber}"]`);
+            if (progressStep) {
+                if (allFilled) {
+                    progressStep.classList.add('completed');
+                    // Cambiar el número por un check
+                    const stepNumber = progressStep.querySelector('.step-number');
+                    if (stepNumber && !stepNumber.classList.contains('checked')) {
+                        stepNumber.classList.add('checked');
+                        stepNumber.innerHTML = '<i class="bi bi-check-lg"></i>';
+                    }
+                } else {
+                    progressStep.classList.remove('completed');
+                    // Restaurar el número
+                    const stepNumber = progressStep.querySelector('.step-number');
+                    if (stepNumber && stepNumber.classList.contains('checked')) {
+                        stepNumber.classList.remove('checked');
+                        stepNumber.textContent = sectionNumber;
+                    }
+                }
             }
         });
+    }
+    
+    // ===== NAVEGACIÓN ENTRE SECCIONES =====
+    const nextButtons = document.querySelectorAll('.btn-next');
+    const prevButtons = document.querySelectorAll('.btn-prev');
+    
+    nextButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const nextSection = parseInt(this.getAttribute('data-next'));
+            const currentSectionEl = document.querySelector('.form-section.active');
+            
+            // Validar sección actual antes de avanzar
+            const inputs = currentSectionEl.querySelectorAll('input, select');
+            let allValid = true;
+            
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    allValid = false;
+                }
+            });
+            
+            if (!allValid) {
+                alert('Por favor, completa todos los campos correctamente antes de continuar.');
+                return;
+            }
+            
+            // Cambiar de sección
+            goToSection(nextSection);
+        });
+    });
+    
+    prevButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const prevSection = parseInt(this.getAttribute('data-prev'));
+            goToSection(prevSection);
+        });
+    });
+    
+    function goToSection(sectionNumber) {
+        // Ocultar sección actual
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.classList.remove('active');
+        });
         
-        const progressPercentage = (completedSections / totalSections) * 100;
-        progressBar.style.width = progressPercentage + '%';
-        progressBar.setAttribute('aria-valuenow', progressPercentage);
+        // Mostrar nueva sección
+        const targetSection = document.querySelector(`.form-section[data-section="${sectionNumber}"]`);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
         
-        const currentSection = Math.min(completedSections + 1, totalSections);
-        progressLabel.textContent = `Sección ${currentSection} de ${totalSections}`;
+        // Actualizar sidebar
+        document.querySelectorAll('.progress-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        const activeStep = document.querySelector(`.progress-step[data-step="${sectionNumber}"]`);
+        if (activeStep) {
+            activeStep.classList.add('active');
+        }
+        
+        currentSection = sectionNumber;
+        
+        // Scroll al inicio del formulario
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
     // ===== VALIDACIÓN EN TIEMPO REAL =====
@@ -89,19 +163,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 isValid = emailRegex.test(value);
             }
             
-            // Teléfono (solo números, 10 dígitos)
+            // Teléfono (solo números, 10 dígitos, comienza con 3)
             if (field.name === 'telefono' || field.id.includes('telefono')) {
-                const phoneRegex = /^\d{10}$/;
+                const phoneRegex = /^3\d{9}$/;
                 isValid = phoneRegex.test(value.replace(/\D/g, ''));
             }
             
             // Número de documento
             if (field.name === 'cedula_apre' || field.id.includes('cedula')) {
-                const docRegex = /^\d{6,10}$/;
+                const docRegex = /^\d{7,10}$/;
                 isValid = docRegex.test(value);
             }
             
-            // Fecha de nacimiento (debe ser mayor de edad)
+            // Número de cuenta
+            if (field.name === 'numero_cuenta') {
+                const accountRegex = /^\d{6,20}$/;
+                isValid = accountRegex.test(value);
+            }
+            
+            // Fecha de nacimiento (debe tener entre 14 y 100 años)
             if (field.type === 'date' && field.name === 'fecha_nacimiento') {
                 const birthDate = new Date(value);
                 const today = new Date();
@@ -116,15 +196,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        // Checkbox requerido
+        if (field.type === 'checkbox' && field.hasAttribute('required')) {
+            isValid = field.checked;
+        }
+        
         // Aplicar clases visuales
-        if (isValid && value) {
+        if (isValid && (value || field.type === 'checkbox')) {
             field.classList.remove('is-invalid');
-            field.classList.add('valid');
+            field.classList.add('is-valid');
         } else if (!isValid) {
             field.classList.add('is-invalid');
-            field.classList.remove('valid');
+            field.classList.remove('is-valid');
         } else {
-            field.classList.remove('is-invalid', 'valid');
+            field.classList.remove('is-invalid', 'is-valid');
         }
         
         return isValid;
@@ -179,6 +264,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ===== FORMATO AUTOMÁTICO DE NÚMERO DE CUENTA =====
+    const accountInput = document.querySelector('input[name="numero_cuenta"]');
+    if (accountInput) {
+        accountInput.addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 20) {
+                value = value.slice(0, 20);
+            }
+            this.value = value;
+        });
+    }
+    
     // ===== GUARDADO AUTOMÁTICO (localStorage) =====
     let saveTimeout;
     
@@ -208,186 +305,177 @@ document.addEventListener('DOMContentLoaded', function() {
         
         messageSpan.textContent = message;
         autosaveIndicator.classList.add('show');
-        
         if (saved) {
-            spinner.style.display = 'none';
-            autosaveIndicator.classList.add('saved');
-            
-            setTimeout(() => {
-                autosaveIndicator.classList.remove('show', 'saved');
-                spinner.style.display = 'block';
-            }, 2000);
-        } else {
+        spinner.style.display = 'none';
+        autosaveIndicator.classList.add('saved');
+        
+        setTimeout(() => {
+            autosaveIndicator.classList.remove('show', 'saved');
             spinner.style.display = 'block';
-            autosaveIndicator.classList.remove('saved');
-        }
+        }, 2000);
+    } else {
+        spinner.style.display = 'block';
+        autosaveIndicator.classList.remove('saved');
     }
-    
-    // Escuchar cambios para autosave
-    inputs.forEach(input => {
-        input.addEventListener('input', autosave);
-        input.addEventListener('change', autosave);
-    });
-    
-    // ===== CARGAR DATOS GUARDADOS =====
-    function loadSavedData() {
-        const savedData = localStorage.getItem('aprendizFormData');
-        
-        if (savedData) {
-            const formData = JSON.parse(savedData);
-            
-            Object.keys(formData).forEach(key => {
-                const input = document.querySelector(`[name="${key}"], #${key}`);
-                if (input) {
-                    if (input.type === 'checkbox') {
-                        input.checked = formData[key];
-                    } else {
-                        input.value = formData[key];
-                    }
-                    validateField(input);
-                    updateCharCounter(input);
-                }
-            });
-            
-            updateProgress();
-        }
-    }
-    
-    // Cargar datos al inicio
-    loadSavedData();
-    
-    // ===== MODAL DE CONFIRMACIÓN =====
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Validar todos los campos
-        let allValid = true;
-        inputs.forEach(input => {
-            if (!validateField(input)) {
-                allValid = false;
-            }
-        });
-        
-        if (!allValid) {
-            alert('Por favor, completa todos los campos requeridos correctamente.');
-            // Scroll al primer error
-            const firstError = document.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstError.focus();
-            }
-            return;
-        }
-        
-        // Generar resumen
-        generateSummary();
-        
-        // Mostrar modal
-        confirmModal.show();
-    });
-    
-    // ===== GENERAR RESUMEN PARA MODAL =====
-    function generateSummary() {
-        const summaryContent = document.getElementById('summaryContent');
-        let html = '';
-        
-        const sections = [
-            { title: 'Información Personal', fields: ['tipo_doc', 'cedula_apre', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono'] },
-            { title: 'Información Académica', fields: ['ficha', 'modalidad', 'programa', 'correo_per', 'correo_ins'] },
-            { title: 'Información Bancaria', fields: ['medio_bancario', 'numero_cuenta'] }
-        ];
-        
-        sections.forEach(section => {
-            html += `<h6 class="fw-bold mt-3 mb-2"><i class="bi bi-chevron-right"></i> ${section.title}</h6>`;
-            
-            section.fields.forEach(fieldName => {
-                const input = document.querySelector(`[name="${fieldName}"], #id_${fieldName}`);
-                if (input) {
-                    const label = document.querySelector(`label[for="${input.id}"]`);
-                    let value = input.value;
-                    
-                    if (input.tagName === 'SELECT') {
-                        value = input.options[input.selectedIndex].text;
-                    }
-                    
-                    // Ocultar parcialmente datos sensibles
-                    if (fieldName === 'numero_cuenta') {
-                        value = '****' + value.slice(-4);
-                    }
-                    
-                    html += `
-                        <div class="summary-item">
-                            <span class="summary-label">${label ? label.textContent.replace('*', '').replace('?', '').trim() : fieldName}:</span>
-                            <span class="summary-value">${value}</span>
-                        </div>
-                    `;
-                }
-            });
-        });
-        
-        summaryContent.innerHTML = html;
-    }
-    
-    // ===== CONFIRMAR Y ENVIAR =====
-    document.getElementById('confirmSubmit').addEventListener('click', function() {
-        confirmModal.hide();
-        submitForm();
-    });
-    
-    function submitForm() {
-        // Mostrar loading en botón
-        submitBtn.classList.add('btn-loading');
-        submitBtn.disabled = true;
-        submitBtn.querySelector('.spinner-border').classList.remove('d-none');
-        submitBtn.querySelector('.btn-text').textContent = 'Enviando...';
-        
-        // Limpiar localStorage después del envío
-        localStorage.removeItem('aprendizFormData');
-        
-        // Enviar formulario
-        form.submit();
-    }
-    
-    // ===== ADVERTENCIA AL SALIR SIN GUARDAR =====
-    let formModified = false;
-    
-    inputs.forEach(input => {
-        input.addEventListener('change', () => {
-            formModified = true;
-        });
-    });
-    
-    window.addEventListener('beforeunload', function(e) {
-        if (formModified) {
-            e.preventDefault();
-            e.returnValue = '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.';
-        }
-    });
-    
-    // No mostrar advertencia después del submit
-    form.addEventListener('submit', function() {
-        formModified = false;
-    });
-    
-    // ===== INICIALIZAR PROGRESO =====
-    updateProgress();
-    
-    // ===== ACCESIBILIDAD: ANUNCIAR ERRORES =====
-    function announceErrors() {
-        const errors = document.querySelectorAll('.is-invalid');
-        if (errors.length > 0) {
-            const announcement = document.createElement('div');
-            announcement.setAttribute('role', 'alert');
-            announcement.setAttribute('aria-live', 'assertive');
-            announcement.className = 'sr-only';
-            announcement.textContent = `Se encontraron ${errors.length} errores en el formulario. Por favor, corrígelos antes de continuar.`;
-            document.body.appendChild(announcement);
-            
-            setTimeout(() => {
-                document.body.removeChild(announcement);
-            }, 3000);
-        }
-    }
-    
-    console.log('✅ Formulario de Aprendiz SENA inicializado correctamente');
+}
+
+// Escuchar cambios para autosave
+inputs.forEach(input => {
+    input.addEventListener('input', autosave);
+    input.addEventListener('change', autosave);
 });
+
+// ===== CARGAR DATOS GUARDADOS =====
+function loadSavedData() {
+    const savedData = localStorage.getItem('aprendizFormData');
+    
+    if (savedData) {
+        const formData = JSON.parse(savedData);
+        
+        Object.keys(formData).forEach(key => {
+            const input = document.querySelector(`[name="${key}"], #${key}`);
+            if (input) {
+                if (input.type === 'checkbox') {
+                    input.checked = formData[key];
+                } else {
+                    input.value = formData[key];
+                }
+                validateField(input);
+                updateCharCounter(input);
+            }
+        });
+        
+        updateProgress();
+    }
+}
+
+// Cargar datos al inicio
+loadSavedData();
+
+// ===== MODAL DE CONFIRMACIÓN =====
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Validar todos los campos
+    let allValid = true;
+    inputs.forEach(input => {
+        if (!validateField(input)) {
+            allValid = false;
+        }
+    });
+    
+    if (!allValid) {
+        alert('Por favor, completa todos los campos requeridos correctamente.');
+        // Scroll al primer error
+        const firstError = document.querySelector('.is-invalid');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstError.focus();
+        }
+        return;
+    }
+    
+    // Generar resumen
+    generateSummary();
+    
+    // Mostrar modal
+    confirmModal.show();
+});
+
+// ===== GENERAR RESUMEN PARA MODAL =====
+function generateSummary() {
+    const summaryContent = document.getElementById('summaryContent');
+    let html = '';
+    
+    const sections = [
+        { title: 'Información Personal', fields: ['tipo_doc', 'cedula_apre', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono'] },
+        { title: 'Información Académica', fields: ['ficha', 'modalidad', 'programa', 'correo_per', 'correo_ins'] },
+        { title: 'Información Bancaria', fields: ['medio_bancario', 'numero_cuenta'] }
+    ];
+    
+    sections.forEach(section => {
+        html += `<h6 class="fw-bold mt-3 mb-2"><i class="bi bi-chevron-right"></i> ${section.title}</h6>`;
+        
+        section.fields.forEach(fieldName => {
+            const input = document.querySelector(`[name="${fieldName}"], #${fieldName}`);
+            if (input) {
+                const label = document.querySelector(`label[for="${input.id}"]`);
+                let value = input.value;
+                
+                if (input.tagName === 'SELECT') {
+                    value = input.options[input.selectedIndex].text;
+                }
+                
+                // Ocultar parcialmente datos sensibles
+                if (fieldName === 'numero_cuenta') {
+                    value = '****' + value.slice(-4);
+                }
+                
+                html += `
+                    <div class="summary-item">
+                        <span class="summary-label">${label ? label.textContent.replace('*', '').replace('?', '').trim() : fieldName}:</span>
+                        <span class="summary-value">${value}</span>
+                    </div>
+                `;
+            }
+        });
+    });
+    
+    summaryContent.innerHTML = html;
+}
+
+// ===== CONFIRMAR Y ENVIAR =====
+document.getElementById('confirmSubmit').addEventListener('click', function() {
+    confirmModal.hide();
+    
+    // Limpiar localStorage después del envío
+    localStorage.removeItem('aprendizFormData');
+    
+    // Enviar formulario
+    form.submit();
+});
+
+// ===== ADVERTENCIA AL SALIR SIN GUARDAR =====
+let formModified = false;
+
+inputs.forEach(input => {
+    input.addEventListener('change', () => {
+        formModified = true;
+    });
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formModified) {
+        e.preventDefault();
+        e.returnValue = '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.';
+    }
+});
+
+// No mostrar advertencia después del submit
+form.addEventListener('submit', function() {
+    formModified = false;
+});
+
+// ===== INICIALIZAR PROGRESO =====
+updateProgress();
+
+// ===== ACCESIBILIDAD: ANUNCIAR ERRORES =====
+function announceErrors() {
+    const errors = document.querySelectorAll('.is-invalid');
+    if (errors.length > 0) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'alert');
+        announcement.setAttribute('aria-live', 'assertive');
+        announcement.className = 'sr-only';
+        announcement.textContent = `Se encontraron ${errors.length} errores en el formulario. Por favor, corrígelos antes de continuar.`;
+        document.body.appendChild(announcement);
+        
+        setTimeout(() => {
+            document.body.removeChild(announcement);
+        }, 3000);
+    }
+}
+
+console.log('✅ Formulario de Aprendiz SENA inicializado correctamente');
+});
+

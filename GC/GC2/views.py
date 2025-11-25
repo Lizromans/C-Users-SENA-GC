@@ -2417,7 +2417,6 @@ def registro_aprendiz(request):
                 
                 messages.success(request, f'¡Aprendiz {aprendiz.nombre} {aprendiz.apellido} registrado exitosamente!')
                 form = AprendizForm()
-                
             except Exception as e:
                 messages.error(request, f'Error al guardar: {str(e)}')
         else:
