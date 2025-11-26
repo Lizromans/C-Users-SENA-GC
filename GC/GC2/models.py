@@ -50,7 +50,10 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     fecha_registro = models.DateTimeField(auto_now_add=True, null=True)
-    
+    # Nuevos campos para verificación
+    codigo_verificacion = models.CharField(max_length=6, null=True, blank=True)
+    codigo_expiracion = models.DateTimeField(null=True, blank=True)
+
     groups = models.ManyToManyField(
         Group,
         through='UsuarioGrupos', 
@@ -122,6 +125,31 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     @property
     def get_iniciales(self):
         return f"{self.nom_usu[0]}{self.ape_usu[0]}".upper()
+    
+    def generar_codigo_verificacion(self):
+        """Genera un código aleatorio de 6 dígitos"""
+        import random
+        codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        self.codigo_verificacion = codigo
+        self.codigo_expiracion = timezone.now() + timezone.timedelta(seconds=60)
+        self.save()
+        return codigo
+    
+    def verificar_codigo(self, codigo):
+        """Verifica si el código es válido y no ha expirado"""
+        if not self.codigo_verificacion or not self.codigo_expiracion:
+            return False
+        
+        if timezone.now() > self.codigo_expiracion:
+            return False
+        
+        return self.codigo_verificacion == codigo
+    
+    def limpiar_codigo(self):
+        """Limpia el código después de usarlo"""
+        self.codigo_verificacion = None
+        self.codigo_expiracion = None
+        self.save()
     
 class UsuarioGrupos(models.Model):
     id = models.AutoField(primary_key=True)

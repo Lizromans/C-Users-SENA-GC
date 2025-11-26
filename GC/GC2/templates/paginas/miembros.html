@@ -248,8 +248,11 @@
         {% if miembro_seleccionado %}style="display: flex;"{% endif %}>
 
         <div class="modal-perfil-contenedor">
-            <a class="modal-perfil-cerrar" id="btnCerrarPerfilModal" href="{% url 'miembros' %}">
-                <i class="fa fa-times"></i>
+            <a class="modal-perfil-cerrar" 
+                id="btnCerrarPerfilModal" 
+                
+                href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
+                    <i class="fa fa-times"></i>
             </a>
 
             <div class="perfil-miembro">
@@ -425,8 +428,26 @@
 
                                 <div class="perfil-campo">
                                     <label for="perfilCuenta">Número de Cuenta:</label>
-                                    <input type="text" id="perfilCuenta" name="numero_cuenta"
-                                        value="{{ miembro_seleccionado.numero_cuenta_visible }}" readonly>
+                                    <div class="input-con-icono">
+                                        <input type="text" id="perfilCuenta" name="numero_cuenta"
+                                            value="{{ miembro_seleccionado.numero_cuenta_visible }}" readonly>
+                                        
+                                        {% if miembro_seleccionado.numero_cuenta_visible|length > 11 %}
+                                            <!-- Si el número está revelado, mostrar botón para ocultar -->
+                                            <a href="{% url 'limpiar_numero_revelado' %}" 
+                                                class="icono-interno" 
+                                                title="Ocultar número">
+                                                <i class="fa fa-eye-slash"></i>
+                                            </a>
+                                        {% else %}
+                                            <!-- Si está oculto, mostrar botón para ver -->
+                                            <a href="{% url 'solicitar_codigo_verificacion_form' miembro_seleccionado.cedula %}" 
+                                                class="icono-interno" 
+                                                title="Ver número completo">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -514,5 +535,78 @@
     </div>
 </div>
 
+
+<!-- Modal de Verificación de Código -->
+<div id="modalVerificacionCodigo" class="modal-verificacion-overlay" 
+     {% if mostrar_modal_codigo %}style="display: flex;"{% endif %}>
+    <div class="modal-verificacion-contenedor">
+        <!-- ✅ Cerrar sin parámetro miembro_id si no hay seleccionado -->
+        <a href="{% if aprendiz_verificacion %}?miembro_id={{ aprendiz_verificacion.cedula_apre }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}{% else %}?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}{% endif %}" 
+           class="modal-verificacion-cerrar"
+           onclick="{% if aprendiz_verificacion %}cancelarVerificacion('{{ aprendiz_verificacion.cedula_apre }}'){% else %}cancelarVerificacion(){% endif %}">
+            <i class="fa fa-times"></i>
+        </a>
+        
+        <div class="modal-verificacion-contenido">
+            <div class="modal-verificacion-icono">
+                <i class="fa fa-lock"></i>
+            </div>
+            
+            <h3 class="modal-verificacion-titulo">Verificación de Seguridad</h3>
+            <p class="modal-verificacion-texto">
+                Ingresa el código de 6 dígitos enviado a tu correo electrónico
+            </p>
+            
+            <form method="post" action="">
+                {% csrf_token %}
+                {% if aprendiz_verificacion %}
+                <input type="hidden" name="miembro_id" value="{{ aprendiz_verificacion.cedula_apre }}">
+                {% endif %}
+                <input type="hidden" name="vista" value="{{ vista }}">
+                <input type="hidden" name="estado" value="{{ estado_filtro }}">
+                <input type="hidden" name="rol" value="{{ rol_filtro }}">
+                <input type="hidden" name="busqueda" value="{{ busqueda }}">
+                
+                <div class="codigo-inputs">
+                    <input type="text" name="codigo" maxlength="6" 
+                           class="codigo-input-completo" 
+                           placeholder="000000"
+                           pattern="[0-9]{6}"
+                           required
+                           autofocus />
+                </div>
+                
+                <button type="submit" class="btn-verificar-codigo">
+                    <i class="fa fa-check-circle"></i>
+                    Verificar Código
+                </button>
+            </form>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+function cancelarVerificacion(aprendizId) {
+    // Limpiar variables de sesión mediante AJAX
+    fetch("{% url 'cancelar_verificacion' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    }).then(() => {
+        // Redirigir después de limpiar
+        if (aprendizId) {
+            window.location.href = `?miembro_id=${aprendizId}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}`;
+        } else {
+            window.location.href = `?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}`;
+        }
+    });
+}
+</script>
+
+
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/mensaje.js' %}"></script>
 {% endblock %}

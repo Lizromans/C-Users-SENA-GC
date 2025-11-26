@@ -1233,3 +1233,313 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     color:#ffffff;
     transform: scale(1.2);
 }
+
+/* ====== INPUT CON ICONO INTERNO ====== */
+.input-con-icono {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-con-icono input[type="text"] {
+    width: 100%;
+    padding-right: clamp(40px, 8vw, 55px); /* Espacio para el botón */
+    border-radius: clamp(6px, 1.2vw, 10px);
+    border: 2px solid #e0e0e0;
+    padding-top: clamp(4px, 0.5vw, 8px);
+    padding-bottom: clamp(4px, 0.5vw, 8px);
+    padding-left: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.85rem, 1.4vw, 0.95rem);
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.input-con-icono input[type="text"]:focus {
+    outline: none;
+    border-color: #39A900;
+    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+.icono-interno {
+    position: absolute;
+    right: clamp(8px, 1.5vw, 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: clamp(4px, 0.8vw, 8px);
+    font-size: clamp(0.9rem, 1.6vw, 1.1rem);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    text-align: none;
+}
+
+.icono-interno:hover {
+    background-color: transparent;
+    color: #39A900;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.icono-interno:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.icono-interno i {
+    pointer-events: none; /* Evita que el icono interfiera con el click */
+}
+
+/* ========================================
+   ESTILOS PARA MODAL DE VERIFICACIÓN
+   ======================================== */
+
+.modal-verificacion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+
+.modal-verificacion-overlay.activo {
+    display: flex;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-verificacion-contenedor {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-verificacion-cerrar {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: #666;
+}
+
+.modal-verificacion-cerrar:hover {
+    background: #e74c3c;
+    color: white;
+    transform: rotate(90deg);
+}
+
+.modal-verificacion-contenido {
+    text-align: center;
+}
+
+.modal-verificacion-icono {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+}
+
+.modal-verificacion-titulo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.modal-verificacion-texto {
+    color: #7f8c8d;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+/* Inputs del código */
+.codigo-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.codigo-input {
+    width: 55px;
+    height: 65px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.3s;
+    background: #f8f9fa;
+}
+
+.codigo-input:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    background: white;
+    transform: scale(1.05);
+}
+
+.codigo-input:valid {
+    border-color: #27ae60;
+    background: #f0fff4;
+}
+
+/* Botones */
+.btn-verificar-codigo {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 15px;
+}
+
+.btn-verificar-codigo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-verificar-codigo:active {
+    transform: translateY(0);
+}
+
+.btn-cancelar-verificacion {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    background: #ecf0f1;
+    color: #7f8c8d;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.btn-cancelar-verificacion:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Mensajes de alerta */
+.mensajes-verificacion {
+    margin: 20px 0;
+}
+
+.mensajes-verificacion .alert {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error,
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Información del aprendiz */
+.texto-info-aprendiz {
+    margin-top: 20px;
+    padding: 12px;
+    background: #e8f4f8;
+    border-radius: 8px;
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+.temporizador-cuenta {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: pulse 2s infinite;
+}
+
+.temporizador-cuenta i {
+    font-size: 1rem;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}

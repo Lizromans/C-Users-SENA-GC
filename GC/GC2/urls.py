@@ -46,7 +46,24 @@ urlpatterns = [
     #MIEMBROS
     path('miembros/', views.miembros, name='miembros'),
     path('registro_aprendiz/', views.registro_aprendiz, name='registro_aprendiz'),
+    path(
+        'miembros/solicitar-codigo/<str:aprendiz_id>/',
+        views.solicitar_codigo_verificacion_form,
+        name='solicitar_codigo_verificacion_form'
+    ),
 
+    path(
+        'miembros/verificar-codigo/',
+        views.verificar_codigo_form,
+        name='verificar_codigo_form'
+    ),
+
+    path(
+        'miembros/cancelar-verificacion/',
+        views.cancelar_verificacion,
+        name='cancelar_verificacion'
+    ),
+    path('limpiar-numero-revelado/', views.limpiar_numero_revelado, name='limpiar_numero_revelado'),
     #CENTRO DE AYUDA
     path('centroayuda/', views.centroayuda, name='centroayuda'),
 

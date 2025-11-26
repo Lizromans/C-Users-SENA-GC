@@ -38,7 +38,7 @@ body {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     display: flex;
-    height: 72vh;
+    height: clamp(600px, 80vh, 800px);
     animation: fadeInUp 0.6s ease-out;
 }
 

@@ -43,6 +43,10 @@ from cryptography.fernet import Fernet
 from django.conf import settings
 import base64
 import hashlib
+from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+import json
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -2221,7 +2225,21 @@ def miembros(request):
         messages.error(request, "Debes iniciar sesión para ver tu perfil.")
         return redirect('iniciarsesion')
 
-    # Obtener usuario
+    # ✅ VERIFICAR SI DEBE MOSTRAR EL MODAL
+    mostrar_modal_codigo = request.session.get('mostrar_modal_codigo', False)
+    aprendiz_verificacion = None
+
+    if mostrar_modal_codigo:
+        aprendiz_id = request.session.get('verificacion_aprendiz_id')
+        if aprendiz_id:
+            aprendiz_verificacion = Aprendiz.objects.filter(cedula_apre=aprendiz_id).first()
+
+    # Procesar verificación si es POST (cuando viene del modal)
+    if request.method == 'POST' and 'codigo' in request.POST:
+        resultado = verificar_codigo_form(request)
+        if resultado:
+            return resultado
+
     try:
         usuario = Usuario.objects.get(cedula=usuario_id)
     except Usuario.DoesNotExist:
@@ -2230,27 +2248,30 @@ def miembros(request):
 
     vista = request.GET.get('vista', 'tarjeta')
     estado_filtro = request.GET.get('estado', '')
-    rol_filtro = request.GET.get('rol', 'todos')
+    rol_filtro = request.GET.get('rol', 'todos').strip().lower()
     busqueda = request.GET.get('busqueda', '').strip().lower()
     miembro_id = request.GET.get('miembro_id')
 
+    # ✅ VALIDAR QUE miembro_id NO SEA 'None' O VACÍO
+    if miembro_id and miembro_id.lower() == 'none':
+        miembro_id = None
 
-    if request.method == "POST":
+    if request.method == "POST" and 'verificar_codigo' not in request.POST and 'codigo' not in request.POST:
         cedula = request.POST.get("cedula")
         nuevo_estado = request.POST.get("estado")
 
         if cedula and nuevo_estado:
-            
-            usuario = Usuario.objects.filter(cedula=cedula).first()
-            aprendiz = Aprendiz.objects.filter(cedula_apre=cedula).first()
-            if usuario:
-                usuario.estado = nuevo_estado
-                usuario.save()
-                messages.success(request, f"Estado de {usuario.nom_usu} actualizado a {nuevo_estado}.")
-            elif aprendiz:
-                aprendiz.estado_apre = nuevo_estado
-                aprendiz.save()
-                messages.success(request, f"Estado de {aprendiz.nombre} actualizado a {nuevo_estado}.")
+            usuario_obj = Usuario.objects.filter(cedula=cedula).first()
+            aprendiz_obj = Aprendiz.objects.filter(cedula_apre=cedula).first()
+
+            if usuario_obj:
+                usuario_obj.estado = nuevo_estado
+                usuario_obj.save()
+                messages.success(request, f"Estado de {usuario_obj.nom_usu} actualizado a {nuevo_estado}.")
+            elif aprendiz_obj:
+                aprendiz_obj.estado_apre = nuevo_estado
+                aprendiz_obj.save()
+                messages.success(request, f"Estado de {aprendiz_obj.nombre} actualizado a {nuevo_estado}.")
 
         return redirect(f"{request.path}?miembro_id={cedula}")
 
@@ -2269,12 +2290,9 @@ def miembros(request):
             Q(cedula_apre__icontains=busqueda)
         )
 
-    # Solo filtrar si estado_filtro existe Y no es 'todos'
     if estado_filtro and estado_filtro != 'todos':
         usuarios = usuarios.filter(estado=estado_filtro)
         aprendices = aprendices.filter(estado_apre=estado_filtro)
-
-    rol_filtro = request.GET.get('rol', 'todos').strip().lower()
 
     if rol_filtro == 'investigadores':
         usuarios = usuarios.filter(rol__iexact='Investigador')
@@ -2285,7 +2303,6 @@ def miembros(request):
         aprendices = aprendices.none()
 
     elif rol_filtro == 'lider_semillero':
-        # Coincide con "Lider de Semillero", "Líder Semillero", etc.
         usuarios = usuarios.filter(rol__iregex=r'l[ií]der(\s+de)?\s+semillero')
         aprendices = aprendices.none()
 
@@ -2294,16 +2311,15 @@ def miembros(request):
         aprendices = aprendices.none()
 
     elif rol_filtro == 'lider_proyecto':
-        # Coincide con "Lider de Proyecto", "Líder Proyecto", etc.
         usuarios = usuarios.filter(rol__iregex=r'l[ií]der(\s+de)?\s+proyecto')
         aprendices = aprendices.none()
 
     elif rol_filtro == 'aprendices':
         usuarios = usuarios.none()
 
-
     miembros = []
 
+    # ---- Usuarios ----
     for u in usuarios:
         ultimo_acceso = "Sin registro"
         if u.last_login:
@@ -2346,6 +2362,7 @@ def miembros(request):
             'objeto': u
         })
 
+    # ---- Aprendices ----
     for a in aprendices:
         miembros.append({
             'id': a.cedula_apre,
@@ -2366,57 +2383,67 @@ def miembros(request):
     miembro_seleccionado = None
     tipo_miembro = None
 
+    # SOLO BUSCAR MIEMBRO SI miembro_id EXISTE Y NO ES 'None'
     if miembro_id:
-        usuario = Usuario.objects.filter(cedula=miembro_id).first()
-        if usuario:
+        usuario_sel = Usuario.objects.filter(cedula=miembro_id).first()
+        if usuario_sel:
             tipo_miembro = 'usuario'
             miembro_seleccionado = {
-                'cedula': usuario.cedula,
-                'nombres': usuario.nom_usu,
-                'apellidos': usuario.ape_usu,
-                'fecha_nacimiento': usuario.fecha_nacimiento,
-                'correo_personal': usuario.correo_per,
-                'correo_sena': usuario.correo_ins,
-                'celular': usuario.telefono,
-                'vinculacion': usuario.vinculacion_laboral,
-                'dependencia': usuario.dependencia,
-                'rol': usuario.rol,
-                'imagen_perfil': usuario.imagen_perfil,
-                'estado': usuario.estado,
-                'semilleros': usuario.semilleros.all() if hasattr(usuario, 'semilleros') else [],
-                'proyectos': usuario.proyectos.all() if hasattr(usuario, 'proyectos') else [],
+                'id': usuario_sel.cedula,
+                'cedula': usuario_sel.cedula,
+                'nombres': usuario_sel.nom_usu,
+                'apellidos': usuario_sel.ape_usu,
+                'fecha_nacimiento': usuario_sel.fecha_nacimiento,
+                'correo_personal': usuario_sel.correo_per,
+                'correo_sena': usuario_sel.correo_ins,
+                'celular': usuario_sel.telefono,
+                'vinculacion': usuario_sel.vinculacion_laboral,
+                'dependencia': usuario_sel.dependencia,
+                'rol': usuario_sel.rol,
+                'imagen_perfil': usuario_sel.imagen_perfil,
+                'estado': usuario_sel.estado,
+                'semilleros': usuario_sel.semilleros.all(),
+                'proyectos': usuario_sel.proyectos.all(),
             }
         else:
-            aprendiz = Aprendiz.objects.filter(cedula_apre=miembro_id).first()
-            if aprendiz:
+            aprendiz_sel = Aprendiz.objects.filter(cedula_apre=miembro_id).first()
+            if aprendiz_sel:
                 tipo_miembro = 'aprendiz'
-                # Descifrar el número
-                numero_descifrado = descifrar_numero(aprendiz.numero_cuenta)
-                # Formatear para mostrar solo últimos 4 dígitos
-                if numero_descifrado and numero_descifrado != "****":
-                    numero_visible = f"*********{numero_descifrado[-4:]}"
-                else:
-                    numero_visible = "**********"
                 
+                # VERIFICAR SI HAY NÚMERO REVELADO EN SESIÓN
+                numero_revelado = request.session.get('numero_cuenta_revelado')
+                aprendiz_session_id = request.session.get('numero_cuenta_aprendiz_id')
+                
+                # Si el número está revelado Y es para este aprendiz específico
+                if numero_revelado and str(aprendiz_session_id) == str(miembro_id):
+                    numero_visible = numero_revelado
+                else:
+                    # Mostrar solo últimos 4 dígitos
+                    numero_descifrado = descifrar_numero(aprendiz_sel.numero_cuenta)
+                    if numero_descifrado and numero_descifrado != "****":
+                        numero_visible = f"*********{numero_descifrado[-4:]}"
+                    else:
+                        numero_visible = "**********"
+
                 miembro_seleccionado = {
-                    'cedula': aprendiz.cedula_apre,
-                    'nombres': aprendiz.nombre,
-                    'apellidos': aprendiz.apellido,
-                    'correo_personal': aprendiz.correo_per,
-                    'fecha_nacimiento': aprendiz.fecha_nacimiento,
-                    'correo_sena': aprendiz.correo_ins,
-                    'medio_bancario': aprendiz.medio_bancario,
-                    'numero_cuenta': aprendiz.numero_cuenta,  # Cifrado (no se usa)
-                    'numero_cuenta_visible': numero_visible,
-                    'celular': aprendiz.telefono,
-                    'ficha': aprendiz.ficha,
-                    'programa': aprendiz.programa,
+                    'id': aprendiz_sel.cedula_apre,
+                    'cedula': aprendiz_sel.cedula_apre,
+                    'nombres': aprendiz_sel.nombre,
+                    'apellidos': aprendiz_sel.apellido,
+                    'correo_personal': aprendiz_sel.correo_per,
+                    'fecha_nacimiento': aprendiz_sel.fecha_nacimiento,
+                    'correo_sena': aprendiz_sel.correo_ins,
+                    'medio_bancario': aprendiz_sel.medio_bancario,
+                    'numero_cuenta_visible': numero_visible,  # ✅ USAR LA VARIABLE CORRECTA
+                    'celular': aprendiz_sel.telefono,
+                    'ficha': aprendiz_sel.ficha,
+                    'programa': aprendiz_sel.programa,
                     'rol': 'Aprendiz',
-                    'estado': aprendiz.estado_apre,
-                    'semilleros': [aprendiz.id_sem] if aprendiz.id_sem else [],
-                    'proyectos': Proyecto.objects.filter(proyectoaprendiz__cedula_apre=aprendiz).distinct(),
+                    'estado': aprendiz_sel.estado_apre,
+                    'semilleros': [aprendiz_sel.id_sem] if aprendiz_sel.id_sem else [],
+                    'proyectos': Proyecto.objects.filter(proyectoaprendiz__cedula_apre=aprendiz_sel).distinct(),
                 }
-    
+
     contexto = {
         'miembros': miembros,
         'total_instructores': total_instructores,
@@ -2428,7 +2455,9 @@ def miembros(request):
         'estado_filtro': estado_filtro,
         'rol_filtro': rol_filtro,
         'busqueda': busqueda,
-        'usuario': usuario
+        'usuario': usuario,
+        'mostrar_modal_codigo': mostrar_modal_codigo,
+        'aprendiz_verificacion': aprendiz_verificacion,
     }
 
     return render(request, 'paginas/miembros.html', contexto)
@@ -2473,6 +2502,187 @@ def registro_aprendiz(request):
         form = AprendizForm()
     
     return render(request, 'paginas/formaprendiz.html', {'form': form})
+
+def solicitar_codigo_verificacion_form(request, aprendiz_id):
+    """
+    Genera y envía un código de verificación por correo
+    """
+    try:
+        # Obtener el usuario actual
+        usuario_id = request.session.get('cedula')
+        if not usuario_id:
+            messages.error(request, 'No hay sesión activa')
+            return redirect('miembros')
+        
+        usuario = Usuario.objects.get(cedula=usuario_id)
+        
+        # Verificar que el aprendiz existe
+        aprendiz = Aprendiz.objects.filter(cedula_apre=aprendiz_id).first()
+        if not aprendiz:
+            messages.error(request, 'Aprendiz no encontrado')
+            return redirect('miembros')
+        
+        # Generar código
+        codigo = usuario.generar_codigo_verificacion()
+        
+        # Preparar el correo
+        correo_destino = usuario.correo_ins or usuario.correo_per
+        
+        if not correo_destino:
+            messages.error(request, 'No hay correo registrado')
+            return redirect('miembros')
+        
+        # Construir mensaje del correo
+        asunto = "Código de Verificación - GC"
+        mensaje = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 30px; border-radius: 10px;">
+                    <h2 style="color: #2C3E50; text-align: center;">🔐 Código de Verificación</h2>
+                    <p style="color: #555; font-size: 16px;">Hola <strong>{usuario.nom_usu}</strong>,</p>
+                    <p style="color: #555; font-size: 14px;">
+                        Has solicitado ver información sensible. Por seguridad, utiliza el siguiente código:
+                    </p>
+                    <div style="background-color: #fff; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                        <h1 style="color: #27AE60; font-size: 48px; margin: 0; letter-spacing: 10px;">{codigo}</h1>
+                    </div>
+                    <p style="color: #E74C3C; font-size: 12px; text-align: center;">
+                        ⚠️ Este código expirará en 60 segundos
+                    </p>
+                    <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">
+                        Si no solicitaste este código, ignora este mensaje.
+                    </p>
+                </div>
+            </body>
+        </html>
+        """
+        
+        # Enviar correo
+        try:
+            send_mail(
+                asunto,
+                '',
+                settings.DEFAULT_FROM_EMAIL,
+                [correo_destino],
+                html_message=mensaje,
+                fail_silently=False
+            )
+            
+            # Activar el modal en la misma página
+            request.session['verificacion_aprendiz_id'] = aprendiz_id
+            request.session['mostrar_modal_codigo'] = True
+            request.session['codigo_enviado'] = True
+            
+            messages.success(request, f'Código enviado a {correo_destino}')
+            return redirect('miembros')
+            
+        except Exception as email_error:
+            messages.error(request, f'Error al enviar el correo: {str(email_error)}')
+            return redirect('miembros')
+        
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado')
+        return redirect('miembros')
+    except Exception as e:
+        messages.error(request, f'Error: {str(e)}')
+        return redirect('miembros')
+
+def verificar_codigo_form(request):
+    """
+    Verifica el código ingresado (llamado desde la vista miembros)
+    """
+    try:
+        # Obtener usuario actual
+        usuario_id = request.session.get('cedula')
+        if not usuario_id:
+            messages.error(request, 'No hay sesión activa')
+            return redirect('miembros')
+        
+        usuario = Usuario.objects.get(cedula=usuario_id)
+        
+        # Obtener código del formulario (campo único de 6 dígitos)
+        codigo_ingresado = request.POST.get('codigo', '').strip()
+        
+        aprendiz_id = request.session.get('verificacion_aprendiz_id')
+        
+        if not codigo_ingresado or len(codigo_ingresado) != 6:
+            messages.error(request, 'Debes ingresar los 6 dígitos del código')
+            return redirect(f'/miembros/?miembro_id={aprendiz_id}')
+        
+        if not aprendiz_id:
+            messages.error(request, 'Sesión expirada')
+            request.session['mostrar_modal_codigo'] = False
+            return redirect('miembros')
+        
+        # Verificar código
+        if not usuario.verificar_codigo(codigo_ingresado):
+            messages.error(request, 'Código incorrecto o expirado')
+            return redirect(f'/miembros/?miembro_id={aprendiz_id}')
+        
+        # Obtener aprendiz
+        aprendiz = Aprendiz.objects.filter(cedula_apre=aprendiz_id).first()
+        if not aprendiz:
+            messages.error(request, 'Aprendiz no encontrado')
+            return redirect('miembros')
+        
+        # Descifrar número de cuenta
+        numero_completo = descifrar_numero(aprendiz.numero_cuenta)
+        
+        # ✅ Guardar número en sesión temporalmente
+        request.session['numero_cuenta_revelado'] = numero_completo
+        request.session['numero_cuenta_aprendiz_id'] = str(aprendiz_id)  # ✅ Convertir a string
+        
+        # Limpiar código usado
+        usuario.limpiar_codigo()
+        
+        # ✅ CERRAR EL MODAL
+        request.session['mostrar_modal_codigo'] = False
+        if 'verificacion_aprendiz_id' in request.session:
+            del request.session['verificacion_aprendiz_id']
+        if 'codigo_enviado' in request.session:
+            del request.session['codigo_enviado']
+        
+        messages.success(request, '✅ Código verificado correctamente')
+        
+        # ✅ Redirigir al perfil del aprendiz CON EL miembro_id
+        return redirect(f'/miembros/?miembro_id={aprendiz_id}')
+        
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado')
+        return redirect('miembros')
+    except Exception as e:
+        messages.error(request, f'Error: {str(e)}')
+        return redirect('miembros')
+    
+def cancelar_verificacion(request):
+    """
+    Cancela el proceso de verificación
+    """
+    # Limpiar todas las variables de sesión relacionadas con verificación
+    request.session['mostrar_modal_codigo'] = False
+    
+    if 'verificacion_aprendiz_id' in request.session:
+        del request.session['verificacion_aprendiz_id']
+    if 'codigo_enviado' in request.session:
+        del request.session['codigo_enviado']
+    
+    # Si es AJAX, devolver respuesta JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True})
+    
+    messages.info(request, 'Verificación cancelada')
+    return redirect('miembros')
+
+def limpiar_numero_revelado(request):
+    """
+    Limpia el número de cuenta revelado de la sesión
+    """
+    if 'numero_cuenta_revelado' in request.session:
+        del request.session['numero_cuenta_revelado']
+    if 'numero_cuenta_aprendiz_id' in request.session:
+        del request.session['numero_cuenta_aprendiz_id']
+    
+    return redirect('miembros')
 
 # VISTAS DE CENTRO DE AYUDA
 def centroayuda(request):
