@@ -1,3 +1,4 @@
+from ctypes import alignment
 from urllib import request
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,7 @@ from django.views.decorators.cache import never_cache
 from functools import wraps
 from django.utils.timezone import now
 from django.db.models import Q, Avg
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models import Case, When, Value, IntegerField
 from django.http import JsonResponse
 from django.core.files.storage import FileSystemStorage
@@ -47,6 +48,9 @@ from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 import json
+from django.db.models import Count, Sum, Q
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -2410,15 +2414,31 @@ def miembros(request):
             if aprendiz_sel:
                 tipo_miembro = 'aprendiz'
                 
-                # VERIFICAR SI HAY NÚMERO REVELADO EN SESIÓN
-                numero_revelado = request.session.get('numero_cuenta_revelado')
-                aprendiz_session_id = request.session.get('numero_cuenta_aprendiz_id')
+                #  CAMBIO: Verificar si hay número revelado para ESTE aprendiz específico
+                numeros_revelados = request.session.get('numeros_revelados', {})
+                info_numero = numeros_revelados.get(str(miembro_id))
                 
-                # Si el número está revelado Y es para este aprendiz específico
-                if numero_revelado and str(aprendiz_session_id) == str(miembro_id):
-                    numero_visible = numero_revelado
+                if info_numero:
+                    # Verificar si han pasado 60 segundos
+                    timestamp_revelado = info_numero.get('timestamp', 0)
+                    tiempo_transcurrido = timezone.now().timestamp() - timestamp_revelado
+                    
+                    if tiempo_transcurrido < 60:
+                        # Aún no han pasado 60 segundos, mostrar completo
+                        numero_visible = info_numero['numero']
+                    else:
+                        # Ya pasaron 60 segundos, ocultar automáticamente
+                        del numeros_revelados[str(miembro_id)]
+                        request.session['numeros_revelados'] = numeros_revelados
+                        
+                        # Mostrar parcialmente
+                        numero_descifrado = descifrar_numero(aprendiz_sel.numero_cuenta)
+                        if numero_descifrado and numero_descifrado != "****":
+                            numero_visible = f"*********{numero_descifrado[-4:]}"
+                        else:
+                            numero_visible = "**********"
                 else:
-                    # Mostrar solo últimos 4 dígitos
+                    # No hay número revelado, mostrar parcialmente
                     numero_descifrado = descifrar_numero(aprendiz_sel.numero_cuenta)
                     if numero_descifrado and numero_descifrado != "****":
                         numero_visible = f"*********{numero_descifrado[-4:]}"
@@ -2434,7 +2454,7 @@ def miembros(request):
                     'fecha_nacimiento': aprendiz_sel.fecha_nacimiento,
                     'correo_sena': aprendiz_sel.correo_ins,
                     'medio_bancario': aprendiz_sel.medio_bancario,
-                    'numero_cuenta_visible': numero_visible,  # ✅ USAR LA VARIABLE CORRECTA
+                    'numero_cuenta_visible': numero_visible,  
                     'celular': aprendiz_sel.telefono,
                     'ficha': aprendiz_sel.ficha,
                     'programa': aprendiz_sel.programa,
@@ -2504,17 +2524,21 @@ def registro_aprendiz(request):
     return render(request, 'paginas/formaprendiz.html', {'form': form})
 
 def solicitar_codigo_verificacion_form(request, aprendiz_id):
-    """
-    Genera y envía un código de verificación por correo
-    """
+    """Genera y envía un código de verificación con control de límites"""
     try:
-        # Obtener el usuario actual
         usuario_id = request.session.get('cedula')
         if not usuario_id:
             messages.error(request, 'No hay sesión activa')
             return redirect('miembros')
         
         usuario = Usuario.objects.get(cedula=usuario_id)
+        
+        # Verificar si puede solicitar código
+        puede_solicitar, mensaje_error = usuario.puede_solicitar_codigo()
+        
+        if not puede_solicitar:
+            messages.error(request, mensaje_error)
+            return redirect('miembros')
         
         # Verificar que el aprendiz existe
         aprendiz = Aprendiz.objects.filter(cedula_apre=aprendiz_id).first()
@@ -2532,6 +2556,9 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
             messages.error(request, 'No hay correo registrado')
             return redirect('miembros')
         
+        # Calcular intentos restantes
+        intentos_restantes = max(0, 7 - usuario.intentos_codigo_fallidos)
+        
         # Construir mensaje del correo
         asunto = "Código de Verificación - GC"
         mensaje = f"""
@@ -2548,6 +2575,9 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
                     </div>
                     <p style="color: #E74C3C; font-size: 12px; text-align: center;">
                         ⚠️ Este código expirará en 60 segundos
+                    </p>
+                    <p style="color: #555; font-size: 12px; text-align: center;">
+                        Intentos restantes: <strong>{intentos_restantes}</strong>
                     </p>
                     <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">
                         Si no solicitaste este código, ignora este mensaje.
@@ -2568,12 +2598,15 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
                 fail_silently=False
             )
             
-            # Activar el modal en la misma página
+            # REGISTRAR ENVÍO
+            usuario.registrar_codigo_enviado()
+            
+            # Activar el modal
             request.session['verificacion_aprendiz_id'] = aprendiz_id
             request.session['mostrar_modal_codigo'] = True
             request.session['codigo_enviado'] = True
             
-            messages.success(request, f'Código enviado a {correo_destino}')
+            messages.success(request, f'✅ Código enviado a {correo_destino}.')
             return redirect('miembros')
             
         except Exception as email_error:
@@ -2586,13 +2619,10 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
         return redirect('miembros')
-
+    
 def verificar_codigo_form(request):
-    """
-    Verifica el código ingresado (llamado desde la vista miembros)
-    """
+    """Verifica el código con control de reintentos"""
     try:
-        # Obtener usuario actual
         usuario_id = request.session.get('cedula')
         if not usuario_id:
             messages.error(request, 'No hay sesión activa')
@@ -2600,13 +2630,33 @@ def verificar_codigo_form(request):
         
         usuario = Usuario.objects.get(cedula=usuario_id)
         
-        # Obtener código del formulario (campo único de 6 dígitos)
-        codigo_ingresado = request.POST.get('codigo', '').strip()
+        # ✅ Verificar si está bloqueado
+        ahora = timezone.now()
+        if usuario.bloqueado_hasta and ahora < usuario.bloqueado_hasta:
+            tiempo_restante = usuario.bloqueado_hasta - ahora
+            minutos = int(tiempo_restante.total_seconds() / 60)
+            horas = minutos // 60
+            mins = minutos % 60
+            
+            if horas > 0:
+                tiempo_msg = f"{horas} hora(s) y {mins} minuto(s)"
+            else:
+                tiempo_msg = f"{mins} minuto(s)"
+            
+            # Cerrar modal y limpiar sesión
+            request.session['mostrar_modal_codigo'] = False
+            if 'verificacion_aprendiz_id' in request.session:
+                del request.session['verificacion_aprendiz_id']
+            
+            messages.error(request, f'⏱️ Demasiados intentos fallidos. Espera {tiempo_msg} antes de intentar nuevamente.')
+            return redirect('miembros')
         
+        # Obtener código ingresado
+        codigo_ingresado = request.POST.get('codigo', '').strip()
         aprendiz_id = request.session.get('verificacion_aprendiz_id')
         
         if not codigo_ingresado or len(codigo_ingresado) != 6:
-            messages.error(request, 'Debes ingresar los 6 dígitos del código')
+            messages.error(request, '❌ Debes ingresar los 6 dígitos del código')
             return redirect(f'/miembros/?miembro_id={aprendiz_id}')
         
         if not aprendiz_id:
@@ -2614,11 +2664,43 @@ def verificar_codigo_form(request):
             request.session['mostrar_modal_codigo'] = False
             return redirect('miembros')
         
-        # Verificar código
+        # ✅ VERIFICAR CÓDIGO
         if not usuario.verificar_codigo(codigo_ingresado):
-            messages.error(request, 'Código incorrecto o expirado')
+            # Código incorrecto
+            
+            # Incrementar intentos fallidos en el usuario
+            usuario.incrementar_intentos_fallidos()
+            
+            # Calcular intentos restantes
+            intentos_restantes = max(0, 7 - usuario.intentos_codigo_fallidos)
+            
+            # 🆕 Actualizar en sesión (esto hace que aparezca el mensaje en el siguiente intento)
+            request.session['intentos_restantes'] = intentos_restantes
+            
+            # Si se acabaron los intentos, bloquear
+            if intentos_restantes == 0:
+                tiempo_bloqueo = usuario.bloqueado_hasta - ahora if usuario.bloqueado_hasta else timedelta(minutes=15)
+                minutos = int(tiempo_bloqueo.total_seconds() / 60)
+                horas = minutos // 60
+                mins = minutos % 60
+                
+                if horas > 0:
+                    tiempo_msg = f"{horas} hora(s) y {mins} minuto(s)"
+                else:
+                    tiempo_msg = f"{mins} minuto(s)"
+                
+                # Cerrar modal
+                request.session['mostrar_modal_codigo'] = False
+                if 'verificacion_aprendiz_id' in request.session:
+                    del request.session['verificacion_aprendiz_id']
+                
+                messages.error(request, f'🚫 Demasiados intentos fallidos. Espera {tiempo_msg} antes de intentar nuevamente.')
+                return redirect('miembros')
+            
+            messages.error(request, f'❌ Código incorrecto. Te quedan {intentos_restantes} intentos.')
             return redirect(f'/miembros/?miembro_id={aprendiz_id}')
         
+        # ✅ CÓDIGO CORRECTO
         # Obtener aprendiz
         aprendiz = Aprendiz.objects.filter(cedula_apre=aprendiz_id).first()
         if not aprendiz:
@@ -2628,23 +2710,30 @@ def verificar_codigo_form(request):
         # Descifrar número de cuenta
         numero_completo = descifrar_numero(aprendiz.numero_cuenta)
         
-        # ✅ Guardar número en sesión temporalmente
-        request.session['numero_cuenta_revelado'] = numero_completo
-        request.session['numero_cuenta_aprendiz_id'] = str(aprendiz_id)  # ✅ Convertir a string
+        # Guardar en sesión
+        timestamp_actual = timezone.now().timestamp()
+        numeros_revelados = request.session.get('numeros_revelados', {})
+        numeros_revelados[str(aprendiz_id)] = {
+            'numero': numero_completo,
+            'timestamp': timestamp_actual
+        }
         
-        # Limpiar código usado
-        usuario.limpiar_codigo()
+        request.session['numeros_revelados'] = numeros_revelados
+        request.session['numero_cuenta_aprendiz_id'] = str(aprendiz_id)
         
-        # ✅ CERRAR EL MODAL
+        # ✅ RESETEAR INTENTOS
+        usuario.resetear_intentos_codigo()
+        
+        # Limpiar sesión del modal
         request.session['mostrar_modal_codigo'] = False
         if 'verificacion_aprendiz_id' in request.session:
             del request.session['verificacion_aprendiz_id']
         if 'codigo_enviado' in request.session:
             del request.session['codigo_enviado']
+        if 'intentos_restantes' in request.session:
+            del request.session['intentos_restantes']
         
-        messages.success(request, '✅ Código verificado correctamente')
-        
-        # ✅ Redirigir al perfil del aprendiz CON EL miembro_id
+        messages.success(request, '✅ Código verificado correctamente. El número estará visible por 30 segundos.')
         return redirect(f'/miembros/?miembro_id={aprendiz_id}')
         
     except Usuario.DoesNotExist:
@@ -2653,20 +2742,23 @@ def verificar_codigo_form(request):
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
         return redirect('miembros')
-    
+         
 def cancelar_verificacion(request):
-    """
-    Cancela el proceso de verificación
-    """
-    # Limpiar todas las variables de sesión relacionadas con verificación
+    """Cancela el proceso de verificación"""
     request.session['mostrar_modal_codigo'] = False
     
     if 'verificacion_aprendiz_id' in request.session:
         del request.session['verificacion_aprendiz_id']
     if 'codigo_enviado' in request.session:
         del request.session['codigo_enviado']
+    if 'intentos_restantes' in request.session:
+        del request.session['intentos_restantes']
     
-    # Si es AJAX, devolver respuesta JSON
+    if 'numeros_revelados' in request.session:
+        del request.session['numeros_revelados']
+    if 'numero_cuenta_aprendiz_id' in request.session:
+        del request.session['numero_cuenta_aprendiz_id']
+    
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'success': True})
     
@@ -4703,7 +4795,7 @@ def generar_reporte_pdf(request):
         for s in semilleros:
             fila = []
             for campo in campos["semilleros"]:
-                valor = ""  # ✅ Valor por defecto
+                valor = ""  # Valor por defecto
                 
                 if campo == "Código de Semillero":
                     valor = str(s.cod_sem) if s.cod_sem else ""
@@ -4731,7 +4823,7 @@ def generar_reporte_pdf(request):
                 elif campo == "Cantidad de Proyectos":
                     valor = str(s.proyectos.count())
                 
-                fila.append(valor)  # ✅ Siempre agregar valor (aunque sea vacío)
+                fila.append(valor)  # Siempre agregar valor (aunque sea vacío)
             
             data.append(fila)
         
@@ -4791,7 +4883,7 @@ def generar_reporte_pdf(request):
         for p in proyectos:
             fila = []
             for campo in campos["proyectos"]:
-                valor = ""  # ✅ Valor por defecto
+                valor = ""  # Valor por defecto
                 
                 if campo == "Título del Proyecto":
                     valor = str(p.nom_pro) if p.nom_pro else ""
@@ -4821,10 +4913,10 @@ def generar_reporte_pdf(request):
                     valor = str(usuarios + aprendices)
                 elif campo == "Programa de Formación":
                     valor = str(p.programa_formacion) if p.programa_formacion else ""
-                elif campo == "Notas":  # ✅ AGREGADO
+                elif campo == "Notas":  # AGREGADO
                     valor = ", ".join([s.strip() for s in p.notas.splitlines() if s.strip()]) if hasattr(p, "notas") and p.notas else ""
                 
-                fila.append(valor)  # ✅ Siempre agregar valor
+                fila.append(valor)  # Siempre agregar valor
             
             data.append(fila)
         
@@ -4845,7 +4937,7 @@ def generar_reporte_pdf(request):
                 col_widths.append(80)
             elif campo in ["Título del Proyecto", "Lider", "Programa de Formación"]:
                 col_widths.append(100)
-            elif campo == "Notas":  # ✅ AGREGADO
+            elif campo == "Notas":  # AGREGADO
                 col_widths.append(150)
             else:
                 col_widths.append(120)
@@ -4883,11 +4975,11 @@ def generar_reporte_pdf(request):
         elements.append(Paragraph("Usuarios", heading_style))
         usuarios = Usuario.objects.exclude(rol__iexact="aprendiz")
         
-        # ✅ Filtrar campos que no aplican a Usuarios
+        # Filtrar campos que no aplican a Usuarios
         campos_usuarios = [c for c in campos["miembros"] 
             if c not in ["Programa", "Ficha", "Modalidad", "Programa de Formación"]]
         
-        if campos_usuarios and usuarios.exists():  # ✅ Verificar que hay datos
+        if campos_usuarios and usuarios.exists():  # nVerificar que hay datos
             data = [campos_usuarios]
             
             for u in usuarios:

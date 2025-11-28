@@ -7,7 +7,14 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
-
+ <!-- Mensajes de alerta -->
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
     <div class="contenedor-principal">
         <div class="titulo">
             <h3>👥 Miembros</h3>
@@ -432,21 +439,10 @@
                                         <input type="text" id="perfilCuenta" name="numero_cuenta"
                                             value="{{ miembro_seleccionado.numero_cuenta_visible }}" readonly>
                                         
-                                        {% if miembro_seleccionado.numero_cuenta_visible|length > 11 %}
-                                            <!-- Si el número está revelado, mostrar botón para ocultar -->
-                                            <a href="{% url 'limpiar_numero_revelado' %}" 
-                                                class="icono-interno" 
-                                                title="Ocultar número">
-                                                <i class="fa fa-eye-slash"></i>
-                                            </a>
-                                        {% else %}
-                                            <!-- Si está oculto, mostrar botón para ver -->
-                                            <a href="{% url 'solicitar_codigo_verificacion_form' miembro_seleccionado.cedula %}" 
-                                                class="icono-interno" 
-                                                title="Ver número completo">
-                                                <i class="fa fa-eye"></i>
-                                            </a>
-                                        {% endif %}
+                                        <a href="{% url 'solicitar_codigo_verificacion_form' miembro_seleccionado.cedula %}" 
+                                            class="icono-interno" id="iconoMostrar">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -535,15 +531,13 @@
     </div>
 </div>
 
-
 <!-- Modal de Verificación de Código -->
 <div id="modalVerificacionCodigo" class="modal-verificacion-overlay" 
      {% if mostrar_modal_codigo %}style="display: flex;"{% endif %}>
     <div class="modal-verificacion-contenedor">
-        <!-- ✅ Cerrar sin parámetro miembro_id si no hay seleccionado -->
-        <a href="{% if aprendiz_verificacion %}?miembro_id={{ aprendiz_verificacion.cedula_apre }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}{% else %}?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}{% endif %}" 
-           class="modal-verificacion-cerrar"
-           onclick="{% if aprendiz_verificacion %}cancelarVerificacion('{{ aprendiz_verificacion.cedula_apre }}'){% else %}cancelarVerificacion(){% endif %}">
+        <a href="javascript:void(0)" 
+            class="modal-verificacion-cerrar"
+            onclick="event.preventDefault(); {% if aprendiz_verificacion %}cancelarVerificacion('{{ aprendiz_verificacion.cedula_apre }}'){% else %}cancelarVerificacion(){% endif %}">
             <i class="fa fa-times"></i>
         </a>
         
@@ -553,11 +547,20 @@
             </div>
             
             <h3 class="modal-verificacion-titulo">Verificación de Seguridad</h3>
+            
+            <!-- ✅ MOSTRAR INTENTOS RESTANTES (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
+            {% if request.session.intentos_restantes %}
+            <div class="intentos-restantes">
+                <i class="fa fa-exclamation-triangle"></i>
+                <span>Intentos restantes: <strong>{{ request.session.intentos_restantes }}</strong></span>
+            </div>
+            {% endif %}
+            
             <p class="modal-verificacion-texto">
                 Ingresa el código de 6 dígitos enviado a tu correo electrónico
             </p>
             
-            <form method="post" action="">
+            <form method="post" action="" id="formVerificacion">
                 {% csrf_token %}
                 {% if aprendiz_verificacion %}
                 <input type="hidden" name="miembro_id" value="{{ aprendiz_verificacion.cedula_apre }}">
@@ -582,31 +585,181 @@
                 </button>
             </form>
             
+            <!-- ✅ BOTÓN REENVIAR CÓDIGO (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
+            {% if request.session.intentos_restantes %}
+            <div class="reenviar-codigo-container">
+                <button type="button" class="btn-reenviar-codigo" id="btnReenviarCodigo" onclick="reenviarCodigo('{{ aprendiz_verificacion.cedula_apre }}')">
+                    <i class="fa fa-refresh"></i>
+                    Reenviar Código
+                </button>
+                <span class="cooldown-texto" id="cooldownTexto" style="display: none;">
+                    Espera <span id="cooldownSegundos">30</span> segundos
+                </span>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
 <script>
-function cancelarVerificacion(aprendizId) {
-    // Limpiar variables de sesión mediante AJAX
-    fetch("{% url 'cancelar_verificacion' %}", {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json'
-        }
-    }).then(() => {
-        // Redirigir después de limpiar
-        if (aprendizId) {
-            window.location.href = `?miembro_id=${aprendizId}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}`;
-        } else {
+    function cancelarVerificacion(aprendizId) {
+        fetch("{% url 'cancelar_verificacion' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
             window.location.href = `?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}`;
+        });
+    }
+
+    // FUNCIÓN REENVIAR CÓDIGO CON COOLDOWN
+    function reenviarCodigo(aprendizId) {
+        const btn = document.getElementById('btnReenviarCodigo');
+        const cooldownTexto = document.getElementById('cooldownTexto');
+        const cooldownSegundos = document.getElementById('cooldownSegundos');
+        
+        // Deshabilitar botón
+        btn.disabled = true;
+        btn.style.display = 'none';
+        cooldownTexto.style.display = 'inline-block';
+        
+        // Iniciar cooldown de 30 segundos
+        let segundos = 30;
+        cooldownSegundos.textContent = segundos;
+        
+        const intervalo = setInterval(() => {
+            segundos--;
+            cooldownSegundos.textContent = segundos;
+            
+            if (segundos <= 0) {
+                clearInterval(intervalo);
+                btn.disabled = false;
+                btn.style.display = 'inline-block';
+                cooldownTexto.style.display = 'none';
+            }
+        }, 1000);
+        
+        // Hacer petición para reenviar código
+        window.location.href = `{% url 'solicitar_codigo_verificacion_form' 0 %}`.replace('/0/', `/${aprendizId}/`);
+    }
+
+    // Auto-ocultar número de cuenta después de 30 segundos
+    {% if miembro_seleccionado and tipo_miembro == 'aprendiz' %}
+        {% if request.session.numeros_revelados %}
+                
+        const numerosRevelados = {{ request.session.numeros_revelados|safe }};
+        const infoNumero = numerosRevelados['{{ miembro_seleccionado.cedula }}'];
+
+        if (infoNumero) {
+            const timestampRevelado = infoNumero.timestamp;
+            const ahora = Date.now() / 1000;
+            const tiempoTranscurrido = ahora - timestampRevelado;
+            const tiempoRestante = Math.max(0, 30 - tiempoTranscurrido);
+
+            const inputCuenta = document.getElementById("perfilCuenta");
+
+            if (tiempoRestante <= 0) {
+                const numeroCompleto = "{{ miembro_seleccionado.numero_cuenta_visible }}";
+                const ultimos4 = numeroCompleto.slice(-4);
+                inputCuenta.value = "************" + ultimos4;
+            } else {
+                const temporizadorDiv = document.createElement('div');
+                temporizadorDiv.id = 'temporizador-global';
+                temporizadorDiv.innerHTML = `
+                    <div class="temporizador-contenido">
+                        <div class="temporizador-circulo">
+                            <svg class="temporizador-svg" width="60" height="60">
+                                <circle class="temporizador-fondo" cx="30" cy="30" r="26"></circle>
+                                <circle class="temporizador-progreso" cx="30" cy="30" r="26"></circle>
+                            </svg>
+                            <div class="temporizador-numero" id="segundos-restantes">${Math.ceil(tiempoRestante)}</div>
+                        </div>
+                        <div class="temporizador-texto">
+                            <i class="fa fa-clock-o"></i>
+                            <span>El número se ocultará automáticamente</span>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(temporizadorDiv);
+
+                const estilos = document.createElement('style');
+                estilos.textContent = `
+                    #temporizador-global {
+                        position: fixed;
+                        top: 20px;
+                        left: 20px;
+                        z-index: 10000;
+                        background: rgba(255, 255, 255, 0.98);
+                        padding: 15px 20px;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                        border: 2px solid #3498db;
+                        animation: slideIn 0.3s ease-out;
+                    }
+                    @keyframes slideIn {
+                        from { transform: translateX(-100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes fadeOut {
+                        from { opacity: 1; transform: translateX(0); }
+                        to { opacity: 0; transform: translateX(-100%); }
+                    }
+                    .temporizador-contenido {
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                    }
+                    .temporizador-circulo { position: relative; width: 60px; height: 60px; }
+                    .temporizador-svg { transform: rotate(-90deg); }
+                    .temporizador-fondo {
+                        fill: none; stroke: #e0e0e0; stroke-width: 4;
+                    }
+                    .temporizador-progreso {
+                        fill: none; stroke: #3498db; stroke-width: 4;
+                        stroke-linecap: round; stroke-dasharray: 163.36;
+                        transition: stroke-dashoffset 1s linear;
+                    }
+                    .temporizador-numero {
+                        position: absolute; top: 50%; left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-size: 20px; font-weight: bold; color: #3498db;
+                    }
+                `;
+                document.head.appendChild(estilos);
+
+                const circunferencia = 163.36;
+                const barra = document.querySelector(".temporizador-progreso");
+
+                const intervalo = setInterval(() => {
+                    const ahora2 = Date.now() / 1000;
+                    const restante = Math.max(0, 30 - (ahora2 - timestampRevelado));
+
+                    document.getElementById("segundos-restantes").textContent = Math.ceil(restante);
+                    barra.style.strokeDashoffset = circunferencia * (1 - restante / 30);
+
+                    if (restante <= 10) {
+                        barra.style.stroke = '#e74c3c';
+                        document.querySelector(".temporizador-numero").style.color = '#e74c3c';
+                    }
+
+                    if (restante <= 0) {
+                        clearInterval(intervalo);
+
+                        const numeroCompleto = "{{ miembro_seleccionado.numero_cuenta_visible }}";
+                        const ultimos4 = numeroCompleto.slice(-4);
+                        inputCuenta.value = "************" + ultimos4;
+
+                        temporizadorDiv.style.animation = "fadeOut 0.4s forwards";
+                        setTimeout(() => temporizadorDiv.remove(), 400);
+                    }
+                }, 1000);
+            }
         }
-    });
-}
+        {% endif %}
+    {% endif %}
 </script>
-
-
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/mensaje.js' %}"></script>
 {% endblock %}

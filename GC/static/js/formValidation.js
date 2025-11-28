@@ -545,4 +545,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateProgress();
     
     console.log('✅ Formulario de Aprendiz SENA inicializado correctamente');
+    
 });
+

@@ -281,7 +281,7 @@
     gap: clamp(1.5rem, 4vw, 2rem); 
     flex: 0 1 auto;
     min-width: fit-content;
-    margin-left: auto;
+    margin-right: auto;
 }
 
 .botones-estado {
@@ -338,7 +338,7 @@
 
 /* FILTRO DE ROL (SELECT) */
 .filtro-rol {
-    margin-left: auto; 
+    margin-right: auto; 
 }
 
 .filtro-rol select {
@@ -1277,7 +1277,7 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     align-items: center;
     justify-content: center;
     border-radius: 4px;
-    text-align: none;
+    text-decoration: none;
 }
 
 .icono-interno:hover {
@@ -1294,22 +1294,19 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     pointer-events: none; /* Evita que el icono interfiera con el click */
 }
 
-/* ========================================
-   ESTILOS PARA MODAL DE VERIFICACIÓN
-   ======================================== */
-
+/* ======ESTILOS PARA MODAL DE VERIFICACIÓN===== */
 .modal-verificacion-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(clamp(4px, 0.6vw, 12px));
     z-index: 10000;
+    display: none;
+    padding: clamp(16px, 3vw, 40px);
     justify-content: center;
     align-items: center;
-    display: none;
 }
 
 .modal-verificacion-overlay.activo {
@@ -1328,12 +1325,12 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 
 .modal-verificacion-contenedor {
     background: white;
-    border-radius: 20px;
-    padding: 40px;
-    max-width: 500px;
+    border-radius: clamp(12px, 2vw, 20px);
+    padding: clamp(25px, 4vw, 40px);
+    max-width: clamp(300px, 90vw, 500px);
     width: 90%;
     position: relative;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 clamp(10px, 2vw, 20px) clamp(30px, 5vw, 60px) rgba(0, 0, 0, 0.3);
     animation: slideUp 0.4s ease-out;
 }
 
@@ -1350,13 +1347,13 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 
 .modal-verificacion-cerrar {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: clamp(12px, 2vw, 18px);
+    right: clamp(12px, 2vw, 18px);
     background: #f0f0f0;
     border: none;
     border-radius: 50%;
-    width: 35px;
-    height: 35px;
+    width: clamp(30px, 5vw, 45px);
+    height: clamp(30px, 5vw, 45px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1365,6 +1362,7 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     text-decoration: none;
     color: #666;
 }
+
 
 .modal-verificacion-cerrar:hover {
     background: #e74c3c;
@@ -1377,51 +1375,54 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 }
 
 .modal-verificacion-icono {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
+    width: clamp(60px, 12vw, 80px);
+    height: clamp(60px, 12vw, 80px);
+    margin: 0 auto clamp(15px, 2vh, 20px);
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 40px;
+    font-size: clamp(28px, 5vw, 40px);
     color: white;
 }
 
 .modal-verificacion-titulo {
-    font-size: 24px;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
     font-weight: 700;
     color: #2c3e50;
-    margin-bottom: 10px;
+    margin-bottom: clamp(8px, 1.5vh, 12px);
 }
 
 .modal-verificacion-texto {
     color: #7f8c8d;
-    font-size: 14px;
-    margin-bottom: 30px;
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    margin-bottom: clamp(20px, 3vh, 30px);
 }
 
 /* Inputs del código */
 .codigo-inputs {
     display: flex;
-    gap: 10px;
+    gap: clamp(8px, 2vw, 15px);
     justify-content: center;
-    margin: 30px 0;
+    margin: clamp(20px, 3vh, 30px) 0;
 }
 
 .codigo-input {
-    width: 55px;
-    height: 65px;
+    width: clamp(45px, 10vw, 55px);
+    height: clamp(50px, 12vw, 65px);
     text-align: center;
-    font-size: 28px;
+    font-size: clamp(20px, 4vw, 28px);
     font-weight: bold;
     border: 2px solid #e0e0e0;
-    border-radius: 12px;
+    border-radius: clamp(8px, 1.5vw, 12px);
     transition: all 0.3s;
     background: #f8f9fa;
 }
 
+.codigo-input-completo {
+    padding: clamp(5px, 2vw, 8px);
+}
 .codigo-input:focus {
     border-color: #667eea;
     outline: none;
@@ -1438,16 +1439,16 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 /* Botones */
 .btn-verificar-codigo {
     width: 100%;
-    padding: 15px;
+    padding: clamp(10px, 1.5vw, 18px);
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.95rem, 1.6vw, 1rem);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    margin-bottom: 15px;
+    margin-bottom: clamp(10px, 1.5vw, 16px);
 }
 
 .btn-verificar-codigo:hover {
@@ -1462,12 +1463,12 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 .btn-cancelar-verificacion {
     display: inline-block;
     width: 100%;
-    padding: 12px;
+    padding: clamp(10px, 1.5vw, 18px);
     background: #ecf0f1;
     color: #7f8c8d;
     border: none;
-    border-radius: 12px;
-    font-size: 14px;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.95rem, 1.6vw, 1rem);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
@@ -1481,14 +1482,14 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 
 /* Mensajes de alerta */
 .mensajes-verificacion {
-    margin: 20px 0;
+    margin: clamp(15px, 3vh, 30px) 0;
 }
 
 .mensajes-verificacion .alert {
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
+    padding: clamp(8px, 1.5vw, 20px) clamp(12px, 2vw, 20px);
+    border-radius: clamp(6px, 1.2vw, 8px);
+    margin-bottom: clamp(8px, 1.5vh, 10px);
+    font-size: clamp(0.85rem, 1.4vw, 0.95rem);
 }
 
 .alert-success {
@@ -1512,34 +1513,91 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 
 /* Información del aprendiz */
 .texto-info-aprendiz {
-    margin-top: 20px;
-    padding: 12px;
+    margin-top: clamp(15px, 2vh, 20px);
+    padding: clamp(8px, 1.5vw, 12px);
     background: #e8f4f8;
-    border-radius: 8px;
+    border-radius: clamp(6px, 1.2vw, 8px);
     color: #2c3e50;
-    font-size: 13px;
+    font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+    font-weight: 500;
+}
+
+/* Intentos restantes */
+.intentos-restantes {
+    background: transparent;
+    border: 2px solid #f39c12;
+    border-radius: 8px;
+    padding: clamp(8px, 2vw, 14px) clamp(12px, 3vw, 22px);
+    margin: clamp(10px, 2vw, 18px) 0;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1.5vw, 14px);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.intentos-restantes i {
+    color: #f39c12;
+    font-size: clamp(16px, 2vw, 22px);
+}
+
+.intentos-restantes span {
+    color: #8B4513;
+    font-size: clamp(13px, 1.5vw, 16px);
     font-weight: 500;
 }
 
 
-.temporizador-cuenta {
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    animation: pulse 2s infinite;
-}
-
-.temporizador-cuenta i {
-    font-size: 1rem;
+.intentos-restantes strong {
+    color: #d35400;
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    font-weight: bold;
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+    }
+}
+
+/* Botón reenviar código */
+.reenviar-codigo-container {
+    margin-top: clamp(8px, 1.5vw, 15px);
+    text-align: center;
+}
+
+.btn-reenviar-codigo {
+    background: transparent;
+    border: 1px solid #3498db;
+    color: #3498db;
+    padding: clamp(8px, 1.5vw, 16px);
+    border-radius: clamp(5px, 1vw, 8px);
+    cursor: pointer;
+    font-size: clamp(0.875rem, 1.4vw, 1rem);
+    transition: all 0.3s ease;
+}
+
+.btn-reenviar-codigo:hover:not(:disabled) {
+    background: #3498db;
+    color: white;
+}
+
+.btn-reenviar-codigo:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cooldown-texto {
+    color: #7f8c8d;
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+    font-style: italic;
+}
+
+.cooldown-texto span {
+    color: #e74c3c;
+    font-weight: bold;
 }

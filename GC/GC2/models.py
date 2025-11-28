@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.core.mail import send_mail
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
 from django.conf import settings
+import datetime
+
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, cedula, password=None, **extra_fields):
@@ -53,6 +55,14 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     # Nuevos campos para verificación
     codigo_verificacion = models.CharField(max_length=6, null=True, blank=True)
     codigo_expiracion = models.DateTimeField(null=True, blank=True)
+    # campos para limitar intentos de código
+    codigo_verificacion = models.CharField(max_length=6, null=True, blank=True)
+    codigo_expiracion = models.DateTimeField(null=True, blank=True)
+    intentos_codigo_fallidos = models.IntegerField(default=0)
+    bloqueado_hasta = models.DateTimeField(null=True, blank=True)
+    ultimo_codigo_enviado = models.DateTimeField(null=True, blank=True)
+    codigos_enviados_hoy = models.IntegerField(default=0)
+    fecha_ultimo_reset_codigos = models.DateField(null=True, blank=True)
 
     groups = models.ManyToManyField(
         Group,
@@ -151,6 +161,84 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         self.codigo_expiracion = None
         self.save()
     
+    def incrementar_intentos_fallidos(self):
+        """Incrementa intentos fallidos y aplica bloqueo progresivo"""
+        self.intentos_codigo_fallidos += 1
+        
+        # Bloqueo progresivo
+        if self.intentos_codigo_fallidos >= 7:
+            # 3er bloqueo: 24 horas
+            self.bloqueado_hasta = timezone.now() + datetime.timedelta(hours=24)
+        elif self.intentos_codigo_fallidos >= 5:
+            # 2do bloqueo: 1 hora
+            self.bloqueado_hasta = timezone.now() + datetime.timedelta(hours=1)
+        elif self.intentos_codigo_fallidos >= 3:
+            # 1er bloqueo: 15 minutos
+            self.bloqueado_hasta = timezone.now() + datetime.timedelta(minutes=15)
+        
+        self.save()
+
+    def puede_solicitar_codigo(self):
+        """Verifica si puede solicitar un nuevo código"""
+        ahora = timezone.now()
+        
+        # Verificar si está bloqueado
+        if self.bloqueado_hasta and ahora < self.bloqueado_hasta:
+            tiempo_restante = self.bloqueado_hasta - ahora
+            minutos = int(tiempo_restante.total_seconds() / 60)
+            horas = minutos // 60
+            mins = minutos % 60
+            
+            if horas > 0:
+                mensaje = f"Bloqueado por {horas} hora(s) y {mins} minuto(s)"
+            else:
+                mensaje = f"Bloqueado por {mins} minuto(s)"
+            
+            return False, mensaje
+        
+        # Limpiar bloqueo si ya pasó el tiempo
+        if self.bloqueado_hasta and ahora >= self.bloqueado_hasta:
+            self.intentos_codigo_fallidos = 0
+            self.bloqueado_hasta = None
+            self.save()
+        
+        # Resetear contador diario
+        if self.fecha_ultimo_reset_codigos != ahora.date():
+            self.codigos_enviados_hoy = 0
+            self.fecha_ultimo_reset_codigos = ahora.date()
+            self.save()
+        
+        # Verificar límite por hora (5 códigos por hora)
+        if self.codigos_enviados_hoy >= 5:
+            return False, "Has alcanzado el límite de códigos por hora. Intenta más tarde."
+        
+        # Verificar cooldown (30 segundos entre códigos)
+        if self.ultimo_codigo_enviado:
+            tiempo_desde_ultimo = (ahora - self.ultimo_codigo_enviado).total_seconds()
+            if tiempo_desde_ultimo < 30:
+                return False, f"Espera {int(30 - tiempo_desde_ultimo)} segundos antes de solicitar otro código"
+        
+        return True, None
+
+    def registrar_codigo_enviado(self):
+        """Registra que se envió un código"""
+        ahora = timezone.now()
+        
+        # Resetear contador diario si es necesario
+        if self.fecha_ultimo_reset_codigos != ahora.date():
+            self.codigos_enviados_hoy = 0
+            self.fecha_ultimo_reset_codigos = ahora.date()
+        
+        self.ultimo_codigo_enviado = ahora
+        self.codigos_enviados_hoy += 1
+        self.save()
+
+    def resetear_intentos_codigo(self):
+        """Resetea intentos cuando verifica correctamente"""
+        self.intentos_codigo_fallidos = 0
+        self.bloqueado_hasta = None
+        self.save()
+        
 class UsuarioGrupos(models.Model):
     id = models.AutoField(primary_key=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='cedula')
