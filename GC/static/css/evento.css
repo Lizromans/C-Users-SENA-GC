@@ -1,0 +1,1055 @@
+:root {
+    --color-primario: #ffffff;
+    --color-sidebar-bg: #f8f9fa;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
+    --color-nav-hover: #e9ecef;
+    --color-nav-active: #39A900;
+    --color-text-primary: #212529;
+    --color-text-active: #007832;
+    --color-text-secondary: #6c757d;
+    --sidebar-width: clamp(230px, 15vw, 330px);
+    --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
+    --header-height: clamp(70px, 10.5vh, 120px);
+    --color-fondo-principal: #f5f5f5;
+    --color-fondo-secundario: #e9ecef;
+    --gradient: linear-gradient(90deg, rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
+}
+
+.contenedor-principal {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    gap: clamp(25px, 4vw, 40px);
+    padding-bottom: clamp(40px, 1vh, 60px);
+}
+
+.titulo h3 {
+    color: var(--color-text-primary);
+    font-size: clamp(1.5rem, 2.5vw, 3rem);
+    font-weight: bold;
+}
+
+.titulo p {
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-weight: 200;
+    margin-bottom: 0;
+}
+
+.info {
+    display: grid;
+    gap: clamp(1rem, 3vw, 2rem);
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    justify-content: center;
+}
+
+.grupo {
+    background-color: var(--color-primario);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.grupo:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Estructura interna --- */
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border: none;
+    width: 100%;
+    position: relative;
+    z-index: 0;
+    padding: 1rem;
+    min-height: 2%;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border-radius: 20px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    filter: blur(3px);
+    opacity: 0.7;
+    z-index: -1;
+}
+
+.card.verde::before {
+    background: 
+        linear-gradient(to bottom, #4CAF50 0%, transparent 10%) top,
+        linear-gradient(to right, #4CAF50 0%, transparent 3%) left,
+        linear-gradient(to left, #4CAF50 0%, transparent 3%) right;
+}
+
+.card.azul::before {
+    background:
+        linear-gradient(to bottom, #2196F3 0%, transparent 10%) top,
+        linear-gradient(to right, #2196F3 0%, transparent 3%) left,
+        linear-gradient(to left, #2196F3 0%, transparent 3%) right;
+}
+
+.card.naranja::before {
+    background:
+        linear-gradient(to bottom, #FF9800 0%, transparent 10%) top,
+        linear-gradient(to right, #FF9800 0%, transparent 3%) left,
+        linear-gradient(to left, #FF9800 0%, transparent 3%) right;
+}
+
+/* --- Iconos de tarjeta --- */
+.icon-cont {
+    flex: 0 0 clamp(60px, 12vw, 90px);
+    width: clamp(60px, 12vw, 90px);
+    height: clamp(60px, 12vw, 90px);
+    margin: clamp(12px, 2vh, 20px) 0 clamp(12px, 2vh, 20px) clamp(15px, 1vw, 25px);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+/* --- Gradientes de iconos --- */
+.icon-cont.eventos {
+    background: linear-gradient(135deg, #ffd89d 0%, #fdb44f 40%, #FF9800 100%);
+}
+.icon-cont.virtuales {
+    background: linear-gradient(135deg, #a3ff9f 0%, #27f327 40%, #009614 100%);
+}
+.icon-cont.presenciales {
+    background: linear-gradient(135deg, #7be0ff 0%, #33adff 40%, #2196F3 100%);
+}
+
+.icon-cont img {
+    width: clamp(40px, 10vw, 60px);
+    height: clamp(40px, 10vw, 60px);
+    object-fit: contain;
+}
+
+.info-badge {
+    position: absolute;
+    bottom: 12px; /* Valor fijo */
+    right: 12px; /* Valor fijo */
+    background-color: transparent!important;
+    padding: clamp(4px, 0.5vw, 8px) clamp(8px, 1vw, 12px);
+    border-radius: clamp(12px, 2vw, 20px);
+    font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+    font-weight: bold;
+    z-index: 1;
+}
+
+.info-badge.naranja{
+    color: #FF9800;
+}
+
+.info-badge.verde{
+    color: #007832;
+}
+
+.info-badge.azul {
+    color: #03A9F4;
+}
+
+/* --- Texto de las tarjetas --- */
+.card-body {
+    flex: 1;
+    padding: clamp(1rem, 2vh, 1.2rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: clamp(70px, 10vh, 100px); 
+    min-height: 70px;
+}
+
+.card-title {
+    color: var(--color-text-primary);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    margin-bottom: clamp(0.3rem, 0.5vh, 0.6rem);
+    text-align: center;
+}
+
+.card p {
+    color: var(--color-text-secondary);
+    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ===== SECCIÓN DE FILTROS ===== */
+.seccion-busqueda {
+    padding: clamp(1rem, 1.5vw, 1.5rem);
+    background-color: var(--color-fondo-secundario);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* === TÍTULO === */
+.titulo2 h3 {
+    color: var(--color-text-primary);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+/* === FORMULARIO === */
+.form-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
+    align-items: center;
+    position: relative;
+}
+
+.search-container {
+    position: relative;
+    flex: 1;
+    min-width: clamp(100px, 30%, 200px);
+}
+
+.buscador {
+    width: 100%;
+    padding: clamp(0.3rem, 0.6vw, 0.5rem) clamp(2.5rem, 4vw, 3rem) clamp(0.3rem, 0.6vw, 0.5rem) clamp(1rem, 2vw, 1.5rem);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    backdrop-filter: blur(10px);
+}
+
+.search-icon {
+    position: absolute;
+    right: clamp(0.8rem, 2vw, 1.2rem);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+    transition: color 0.3s ease;
+}
+
+.search-icon:hover{
+    color: #4CAF50;
+}
+
+/* === SELECTS / FILTROS === */
+.filtro {
+    padding: clamp(0.3rem, 0.6vw, 0.5rem)
+             clamp(1rem, 2vw, 1.5rem);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: clamp(150px, 20%, 200px);
+}
+
+.filtro:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ====== BOTÓN LIMPIAR FILTROS ====== */
+.botones-item {
+    display: flex;
+    justify-content: flex-end;
+    gap: clamp(8px, 2vw, 16px);
+    flex-basis: 100%;
+}
+
+.botones-item .limpiar {
+    width: fit-content;
+    text-align: right;
+    padding: clamp(6px, 1vw, 10px)
+             clamp(10px, 1vw, 16px);
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: clamp(0.80rem, 1vw, 0.90rem);
+    cursor: pointer;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.limpiar i {
+    padding: 0 clamp(6px, 1vw, 10px);
+    transition: opacity 0.3s ease;
+}
+
+.limpiar:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ===== SECCIÓN DE EVENTOS ===== */
+.eventos-section {
+    background-color: #f5f5f5;
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+.eventos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.eventos-header h3 {
+    color: #333;
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+}
+
+.btn-agregar {
+    color: white;
+    border: none;
+    border-radius: clamp(6px, 1vw, 10px);
+    padding: clamp(8px, 1.5vh, 12px) clamp(16px, 2vw, 24px);
+    font-size: clamp(14px, 1.5vw, 16px);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1vw, 10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    background-color: var(--color-nav-active);
+}
+
+.btn-agregar:hover {
+    background-color: #2d8500;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    color: var(--color-fondo-principal);
+}
+
+/* Contenedor de botones */
+.botones {
+    display: flex;
+    justify-content: flex-end;
+    gap: clamp(12px, 2vw, 16px);
+    padding: 0 clamp(10px, 1.5vw, 15px) clamp(10px, 1.5vw, 15px);
+    margin-top: clamp(-20px, -2vw, -25px);
+    position: relative;
+    z-index: auto;
+    overflow: visible !important; 
+}
+
+/* Botón editar */
+.btn-editar {
+    display: flex;
+    align-items: center;
+    padding: clamp(8px, 1.5vh, 12px);
+    font-size: clamp(14px, 1.5vw, 16px);
+    color: white;
+    background-color: #10b981;
+    border: none;
+    border-radius: clamp(6px, 1vw, 10px);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-editar:hover {
+    background-color: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Botón cancelar */
+.btn-cancelar {
+    display: flex;
+    align-items: center;
+    padding: clamp(8px, 1.5vh, 12px);
+    font-size: clamp(14px, 1.5vw, 16px);
+    color: white;
+    background-color: #f11313;
+    border: none;
+    border-radius: clamp(6px, 1vw, 10px);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar:hover {
+    background-color: #d10000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-cancelar::after {
+    content: attr(data-tooltip);
+    position: fixed;
+    bottom: 80%;
+    transform: translateX(-50%) translateY(-50%) scale(0.9);
+    background: rgba(76, 88, 110, 0.95);
+    color: white;
+    padding: clamp(4px, 0.8vw, 6px) clamp(8px, 1.2vw, 10px);
+    border-radius: clamp(4px, 0.8vw, 6px);
+    font-size: clamp(10px, 1.2vw, 11px);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 9999 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    line-height: 1.4;
+    text-align: center;
+}
+
+.btn-cancelar:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-12px) scale(1);
+}
+.btn-cancelar:hover::before {
+    opacity: 1;
+}
+
+.btn-editar::after {
+    content: attr(data-tooltip);
+    position: fixed;
+    bottom: 80%;
+    transform: translateX(-50%) translateY(-50%) scale(0.9);
+    background: rgba(76, 88, 110, 0.95);
+    color: white;
+    padding: clamp(4px, 0.8vw, 6px) clamp(8px, 1.2vw, 10px);
+    border-radius: clamp(4px, 0.8vw, 6px);
+    font-size: clamp(10px, 1.2vw, 11px);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 9999 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    line-height: 1.4;
+    text-align: center;
+}
+
+.btn-editar:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-12px) scale(1);
+}
+.btn-editar:hover::before {
+    opacity: 1;
+}
+
+/* ===== GRID DE EVENTOS ===== */
+.eventos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ===== TARJETA DE EVENTO ===== */
+.evento-card {
+    background: white;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.evento-card.estado-en-curso {
+    border-color: #3cc9db;
+}
+
+.evento-card.estado-proximo {
+    border-color: #A855F7;
+}
+
+.evento-card.estado-finalizado {
+    border-color: #43a062;
+}
+
+.evento-card.estado-cancelado {
+    border-color: #f11f1f;
+}
+
+.evento-card.estado-programado {
+    border-color: #7e7e7e;
+}
+
+/* ===== HOVER ===== */
+.evento-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.fecha-box {
+    padding: 1.5rem;
+    text-align: center;
+    color: white;
+}
+
+.evento-card.estado-en-curso .fecha-box {
+    background: linear-gradient(135deg, #80d8e7 0%, #3fc3cc 100%);
+}
+
+.evento-card.estado-proximo .fecha-box {
+    background: linear-gradient(135deg, #d7b3f8 0%, #c389ff 100%);
+}
+
+.evento-card.estado-finalizado .fecha-box {
+    background: linear-gradient(135deg, #aef0c5 0%, #7eeaa8 100%);
+}
+
+.evento-card.estado-cancelado .fecha-box {
+    background: linear-gradient(135deg, #ff9d9d 0%, #ff6f6f 100%);
+}
+
+.evento-card.estado-programado .fecha-box {
+    background: linear-gradient(135deg, #c9c9c9 0%, #9c9c9c 100%);
+}
+
+.fecha-dia {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.fecha-mes {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-top: 0.25rem;
+}
+
+/* ===== BADGE DE MODALIDAD ===== */
+.modalidad-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.badge.presencial {
+    background: linear-gradient(135deg, #369bee, #2381ec);
+}
+
+.badge.virtual {
+    background: linear-gradient(135deg, #64b967, #50cc56);
+}
+
+/* ===== CONTENIDO DEL EVENTO ===== */
+.evento-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.evento-titulo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.3;
+}
+
+.evento-descripcion {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+/* ===== INFORMACIÓN DEL EVENTO ===== */
+.evento-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.info-item i {
+    color: #615f5f;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.direccion-item {
+    overflow: hidden;
+}
+
+.evento-link {
+    color: #2196f3;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.evento-link:hover {
+    color: #1976d2;
+    border-bottom: 1px solid #1976d2;
+}
+
+/* ===== ESTADO DEL EVENTO ===== */
+.evento-estado {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+}
+
+.estado-badge {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #333;
+    border: 2px solid transparent;
+    background-color: #f9f9f9;
+}
+
+/* ===== BADGES DE ESTADO ===== */
+
+.evento-estado .estado-badge.cancelado {
+    background: linear-gradient(135deg, #ffe3e3, #ffd6d6); 
+    border-color: #f11f1f; 
+}
+
+.evento-estado .estado-badge.en-curso {
+    background: linear-gradient(135deg, #d9f6ff, #c1f2f7); 
+    border-color: #3cc9db; 
+}
+
+.evento-estado .estado-badge.finalizado {
+    background: linear-gradient(135deg, #ddf8e6, #c6f4d5); 
+    border-color: #43a062; 
+}
+
+.evento-estado .estado-badge.programado {
+    background: linear-gradient(135deg, #e6e6e6, #d8d8d8); 
+    border-color: #7e7e7e; 
+}
+
+.evento-estado .estado-badge.proximo {
+    background: linear-gradient(135deg, #ebd9fc, #e3c8ff); 
+    border-color: #A855F7;
+}
+
+/* ===== MENSAJE SIN EVENTOS ===== */
+.no-eventos {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    font-size: 1.1rem;
+    padding: 3rem;
+}
+
+/* ======= MODAL CREAR EVENTO ================ */
+.modal-overlay-evento {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(94, 93, 93, 0.267);
+    z-index: 9999;
+    padding: clamp(40px, 10vh, 60px) ;
+}
+
+.modal-overlay:target {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay-evento.activo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: modalFadeIn 0.3s ease;
+}
+
+.modal-dialog-evento {
+    background: white;
+    border-radius: clamp(12px, 2vw, 20px);
+    width: 90%;
+    max-width: 800px;
+    position: relative;
+    animation: modalSlideIn 0.4s ease;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    margin: auto;
+}
+
+.modal-cerrar-evento {
+    position: absolute;
+    top: clamp(15px, 1vw, 25px);
+    right: clamp(15px, 2vw, 25px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: clamp(35px, 5vw, 45px);
+    height: clamp(35px, 5vw, 45px);
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: #666;
+    transition: all 0.3s ease;
+    z-index: 10;
+    text-decoration: none;
+}
+
+.modal-cerrar-evento:hover {
+    background: #f44336;
+    color: white;
+    border-color: #f44336;
+    transform: rotate(90deg);
+    justify-content: center;
+}
+
+/* ====== HEADER DEL MODAL EVENTO ====== */
+.modal-header-evento {
+    display: flex;
+    background-color: transparent;
+    align-items: center;
+    padding: 50px 50px 20px;
+    border-bottom: 3px solid #39A900;
+}
+
+.modal-header-evento h5 {
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+    margin-bottom: 2%;
+}
+
+/* ====== CUERPO DEL MODAL ====== */
+.modal-body-evento {
+    padding: 40px 40px;
+}
+
+.modal-body-evento form {
+    display: flex;
+    flex-direction: column;
+}
+
+.row-evento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px 20px;
+    margin-bottom: 0;
+}
+
+.col-evento {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.col-evento-full {
+    grid-column: 1 / -1;
+}
+
+.col-evento label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.col-evento input[type="text"],
+.col-evento input[type="date"],
+.col-evento input[type="time"],
+.col-evento textarea,
+.col-evento select {
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    padding: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.col-evento textarea {
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.col-evento input:focus,
+.col-evento textarea:focus,
+.col-evento select:focus {
+    outline: none;
+    border-color: #39A900;
+    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+/* ====== FOOTER DEL MODAL ====== */
+.modal-footer-evento {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1rem;
+    border-top: 1px solid #ddd;
+    margin-top: 25px;
+}
+
+.btn-evento {
+    padding: clamp(10px, 2vh, 15px) clamp(20px, 2vw, 35px);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-weight: 700;
+    font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.btn-evento-secondary {
+    background-color: transparent;
+    color: var(--color-text-secondary)!important;
+    border: 2px solid #e0e0e0;
+    text-decoration: none!important;
+}
+
+.btn-evento-secondary:hover {
+    background-color: #f5f5f5;
+    border-color: var(--color-text-secondary)!important;
+    text-decoration: none!important;
+    transform: translateY(-2px);
+}
+
+.btn-evento-primary {
+    background-color: #39A900;
+    color: white;
+}
+
+.btn-evento-primary:hover {
+    background-color: #2d8000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+}
+
+/* Animaciones */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ======= MODAL CANCELAR EVENTO ================ */
+.modal-overlay-cancelar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(94, 93, 93, 0.267);
+    z-index: 9999;
+    padding: clamp(40px, 10vh, 60px);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay-cancelar.activo {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    animation: modalFadeIn 0.3s ease;
+}
+
+.modal-dialog-cancelar {
+    background: white;
+    border-radius: clamp(12px, 2vw, 20px);
+    width: clamp(280px, 32%, 480px);
+    position: relative;
+    animation: modalSlideIn 0.4s ease;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    margin: auto;
+    overflow: hidden;
+}
+
+.modal-cerrar-evento {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: clamp(35px, 5vw, 45px);
+    height: clamp(35px, 5vw, 45px);
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: #666;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.modal-cerrar-evento:hover {
+    background: #f44336;
+    color: white;
+    border-color: #f44336;
+    transform: rotate(90deg);
+    justify-content: center;
+}
+
+/* ====== HEADER DEL MODAL EVENTO ====== */
+.modal-header-cancelar {
+    display: flex;
+    background-color: transparent;
+    align-items: center;
+    padding: 50px 50px 20px;
+    border-bottom: 3px solid #39A900;
+}
+
+.modal-header-cancelar h5 {
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+}
+
+/* ====== CUERPO DEL MODAL ====== */
+.modal-body-cancelar {
+    padding: clamp(9px, 2vw, 35px);
+}
+
+.mensaje-cancelar {
+    text-align: center;
+    font-size: clamp(0.9rem, 1.4vw, 1rem);
+    color: #333;
+    white-space: normal;  
+    overflow-wrap: break-word;
+}
+
+/* ====== FOOTER DEL MODAL ====== */
+.modal-footer-cancelar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #ddd;
+    margin-top: 25px;
+}
+
+.btn-evento {
+    padding: clamp(10px, 2vh, 15px) clamp(20px, 4vw, 35px);
+    border-radius: clamp(8px, 1.5vw, 12px);
+    font-weight: 700;
+    font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1vw, 10px);
+    text-decoration: none;
+}
+
+/* Botones */
+.btn-cancelarCerrar {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border: 2px solid #e0e0e0;
+}
+
+.btn-cancelarCerrar:hover {
+    background-color: #f5f5f5;
+    color: var(--color-text-secondary);
+    border: 2px solid #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.btn-cancelarEvento {
+    background: #ce0d07;
+    color: white;
+}
+
+.btn-cancelarEvento:hover{
+    background-color: rgb(206, 13, 7);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgb(206, 13, 7, 0.3);
+}
+
+/* Animaciones */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

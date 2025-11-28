@@ -99,6 +99,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link {%if request.resolver_match.url_name == 'eventos' %}active{% endif %}" 
+                                    href="{% url 'eventos' %}">
+                                    <span class="nav-icon">📅</span>
+                                    <span class="nav-text">Eventos</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {% if current_page == 'centroayuda' %}active{% endif %}" 
                                    href="{% url 'centroayuda' %}">
                                     <span class="nav-icon">❓</span>

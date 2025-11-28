@@ -827,7 +827,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     height: 100%;
     background-color: rgba(94, 93, 93, 0.267);
     z-index: 9999;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: clamp(20px, 3vw, 40px);
     transition: opacity 0.15s ease;
 }
@@ -848,11 +848,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     pointer-events: all;
 }
 
-.modal-overlay:not(.activo) {
-    opacity: 0;
-    pointer-events: none;
-}
-
 .modal-contenedor {
     background: white;
     border-radius: clamp(12px, 2vw, 20px);
@@ -866,16 +861,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     overflow-y: auto; /* Scroll en el contenedor principal */
     overflow-x: hidden;
     transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.modal-overlay:not(.activo) .modal-contenedor {
-    transform: scale(0.95) translateY(-10px);
-    opacity: 0;
-}
-
-.modal-overlay.activo .modal-contenedor {
-    transform: scale(1) translateY(0);
-    opacity: 1;
 }
 
 .modal-cerrar {

@@ -168,7 +168,7 @@
                             </td>
                             <td>{{ proyecto.fecha_creacion|date:"d/m/Y" }}</td>
                             <td>
-                                <a href="{% url 'resu-proyectos' proyecto.semilleros.first.id_sem proyecto.cod_pro %}" class="btn">Ver</a>
+                                <a href="{% url 'detalle-proyecto' proyecto.semilleros.first.id_sem proyecto.cod_pro %}" class="btn">Ver</a>
                             </td>
                         </tr>
                         {% empty %}

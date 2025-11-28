@@ -19,7 +19,7 @@
     {% endif %}
     <div class="resumen">
         <div class="cont-1">
-            <button class="btn btn-anadir" data-bs-target="#modal-crear">
+            <button class="btn btn-anadir" data-bs-toggle="modal" data-bs-target="#modal-crear">
                 <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
                 Crear Proyecto
             </button>
@@ -945,7 +945,7 @@
     <div id="modal-crear" class="modal-overlay">
         <div class="modal-contenedor">
             <!-- Botón cerrar (X) -->
-            <a href="#" 
+            <a href="{% url 'resu-proyectos' semillero.id_sem %}" 
                 class="modal-cerrar">&times;</a>
 
             
@@ -1262,7 +1262,7 @@
         <div class="modal-contenedor">
 
             <!-- BOTÓN CERRAR -->
-            <a href="#" class="modal-cerrar">&times;</a>
+            <a href="{% url 'resu-proyectos' semillero.id_sem%}#{{ tipo_seleccionado }}" class="modal-cerrar">&times;</a>
 
             <div class="modal-contenido">
 
@@ -1505,7 +1505,7 @@
 
                     <!-- ========== ACCIONES ========== -->
                     <div class="modal-acciones">
-                        <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
+                        <a href="{% url 'resu-proyectos' semillero.id_sem %}?tipo={{ tipo_seleccionado }}" class="modal-btn modal-btn-cancelar">
                             <i class="fas fa-times"></i> Cancelar
                         </a>
                         <button type="submit" class="modal-btn modal-btn-primario">
@@ -1523,7 +1523,7 @@
     <div id="modal-gestionar-miembros" class="modal-overlay activo">
         <div class="modal-contenedor">
             <!-- Botón cerrar -->
-            <a href="#" class="modal-cerrar">&times;</a>
+            <a href="{% url 'resu-proyectos' semillero.id_sem %}?tipo={{ tipo_seleccionado }}" class="modal-cerrar">&times;</a>
 
             <div class="modal-contenido">
                 <!-- HEADER -->
@@ -1883,7 +1883,6 @@
     </script>
 
     <script src="{% static 'js/mensaje.js' %}"></script>
-    <script src="{% static 'js/modales.js' %}"></script>
     <script src="{% static 'js/entregables.js' %}"></script>
     <script src="{% static 'js/proyectos-carousel.js' %}"></script>
     <script src="{% static 'js/avatars.js' %}"></script>
@@ -1891,4 +1890,27 @@
     <script src="{% static 'js/calendario.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    {% if tipo_seleccionado %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tipo = "{{ tipo_seleccionado }}";
+        const seccion = document.getElementById(tipo);
+        if (seccion) {
+        seccion.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+    </script>
+    {% endif %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = new URLSearchParams(window.location.search);
+            const tipo = params.get("tipo");
+            if (tipo) {
+                const section = document.getElementById(tipo);
+                if (section) {
+                    section.scrollIntoView({ behavior: "smooth",  block: "start" });
+                }
+            }
+        });
+    </script>
 {% endblock %}

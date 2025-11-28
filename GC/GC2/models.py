@@ -390,12 +390,24 @@ class Archivo(models.Model):
         managed = False
 
 class Evento(models.Model):
-    cod_eve = models.IntegerField(primary_key=True)
+    cod_eve = models.AutoField(primary_key=True)
     nom_eve = models.CharField(max_length=250)
-    fecha_eve = models.CharField(max_length=250)
+    fecha_eve = models.DateField(max_length=250)
     desc_eve = models.CharField(max_length=250)
     modalidad_eve = models.CharField(max_length=250)
     direccion_eve = models.CharField(max_length=250)
+    estado_eve = models.CharField(max_length=50)
+    hora_inicio = models.TimeField(max_length=45)
+    hora_fin = models.TimeField(max_length=45)
+    fecha_estado = models.DateTimeField(null=True, blank=True)
+    cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE,db_column='cedula')
+
+    def save(self, *args, **kwargs):
+        if self.pk:  
+            old = Evento.objects.get(pk=self.pk)
+            if old.estado_eve != self.estado_eve and self.estado_eve in ['Cancelado', 'Finalizado']:
+                self.fecha_estado = timezone.now()
+        super().save(*args, **kwargs)
 
     class Meta:
         managed = False
@@ -411,17 +423,6 @@ class SemilleroDocumento(models.Model):
         managed = False
         db_table = 'semillero_documento'
         unique_together = ('id_sem', 'cod_doc')  # evita duplicados
-
-
-class SemilleroEvento(models.Model):
-    id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
-    cod_eve = models.ForeignKey(Evento, on_delete=models.CASCADE, db_column='cod_eve')
-
-    class Meta:
-        managed = False
-        db_table = 'semillero_evento'
-        unique_together = ('id_sem', 'cod_eve')  # evita duplicados
-
 
 class SemilleroProyecto(models.Model):
     sempro_id = models.AutoField(primary_key=True)

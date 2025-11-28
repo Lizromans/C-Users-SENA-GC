@@ -42,6 +42,7 @@ urlpatterns = [
 
     
     path('proyectos/', views.proyectos, name='proyectos'),
+    path('detalle-proyecto/<int:id_sem>/<int:cod_pro>/', views.detalle_proyecto, name='detalle-proyecto'),
 
     #MIEMBROS
     path('miembros/', views.miembros, name='miembros'),
@@ -64,6 +65,13 @@ urlpatterns = [
         name='cancelar_verificacion'
     ),
     path('limpiar-numero-revelado/', views.limpiar_numero_revelado, name='limpiar_numero_revelado'),
+
+    #EVENTOS
+    path('eventos/', views.eventos, name='eventos'),
+    path('crear_evento', views.crear_evento, name='crear_evento'),
+    path('cancelar_evento/', views.cancelar_evento, name='cancelar_evento'),
+    path("editar_evento/<int:cod_eve>/", views.editar_evento, name="editar_evento"),
+
     #CENTRO DE AYUDA
     path('centroayuda/', views.centroayuda, name='centroayuda'),
 

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm
-from .models import Documento, Usuario, Semillero,SemilleroUsuario, Archivo, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento
+from .models import Documento, Usuario, Semillero,SemilleroUsuario, Archivo, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento, Evento
 from django.utils import timezone 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
@@ -2222,6 +2222,130 @@ def proyectos(request):
     }
     return render(request, 'paginas/proyectos.html', context)
 
+def detalle_proyecto(request, id_sem, cod_pro):
+    """Vista para ver los detalles de un proyecto específico"""
+    
+    # ==================== VALIDACIÓN DE SESIÓN ====================
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión para ver el proyecto.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
+    # ==================== OBTENER SEMILLERO ====================
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    
+    # ==================== OBTENER TODOS LOS PROYECTOS ====================
+    proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
+    
+    tipo_seleccionado = None
+    proyecto_sel = None
+    
+    if cod_pro:
+        # Ordenar para que el proyecto seleccionado aparezca primero
+        proyectos = proyectos.order_by(
+            Case(
+                When(cod_pro=cod_pro, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        )
+        
+        # Obtener el proyecto seleccionado
+        proyecto_sel = proyectos.filter(cod_pro=cod_pro).first()
+        
+        if proyecto_sel:
+            tipo_seleccionado = proyecto_sel.tipo.lower()
+    
+    # ==================== SEPARAR PROYECTOS POR TIPO ====================
+    proyectos_sennova = list(proyectos.filter(tipo__iexact="sennova"))
+    proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
+    proyectos_formativos = list(proyectos.filter(tipo__iexact="formativo"))
+    
+    # ==================== PROCESAR MIEMBROS DE CADA PROYECTO ====================
+    todos_proyectos = proyectos_sennova + proyectos_capacidad + proyectos_formativos
+    
+    for proyecto in todos_proyectos:
+        usuarios_proyecto = UsuarioProyecto.objects.filter(cod_pro=proyecto).select_related('cedula')
+        aprendices_proyecto = ProyectoAprendiz.objects.filter(cod_pro=proyecto).select_related('cedula_apre')
+        
+        miembros_lista = []
+        
+        # Agregar usuarios
+        for up in usuarios_proyecto:
+            miembros_lista.append({
+                'cedula': up.cedula.cedula,
+                'nombre_completo': f"{up.cedula.nom_usu} {up.cedula.ape_usu}",
+                'iniciales': up.cedula.get_iniciales,
+                'tipo': 'Usuario',
+                'rol': up.cedula.rol,
+                'estado': up.estado
+            })
+        
+        # Agregar aprendices
+        for ap in aprendices_proyecto:
+            miembros_lista.append({
+                'cedula': ap.cedula_apre.cedula_apre,
+                'nombre_completo': f"{ap.cedula_apre.nombre} {ap.cedula_apre.apellido}",
+                'iniciales': ap.cedula_apre.get_iniciales,
+                'tipo': 'Aprendiz',
+                'rol': 'Aprendiz',
+                'estado': ap.estado
+            })
+        
+        proyecto.miembros_lista = miembros_lista
+        proyecto.miembros_activos = [m for m in miembros_lista if m['estado'] == 'activo']
+        
+        # Procesar líneas del proyecto
+        proyecto.lineas_tec_lista = [l.strip() for l in proyecto.linea_tec.split('\n') if l.strip()] if proyecto.linea_tec else []
+        proyecto.lineas_inv_lista = [l.strip() for l in proyecto.linea_inv.split('\n') if l.strip()] if proyecto.linea_inv else []
+        proyecto.lineas_sem_lista = [l.strip() for l in proyecto.linea_sem.split('\n') if l.strip()] if proyecto.linea_sem else []
+    
+    # ==================== ESTADÍSTICAS DEL SEMILLERO ====================
+    proyectos_count = SemilleroProyecto.objects.filter(id_sem=semillero)
+    total_proyectos = proyectos_count.count()
+    
+    usuarios_sem = SemilleroUsuario.objects.filter(id_sem=semillero)
+    aprendices_sem = Aprendiz.objects.filter(id_sem=semillero)
+    total_miembros = usuarios_sem.count() + aprendices_sem.count()
+    miembros = usuarios_sem.select_related('cedula')
+    
+    total_entregables = Entregable.objects.filter(
+        cod_pro__in=proyectos_count.values('cod_pro')
+    ).count()
+    
+    # ==================== CONTEXTO ====================
+    context = {
+        'current_page': 'detalle_proyectos',
+        'current_page_name': 'Detalle Proyecto',
+        'usuario': usuario,
+        'semillero': semillero,
+        
+        # Proyectos
+        'proyectos_sennova': proyectos_sennova,
+        'proyectos_capacidad': proyectos_capacidad,
+        'proyectos_formativos': proyectos_formativos,
+        'proyecto': proyecto_sel,
+        'tipo_seleccionado': tipo_seleccionado,
+        'cod_pro': cod_pro,
+        
+        # Estadísticas
+        'total_proyectos': total_proyectos,
+        'total_miembros': total_miembros,
+        'total_entregables': total_entregables,
+        'miembros': miembros,
+        
+        # Flag de solo lectura
+        'solo_lectura': True,
+    }
+    
+    return render(request, 'paginas/resu-proyectos.html', context)
+
 # VISTAS DE MIEMBROS
 def miembros(request):
     usuario_id = request.session.get('cedula')
@@ -2775,6 +2899,192 @@ def limpiar_numero_revelado(request):
         del request.session['numero_cuenta_aprendiz_id']
     
     return redirect('miembros')
+
+# VISTAS DE EVENTOS
+def eventos(request):
+    limite = timezone.now() - timedelta(hours=24)
+    Evento.objects.filter(
+        estado_eve__in=["Cancelado", "Finalizado"],
+        fecha_estado__lt=limite
+    ).delete()
+
+    ahora = timezone.localtime()
+    eventos = Evento.objects.all()
+
+    for evento in eventos:
+
+        if evento.estado_eve.lower() == "cancelado":
+            continue
+
+        hora_inicio = datetime.strptime(str(evento.hora_inicio), "%H:%M:%S").time()
+        hora_fin = datetime.strptime(str(evento.hora_fin), "%H:%M:%S").time()
+
+        inicio = timezone.make_aware(datetime.combine(evento.fecha_eve, hora_inicio))
+        fin = timezone.make_aware(datetime.combine(evento.fecha_eve, hora_fin))
+
+        if ahora > fin:
+            if evento.estado_eve != "Finalizado":
+                evento.estado_eve = "Finalizado"
+                evento.save()
+            continue
+
+        if inicio <= ahora <= fin:
+            if evento.estado_eve != "En Curso":
+                evento.estado_eve = "En Curso"
+                evento.save()
+            continue
+
+        tiempo_falta = inicio - ahora
+
+        if timedelta(hours=0) < tiempo_falta <= timedelta(hours=24):
+            if evento.estado_eve != "Próximo":
+                evento.estado_eve = "Próximo"
+                evento.save()
+            continue
+
+        if tiempo_falta > timedelta(hours=24):
+            if evento.estado_eve != "Programado":
+                evento.estado_eve = "Programado"
+                evento.save()
+            continue
+
+    buscar = request.GET.get("buscar")
+    if buscar:
+        eventos = eventos.filter(nom_eve__icontains=buscar)
+
+    # FILTROS
+    estado = request.GET.get("estado")
+    modalidad = request.GET.get("modalidad")
+
+    if estado and estado != "Todos":
+        eventos = eventos.filter(estado_eve=estado)
+
+    if modalidad and modalidad != "Todos":
+        eventos = eventos.filter(modalidad_eve=modalidad)
+
+    # ESTADÍSTICAS
+    mes_actual = ahora.month
+
+    total_eventos = Evento.objects.count()
+    total_mes = Evento.objects.filter(fecha_eve__month=mes_actual).count()
+
+    presenciales = Evento.objects.filter(modalidad_eve="Presencial").count()
+    presenciales_mes = Evento.objects.filter(modalidad_eve="Presencial", fecha_eve__month=mes_actual).count()
+
+    virtuales = Evento.objects.filter(modalidad_eve="Virtual").count()
+    virtuales_mes = Evento.objects.filter(modalidad_eve="Virtual", fecha_eve__month=mes_actual).count()
+
+    contexto = {
+        'eventos': eventos,
+        'total_eventos': total_eventos,
+        'total_mes': total_mes,
+        'presenciales': presenciales,
+        'presenciales_mes': presenciales_mes,
+        'virtuales': virtuales,
+        'virtuales_mes': virtuales_mes,
+        'estado_seleccionado': estado,
+        'modalidad_seleccionada': modalidad,
+        'busqueda': buscar
+    }
+
+    return render(request, 'paginas/eventos.html', contexto)
+
+def crear_evento(request):
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            nom_eve = request.POST.get('nom_eve')
+            fecha_eve = request.POST.get('fecha_eve')
+            desc_eve = request.POST.get('desc_eve', '')
+            modalidad_eve = request.POST.get('modalidad_eve')
+            direccion_eve = request.POST.get('direccion_eve', '')
+            estado_eve = request.POST.get('estado_eve', 'Programado')
+            hora_inicio = request.POST.get('hora_inicio')
+            hora_fin = request.POST.get('hora_fin')
+
+            # Validación
+            if not nom_eve or not fecha_eve:
+                messages.error(request, "Faltan campos obligatorios.")
+                return redirect('eventos')
+
+            # Obtener el usuario actual
+            usuario = Usuario.objects.get(cedula=request.user.cedula)
+            
+            # Crear el evento
+            evento = Evento.objects.create(
+                nom_eve=nom_eve,
+                fecha_eve=fecha_eve,
+                desc_eve=desc_eve,
+                modalidad_eve=modalidad_eve,
+                direccion_eve=direccion_eve,
+                estado_eve=estado_eve,
+                hora_inicio=hora_inicio,
+                hora_fin=hora_fin,
+                cedula=usuario
+            )
+            
+            messages.success(request, f"✅ Evento '{evento.nom_eve}' creado correctamente.")
+            return redirect('eventos')
+            
+        except Usuario.DoesNotExist:
+            messages.error(request, "Usuario no encontrado en el sistema.")
+            return redirect('eventos')
+            
+        except Exception as e:
+            messages.error(request, f"Error al crear el evento: {str(e)}")
+            return redirect('eventos')
+    
+    return redirect('eventos')
+
+def editar_evento(request, cod_eve):
+    # Obtener el evento
+    evento = get_object_or_404(Evento, cod_eve=cod_eve)
+
+    if request.method == "POST":
+        # Actualizar campos
+        evento.nom_eve = request.POST.get("nom_eve")
+        evento.fecha_eve = request.POST.get("fecha_eve")
+        evento.hora_inicio = request.POST.get("hora_inicio")
+        evento.hora_fin = request.POST.get("hora_fin")
+        evento.modalidad_eve = request.POST.get("modalidad_eve")
+        evento.direccion_eve = request.POST.get("direccion_eve")
+        evento.desc_eve = request.POST.get("desc_eve")
+        evento.estado_eve = request.POST.get("estado_eve")
+
+        # Guardar cambios
+        evento.save()
+
+        # Mensaje
+        messages.success(request, f"El evento '{evento.nom_eve}' fue actualizado correctamente.")
+
+        return redirect("eventos")
+
+    # GET → devolver la página con el modal abierto
+    return render(request, "paginas/eventos.html", {
+        "evento": evento,
+        "abrir_modal_editar": True
+    })
+
+def cancelar_evento(request):
+    if request.method == "POST":
+        cod = request.POST.get("cod_eve")
+
+        # Buscar el evento
+        evento = get_object_or_404(Evento, cod_eve=cod)
+
+        # Evitar cancelar un evento ya cancelado
+        if evento.estado_eve.lower() == "cancelado":
+            messages.warning(request, f"El evento '{evento.nom_eve}' ya está cancelado.")
+            return redirect("eventos")
+
+        # Cambiar estado
+        evento.estado_eve = "Cancelado"
+        evento.save()
+
+        messages.success(request, f"El evento '{evento.nom_eve}' fue cancelado correctamente.")
+        return redirect("eventos")
+
+    return redirect("eventos")
 
 # VISTAS DE CENTRO DE AYUDA
 def centroayuda(request):
