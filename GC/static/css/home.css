@@ -38,12 +38,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 98%; /* Se reduce en pantallas pequeñas */
+    width: 98%; 
     height: auto;
     position: relative;
-    border-radius: clamp(8px, 2vw, 20px); /* Bordes más pequeños en móviles */
-    padding: clamp(10px, 2vh, 25px) clamp(8px, 1.5vh, 15px); /* Padding reducido */
-    min-height: clamp(100px, 15vh, 200px); /* Altura mínima reducida */
+    border-radius: clamp(8px, 2vw, 20px); 
+    padding: clamp(10px, 2vh, 25px) clamp(8px, 1.5vh, 15px); 
+    min-height: clamp(100px, 15vh, 200px); 
     box-sizing: border-box;
     overflow: hidden;
     background: var(--gradient);
@@ -340,7 +340,7 @@
     background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
 }
 
-.redirigir.miembros:focus{
+.redirigir.ayuda:focus{
     box-shadow: 0 0 0 5px rgba(156, 39, 176, 0.459)!important;
 
 }

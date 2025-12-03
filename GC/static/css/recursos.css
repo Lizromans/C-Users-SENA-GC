@@ -301,6 +301,8 @@
     background-color: rgba(169, 0, 0, 0.1);
     border-radius: 50%;
 }
+
+/* === MODAL - CONTENEDOR PRINCIPAL ==== */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -339,9 +341,7 @@
     padding: clamp(20px, 3vw, 30px);
 }
 
-/* ====================================
-   MODAL - HEADER
-==================================== */
+/* ===MODAL - HEADER====== */
 .modal-header {
     display: flex;
     background-color: transparent !important;
@@ -365,9 +365,7 @@
     margin: 0;
 }
 
-/* ====================================
-   MODAL - BODY
-==================================== */
+/* ===MODAL - BODY====== */
 .modal-body {
     padding: clamp(15px, 2vw, 25px) 0;
 }
@@ -401,9 +399,7 @@
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
 }
 
-/* ====================================
-   MODAL - FOOTER Y ACCIONES
-==================================== */
+/* ====MODAL - FOOTER Y ACCIONES====== */
 .modal-acciones {
     display: flex;
     gap: clamp(10px, 2vw, 15px);
@@ -533,26 +529,7 @@
         opacity: 1;
     }
 }
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-.modal-overlay.activo { display: flex; }
 
-.modal-contenedor {
-  background: #fff;
-  padding: 20px 25px;
-  border-radius: 10px;
-  text-align: center;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
 .modal-botones {
   display: flex;
   justify-content: center;

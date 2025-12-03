@@ -29,19 +29,19 @@
                 <div class="card-container">
                     <div class="card">
                         <div class="card-body">
-                            <h6 class="card-subtitle">5</h6>
+                            <h6 class="card-subtitle">{{ total_semilleros }}</h6>
                             <p class="card-text">Semilleros</p>
                         </div>    
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            <h6 class="card-subtitle">12</h6>
+                            <h6 class="card-subtitle">{{ total_proyectos }}</h6>
                             <p class="card-text">Proyectos</p>
                         </div>    
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            <h6 class="card-subtitle">3</h6>
+                            <h6 class="card-subtitle">{{ total_aprendices }}</h6>
                             <p class="card-text">Aprendices</p>
                         </div>    
                     </div>
@@ -64,7 +64,7 @@
                 <div class="texto-inferior">
                     <p>Administra tus semilleros de investigación, añade estudiantes y supervisa proyectos activos.</p>
                 </div>
-                <button class="redirigir semilleros"> Ir a Semilleros </button>
+                <button class="redirigir semilleros" onclick="location.href='{% url 'semilleros' %}'"> Ir a Semilleros </button>
             </div>
             
             <div class="grupo">
@@ -79,7 +79,7 @@
                 <div class="texto-inferior">
                     <p>Supervisa y administra todos los proyectos en desarrollo.</p>
                 </div>
-                <button class="redirigir proyectos"> Ver Proyectos </button>
+                <button class="redirigir proyectos" onclick="location.href='{% url 'proyectos' %}'"> Ver Proyectos </button>
             </div>
 
             <div class="grupo">
@@ -94,7 +94,7 @@
                 <div class="texto-inferior">
                     <p>Administra la información de los Miembros y tenla cuando la necesites.</p>
                 </div>
-                <button class="redirigir miembros"> Ver Miembros </button>
+                <button class="redirigir miembros" onclick="location.href='{% url 'miembros' %}'"> Ver Miembros </button>
             </div>
 
             <div class="grupo">
@@ -109,7 +109,7 @@
                 <div class="texto-inferior">
                     <p>Genera reportes de actividad, progreso y resultados de tus semilleros</p>
                 </div>
-                <button class="redirigir reportes"> Ir a Reportes </button>
+                <button class="redirigir reportes" onclick="location.href='{% url 'reportes' %}'"> Ir a Reportes </button>
             </div>
 
             <div class="grupo">
@@ -124,36 +124,90 @@
                 <div class="texto-inferior">
                     <p>Accede a papers, documentos y recursos compartidos para tus investigaciones.</p>
                 </div>
-                <button class="redirigir ayuda"> Ir a Centro de Ayuda </button>
+                <button class="redirigir ayuda" onclick="location.href='{% url 'centroayuda' %}'"> Ir a Centro de Ayuda </button>
             </div>
         </div>
 
-        <!-- Contenedor terceario -->
+        <!-- Contenedor terciario -->
         <div class="contenedor-tres">
-            <h2> Actividad Reciente </h2>
+            <h2>Actividad Reciente</h2>
             <div class="timeline">
-                <!-- Elemento 1 -->
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <div class="timeline-date">Enero 2024</div>
-                        <h3 class="timeline-title-item">Inicio del Proyecto</h3>
-                        <p class="timeline-description">
-                            Se dio inicio al proyecto de gestión de semilleros de investigación con el objetivo de centralizar y organizar toda la información académica.
-                        </p>
+                {% if actividades %}
+                    {% for actividad in actividades %}
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">
+                                {% if actividad.fecha_actividad %}
+                                    {{ actividad.fecha_actividad|date:"d M Y" }}
+                                    {% if actividad.tipo_actividad == 'evento' %}
+                                        - {{ actividad.hora_inicio|time:"H:i" }}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            
+                            {% if actividad.tipo_actividad == 'semillero' %}
+                                <h3 class="timeline-title-item">
+                                    <i class="fas fa-flask"></i> Semillero Creado
+                                </h3>
+                                <p class="timeline-description">
+                                    Se creó el semillero <strong>{{ actividad.nombre }}</strong>
+                                </p>
+                                <span class="badge badge-semillero">{{ actividad.sigla }}</span>
+                                
+                            {% elif actividad.tipo_actividad == 'proyecto' %}
+                                <h3 class="timeline-title-item">
+                                    <i class="fas fa-project-diagram"></i> Proyecto Creado
+                                </h3>
+                                <p class="timeline-description">
+                                    Se creó el proyecto <strong>{{ actividad.nom_pro }}</strong>
+                                </p>
+                                <span class="badge badge-proyecto">{{ actividad.tipo }}</span>
+                                <small class="text-muted d-block mt-1">
+                                    Estado: {{ actividad.estado_pro }} | Progreso: {{ actividad.progreso }}%
+                                </small>
+                                
+                            {% elif actividad.tipo_actividad == 'entregable' %}
+                                <h3 class="timeline-title-item">
+                                    <i class="fas fa-tasks"></i> Nuevo Entregable
+                                </h3>
+                                <p class="timeline-description">
+                                    <strong>{{ actividad.nom_entre }}</strong> - {{ actividad.desc_entre }}
+                                </p>
+                                <span class="badge badge-entregable">{{ actividad.estado }}</span>
+                                <small class="text-muted d-block mt-1">
+                                    Vence: {{ actividad.fecha_fin|date:"d/m/Y" }}
+                                </small>
+                                
+                            {% elif actividad.tipo_actividad == 'evento' %}
+                                <h3 class="timeline-title-item">
+                                    <i class="fas fa-calendar-alt"></i> {{ actividad.nom_eve }}
+                                </h3>
+                                <p class="timeline-description">
+                                    {{ actividad.desc_eve }}
+                                </p>
+                                <span class="badge badge-evento">{{ actividad.modalidad_eve }}</span>
+                                <span class="badge badge-estado-{{ actividad.estado_eve|lower }}">{{ actividad.estado_eve }}</span>
+                                <small class="text-muted d-block mt-1">
+                                    {{ actividad.hora_inicio|time:"H:i" }} - {{ actividad.hora_fin|time:"H:i" }}
+                                    {% if actividad.direccion_eve %}
+                                        | 📍 {{ actividad.direccion_eve }}
+                                    {% endif %}
+                                </small>
+                            {% endif %}
+                        </div>
+                        <div class="timeline-marker"></div>
                     </div>
-                    <div class="timeline-marker"></div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <div class="timeline-date">Enero 2024</div>
-                        <h3 class="timeline-title-item">Inicio del Proyecto</h3>
-                        <p class="timeline-description">
-                            Se dio inicio al proyecto de gestión de semilleros de investigación con el objetivo de centralizar y organizar toda la información académica.
-                        </p>
+                    {% endfor %}
+                {% else %}
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <p class="timeline-description">
+                                <i class="fas fa-info-circle"></i> No hay actividades recientes en la última semana
+                            </p>
+                        </div>
+                        <div class="timeline-marker"></div>
                     </div>
-                    <div class="timeline-marker"></div>
-                </div>
+                {% endif %}
             </div>
         </div>
 

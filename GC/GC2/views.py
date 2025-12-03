@@ -2,6 +2,7 @@ from ctypes import alignment
 from urllib import request
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm
@@ -14,17 +15,12 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.contrib.auth.decorators import permission_required
-from django.views.decorators.cache import never_cache
 from functools import wraps
 from django.utils.timezone import now
 from django.db.models import Q, Avg
 from datetime import datetime, timedelta
 from django.db.models import Case, When, Value, IntegerField
 from django.http import JsonResponse
-from django.core.files.storage import FileSystemStorage
-import os
-from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 import openpyxl
 from openpyxl import Workbook
@@ -47,10 +43,17 @@ import hashlib
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-import json
-from django.db.models import Count, Sum, Q
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from itertools import chain
+from operator import attrgetter
+from . import models
+from django.db.models import Value, CharField, F, Q, DateTimeField
+from django.db.models.functions import Cast
+from itertools import chain
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -72,10 +75,29 @@ def descifrar_numero(numero_cifrado):
         return cipher.decrypt(numero_cifrado.encode()).decode()
     except:
         return "****"  # Mostrar asteriscos si falla
-    
-# Create your views here.
+
 def bienvenido(request):
-    return render(request, 'paginas/bienvenido.html')
+
+    # CONTADORES DINÁMICOS
+    investigadores = Usuario.objects.filter(rol="Investigador").count()
+    instructores = Usuario.objects.filter(rol="Instructor").count()
+    semilleros = Semillero.objects.count()
+    proyectos = Proyecto.objects.count()
+    capacidad_instalada = Proyecto.objects.filter(tipo="capacidadinstalada").count()  
+    proyectos_formativos = Proyecto.objects.filter(tipo="Formativo").count()
+    sennova = Proyecto.objects.filter(tipo="Sennova").count()  
+
+    context = {
+        'investigadores': investigadores,
+        'instructores': instructores,
+        'semilleros': semilleros,
+        'proyectos': proyectos,
+        'capacidad_instalada': capacidad_instalada,
+        'proyectos_formativos': proyectos_formativos,
+        'sennova': sennova,
+    }
+
+    return render(request, 'paginas/bienvenido.html', context)
 
 # VISTAS DE LOGIN
 def registro(request):
@@ -84,10 +106,15 @@ def registro(request):
         if form.is_valid():
             try:
                 usuario = form.save(commit=False)
+                
+                # Valores por defecto explícitos
                 usuario.email_verificado = False
+                usuario.is_active = True       
+                usuario.estado = 'Activo'     
+                
                 usuario.save()
 
-                # Si tu modelo tiene métodos personalizados:
+                # Enviar correo de verificación
                 if hasattr(usuario, 'generar_token_verificacion'):
                     usuario.generar_token_verificacion()
                 if hasattr(usuario, 'enviar_email_verificacion'):
@@ -102,7 +129,6 @@ def registro(request):
     else:
         form = UsuarioRegistroForm()
 
-    # CAMBIO: Ya no enviamos show_login, la página inicia siempre en login
     return render(request, 'paginas/registro.html', {
         'form': form,
         'current_page_name': 'registro',
@@ -136,14 +162,13 @@ def verificar_email(request, token):
 # VISTA DE INICIAR SESION
 def iniciarsesion(request):
     if request.method == 'POST':
-
         cedula = request.POST.get('cedula')
         password = request.POST.get('password')
         rol = request.POST.get('rol')
 
         errores = {}
 
-        # --- Validaciones ---
+        # Validaciones básicas
         if not rol:
             errores['error_rol'] = "Debe seleccionar un rol."
         if not cedula:
@@ -152,7 +177,6 @@ def iniciarsesion(request):
             errores['error_password'] = "La contraseña es obligatoria."
 
         if errores:
-            # CAMBIO: Ya no necesitamos show_login, siempre inicia en login
             return render(request, 'paginas/registro.html', {
                 **errores,
                 'cedula': cedula,
@@ -160,31 +184,36 @@ def iniciarsesion(request):
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # --- Autenticación oficial Django ---
-        usuario = authenticate(request, cedula=cedula, password=password)
-
-        if usuario is None:
-            # Si no pasa autenticación, puede ser que el rol no coincida
-            try:
-                u = Usuario.objects.get(cedula=cedula)
-                if not u.check_password(password):
-                    errores['error_password'] = "Contraseña incorrecta."
-                elif u.rol != rol:
-                    errores['error_rol'] = "El rol seleccionado no coincide con tu usuario."
-                else:
-                    errores['error_user'] = "Usuario no encontrado o inactivo."
-            except Usuario.DoesNotExist:
-                errores['error_user'] = "Usuario no registrado."
-
-            # CAMBIO: Ya no necesitamos show_login
+        # Buscar usuario por cédula
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+        except Usuario.DoesNotExist:
             return render(request, 'paginas/registro.html', {
-                **errores,
+                'error_user': 'Usuario no registrado.',
                 'cedula': cedula,
                 'rol': rol,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # --- Verificación de correo electrónico ---
+        # Verificar contraseña
+        if not usuario.check_password(password):
+            return render(request, 'paginas/registro.html', {
+                'error_password': 'Contraseña incorrecta.',
+                'cedula': cedula,
+                'rol': rol,
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar rol
+        if usuario.rol != rol:
+            return render(request, 'paginas/registro.html', {
+                'error_rol': 'El rol seleccionado no coincide con tu usuario.',
+                'cedula': cedula,
+                'rol': rol,
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar correo electrónico
         if not usuario.email_verificado:
             return render(request, 'paginas/registro.html', {
                 'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
@@ -193,18 +222,18 @@ def iniciarsesion(request):
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # --- Iniciar sesión ---
-        login(request, usuario)
-
-        # --- Guardar información adicional en sesión ---
+        # ✅ TODO CORRECTO - Crear sesión personalizada
         request.session['cedula'] = usuario.cedula
         request.session['nom_usu'] = usuario.nom_usu
         request.session['ape_usu'] = usuario.ape_usu
         request.session['rol'] = usuario.rol
-        request.session['grupos'] = [usuario.rol]
-
-        # --- Actualizar último acceso ---
-        usuario.last_login = now()
+        request.session['correo_ins'] = usuario.correo_ins
+        
+        # Configurar tiempo de expiración de sesión (opcional)
+        request.session.set_expiry(3600)  # 1 hora
+        
+        # Actualizar último acceso
+        usuario.last_login = timezone.now()
         usuario.save(update_fields=['last_login'])
 
         messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
@@ -324,7 +353,7 @@ def reset_password_confirm(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-        # 1️⃣ Validar coincidencia de contraseñas
+        # Validar coincidencia de contraseñas
         if password1 != password2:
             return render(request, 'paginas/reset_password.html', {
                 'valid': True,
@@ -335,14 +364,14 @@ def reset_password_confirm(request):
             })
 
         try:
-            # 2️⃣ Decodificar el UID y obtener el usuario
+            # Decodificar el UID y obtener el usuario
             uid = force_str(urlsafe_base64_decode(uidb64))
             usuario = Usuario.objects.get(pk=uid)
 
-            # 3️⃣ Verificar token válido
+            # Verificar token válido
             if default_token_generator.check_token(usuario, token):
 
-                # ✅ Guardar contraseña de forma segura
+                # Guardar contraseña de forma segura
                 usuario.set_password(password1)
                 usuario.save()
 
@@ -360,7 +389,43 @@ def reset_password_confirm(request):
     # Si no es POST, redirigir a la página de inicio de sesión
     return redirect('iniciarsesion')
 
+def login_required(view_func):
+    """
+    Decorador personalizado que verifica si el usuario ha iniciado sesión
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+    
+        cedula = request.session.get('cedula')
+        
+        if not cedula:
+            messages.error(request, "Debes iniciar sesión para acceder a esta página")
+            return redirect('iniciarsesion')
+        
+        # Verificar que el usuario existe en la base de datos
+        try:
+            from .models import Usuario
+            usuario = Usuario.objects.get(cedula=cedula)
+    
+            # Verificar estado con manejo seguro de None
+            estado_usuario = getattr(usuario, 'estado', None)
+            if estado_usuario and estado_usuario != 'Activo':
+                messages.error(request, "Tu cuenta no está activa")
+                return redirect('iniciarsesion')
+                
+        except Usuario.DoesNotExist:
+            # Si el usuario no existe, limpiar la sesión
+            request.session.flush()
+            messages.error(request, "Usuario no encontrado. Por favor inicia sesión nuevamente")
+            return redirect('iniciarsesion')
+        
+        # Todo OK, ejecutar la vista
+        return view_func(request, *args, **kwargs)
+    
+    return _wrapped_view
+
 # VISTA DE PRIVACIDAD
+@login_required
 def privacidad(request):
     usuario_id = request.session.get('cedula')
     
@@ -407,36 +472,118 @@ def privacidad(request):
     })
 
 # VISTAS DE HOME 
+@login_required
 def home(request):
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
-        return redirect('iniciarsesion')
+    cedula = request.session.get('cedula')
 
-    # Obtener usuario
     try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
+        usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
 
-    return render(request, 'paginas/home.html',{
+    # Contar semilleros donde participa el usuario
+    total_semilleros = usuario.semilleros.count()
+    total_proyectos = usuario.proyectos.count()
+    total_aprendices = Aprendiz.objects.filter(
+        proyectos__in=usuario.proyectos.all()
+    ).distinct().count()
+
+    # ========== ACTIVIDADES RECIENTES ==========
+    # Obtener semilleros donde el usuario participa
+    mis_semilleros_ids = SemilleroUsuario.objects.filter(
+        cedula=usuario
+    ).values_list('id_sem', flat=True)
+    
+    # Obtener proyectos donde el usuario participa (directamente)
+    mis_proyectos_ids = UsuarioProyecto.objects.filter(
+        cedula=usuario
+    ).values_list('cod_pro', flat=True)
+    
+    # Fecha límite (última semana)
+    fecha_limite = timezone.now() - timedelta(days=7)
+    
+    # ===== SEMILLEROS RECIENTES =====
+    # Mostrar semilleros creados o modificados donde participo
+    semilleros_recientes = Semillero.objects.filter(
+        id_sem__in=mis_semilleros_ids,
+        fecha_creacion__gte=fecha_limite
+    ).annotate(
+        tipo_actividad=Value('semillero', output_field=CharField()),
+        fecha_actividad=F('fecha_creacion')
+    )
+    
+    # ===== PROYECTOS RECIENTES =====
+    # Opción 1: Proyectos donde participo directamente
+    proyectos_directos = Proyecto.objects.filter(
+        cod_pro__in=mis_proyectos_ids,
+        fecha_creacion__gte=fecha_limite
+    )
+    
+    # Opción 2: Proyectos de mis semilleros
+    proyectos_semilleros = Proyecto.objects.filter(
+        semilleroproyecto__id_sem__in=mis_semilleros_ids,
+        fecha_creacion__gte=fecha_limite
+    )
+    
+    # Combinar ambos (sin duplicados)
+    proyectos_recientes = (proyectos_directos | proyectos_semilleros).distinct().annotate(
+        tipo_actividad=Value('proyecto', output_field=CharField()),
+        fecha_actividad=F('fecha_creacion')
+    )
+    
+    # ===== ENTREGABLES RECIENTES =====
+    # De todos los proyectos donde participo (directos + de semilleros)
+    todos_mis_proyectos = (
+        Proyecto.objects.filter(cod_pro__in=mis_proyectos_ids) | 
+        Proyecto.objects.filter(semilleroproyecto__id_sem__in=mis_semilleros_ids)
+    ).distinct().values_list('cod_pro', flat=True)
+    
+    # CORRECCIÓN: Convertir fecha_limite a date para comparar con DateField
+    entregables_recientes = Entregable.objects.filter(
+        cod_pro__in=todos_mis_proyectos,
+        fecha_inicio__gte=fecha_limite.date()
+    ).annotate(
+        tipo_actividad=Value('entregable', output_field=CharField()),
+        # CORRECCIÓN: Convertir fecha_inicio (date) a datetime para ordenamiento consistente
+        fecha_actividad=Cast(F('fecha_inicio'), output_field=DateTimeField())
+    )
+    
+    # ===== EVENTOS RECIENTES =====
+    # Mostrar TODOS los eventos recientes (incluidos los que yo creé)
+    eventos_recientes = Evento.objects.filter(
+        fecha_eve__gte=fecha_limite.date()
+    ).annotate(
+        tipo_actividad=Value('evento', output_field=CharField()),
+        # CORRECCIÓN: Convertir fecha_eve (date) a datetime para ordenamiento consistente
+        fecha_actividad=Cast(F('fecha_eve'), output_field=DateTimeField())
+    )
+    
+    # ===== COMBINAR Y ORDENAR =====
+    # CORRECCIÓN: Ahora todos los objetos tienen fecha_actividad como datetime
+    actividades = sorted(
+        chain(semilleros_recientes, proyectos_recientes, entregables_recientes, eventos_recientes),
+        key=lambda x: x.fecha_actividad if hasattr(x, 'fecha_actividad') else timezone.now(),
+        reverse=True
+    )[:10]  # Mostrar las últimas 10 actividades
+
+    return render(request, 'paginas/home.html', {
         'current_page': 'home',
         'current_page_name': 'Inicio',
-        'usuario': usuario
+        'usuario': usuario,
+        'total_semilleros': total_semilleros,
+        'total_proyectos': total_proyectos,
+        'total_aprendices': total_aprendices,
+        'actividades': actividades,
     })
-    
-# VISTAS PERFIL
-def perfil(request):
-    # Verificar sesión activa
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
-        return redirect('iniciarsesion')
 
-    # Obtener usuario
+# VISTAS PERFIL
+@login_required
+def perfil(request):
+    cedula = request.session.get('cedula')
+    
     try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
+        usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
@@ -444,7 +591,7 @@ def perfil(request):
     # Calcular último acceso
     ultimo_acceso = "Sin registro"
     if usuario.last_login:
-        tiempo = now() - usuario.last_login
+        tiempo = timezone.now() - usuario.last_login
         dias, segundos = tiempo.days, tiempo.seconds
         if dias == 0:
             if segundos < 60:
@@ -482,6 +629,12 @@ def perfil(request):
         usuario.dependencia = request.POST.get('dependencia')
         usuario.rol = request.POST.get('rol')
         usuario.save()
+        
+        # Actualizar también la sesión
+        request.session['nom_usu'] = usuario.nom_usu
+        request.session['ape_usu'] = usuario.ape_usu
+        request.session['rol'] = usuario.rol
+        
         messages.success(request, "Cambios guardados correctamente.")
         return redirect('perfil')
 
@@ -491,7 +644,6 @@ def perfil(request):
     proyectos = usuario.proyectos.all()
     total_proyectos = proyectos.count()
 
-    # Enviar datos al template
     context = {
         'usuario': usuario,
         'ultimo_acceso': ultimo_acceso,
@@ -504,6 +656,7 @@ def perfil(request):
     return render(request, 'paginas/perfil.html', context)
 
 # VISTA ACTUALIZAR FOTO PERFIL
+@login_required
 def actualizar_foto(request):
     if request.method == 'POST':
         usuario_id = request.session.get('cedula')
@@ -524,23 +677,22 @@ def actualizar_foto(request):
         return redirect('perfil')  # o a la vista donde se muestra el perfil
 
 # VISTAS SEMILLEROS
+@login_required
 def semilleros(request):
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
-        return redirect('iniciarsesion')
-
+    # OBTENER USUARIO DESDE LA SESIÓN
+    cedula = request.session.get('cedula')  
+    
     try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
+        usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
     
-    semilleros = Semillero.objects.all()
+    semilleros = usuario.semilleros.all()
     
     for semillero in semilleros:
         # Calcular y actualizar progreso
-        actualizar_progreso_semillero(semillero)
+        actualizar_progreso_semillero(request, semillero)
         
         # Resto del código existente...
         cedulas = SemilleroUsuario.objects.filter(
@@ -565,24 +717,30 @@ def semilleros(request):
         'usuario': usuario
     })
 
+@login_required
 def crear_semillero(request):
+    cedula = request.session.get('cedula')
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+
     if request.method == 'POST':
-        # Obtener los datos del formulario
         cod_sem = request.POST.get('cod_sem')  
         sigla = request.POST.get('sigla')
         nombre = request.POST.get('nombre')
         desc_sem = request.POST.get('desc_sem')
-        objetivo = request.POST.getlist('objetivo')  # varios textareas
+        objetivo = request.POST.getlist('objetivo')
 
-        # Combinar los objetivos en una sola cadena (separados por saltos de línea)
         objetivo_texto = "\n".join(objetivo)
 
-        # Validar campos requeridos
         if not all([cod_sem, sigla, nombre, desc_sem, objetivo_texto]):
             messages.error(request, 'Todos los campos son obligatorios')
             return redirect('semilleros')
 
         try:
+            # Crear el semillero
             semillero = Semillero(
                 cod_sem=cod_sem,
                 sigla=sigla,
@@ -593,6 +751,14 @@ def crear_semillero(request):
                 progreso_sem=0
             )
             semillero.save()
+
+            # Registrar al usuario creador como miembro y líder
+            SemilleroUsuario.objects.create(
+                id_sem=semillero,
+                cedula=usuario,
+                es_lider=True
+            )
+
             messages.success(request, f'Semillero "{sigla}" creado exitosamente')
             return redirect('semilleros')
 
@@ -602,7 +768,15 @@ def crear_semillero(request):
 
     return redirect('semilleros')
 
+@login_required
 def eliminar_semilleros(request):
+    cedula = request.session.get('cedula')
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
     if request.method == 'POST':
         semilleros_ids = request.POST.getlist('semilleros_eliminar')
         
@@ -746,25 +920,38 @@ def eliminar_semilleros(request):
     # Si no es POST, redirigir
     return redirect('semilleros')
 
-def actualizar_progreso_semillero(semillero):
-    # Obtener todos los proyectos del semillero
+@login_required
+def actualizar_progreso_semillero(request, semillero):
+    # Verificar usuario en sesión
+    cedula = request.session.get('cedula')
+    if not cedula:
+        messages.error(request, "Debes iniciar sesión.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+
+    # Obtener proyectos del semillero
     proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
     total_proyectos = proyectos.count()
-    
+
     if total_proyectos == 0:
         semillero.progreso_sem = 0
     else:
-        # Calcular promedio de progreso
         promedio = proyectos.aggregate(Avg('progreso'))['progreso__avg']
         semillero.progreso_sem = round(promedio) if promedio else 0
-    
+
     semillero.save(update_fields=['progreso_sem'])
     return semillero.progreso_sem
 
+@login_required
 def resumen(request, id_sem):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        messages.error(request, "Debes iniciar sesión.")
         return redirect('iniciarsesion')
 
     try:
@@ -772,37 +959,29 @@ def resumen(request, id_sem):
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
-    
+
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
-    
-    # Convertir los objetivos a lista
+
+    # Objetivos en lista
     objetivos_lista = []
-    if semillero.objetivo:  
-        objetivos_lista = semillero.objetivo.split('\n')
-        objetivos_lista = [obj.strip() for obj in objetivos_lista if obj.strip()]
-    
-    # Calcular total de miembros
-    cedulas = SemilleroUsuario.objects.filter(
-        id_sem=semillero
-    ).values_list('cedula', flat=True)
-    
+    if semillero.objetivo:
+        objetivos_lista = [o.strip() for o in semillero.objetivo.split("\n") if o.strip()]
+
+    # Conteos
+    cedulas = SemilleroUsuario.objects.filter(id_sem=semillero).values_list('cedula', flat=True)
     total_usuarios = Usuario.objects.filter(cedula__in=cedulas).count()
     total_aprendices = Aprendiz.objects.filter(id_sem=semillero).count()
     total_miembros = total_usuarios + total_aprendices
 
-    # Proyectos del semillero
     proyectos = SemilleroProyecto.objects.filter(id_sem=semillero)
     total_proyectos = proyectos.count()
 
-    # Entregables asociados a esos proyectos
     total_entregables = Entregable.objects.filter(
         cod_pro__in=proyectos.values('cod_pro')
     ).count()
 
-    semillero = get_object_or_404(Semillero, id_sem=id_sem)
-    
-    # Actualizar progreso del semillero
-    actualizar_progreso_semillero(semillero)
+    # ACTUALIZAR progreso — con request
+    actualizar_progreso_semillero(request, semillero)
 
     return render(request, 'paginas/resumen.html', {
         'current_page': 'resumen',
@@ -812,13 +991,14 @@ def resumen(request, id_sem):
         'total_miembros': total_miembros,
         'total_proyectos': total_proyectos,
         'total_entregables': total_entregables,
-        'usuario' : usuario
+        'usuario': usuario
     })
 
+@login_required
 def resu_miembros(request, id_sem):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        messages.error(request, "Debes iniciar sesión.")
         return redirect('iniciarsesion')
 
     try:
@@ -869,7 +1049,7 @@ def resu_miembros(request, id_sem):
             ).select_related('cod_pro').values_list('cod_pro__nom_pro', flat=True)
             miembro.proyectos_liderados = list(proyectos_liderados)
 
-    # 🎯 NUEVO: Crear lista de instructores filtrada Y con la misma lógica de liderazgo
+    # Crear lista de instructores filtrada Y con la misma lógica de liderazgo
     instructores = SemilleroUsuario.objects.filter(
         id_sem=semillero
     ).filter(
@@ -927,6 +1107,7 @@ def resu_miembros(request, id_sem):
 
     return render(request, 'paginas/resu-miembros.html', context)
 
+@login_required
 def agregar_miembros(request, id_sem):
     if request.method == 'POST':
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
@@ -969,7 +1150,8 @@ def agregar_miembros(request, id_sem):
             return redirect('resu-miembros', id_sem=id_sem)
     
     return redirect('resu-miembros', id_sem=id_sem)
-    
+
+@login_required
 def asignar_lider_semillero(request, id_sem):
     if request.method == "POST":
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
@@ -1104,17 +1286,18 @@ def asignar_lider_semillero(request, id_sem):
     # Si es GET, redirigir a resu-miembros (el modal se abre desde allí)
     return redirect("resu-miembros", id_sem=id_sem)
 
+@login_required
 def resu_proyectos(request, id_sem, cod_pro=None):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
+        messages.error(request, "Debes iniciar sesión.")
         return redirect('iniciarsesion')
 
     try:
         usuario = Usuario.objects.get(cedula=usuario_id)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
-        return redirect('iniciarsesion') 
+        return redirect('iniciarsesion')
     
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
 
@@ -1227,7 +1410,8 @@ def resu_proyectos(request, id_sem, cod_pro=None):
                 'rol': up.cedula.rol,
                 'estado': up.estado,
                 'es_lider': up.es_lider_pro,
-                'es_lider_sem': es_lider_sem
+                'es_lider_sem': es_lider_sem,
+                'usuario': usuario
             })
 
         for ap in aprendices_proyecto:
@@ -1310,7 +1494,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
     proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
 
     for proyecto in proyectos:
-        verificar_y_actualizar_estados_entregables(proyecto)
+        verificar_y_actualizar_estados_entregables(request, proyecto)
 
     tipo_seleccionado = None
     if cod_pro:
@@ -1443,6 +1627,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
 
     return render(request, 'paginas/resu-proyectos.html', context)
 
+@login_required
 def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
     """
     Asigna o quita el rol de líder de proyecto mediante AJAX
@@ -1557,6 +1742,7 @@ def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
+@login_required
 def alternar_estado_miembro(request, id_sem, cod_pro):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
@@ -1593,7 +1779,8 @@ def alternar_estado_miembro(request, id_sem, cod_pro):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
-    
+
+@login_required
 def crear_proyecto(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
 
@@ -1770,6 +1957,7 @@ def crear_proyecto(request, id_sem):
         'miembros_semillero': miembros_semillero
     })
 
+@login_required
 def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     entregable = get_object_or_404(Entregable, cod_pro=cod_pro, cod_entre=cod_entre)
@@ -1817,13 +2005,25 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     messages.error(request, 'Método no permitido.')
     return redirect('resu-proyectos', id_sem=id_sem)
 
-def actualizar_progreso_proyecto(proyecto):
+@login_required
+def actualizar_progreso_proyecto(request, proyecto):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
     entregables = Entregable.objects.filter(cod_pro=proyecto)
     total_entregables = entregables.count()
 
     if total_entregables == 0:
         proyecto.progreso = 0
-        proyecto.estado_pro = "diagnostico"
+        proyecto.estado_pro = "pendiente"
     else:
         # Contar entregables completados (incluye entregas tardías)
         entregables_completados = entregables.filter(
@@ -1835,7 +2035,9 @@ def actualizar_progreso_proyecto(proyecto):
         proyecto.progreso = progreso
 
         # ===== ASIGNAR ESTADO SEGÚN ENTREGABLES COMPLETADOS =====
-        if entregables_completados <= 2:
+        if entregables_completados == 0:
+            proyecto.estado_pro = "pendiente"
+        elif entregables_completados == 2:
             proyecto.estado_pro = "diagnostico"
         elif entregables_completados == 3:
             proyecto.estado_pro = "planeacion"
@@ -1849,9 +2051,21 @@ def actualizar_progreso_proyecto(proyecto):
     # Actualizar progreso del semillero asociado
     semilleros = Semillero.objects.filter(semilleroproyecto__cod_pro=proyecto)
     for semillero in semilleros:
-        actualizar_progreso_semillero(semillero)
+        actualizar_progreso_semillero(request, semillero)
 
-def verificar_y_actualizar_estados_entregables(proyecto):
+@login_required
+def verificar_y_actualizar_estados_entregables(request, proyecto):
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        messages.error(request, "Debes iniciar sesión.")
+        return redirect('iniciarsesion')
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+    
     from datetime import date
     
     fecha_actual = date.today()
@@ -1884,6 +2098,7 @@ def verificar_y_actualizar_estados_entregables(proyecto):
                     entregable.estado = 'Pendiente'
                     entregable.save()
 
+@login_required
 def eliminar_entregable(request, id_sem, cod_pro, cod_entre):
     """
     Vista para eliminar un archivo de un entregable (opcional)
@@ -1920,6 +2135,7 @@ def eliminar_entregable(request, id_sem, cod_pro, cod_entre):
             return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
     return redirect('resu-proyectos', id_sem=id_sem)
 
+@login_required
 def eliminar_proyecto_semillero(request, id_sem, cod_pro):
     try:
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
@@ -1979,6 +2195,7 @@ def eliminar_proyecto_semillero(request, id_sem, cod_pro):
 
     return redirect('resu-proyectos', id_sem=id_sem)
 
+@login_required
 def recursos(request, id_sem):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
@@ -2034,6 +2251,7 @@ def recursos(request, id_sem):
         'usuario' : usuario,
     })
 
+@login_required
 def agregar_recurso(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
@@ -2089,6 +2307,7 @@ def agregar_recurso(request, id_sem):
     # Si la solicitud no es POST, redirigir a la página de recursos
     return redirect('recursos', id_sem=id_sem)
 
+@login_required
 def eliminar_recurso(request, id_sem, cod_doc):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     documento = get_object_or_404(Documento, cod_doc=cod_doc)
@@ -2113,21 +2332,21 @@ def eliminar_recurso(request, id_sem, cod_doc):
     return redirect('recursos', id_sem=id_sem)
 
 # VISTAS DE PROYECTOS
+@login_required
 def proyectos(request):
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
-        return redirect('iniciarsesion')
-
+    # Obtener cédula de la sesión
+    cedula = request.session.get('cedula')
+    
+    # Obtener el usuario actual
     try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
+        usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
-        return redirect('iniciarsesion') 
+        return redirect('iniciarsesion')
     
-    """
-    Vista para la gestión de proyectos con búsqueda, filtros y estadísticas
-    """
+    # SOLO LOS PROYECTOS EN LOS QUE EL USUARIO ES MIEMBRO O LÍDER
+    proyectos = usuario.proyectos.all()
+   
     # Obtener la fecha actual y el inicio del mes
     fecha_actual = timezone.now()
     inicio_mes = fecha_actual.replace(day=1)
@@ -2137,8 +2356,8 @@ def proyectos(request):
     
     #  Actualizar estados de TODOS los proyectos primero
     for proyecto in proyectos_list:
-        verificar_y_actualizar_estados_entregables(proyecto)
-        actualizar_progreso_proyecto(proyecto)  # ✅ AGREGAR ESTA LÍNEA
+        verificar_y_actualizar_estados_entregables(request, proyecto)
+        actualizar_progreso_proyecto(request, proyecto)  
     
     # --- ESTADÍSTICAS GENERALES ---
     total_proyectos = proyectos_list.count()
@@ -2222,6 +2441,7 @@ def proyectos(request):
     }
     return render(request, 'paginas/proyectos.html', context)
 
+@login_required
 def detalle_proyecto(request, id_sem, cod_pro):
     """Vista para ver los detalles de un proyecto específico"""
     
@@ -2263,9 +2483,9 @@ def detalle_proyecto(request, id_sem, cod_pro):
             tipo_seleccionado = proyecto_sel.tipo.lower()
     
     # ==================== SEPARAR PROYECTOS POR TIPO ====================
-    proyectos_sennova = list(proyectos.filter(tipo__iexact="sennova"))
-    proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
-    proyectos_formativos = list(proyectos.filter(tipo__iexact="formativo"))
+    proyectos_sennova = list(proyectos.filter(tipo__iexact="Sennova"))
+    proyectos_capacidad = list(proyectos.filter(tipo__iexact="Capacidad Instalada"))
+    proyectos_formativos = list(proyectos.filter(tipo__iexact="Formativo"))
     
     # ==================== PROCESAR MIEMBROS DE CADA PROYECTO ====================
     todos_proyectos = proyectos_sennova + proyectos_capacidad + proyectos_formativos
@@ -2325,35 +2545,30 @@ def detalle_proyecto(request, id_sem, cod_pro):
         'current_page_name': 'Detalle Proyecto',
         'usuario': usuario,
         'semillero': semillero,
-        
-        # Proyectos
         'proyectos_sennova': proyectos_sennova,
         'proyectos_capacidad': proyectos_capacidad,
         'proyectos_formativos': proyectos_formativos,
         'proyecto': proyecto_sel,
         'tipo_seleccionado': tipo_seleccionado,
         'cod_pro': cod_pro,
-        
-        # Estadísticas
         'total_proyectos': total_proyectos,
         'total_miembros': total_miembros,
         'total_entregables': total_entregables,
         'miembros': miembros,
-        
-        # Flag de solo lectura
         'solo_lectura': True,
     }
     
     return render(request, 'paginas/resu-proyectos.html', context)
 
 # VISTAS DE MIEMBROS
+@login_required
 def miembros(request):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
         messages.error(request, "Debes iniciar sesión para ver tu perfil.")
         return redirect('iniciarsesion')
 
-    # ✅ VERIFICAR SI DEBE MOSTRAR EL MODAL
+    # VERIFICAR SI DEBE MOSTRAR EL MODAL
     mostrar_modal_codigo = request.session.get('mostrar_modal_codigo', False)
     aprendiz_verificacion = None
 
@@ -2380,7 +2595,7 @@ def miembros(request):
     busqueda = request.GET.get('busqueda', '').strip().lower()
     miembro_id = request.GET.get('miembro_id')
 
-    # ✅ VALIDAR QUE miembro_id NO SEA 'None' O VACÍO
+    # VALIDAR QUE miembro_id NO SEA 'None' O VACÍO
     if miembro_id and miembro_id.lower() == 'none':
         miembro_id = None
 
@@ -2647,6 +2862,7 @@ def registro_aprendiz(request):
     
     return render(request, 'paginas/formaprendiz.html', {'form': form})
 
+@login_required
 def solicitar_codigo_verificacion_form(request, aprendiz_id):
     """Genera y envía un código de verificación con control de límites"""
     try:
@@ -2743,7 +2959,8 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
         return redirect('miembros')
-    
+
+@login_required
 def verificar_codigo_form(request):
     """Verifica el código con control de reintentos"""
     try:
@@ -2866,7 +3083,8 @@ def verificar_codigo_form(request):
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
         return redirect('miembros')
-         
+
+@login_required
 def cancelar_verificacion(request):
     """Cancela el proceso de verificación"""
     request.session['mostrar_modal_codigo'] = False
@@ -2889,6 +3107,7 @@ def cancelar_verificacion(request):
     messages.info(request, 'Verificación cancelada')
     return redirect('miembros')
 
+@login_required
 def limpiar_numero_revelado(request):
     """
     Limpia el número de cuenta revelado de la sesión
@@ -2901,7 +3120,18 @@ def limpiar_numero_revelado(request):
     return redirect('miembros')
 
 # VISTAS DE EVENTOS
+@login_required
 def eventos(request):
+    # Obtener cédula de la sesión
+    cedula = request.session.get('cedula')
+    
+    # Obtener el usuario actual
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+
     limite = timezone.now() - timedelta(hours=24)
     Evento.objects.filter(
         estado_eve__in=["Cancelado", "Finalizado"],
@@ -2984,12 +3214,23 @@ def eventos(request):
         'virtuales_mes': virtuales_mes,
         'estado_seleccionado': estado,
         'modalidad_seleccionada': modalidad,
-        'busqueda': buscar
+        'busqueda': buscar,
+        'usuario': usuario
     }
 
     return render(request, 'paginas/eventos.html', contexto)
 
+@login_required
 def crear_evento(request):
+     # Obtener cédula de la sesión
+    cedula = request.session.get('cedula')
+    
+    # Obtener el usuario actual
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
     if request.method == 'POST':
         try:
             # Obtener datos del formulario
@@ -3008,7 +3249,7 @@ def crear_evento(request):
                 return redirect('eventos')
 
             # Obtener el usuario actual
-            usuario = Usuario.objects.get(cedula=request.user.cedula)
+            cedula = request.session.get('cedula')
             
             # Crear el evento
             evento = Evento.objects.create(
@@ -3036,6 +3277,7 @@ def crear_evento(request):
     
     return redirect('eventos')
 
+@login_required
 def editar_evento(request, cod_eve):
     # Obtener el evento
     evento = get_object_or_404(Evento, cod_eve=cod_eve)
@@ -3065,6 +3307,7 @@ def editar_evento(request, cod_eve):
         "abrir_modal_editar": True
     })
 
+@login_required
 def cancelar_evento(request):
     if request.method == "POST":
         cod = request.POST.get("cod_eve")
@@ -3087,6 +3330,7 @@ def cancelar_evento(request):
     return redirect("eventos")
 
 # VISTAS DE CENTRO DE AYUDA
+@login_required
 def centroayuda(request):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
@@ -3106,6 +3350,7 @@ def centroayuda(request):
     return render(request, 'paginas/centroayuda.html', contexto)
 
 # VISTAS DE REPORTES
+@login_required
 def reportes(request):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
@@ -3124,6 +3369,7 @@ def reportes(request):
     }
     return render(request, 'paginas/reportes.html', contexto)
 
+@login_required
 def reporte_general_semilleros(request):
 
     # Crear archivo Excel
@@ -3250,6 +3496,7 @@ def reporte_general_semilleros(request):
     wb.save(response)
     return response
 
+@login_required
 def reporte_general_proyectos(request):
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -3479,6 +3726,7 @@ def reporte_general_proyectos(request):
     wb.save(response)
     return response
 
+@login_required
 def reporte_entregables(request):
 
     wb = openpyxl.Workbook()
@@ -3613,6 +3861,7 @@ def reporte_entregables(request):
     wb.save(response)
     return response
 
+@login_required
 def reporte_participantes(request):
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -3757,6 +4006,7 @@ def reporte_participantes(request):
     wb.save(response)
     return response
 
+@login_required
 def generar_reporte_excel(request):
 
     if request.method != "POST":
@@ -4980,6 +5230,7 @@ def generar_reporte_excel(request):
     wb.save(response)
     return response
 
+@login_required
 def crear_grafico_barras(ws, titulo, rango_categorias, rango_valores, celda_pos):
     chart = BarChart()
     chart.title = titulo
@@ -4987,6 +5238,7 @@ def crear_grafico_barras(ws, titulo, rango_categorias, rango_valores, celda_pos)
     chart.set_categories(rango_categorias)
     ws.add_chart(chart, celda_pos)
 
+@login_required
 def crear_grafico_lineas(ws, titulo, rango_categorias, rango_valores, celda_pos):
     chart = LineChart()
     chart.title = titulo
@@ -4994,6 +5246,7 @@ def crear_grafico_lineas(ws, titulo, rango_categorias, rango_valores, celda_pos)
     chart.set_categories(rango_categorias)
     ws.add_chart(chart, celda_pos)
 
+@login_required
 def crear_grafico_pie(ws, titulo, rango_labels, rango_valores, celda_pos):
     chart = PieChart()
     chart.title = titulo
@@ -5001,6 +5254,7 @@ def crear_grafico_pie(ws, titulo, rango_labels, rango_valores, celda_pos):
     chart.set_categories(rango_labels)
     ws.add_chart(chart, celda_pos)
 
+@login_required
 def generar_reporte_dinamico(request):
     if request.method != "POST":
         return redirect("reportes")
@@ -5013,6 +5267,7 @@ def generar_reporte_dinamico(request):
     else:
         return generar_reporte_excel(request)
 
+@login_required
 def generar_reporte_pdf(request):
     # NOMBRE DEL ARCHIVO
     nombre_archivo = request.POST.get("nombre_plantilla", "").strip()
@@ -5531,6 +5786,7 @@ def generar_reporte_pdf(request):
     
     return response
 
+@login_required
 def reporte_tendencias_crecimiento(request):
     from collections import defaultdict
     
@@ -5689,6 +5945,7 @@ def reporte_tendencias_crecimiento(request):
     wb.save(response)
     return response
 
+@login_required
 def reporte_productividad_semillero(request):
     """
     Genera reporte Excel con productividad por semillero
@@ -5858,9 +6115,1158 @@ def reporte_productividad_semillero(request):
     wb.save(response)
     return response
 
+def reporte_mensual_ejecutivo(request):
+    """
+    Genera reporte consolidado del mes actual: logros, avances y estadísticas clave
+    """
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Reporte Mensual"
+    
+    # Obtener fecha actual y rango del mes
+    fecha_actual = timezone.now()
+    inicio_mes = fecha_actual.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    # Calcular fin de mes
+    if fecha_actual.month == 12:
+        fin_mes = fecha_actual.replace(year=fecha_actual.year + 1, month=1, day=1)
+    else:
+        fin_mes = fecha_actual.replace(month=fecha_actual.month + 1, day=1)
+    
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+    
+    # TÍTULO
+    ws.merge_cells('A1:D1')
+    titulo = ws['A1']
+    titulo.value = f"REPORTE MENSUAL EJECUTIVO - {fecha_actual.strftime('%B %Y').upper()}"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    
+    # SECCIÓN 1: RESUMEN GENERAL
+    fila = 3
+    ws.cell(row=fila, column=1, value="RESUMEN GENERAL").font = Font(bold=True, size=14)
+    fila += 2
+    
+    # Estadísticas del mes
+    semilleros_activos = Semillero.objects.filter(estado='Activo').count()
+    proyectos_mes = Proyecto.objects.filter(fecha_creacion__gte=inicio_mes, fecha_creacion__lt=fin_mes).count()
+    entregables_completados_mes = Entregable.objects.filter(
+        estado__in=['Completado', 'Entrega Tardía'],
+        fecha_fin__gte=inicio_mes,
+        fecha_fin__lt=fin_mes
+    ).count()
+    
+    # Escribir encabezados
+    ws.cell(row=fila, column=1, value="Métrica").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Valor").font = Font(bold=True)
+    fila += 1
+    
+    datos_resumen = [
+        ["Semilleros Activos", semilleros_activos],
+        ["Proyectos Creados Este Mes", proyectos_mes],
+        ["Entregables Completados", entregables_completados_mes],
+        ["Total Participantes", Usuario.objects.count() + Aprendiz.objects.count()],
+    ]
+    
+    for dato in datos_resumen:
+        ws.cell(row=fila, column=1, value=dato[0])
+        ws.cell(row=fila, column=2, value=dato[1])
+        fila += 1
+    
+    inicio_resumen = 5
+    # Aplicar bordes
+    for row in ws.iter_rows(min_row=inicio_resumen, max_row=fila-1, min_col=1, max_col=2):
+        for cell in row:
+            cell.border = thin_border
+    
+    # SECCIÓN 2: LOGROS DEL MES
+    fila += 2
+    ws.cell(row=fila, column=1, value="LOGROS DEL MES").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_logros = fila
+    ws.cell(row=fila, column=1, value="Proyecto").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Avance (%)").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value="Estado").font = Font(bold=True)
+    fila += 1
+    
+    # Proyectos con mayor avance este mes
+    proyectos_avance = Proyecto.objects.filter(
+        fecha_creacion__lt=fin_mes
+    ).order_by('-progreso')[:10]
+    
+    for p in proyectos_avance:
+        ws.cell(row=fila, column=1, value=p.nom_pro)
+        ws.cell(row=fila, column=2, value=p.progreso)
+        ws.cell(row=fila, column=3, value=p.estado_pro)
+        fila += 1
+    
+    # Guardar la fila final de logros
+    fila_final_logros = fila - 1
+    
+    # Bordes para logros
+    for row in ws.iter_rows(min_row=inicio_logros, max_row=fila_final_logros, min_col=1, max_col=3):
+        for cell in row:
+            cell.border = thin_border
+    
+    # SECCIÓN 3: PARTICIPACIÓN POR SEMILLERO
+    fila += 2
+    ws.cell(row=fila, column=1, value="PARTICIPACIÓN POR SEMILLERO").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_participacion = fila
+    ws.cell(row=fila, column=1, value="Semillero").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Integrantes").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value="Proyectos Activos").font = Font(bold=True)
+    fila += 1
+    
+    semilleros = Semillero.objects.all()
+    for sem in semilleros:
+        integrantes = SemilleroUsuario.objects.filter(id_sem=sem).count() + Aprendiz.objects.filter(id_sem=sem).count()
+        proyectos_activos = SemilleroProyecto.objects.filter(id_sem=sem).count()
+        ws.cell(row=fila, column=1, value=sem.nombre)
+        ws.cell(row=fila, column=2, value=integrantes)
+        ws.cell(row=fila, column=3, value=proyectos_activos)
+        fila += 1
+    
+    # Guardar la fila final de participación
+    fila_final_participacion = fila - 1
+    
+    # Bordes para participación
+    for row in ws.iter_rows(min_row=inicio_participacion, max_row=fila_final_participacion, min_col=1, max_col=3):
+        for cell in row:
+            cell.border = thin_border
+    
+    # GRÁFICOS
+    # Gráfico 1: Avance de proyectos
+    chart1 = BarChart()
+    chart1.title = "Top 10 Proyectos por Avance"
+    chart1.y_axis.title = "Progreso (%)"
+    
+    # Datos: solo los valores numéricos (sin encabezado)
+    data1 = Reference(ws, min_col=2, min_row=inicio_logros+1, max_row=fila_final_logros)
+    # Categorías: nombres de proyectos
+    cats1 = Reference(ws, min_col=1, min_row=inicio_logros+1, max_row=fila_final_logros)
+    
+    chart1.add_data(data1, titles_from_data=False)
+    chart1.set_categories(cats1)
+    ws.add_chart(chart1, "F5")
+    
+    # Gráfico 2: Participación por semillero
+    chart2 = PieChart()
+    chart2.title = "Distribución de Integrantes"
+    
+    # Datos: solo los valores numéricos
+    data2 = Reference(ws, min_col=2, min_row=inicio_participacion+1, max_row=fila_final_participacion)
+    # Categorías: nombres de semilleros
+    cats2 = Reference(ws, min_col=1, min_row=inicio_participacion+1, max_row=fila_final_participacion)
+    
+    chart2.add_data(data2, titles_from_data=False)
+    chart2.set_categories(cats2)
+    ws.add_chart(chart2, "F25")
+    
+    # Respuesta
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = f'attachment; filename="reporte_mensual_{fecha_actual.strftime("%Y_%m")}.xlsx"'
+    
+    wb.save(response)
+    return response
+
+@login_required
+def informe_trimestral(request):
+    """
+    Análisis de cumplimiento y resultados por trimestre
+    """
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Informe Trimestral"
+    
+    fecha_actual = timezone.now()
+    
+    # Calcular inicio del trimestre actual
+    mes_actual = fecha_actual.month
+    if mes_actual <= 3:
+        inicio_trimestre = fecha_actual.replace(month=1, day=1)
+        trimestre = "Q1"
+    elif mes_actual <= 6:
+        inicio_trimestre = fecha_actual.replace(month=4, day=1)
+        trimestre = "Q2"
+    elif mes_actual <= 9:
+        inicio_trimestre = fecha_actual.replace(month=7, day=1)
+        trimestre = "Q3"
+    else:
+        inicio_trimestre = fecha_actual.replace(month=10, day=1)
+        trimestre = "Q4"
+    
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+    
+    # TÍTULO
+    ws.merge_cells('A1:E1')
+    titulo = ws['A1']
+    titulo.value = f"INFORME TRIMESTRAL {trimestre} - {fecha_actual.year}"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    
+    # SECCIÓN 1: CUMPLIMIENTO DE OBJETIVOS
+    fila = 3
+    ws.cell(row=fila, column=1, value="CUMPLIMIENTO DE OBJETIVOS").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_cumplimiento = fila
+    ws.cell(row=fila, column=1, value="Semillero").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Proyectos Completados").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value="Proyectos En Curso").font = Font(bold=True)
+    ws.cell(row=fila, column=4, value="Tasa de Cumplimiento (%)").font = Font(bold=True)
+    fila += 1
+    
+    semilleros = Semillero.objects.all()
+    for sem in semilleros:
+        proyectos_completados = Proyecto.objects.filter(
+            semilleroproyecto__id_sem=sem,
+            estado_pro='completado',
+            fecha_creacion__gte=inicio_trimestre
+        ).count()
+        
+        proyectos_curso = Proyecto.objects.filter(
+            semilleroproyecto__id_sem=sem,
+            estado_pro__in=['planeacion', 'ejecucion']
+        ).count()
+        
+        total = proyectos_completados + proyectos_curso
+        tasa = (proyectos_completados / total * 100) if total > 0 else 0
+        
+        ws.cell(row=fila, column=1, value=sem.nombre)
+        ws.cell(row=fila, column=2, value=proyectos_completados)
+        ws.cell(row=fila, column=3, value=proyectos_curso)
+        ws.cell(row=fila, column=4, value=round(tasa, 1))
+        fila += 1
+    
+    # Guardar la fila final de cumplimiento
+    fila_final_cumplimiento = fila - 1
+    
+    # Bordes para cumplimiento
+    for row in ws.iter_rows(min_row=inicio_cumplimiento, max_row=fila_final_cumplimiento, min_col=1, max_col=4):
+        for cell in row:
+            cell.border = thin_border
+    
+    # SECCIÓN 2: ENTREGABLES POR MES
+    fila += 2
+    ws.cell(row=fila, column=1, value="ENTREGABLES COMPLETADOS POR MES").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_entregables = fila
+    ws.cell(row=fila, column=1, value="Mes").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Completados").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value="Tardíos").font = Font(bold=True)
+    ws.cell(row=fila, column=4, value="Pendientes").font = Font(bold=True)
+    fila += 1
+    
+    # Iterar por los 3 meses del trimestre
+    for i in range(3):
+        mes_analisis = inicio_trimestre + relativedelta(months=i)
+        mes_siguiente = mes_analisis + relativedelta(months=1)
+        
+        completados = Entregable.objects.filter(
+            estado='Completado',
+            fecha_fin__gte=mes_analisis,
+            fecha_fin__lt=mes_siguiente
+        ).count()
+        
+        tardios = Entregable.objects.filter(
+            estado='Entrega Tardía',
+            fecha_fin__gte=mes_analisis,
+            fecha_fin__lt=mes_siguiente
+        ).count()
+        
+        pendientes = Entregable.objects.filter(
+            estado='Pendiente',
+            fecha_inicio__gte=mes_analisis,
+            fecha_inicio__lt=mes_siguiente
+        ).count()
+        
+        ws.cell(row=fila, column=1, value=mes_analisis.strftime("%B"))
+        ws.cell(row=fila, column=2, value=completados)
+        ws.cell(row=fila, column=3, value=tardios)
+        ws.cell(row=fila, column=4, value=pendientes)
+        fila += 1
+    
+    # Bordes para entregables
+    for row in ws.iter_rows(min_row=inicio_entregables, max_row=fila-1, min_col=1, max_col=4):
+        for cell in row:
+            cell.border = thin_border
+    
+    # GRÁFICOS
+    # Gráfico 1: Cumplimiento
+    chart1 = BarChart()
+    chart1.title = "Tasa de Cumplimiento por Semillero"
+    chart1.y_axis.title = "Porcentaje (%)"
+    
+    # Datos: solo porcentajes (sin encabezado)
+    data1 = Reference(ws, min_col=4, min_row=inicio_cumplimiento+1, max_row=fila_final_cumplimiento)
+    # Categorías: nombres de semilleros
+    cats1 = Reference(ws, min_col=1, min_row=inicio_cumplimiento+1, max_row=fila_final_cumplimiento)
+    
+    chart1.add_data(data1, titles_from_data=False)
+    chart1.set_categories(cats1)
+    ws.add_chart(chart1, "G5")
+    
+    # Gráfico 2: Entregables
+    chart2 = LineChart()
+    chart2.title = "Evolución de Entregables"
+    chart2.y_axis.title = "Cantidad"
+    
+    # Guardar la fila final de entregables
+    fila_final_entregables = fila - 1
+    
+    # Datos: columnas 2-4 (Completados, Tardíos, Pendientes) sin encabezados
+    data2 = Reference(ws, min_col=2, min_row=inicio_entregables, max_col=4, max_row=fila_final_entregables)
+    # Categorías: nombres de meses
+    cats2 = Reference(ws, min_col=1, min_row=inicio_entregables+1, max_row=fila_final_entregables)
+    
+    chart2.add_data(data2, titles_from_data=True)
+    chart2.set_categories(cats2)
+    ws.add_chart(chart2, "G25")
+    
+    # Respuesta
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = f'attachment; filename="informe_trimestral_{trimestre}_{fecha_actual.year}.xlsx"'
+    
+    wb.save(response)
+    return response
+
+@login_required
+def balance_anual(request):
+    """
+    Resultados del año completo con análisis integral
+    """
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Balance Anual"
+    
+    fecha_actual = timezone.now()
+    año_actual = fecha_actual.year
+    inicio_año = fecha_actual.replace(month=1, day=1, hour=0, minute=0, second=0)
+    
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+    
+    # TÍTULO
+    ws.merge_cells('A1:F1')
+    titulo = ws['A1']
+    titulo.value = f"BALANCE ANUAL {año_actual}"
+    titulo.font = Font(bold=True, size=18)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    
+    # SECCIÓN 1: RESUMEN EJECUTIVO
+    fila = 3
+    ws.cell(row=fila, column=1, value="RESUMEN EJECUTIVO").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_resumen_anual = fila
+    ws.cell(row=fila, column=1, value="Indicador").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Total Año").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value="Promedio Mensual").font = Font(bold=True)
+    fila += 1
+    
+    # Calcular indicadores
+    proyectos_año = Proyecto.objects.filter(fecha_creacion__year=año_actual).count()
+    entregables_año = Entregable.objects.filter(
+        estado__in=['Completado', 'Entrega Tardía'],
+        fecha_fin__year=año_actual
+    ).count()
+    participantes_nuevos = Usuario.objects.filter(fecha_registro__year=año_actual).count() + \
+                          Aprendiz.objects.filter(fecha_registro__year=año_actual).count()
+    
+    meses_transcurridos = fecha_actual.month
+    
+    indicadores = [
+        ["Proyectos Creados", proyectos_año, round(proyectos_año / meses_transcurridos, 1)],
+        ["Entregables Completados", entregables_año, round(entregables_año / meses_transcurridos, 1)],
+        ["Participantes Nuevos", participantes_nuevos, round(participantes_nuevos / meses_transcurridos, 1)],
+    ]
+    
+    for ind in indicadores:
+        ws.cell(row=fila, column=1, value=ind[0])
+        ws.cell(row=fila, column=2, value=ind[1])
+        ws.cell(row=fila, column=3, value=ind[2])
+        fila += 1
+    
+    # Bordes para resumen anual
+    for row in ws.iter_rows(min_row=inicio_resumen_anual, max_row=fila-1, min_col=1, max_col=3):
+        for cell in row:
+            cell.border = thin_border
+    
+    # SECCIÓN 2: EVOLUCIÓN MENSUAL
+    fila += 2
+    ws.cell(row=fila, column=1, value="EVOLUCIÓN MENSUAL").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_evolucion = fila
+    ws.cell(row=fila, column=1, value="Mes").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Proyectos").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value="Entregables").font = Font(bold=True)
+    ws.cell(row=fila, column=4, value="Progreso Promedio (%)").font = Font(bold=True)
+    fila += 1
+    
+    # Datos por mes
+    for mes in range(1, meses_transcurridos + 1):
+        mes_inicio = fecha_actual.replace(month=mes, day=1)
+        mes_fin = mes_inicio + relativedelta(months=1)
+        
+        proyectos_mes = Proyecto.objects.filter(
+            fecha_creacion__gte=mes_inicio,
+            fecha_creacion__lt=mes_fin
+        ).count()
+        
+        entregables_mes = Entregable.objects.filter(
+            estado__in=['Completado', 'Entrega Tardía'],
+            fecha_fin__gte=mes_inicio,
+            fecha_fin__lt=mes_fin
+        ).count()
+        
+        # Progreso promedio de todos los proyectos
+        proyectos_activos = Proyecto.objects.filter(fecha_creacion__lt=mes_fin)
+        progreso_promedio = proyectos_activos.aggregate(Avg('progreso'))['progreso__avg'] or 0
+        
+        ws.cell(row=fila, column=1, value=mes_inicio.strftime("%B"))
+        ws.cell(row=fila, column=2, value=proyectos_mes)
+        ws.cell(row=fila, column=3, value=entregables_mes)
+        ws.cell(row=fila, column=4, value=round(progreso_promedio, 1))
+        fila += 1
+    
+    # Guardar la fila final de evolución
+    fila_final_evolucion = fila - 1
+    
+    # Bordes para evolución
+    for row in ws.iter_rows(min_row=inicio_evolucion, max_row=fila_final_evolucion, min_col=1, max_col=4):
+        for cell in row:
+            cell.border = thin_border
+    
+    # SECCIÓN 3: RANKING DE SEMILLEROS
+    fila += 2
+    ws.cell(row=fila, column=1, value="RANKING DE SEMILLEROS").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_ranking = fila
+    ws.cell(row=fila, column=1, value="Posición").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value="Semillero").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value="Proyectos Completados").font = Font(bold=True)
+    ws.cell(row=fila, column=4, value="Progreso General (%)").font = Font(bold=True)
+    fila += 1
+    
+    # Calcular ranking
+    semilleros_ranking = []
+    for sem in Semillero.objects.all():
+        proyectos_completados = Proyecto.objects.filter(
+            semilleroproyecto__id_sem=sem,
+            estado_pro='completado'
+        ).count()
+        
+        semilleros_ranking.append({
+            'nombre': sem.nombre,
+            'completados': proyectos_completados,
+            'progreso': sem.progreso_sem
+        })
+    
+    # Ordenar por completados y luego por progreso
+    semilleros_ranking.sort(key=lambda x: (x['completados'], x['progreso']), reverse=True)
+    
+    for i, sem in enumerate(semilleros_ranking, 1):
+        ws.cell(row=fila, column=1, value=i)
+        ws.cell(row=fila, column=2, value=sem['nombre'])
+        ws.cell(row=fila, column=3, value=sem['completados'])
+        ws.cell(row=fila, column=4, value=sem['progreso'])
+        fila += 1
+    
+    # Guardar la fila final de ranking
+    fila_final_ranking = fila - 1
+    
+    # Bordes para ranking
+    for row in ws.iter_rows(min_row=inicio_ranking, max_row=fila_final_ranking, min_col=1, max_col=4):
+        for cell in row:
+            cell.border = thin_border
+    
+    # GRÁFICOS
+    # Gráfico 1: Evolución mensual
+    chart1 = LineChart()
+    chart1.title = "Evolución Anual"
+    chart1.y_axis.title = "Cantidad"
+    
+    # Datos: columnas 2-3 (Proyectos, Entregables)
+    data1 = Reference(ws, min_col=2, min_row=inicio_evolucion, max_col=3, max_row=fila_final_evolucion)
+    # Categorías: nombres de meses
+    cats1 = Reference(ws, min_col=1, min_row=inicio_evolucion+1, max_row=fila_final_evolucion)
+    
+    chart1.add_data(data1, titles_from_data=True)
+    chart1.set_categories(cats1)
+    ws.add_chart(chart1, "H5")
+    
+    # Gráfico 2: Ranking Top 5
+    chart2 = BarChart()
+    chart2.title = "Top 5 Semilleros"
+    chart2.y_axis.title = "Proyectos Completados"
+    
+    # Calcular cuántos semilleros mostrar (máximo 5)
+    num_semilleros_grafico = min(5, len(semilleros_ranking))
+    max_fila_ranking_grafico = inicio_ranking + num_semilleros_grafico
+    
+    # Datos: solo proyectos completados (columna 3)
+    data2 = Reference(ws, min_col=3, min_row=inicio_ranking+1, max_row=max_fila_ranking_grafico)
+    # Categorías: nombres de semilleros
+    cats2 = Reference(ws, min_col=2, min_row=inicio_ranking+1, max_row=max_fila_ranking_grafico)
+    
+    chart2.add_data(data2, titles_from_data=False)
+    chart2.set_categories(cats2)
+    ws.add_chart(chart2, "H25")
+    
+    # Respuesta
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = f'attachment; filename="balance_anual_{año_actual}.xlsx"'
+    
+    wb.save(response)
+    return response
+
+@login_required
+def comparativo_anual(request):
+    """
+    Evolución interanual de indicadores clave de desempeño
+    """
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Comparativo Anual"
+    
+    fecha_actual = timezone.now()
+    año_actual = fecha_actual.year
+    año_anterior = año_actual - 1
+    
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+    
+    # TÍTULO
+    ws.merge_cells('A1:E1')
+    titulo = ws['A1']
+    titulo.value = f"COMPARATIVO {año_anterior} vs {año_actual}"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    
+    # SECCIÓN 1: INDICADORES GENERALES
+    fila = 3
+    ws.cell(row=fila, column=1, value="INDICADORES GENERALES").font = Font(bold=True, size=14)
+    fila += 2
+
+    inicio_indicadores = fila
+    ws.cell(row=fila, column=1, value="Indicador").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value=f"{año_anterior}").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value=f"{año_actual}").font = Font(bold=True)
+    ws.cell(row=fila, column=4, value="Variación (%)").font = Font(bold=True)
+    ws.cell(row=fila, column=5, value="Tendencia").font = Font(bold=True)
+    fila += 1
+
+    # Calcular indicadores para ambos años
+    def calcular_indicadores(año):
+        proyectos = Proyecto.objects.filter(fecha_creacion__year=año).count()
+        entregables = Entregable.objects.filter(
+            estado__in=['Completado', 'Entrega Tardía'],
+            fecha_fin__year=año
+        ).count()
+        participantes = Usuario.objects.filter(fecha_registro__year=año).count() + \
+                       Aprendiz.objects.filter(fecha_registro__year=año).count()
+        semilleros = Semillero.objects.filter(fecha_creacion__year=año).count()
+        
+        return {
+            'proyectos': proyectos,
+            'entregables': entregables,
+            'participantes': participantes,
+            'semilleros': semilleros
+        }
+    
+    datos_anterior = calcular_indicadores(año_anterior)
+    datos_actual = calcular_indicadores(año_actual)
+    
+    indicadores = [
+        ["Proyectos Creados", datos_anterior['proyectos'], datos_actual['proyectos']],
+        ["Entregables Completados", datos_anterior['entregables'], datos_actual['entregables']],
+        ["Nuevos Participantes", datos_anterior['participantes'], datos_actual['participantes']],
+        ["Semilleros Creados", datos_anterior['semilleros'], datos_actual['semilleros']],
+    ]
+    
+    for ind in indicadores:
+        anterior = ind[1]
+        actual = ind[2]
+        
+        # Calcular variación y tendencia
+        if anterior > 0:
+            variacion = ((actual - anterior) / anterior * 100)
+            tendencia = "↑" if variacion > 0 else "↓" if variacion < 0 else "="
+        elif actual > 0:
+            # Si no había datos anteriores pero ahora sí hay, es crecimiento
+            variacion = 100
+            tendencia = "↑"
+        else:
+            # Ambos son 0
+            variacion = 0
+            tendencia = "="
+        
+        ws.cell(row=fila, column=1, value=ind[0])
+        ws.cell(row=fila, column=2, value=anterior)
+        ws.cell(row=fila, column=3, value=actual)
+        ws.cell(row=fila, column=4, value=round(variacion, 1))
+        ws.cell(row=fila, column=5, value=tendencia)
+        fila += 1
+    
+    fin_indicadores = fila - 1
+    
+    # Bordes para indicadores
+    for row in ws.iter_rows(min_row=inicio_indicadores, max_row=fin_indicadores, min_col=1, max_col=5):
+        for cell in row:
+            cell.border = thin_border
+    
+    # SECCIÓN 2: COMPARATIVO POR SEMILLERO
+    fila += 2
+    ws.cell(row=fila, column=1, value="COMPARATIVO POR SEMILLERO").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_semilleros = fila
+    ws.cell(row=fila, column=1, value="Semillero").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value=f"Proyectos {año_anterior}").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value=f"Proyectos {año_actual}").font = Font(bold=True)
+    ws.cell(row=fila, column=4, value="Crecimiento (%)").font = Font(bold=True)
+    fila += 1
+    
+    semilleros = Semillero.objects.all()
+    for sem in semilleros:
+        proyectos_anterior = Proyecto.objects.filter(
+            semilleroproyecto__id_sem=sem,
+            fecha_creacion__year=año_anterior
+        ).count()
+        
+        proyectos_actual = Proyecto.objects.filter(
+            semilleroproyecto__id_sem=sem,
+            fecha_creacion__year=año_actual
+        ).count()
+        
+        # Calcular crecimiento
+        if proyectos_anterior > 0:
+            crecimiento = ((proyectos_actual - proyectos_anterior) / proyectos_anterior * 100)
+        elif proyectos_actual > 0:
+            crecimiento = 100
+        else:
+            crecimiento = 0
+        
+        ws.cell(row=fila, column=1, value=sem.nombre)
+        ws.cell(row=fila, column=2, value=proyectos_anterior)
+        ws.cell(row=fila, column=3, value=proyectos_actual)
+        ws.cell(row=fila, column=4, value=round(crecimiento, 1))
+        fila += 1
+    
+    fin_semilleros = fila - 1
+    
+    # Bordes para semilleros
+    for row in ws.iter_rows(min_row=inicio_semilleros, max_row=fin_semilleros, min_col=1, max_col=4):
+        for cell in row:
+            cell.border = thin_border
+    
+    # SECCIÓN 3: EVOLUCIÓN MENSUAL COMPARADA
+    fila += 2
+    ws.cell(row=fila, column=1, value="EVOLUCIÓN MENSUAL COMPARADA").font = Font(bold=True, size=14)
+    fila += 2
+    
+    inicio_mensual = fila
+    ws.cell(row=fila, column=1, value="Mes").font = Font(bold=True)
+    ws.cell(row=fila, column=2, value=f"Proyectos {año_anterior}").font = Font(bold=True)
+    ws.cell(row=fila, column=3, value=f"Proyectos {año_actual}").font = Font(bold=True)
+    fila += 1
+    
+    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    
+    for mes_num in range(1, 13):
+        proyectos_anterior = Proyecto.objects.filter(
+            fecha_creacion__year=año_anterior,
+            fecha_creacion__month=mes_num
+        ).count()
+        
+        proyectos_actual = Proyecto.objects.filter(
+            fecha_creacion__year=año_actual,
+            fecha_creacion__month=mes_num
+        ).count()
+        
+        ws.cell(row=fila, column=1, value=meses[mes_num-1])
+        ws.cell(row=fila, column=2, value=proyectos_anterior)
+        ws.cell(row=fila, column=3, value=proyectos_actual)
+        fila += 1
+    
+    fin_mensual = fila - 1
+    
+    # Bordes para mensual
+    for row in ws.iter_rows(min_row=inicio_mensual, max_row=fin_mensual, min_col=1, max_col=3):
+        for cell in row:
+            cell.border = thin_border
+
+    # GRÁFICOS CON LEYENDAS 
+    from openpyxl.chart import Series
+    
+    # Gráfico 1: Comparativo general
+    chart1 = BarChart()
+    chart1.title = "Comparativo General"
+    chart1.y_axis.title = "Cantidad"
+    chart1.x_axis.title = "Indicadores"
+    
+    # Crear series individuales para cada año (columna 2 = año anterior, columna 3 = año actual)
+    values_anterior = Reference(ws, min_col=2, min_row=inicio_indicadores+1, max_row=fin_indicadores)
+    values_actual = Reference(ws, min_col=3, min_row=inicio_indicadores+1, max_row=fin_indicadores)
+    cats1 = Reference(ws, min_col=1, min_row=inicio_indicadores+1, max_row=fin_indicadores)
+    
+    # Serie 1: Año anterior
+    serie1 = Series(values_anterior, title=f"{año_anterior}")
+    chart1.series.append(serie1)
+    
+    # Serie 2: Año actual
+    serie2 = Series(values_actual, title=f"{año_actual}")
+    chart1.series.append(serie2)
+    
+    chart1.set_categories(cats1)
+    ws.add_chart(chart1, "G3")
+    
+    # Gráfico 2: Evolución mensual
+    chart2 = LineChart()
+    chart2.title = "Evolución Mensual"
+    chart2.y_axis.title = "Proyectos"
+    chart2.x_axis.title = "Mes"
+    
+    # Crear series individuales para cada año
+    values_mensual_anterior = Reference(ws, min_col=2, min_row=inicio_mensual+1, max_row=fin_mensual)
+    values_mensual_actual = Reference(ws, min_col=3, min_row=inicio_mensual+1, max_row=fin_mensual)
+    cats2 = Reference(ws, min_col=1, min_row=inicio_mensual+1, max_row=fin_mensual)
+    
+    # Serie 1: Proyectos año anterior
+    serie_mensual1 = Series(values_mensual_anterior, title=f"Proyectos {año_anterior}")
+    chart2.series.append(serie_mensual1)
+    
+    # Serie 2: Proyectos año actual
+    serie_mensual2 = Series(values_mensual_actual, title=f"Proyectos {año_actual}")
+    chart2.series.append(serie_mensual2)
+    
+    chart2.set_categories(cats2)
+    ws.add_chart(chart2, "G20")
+    
+    # Gráfico 3: Crecimiento por semillero
+    chart3 = BarChart()
+    chart3.title = "Crecimiento por Semillero"
+    chart3.y_axis.title = "Porcentaje (%)"
+    chart3.x_axis.title = "Semilleros"
+    
+    # Datos de crecimiento (columna 4, sin incluir encabezados)
+    data3 = Reference(ws, min_col=4, min_row=inicio_semilleros+1, max_row=fin_semilleros)
+    cats3 = Reference(ws, min_col=1, min_row=inicio_semilleros+1, max_row=fin_semilleros)
+    
+    chart3.add_data(data3, titles_from_data=False)
+    chart3.set_categories(cats3)
+    ws.add_chart(chart3, "G37")
+    
+    # Respuesta
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = f'attachment; filename="comparativo_anual_{año_anterior}_{año_actual}.xlsx"'
+    
+    wb.save(response)
+    return response
+
+@login_required
+def reporte_programa(request):
+    """
+    Agrupación de proyectos formativos según programa de formación
+    """
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Proyectos por Programa"
+    
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+    
+    # TÍTULO
+    ws.merge_cells('A1:F1')
+    titulo = ws['A1']
+    titulo.value = "PROYECTOS FORMATIVOS POR PROGRAMA"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    
+    # ENCABEZADOS
+    ws.append([])
+    ws.append([
+        "Programa de Formación",
+        "Cantidad de Proyectos",
+        "Proyectos Activos",
+        "Proyectos Completados",
+        "Total Aprendices",
+        "Progreso Promedio (%)"
+    ])
+    
+    for cell in ws[3]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+    
+    # OBTENER DATOS - Versión mejorada
+    # Primero verificamos todos los proyectos formativos
+    proyectos_formativos = Proyecto.objects.filter(tipo__iexact="formativo")
+    
+    # Si no hay programa_formacion definido, agrupamos por el campo 'programa' de los aprendices
+    if proyectos_formativos.filter(programa_formacion__isnull=False).exclude(programa_formacion="").exists():
+        # Opción 1: Agrupar por programa_formacion del proyecto
+        programas = proyectos_formativos.filter(
+            programa_formacion__isnull=False
+        ).exclude(programa_formacion="").values('programa_formacion').distinct()
+        
+        usar_programa_proyecto = True
+    else:
+        # Opción 2: Agrupar por programa del aprendiz
+        programas = Aprendiz.objects.filter(
+            proyectoaprendiz__cod_pro__tipo__iexact="formativo"
+        ).values('programa').distinct()
+        
+        usar_programa_proyecto = False
+    
+    fila_inicio = 4
+    hay_datos = False
+    
+    for programa_dict in programas:
+        if usar_programa_proyecto:
+            programa = programa_dict['programa_formacion']
+            # Proyectos de este programa
+            proyectos = Proyecto.objects.filter(
+                tipo__iexact="formativo",
+                programa_formacion=programa
+            )
+        else:
+            programa = programa_dict['programa']
+            # Obtener aprendices de este programa
+            aprendices_programa = Aprendiz.objects.filter(programa=programa)
+            # Proyectos donde participan estos aprendices
+            proyectos = Proyecto.objects.filter(
+                tipo__iexact="formativo",
+                proyectoaprendiz__cedula_apre__in=aprendices_programa.values_list('cedula_apre', flat=True)
+            ).distinct()
+        
+        total_proyectos = proyectos.count()
+        
+        if total_proyectos == 0:
+            continue
+        
+        hay_datos = True
+        
+        # Proyectos activos (en curso)
+        proyectos_activos = proyectos.filter(
+            estado_pro__in=['planeacion', 'ejecucion', 'activo', 'en curso']
+        ).count()
+        
+        # Proyectos completados
+        proyectos_completados = proyectos.filter(
+            estado_pro__in=['completado', 'finalizado', 'terminado']
+        ).count()
+        
+        # Total aprendices en estos proyectos
+        total_aprendices = ProyectoAprendiz.objects.filter(
+            cod_pro__in=proyectos.values_list('cod_pro', flat=True)
+        ).values('cedula_apre').distinct().count()
+        
+        # Progreso promedio
+        progreso_promedio = proyectos.aggregate(Avg('progreso'))['progreso__avg'] or 0
+        
+        ws.append([
+            programa or "Sin Programa",
+            total_proyectos,
+            proyectos_activos,
+            proyectos_completados,
+            total_aprendices,
+            round(progreso_promedio, 1)
+        ])
+    
+    # Si no hay datos, agregar una fila informativa
+    if not hay_datos:
+        ws.append([
+            "No hay proyectos formativos registrados",
+            0,
+            0,
+            0,
+            0,
+            0
+        ])
+    
+    # BORDES
+    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=6):
+        for cell in row:
+            cell.border = thin_border
+    
+    # Solo crear gráficos si hay datos reales
+    if hay_datos and ws.max_row > 3:
+        # GRÁFICO 1: Proyectos por Programa
+        chart1 = BarChart()
+        chart1.title = "Cantidad de Proyectos por Programa"
+        chart1.y_axis.title = "Número de Proyectos"
+        chart1.x_axis.title = "Programa de Formación"
+        
+        data1 = Reference(ws, min_col=2, min_row=3, max_row=ws.max_row)
+        cats1 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+        
+        chart1.add_data(data1, titles_from_data=True)
+        chart1.set_categories(cats1)
+        chart1.height = 15
+        chart1.width = 20
+        
+        ws.add_chart(chart1, "H3")
+        
+        # GRÁFICO 2: Progreso Promedio
+        chart2 = LineChart()
+        chart2.title = "Progreso Promedio por Programa"
+        chart2.y_axis.title = "Progreso (%)"
+        chart2.x_axis.title = "Programa de Formación"
+        
+        data2 = Reference(ws, min_col=6, min_row=3, max_row=ws.max_row)
+        cats2 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+        
+        chart2.add_data(data2, titles_from_data=True)
+        chart2.set_categories(cats2)
+        chart2.height = 15
+        chart2.width = 20
+        
+        ws.add_chart(chart2, "H21")
+        
+        # GRÁFICO 3: Estado de Proyectos
+        chart3 = PieChart()
+        chart3.title = "Distribución de Estados"
+        
+        # Calcular totales para el gráfico
+        fila_totales = ws.max_row + 3
+        ws.cell(row=fila_totales, column=1, value="Estado").font = Font(bold=True)
+        ws.cell(row=fila_totales, column=2, value="Cantidad").font = Font(bold=True)
+        
+        # CORRECCIÓN: Manejar valores None en las celdas
+        total_activos = sum([ws.cell(row=i, column=3).value or 0 for i in range(4, ws.max_row + 1)])
+        total_completados = sum([ws.cell(row=i, column=4).value or 0 for i in range(4, ws.max_row + 1)])
+        
+        ws.append(["Activos", total_activos])
+        ws.append(["Completados", total_completados])
+        
+        data3 = Reference(ws, min_col=2, min_row=fila_totales, max_row=ws.max_row)
+        labels3 = Reference(ws, min_col=1, min_row=fila_totales + 1, max_row=ws.max_row)
+        
+        chart3.add_data(data3, titles_from_data=True)
+        chart3.set_categories(labels3)
+        
+        ws.add_chart(chart3, "H39")
+    
+    # RESPUESTA
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="proyectos_formativos_programa.xlsx"'
+    
+    wb.save(response)
+    return response
+
+@login_required
+def reporte_fichas(request):
+    """
+    Fichas participantes y sus proyectos de investigación asociados
+    """
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Vinculación Fichas"
+    
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+    
+    # TÍTULO
+    ws.merge_cells('A1:G1')
+    titulo = ws['A1']
+    titulo.value = "VINCULACIÓN DE FICHAS A PROYECTOS"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    
+    # ENCABEZADOS
+    ws.append([])
+    ws.append([
+        "Ficha",
+        "Programa",
+        "Total Aprendices",
+        "Aprendices en Proyectos",
+        "Proyectos Asociados",
+        "Semilleros Vinculados",
+        "Tasa de Participación (%)"
+    ])
+    
+    for cell in ws[3]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="27AE60", end_color="27AE60", fill_type="solid")
+    
+    # OBTENER DATOS
+    # Agrupar aprendices por ficha
+    fichas = Aprendiz.objects.values('ficha', 'programa').distinct().order_by('ficha')
+    
+    for ficha_dict in fichas:
+        ficha = ficha_dict['ficha']
+        programa = ficha_dict['programa']
+        
+        # Total aprendices en esta ficha
+        aprendices_ficha = Aprendiz.objects.filter(ficha=ficha)
+        total_aprendices = aprendices_ficha.count()
+        
+        # Aprendices que están en proyectos
+        aprendices_en_proyectos = ProyectoAprendiz.objects.filter(
+            cedula_apre__in=aprendices_ficha.values_list('cedula_apre', flat=True)
+        ).values('cedula_apre').distinct().count()
+        
+        # Proyectos asociados
+        proyectos_asociados = Proyecto.objects.filter(
+            proyectoaprendiz__cedula_apre__in=aprendices_ficha.values_list('cedula_apre', flat=True)
+        ).distinct().count()
+        
+        # Semilleros vinculados
+        semilleros_vinculados = Semillero.objects.filter(
+            id_sem__in=aprendices_ficha.values_list('id_sem', flat=True)
+        ).distinct().count()
+        
+        # Tasa de participación
+        tasa_participacion = (aprendices_en_proyectos / total_aprendices * 100) if total_aprendices > 0 else 0
+        
+        ws.append([
+            ficha,
+            programa,
+            total_aprendices,
+            aprendices_en_proyectos,
+            proyectos_asociados,
+            semilleros_vinculados,
+            round(tasa_participacion, 1)
+        ])
+    
+    # BORDES
+    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=7):
+        for cell in row:
+            cell.border = thin_border
+    
+    # GRÁFICO 1: Aprendices por Ficha
+    chart1 = BarChart()
+    chart1.title = "Aprendices por Ficha"
+    chart1.y_axis.title = "Cantidad de Aprendices"
+    chart1.x_axis.title = "Ficha"
+    
+    data1 = Reference(ws, min_col=3, min_row=3, max_row=ws.max_row)
+    cats1 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    
+    chart1.add_data(data1, titles_from_data=True)
+    chart1.set_categories(cats1)
+    chart1.height = 15
+    chart1.width = 20
+    
+    ws.add_chart(chart1, "I3")
+    
+    # GRÁFICO 2: Tasa de Participación
+    chart2 = LineChart()
+    chart2.title = "Tasa de Participación por Ficha"
+    chart2.y_axis.title = "Porcentaje (%)"
+    chart2.x_axis.title = "Ficha"
+    
+    data2 = Reference(ws, min_col=7, min_row=3, max_row=ws.max_row)
+    cats2 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    
+    chart2.add_data(data2, titles_from_data=True)
+    chart2.set_categories(cats2)
+    chart2.height = 15
+    chart2.width = 20
+    
+    ws.add_chart(chart2, "I21")
+    
+    # SECCIÓN DETALLADA: Proyectos por Ficha
+    fila_detalle = ws.max_row + 3
+    ws.cell(row=fila_detalle, column=1, value="DETALLE DE PROYECTOS POR FICHA").font = Font(bold=True, size=14)
+    fila_detalle += 2
+    
+    ws.cell(row=fila_detalle, column=1, value="Ficha").font = Font(bold=True)
+    ws.cell(row=fila_detalle, column=2, value="Proyecto").font = Font(bold=True)
+    ws.cell(row=fila_detalle, column=3, value="Tipo").font = Font(bold=True)
+    ws.cell(row=fila_detalle, column=4, value="Estado").font = Font(bold=True)
+    ws.cell(row=fila_detalle, column=5, value="Aprendices Participantes").font = Font(bold=True)
+    fila_detalle += 1
+    
+    inicio_detalle = fila_detalle
+    
+    for ficha_dict in fichas:
+        ficha = ficha_dict['ficha']
+        
+        # Obtener aprendices de esta ficha
+        aprendices_ids = Aprendiz.objects.filter(ficha=ficha).values_list('cedula_apre', flat=True)
+        
+        # Obtener proyectos donde participan estos aprendices
+        proyectos = Proyecto.objects.filter(
+            proyectoaprendiz__cedula_apre__in=aprendices_ids
+        ).distinct()
+        
+        for proyecto in proyectos:
+            # Contar aprendices de esta ficha en este proyecto
+            aprendices_proyecto = ProyectoAprendiz.objects.filter(
+                cod_pro=proyecto,
+                cedula_apre__in=aprendices_ids
+            ).count()
+            
+            ws.append([
+                ficha,
+                proyecto.nom_pro,
+                proyecto.tipo,
+                proyecto.estado_pro,
+                aprendices_proyecto
+            ])
+            fila_detalle += 1
+    
+    # Bordes para detalle
+    for row in ws.iter_rows(min_row=inicio_detalle-1, max_row=fila_detalle-1, min_col=1, max_col=5):
+        for cell in row:
+            cell.border = thin_border
+    
+    # RESPUESTA
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="vinculacion_fichas.xlsx"'
+    
+    wb.save(response)
+    return response
+
 # VISTA DE LOGOUT
 def logout(request):
-    # Clear all session data
+    # Limpiar toda la sesión
     request.session.flush()
     messages.success(request, "Has cerrado sesión correctamente")
     return redirect('iniciarsesion')

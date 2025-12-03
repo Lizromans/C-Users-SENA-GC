@@ -103,17 +103,17 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {%if request.resolver_match.url_name == 'centroayuda' %}active{% endif %}" 
-                                    href="{% url 'centroayuda' %}">
-                                    <span class="nav-icon">❓</span>
-                                    <span class="nav-text">Centro de Ayuda</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link {%if request.resolver_match.url_name == 'reportes' %}active{% endif %}" 
                                     href="{% url 'reportes' %}">
                                     <span class="nav-icon">📋</span>
                                     <span class="nav-text">Reportes</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {%if request.resolver_match.url_name == 'centroayuda' %}active{% endif %}" 
+                                    href="{% url 'centroayuda' %}">
+                                    <span class="nav-icon">❓</span>
+                                    <span class="nav-text">Centro de Ayuda</span>
                                 </a>
                             </li>
                         </ul>

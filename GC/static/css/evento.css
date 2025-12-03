@@ -23,6 +23,14 @@
     padding-bottom: clamp(40px, 1vh, 60px);
 }
 
+.contenedor-principal img{
+    transition: transform 0.3s ease;
+}
+
+.contenedor-principal:hover img {
+  transform: rotate(10deg);
+}
+
 .titulo h3 {
     color: var(--color-text-primary);
     font-size: clamp(1.5rem, 2.5vw, 3rem);
@@ -275,25 +283,23 @@
 .botones-item .limpiar {
     width: fit-content;
     text-align: right;
-    padding: clamp(6px, 1vw, 10px)
-             clamp(10px, 1vw, 16px);
-    background-color: #ffffff;
+    padding: clamp(6px, 1vw, 10px) clamp(12px, 2vw, 18px);
+    background-color:#b6b5b573;
     color: #000000;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid #8F8C8C;
     border-radius: 8px;
     font-weight: 600;
     font-size: clamp(0.80rem, 1vw, 0.90rem);
     cursor: pointer;
-    transition: background-color 0.3s ease, opacity 0.3s ease;
-}
-
-.limpiar i {
-    padding: 0 clamp(6px, 1vw, 10px);
+    transition: background-color 0.3s ease;
     transition: opacity 0.3s ease;
 }
 
-.limpiar:hover {
-    border-color: rgba(255, 255, 255, 0.5);
+.botones-item .limpiar:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    background-color: #757575bb;
+    color: var(--color-sidebar-bg);
 }
 
 /* ===== SECCIÓN DE EVENTOS ===== */
@@ -317,7 +323,11 @@
     font-weight: 700;
 }
 
-.btn-agregar {
+.btn i {
+    font-size: clamp(12px, 1.3vw, 14px);
+}
+
+.btn {
     color: white;
     border: none;
     border-radius: clamp(6px, 1vw, 10px);
@@ -331,15 +341,28 @@
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-decoration: none;
+}
+
+.btn.agregar{
     background-color: var(--color-nav-active);
 }
 
-.btn-agregar:hover {
+.btn.agregar:hover {
     background-color: #2d8500;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     color: var(--color-fondo-principal);
 }
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn.agregar:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(56, 169, 0, 0.39);
+}
+
 
 /* Contenedor de botones */
 .botones {
@@ -467,29 +490,34 @@
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    border: 3px solid transparent;
+    border: 2px solid transparent;
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .evento-card.estado-en-curso {
+    color: #3cc9db;
     border-color: #3cc9db;
 }
 
 .evento-card.estado-proximo {
+    color: #A855F7;
     border-color: #A855F7;
 }
 
 .evento-card.estado-finalizado {
+    color: #43a062;
     border-color: #43a062;
 }
 
 .evento-card.estado-cancelado {
+    color: #f11f1f;
     border-color: #f11f1f;
 }
 
 .evento-card.estado-programado {
+    color: #7e7e7e;
     border-color: #7e7e7e;
 }
 
@@ -647,7 +675,6 @@
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #333;
     border: 2px solid transparent;
     background-color: #f9f9f9;
 }
@@ -656,27 +683,32 @@
 
 .evento-estado .estado-badge.cancelado {
     background: linear-gradient(135deg, #ffe3e3, #ffd6d6); 
-    border-color: #f11f1f; 
+    border-color: #f11f1f;
+    color: #ff0909;
 }
 
 .evento-estado .estado-badge.en-curso {
     background: linear-gradient(135deg, #d9f6ff, #c1f2f7); 
-    border-color: #3cc9db; 
+    border-color: #3cc9db;   
+    color: #1bddf7;
 }
 
 .evento-estado .estado-badge.finalizado {
     background: linear-gradient(135deg, #ddf8e6, #c6f4d5); 
     border-color: #43a062; 
+    color: #2f7747;
 }
 
 .evento-estado .estado-badge.programado {
     background: linear-gradient(135deg, #e6e6e6, #d8d8d8); 
     border-color: #7e7e7e; 
+    color: #333333;
 }
 
 .evento-estado .estado-badge.proximo {
     background: linear-gradient(135deg, #ebd9fc, #e3c8ff); 
     border-color: #A855F7;
+    color: #8400ff;
 }
 
 /* ===== MENSAJE SIN EVENTOS ===== */

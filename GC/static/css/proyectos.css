@@ -414,6 +414,10 @@ span.estado {
     
     white-space: nowrap;
 }
+span.estado.pendiente {
+    background-color: #ffc67b4f;
+    color: #ff6600;
+}
 
 span.estado.diagnostico {
     background-color: #fd00004f;

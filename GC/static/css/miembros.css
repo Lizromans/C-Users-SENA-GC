@@ -38,6 +38,13 @@
 .perfil-seccion img {
     transition: transform 0.3s ease;
 }
+.contenedor-principal img{
+    transition: transform 0.3s ease;
+}
+
+.contenedor-principal:hover img {
+  transform: rotate(10deg);
+}
 
 .perfil-foto-contenedor:hover img,
 .perfil-resumen-body:hover img,

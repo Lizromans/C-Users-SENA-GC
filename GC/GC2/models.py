@@ -40,7 +40,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     rol = models.CharField(max_length=250)
     vinculacion_laboral = models.CharField(max_length=250, null=True, blank=True)
     dependencia = models.CharField(max_length=250, null=True, blank=True)
-    estado = models.CharField(max_length=250, null=True, blank=True)
+    estado = models.CharField(max_length=250, null=True, blank=True, default='Activo')
     password = models.CharField(max_length=128)
     token_verificacion = models.CharField(max_length=250, null=True, blank=True)
     token_expira = models.DateTimeField(null=True, blank=True)
@@ -293,7 +293,6 @@ class Semillero(models.Model):
         self.save(update_fields=['progreso'])
         return self.progreso
 
-
 class Aprendiz(models.Model):
     cedula_apre = models.IntegerField(primary_key=True)
     tipo_doc = models.CharField(max_length=60)
@@ -329,8 +328,6 @@ class Aprendiz(models.Model):
         related_name='aprendices'
     )
     
-
-
 class Proyecto(models.Model):
     cod_pro = models.IntegerField(primary_key=True)
     nom_pro = models.CharField(max_length=250)
@@ -339,7 +336,7 @@ class Proyecto(models.Model):
     linea_tec = models.CharField(max_length=250)
     linea_inv = models.CharField(max_length=250)
     linea_sem = models.CharField(max_length=250)
-    estado_pro = models.CharField(max_length=50, default='diagnostico')
+    estado_pro = models.CharField(max_length=50, default='pendiente')
     progreso = models.IntegerField(default=0)
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
     notas = models.TextField()
@@ -390,7 +387,7 @@ class Archivo(models.Model):
         managed = False
 
 class Evento(models.Model):
-    cod_eve = models.AutoField(primary_key=True)
+    cod_eve = models.AutoField(primary_key=True, )
     nom_eve = models.CharField(max_length=250)
     fecha_eve = models.DateField(max_length=250)
     desc_eve = models.CharField(max_length=250)

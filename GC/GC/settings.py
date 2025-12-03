@@ -158,3 +158,12 @@ STATIC_URL = '/static/'
 STATIC_ROOT = '/home/GC/GC2/staticfiles'
 
 AUTH_USER_MODEL = 'GC2.Usuario'
+
+# Configuración de sesiones
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Guardar en base de datos
+SESSION_COOKIE_NAME = 'gc_sessionid'
+SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
+SESSION_SAVE_EVERY_REQUEST = True  # Renovar sesión en cada petición
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expirar al cerrar navegador
+SESSION_COOKIE_HTTPONLY = True  # Seguridad: no accesible desde JavaScript
+SESSION_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS

@@ -47,23 +47,9 @@ urlpatterns = [
     #MIEMBROS
     path('miembros/', views.miembros, name='miembros'),
     path('registro_aprendiz/', views.registro_aprendiz, name='registro_aprendiz'),
-    path(
-        'miembros/solicitar-codigo/<str:aprendiz_id>/',
-        views.solicitar_codigo_verificacion_form,
-        name='solicitar_codigo_verificacion_form'
-    ),
-
-    path(
-        'miembros/verificar-codigo/',
-        views.verificar_codigo_form,
-        name='verificar_codigo_form'
-    ),
-
-    path(
-        'miembros/cancelar-verificacion/',
-        views.cancelar_verificacion,
-        name='cancelar_verificacion'
-    ),
+    path('miembros/solicitar-codigo/<str:aprendiz_id>/', views.solicitar_codigo_verificacion_form, name='solicitar_codigo_verificacion_form'),
+    path('miembros/verificar-codigo/', views.verificar_codigo_form, name='verificar_codigo_form'),
+    path('miembros/cancelar-verificacion/', views.cancelar_verificacion, name='cancelar_verificacion'),
     path('limpiar-numero-revelado/', views.limpiar_numero_revelado, name='limpiar_numero_revelado'),
 
     #EVENTOS
@@ -84,7 +70,12 @@ urlpatterns = [
     path("reporte-dinamico/", views.generar_reporte_dinamico, name="generar_reporte_dinamico"),
     path('reportes/tendencias-crecimiento/', views.reporte_tendencias_crecimiento, name='reporte_tendencias'),
     path('reportes/productividad-semillero/', views.reporte_productividad_semillero, name='reporte_productividad'),
-    
+    path('reportes/reporte-mensual/', views.reporte_mensual_ejecutivo, name='reporte_mensual_ejecutivo'),
+    path('reportes/informe-trimestral/', views.informe_trimestral, name='informe_trimestral'),
+    path('reportes/balance-anual/', views.balance_anual, name='balance_anual'),
+    path('reportes/comparativo-anual/', views.comparativo_anual, name='comparativo_anual'),
+    path('reportes/reporte-programa/', views.reporte_programa, name='reporte_programa'),
+    path('reportes/reporte-fichas/', views.reporte_fichas, name='reporte_fichas'),
     #CONFIGURACIONES ADICIONES 
     path('privacidad/', views.privacidad, name='privacidad'),
     path('logout/', views.logout, name='logout'),

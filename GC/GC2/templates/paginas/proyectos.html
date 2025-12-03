@@ -88,6 +88,7 @@
 
                     <select name="estado" class="filtro" onchange="this.form.submit()">
                         <option value="">Todos los estados</option>
+                        <option value="pendiente" {% if request.GET.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
                         <option value="diagnostico" {% if request.GET.estado == 'diagnostico' %}selected{% endif %}>En diagnóstico</option>
                         <option value="planeacion" {% if request.GET.estado == 'planeacion' %}selected{% endif %}>En planeación</option>
                         <option value="ejecucion" {% if request.GET.estado == 'ejecucion' %}selected{% endif %}>En ejecución</option>
@@ -141,9 +142,21 @@
                                     Sin semillero
                                 {% endfor %}
                             </td>
-                            <td>{{ proyecto.tipo }}</td>
+                            <td>
+                                {% if proyecto.tipo == "capacidadinstalada" %}
+                                    Capacidad Instalada
+                                {% elif proyecto.tipo == "formativo" %}
+                                    Formativo
+                                {% elif proyecto.tipo == "sennova" %}
+                                    Sennova
+                                {% else %}
+                                    {{ proyecto.tipo|capfirst }}
+                                {% endif %}
+                            </td>
                             <td class="estado">
-                                {% if proyecto.estado_pro == 'diagnostico' %}
+                                {% if proyecto.estado_pro == 'pendiente' %}
+                                    <span class="estado pendiente">Pendiente</span>
+                                {% elif proyecto.estado_pro == 'diagnostico' %}
                                     <span class="estado diagnostico">En diagnóstico</span>
                                 {% elif proyecto.estado_pro == 'planeacion' %}
                                     <span class="estado planeacion">Planeación</span>

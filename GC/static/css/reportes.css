@@ -217,6 +217,11 @@
     transform: rotate(10deg);
 }
 
+.filtrar:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(130, 53, 224, 0.514);
+}
+
 .botones-item .limpiar {
     width: fit-content;
     text-align: right;
@@ -237,6 +242,10 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     background-color: #757575bb;
     color: var(--color-sidebar-bg);
+}
+
+.botones-itemlimpiar:hover i {
+    transform: rotate(10deg);
 }
 
 /* ====== CONTENEDOR PRINCIPAL DE TARJETAS ====== */

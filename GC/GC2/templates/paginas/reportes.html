@@ -137,8 +137,7 @@
                 </button>
             </div>
 
-            <!-- Vista Previa -->
-            <div id="vista-previa-contenedor" class="vista-previa-contenedor" style="display:none;"></div>
+            
         </div>
     </form>
 
@@ -200,21 +199,20 @@
                             <span class="titulo">Reporte Mensual Ejecutivo</span><br>
                             <span class="subtitulo">Resumen consolidado del mes: logros, avances y estadísticas clave</span>
                         </div>
-                        <div class="boton-excel">
+                        <a href="{% url 'reporte_mensual_ejecutivo' %}" class="boton-excel">
                             <i class="fa fa-download"></i>
                             <span>Excel</span>
-                        </div>
+                        </a>
                     </li>
-
                     <li>
                         <div class="texto-lista">
                             <span class="titulo">Informe Trimestral</span><br>
                             <span class="subtitulo">Análisis de cumplimiento y resultados por trimestre</span>
                         </div>
-                        <div class="boton-excel">
+                        <a href="{% url 'informe_trimestral' %}" class="boton-excel">
                             <i class="fa fa-download"></i>
                             <span>Excel</span>
-                        </div>
+                        </a>
                     </li>
 
                     <li>
@@ -222,10 +220,10 @@
                             <span class="titulo">Balance Anual</span><br>
                             <span class="subtitulo">Resultados del año completo con análisis integral</span>
                         </div>
-                        <div class="boton-excel">
+                        <a href="{% url 'balance_anual' %}" class="boton-excel">
                             <i class="fa fa-download"></i>
                             <span>Excel</span>
-                        </div>
+                        </a>
                     </li>
 
                     <li>
@@ -233,10 +231,10 @@
                             <span class="titulo">Comparativo Año vs Año</span><br>
                             <span class="subtitulo">Evolución interanual de indicadores clave de desempeño</span>
                         </div>
-                        <div class="boton-excel">
+                        <a href="{% url 'comparativo_anual' %}" class="boton-excel">
                             <i class="fa fa-download"></i>
                             <span>Excel</span>
-                        </div>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -259,10 +257,10 @@
                             <span class="titulo">Proyectos Formativos por Programa</span><br>
                             <span class="subtitulo">Agrupación de proyectos formativos según programa de formación</span>
                         </div>
-                        <div class="boton-excel">
+                        <a href="{% url 'reporte_programa' %}" class="boton-excel">
                             <i class="fa fa-download"></i>
                             <span>Excel</span>
-                        </div>
+                        </a>
                     </li>
 
                     <li>
@@ -270,10 +268,10 @@
                             <span class="titulo">Vinculación de Fichas</span><br>
                             <span class="subtitulo">Fichas participantes y sus proyectos de investigación asociados</span>
                         </div>
-                        <div class="boton-excel">
+                        <a href="{% url 'reporte_fichas' %}" class="boton-excel">
                             <i class="fa fa-download"></i>
                             <span>Excel</span>
-                        </div>
+                        </a>
                     </li>
                 </ul>
             </div>

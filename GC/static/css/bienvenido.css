@@ -601,20 +601,26 @@ footer,
   z-index: 0;
   margin-bottom: 10%;
 }
-
-/* Borde izquierdo interno difuminado con curva */
 .info-card::before {
-    content: "";
+    content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 4%; /* ancho del borde difuminado */
-    height: 100%;
-    background: linear-gradient(to right, rgba(151, 71, 255, 0.6), transparent);
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    z-index: 0;
-    pointer-events: none;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    background-size: 100% 100%, 100% 100%, 100% 100%;
+    background-repeat: no-repeat;
+    border-radius: 20px;
+    filter: blur(3px);
+    opacity: 0.7;
+    z-index: -1;
+
+}
+.info-card::before {
+  background: 
+    linear-gradient(to bottom, #9747FF 0%, transparent 10%) top,
+    linear-gradient(to right, #9747FF 0%, transparent 5%) left,
+    linear-gradient(to left, #9747FF 0%, transparent 5%) right;
 }
 
 .info-card:hover {
@@ -633,7 +639,7 @@ footer,
 /* ====== FOOTER ====== */
 footer {
     background: var(--gradient);
-    height: 10vh;
+    height:auto;
     width: 100vw;
     backdrop-filter: blur(5px);
     position: relative;
