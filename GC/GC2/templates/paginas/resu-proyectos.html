@@ -81,17 +81,24 @@
                                         </label>
                                         
                                         <div class="dropdown-menu-config">
-                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
-                                            class="dropdown-item-config">
-                                                <i class="fas fa-edit"></i> 
-                                                <span>Editar Proyecto</span>
-                                            </a>
-
-                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                            {% if proyecto.estado_pro != "desactivado" %}
+                                                <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
                                                 class="dropdown-item-config">
-                                                <i class="fas fa-users-cog"></i> 
-                                                <span>Gestionar Equipo</span>
-                                            </a>
+                                                    <i class="fas fa-edit"></i> 
+                                                    <span>Editar Proyecto</span>
+                                                </a>
+
+                                                <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                                class="dropdown-item-config">
+                                                    <i class="fas fa-users-cog"></i> 
+                                                    <span>Gestionar Equipo</span>
+                                                </a>
+                                            {% else %}
+                                                <span class="dropdown-item-config text-danger" style="cursor:not-allowed">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span>Proyecto desactivado</span>
+                                                </span>
+                                            {% endif %}
                                             <hr class="dropdown-divider-config">
                                             <a href="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}" 
                                                 class="dropdown-item-config danger btn-eliminar-proyecto"
@@ -99,6 +106,20 @@
                                                 data-url="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}">
                                                 <i class="fas fa-trash-alt"></i>
                                                 <span>Eliminar</span>
+                                            </a>
+                                            <a href="{% url 'cambiar_estado_proyecto' semillero.id_sem proyecto.cod_pro %}"
+                                                class="dropdown-item-config {% if proyecto.estado_pro == 'desactivado' %}success{% else %}danger{% endif %} btn-cambiar-estado"
+                                                data-nombre="{{ proyecto.nom_pro }}"
+                                                data-estado="{{ proyecto.estado_pro }}"
+                                                data-url="{% url 'cambiar_estado_proyecto' semillero.id_sem proyecto.cod_pro %}">
+
+                                                {% if proyecto.estado_pro == 'desactivado' %}
+                                                        <i class="fas fa-check-circle"></i>
+                                                        <span>Activar</span>
+                                                {% else %}
+                                                        <i class="fas fa-ban"></i>
+                                                        <span>Desactivar</span>
+                                                {% endif %}
                                             </a>
                                         </div>
                                     </div>
@@ -252,9 +273,11 @@
                                                                 <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
-                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
-                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                                </a>
+                                                                {% if proyecto.estado_pro != "desactivado" %}
+                                                                    <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                        <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                    </a>
+                                                                {% endif %}
                                                             </div>
                                                         </div>
 
@@ -270,11 +293,20 @@
                                                                             <i class="fas fa-file-alt"></i>
                                                                             <span class="nombre-archivo">{{ archivo.nombre }}</span>
                                                                             <a href="{{ archivo.archivo.url }}" target="_blank" class="btn-ver">
-                                                                                <i class="fas fa-eye"></i> Ver
+                                                                                <i class="fas fa-eye"></i> 
                                                                             </a>
                                                                             <a href="{{ archivo.archivo.url }}" download class="btn-descargar">
-                                                                                <i class="fas fa-download"></i> Descargar
+                                                                                <i class="fas fa-download"></i>
                                                                             </a>
+                                                                            {% if proyecto.estado_pro != "desactivado" %}
+                                                                                <form method="POST"
+                                                                                    action="{% url 'eliminar_archivo' semillero.id_sem proyecto.cod_pro entregable.cod_entre archivo.id %}">
+                                                                                    {% csrf_token %}
+                                                                                    <button type="submit" class="btn-eliminar">
+                                                                                        <i class="fa-solid fa-trash"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                            {% endif %}
                                                                         </li>
                                                                     {% empty %}
                                                                         <p>No hay archivos disponibles para este entregable.</p>
@@ -288,10 +320,11 @@
                                                         <div class="entregable-documentos sin-documentos">
                                                             <i class="fas fa-file-alt"></i>
                                                             <p>No hay documentos disponibles</p>
-
-                                                            <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
-                                                                <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                            </a>
+                                                            {% if proyecto.estado_pro != "desactivado" %}
+                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
+                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                </a>
+                                                            {% endif %}
                                                         </div>
                                                     {% endif %}
 
@@ -309,7 +342,7 @@
                                                                     <button type="submit" class="btn-confirmar">
                                                                         <i class="fas fa-upload"></i> Subir
                                                                     </button>
-                                                                    <a class="btn-cancelar">Cancelar</a>
+                                                                    <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">Cancelar</a>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -373,17 +406,24 @@
                                         </label>
                                         
                                         <div class="dropdown-menu-config">
-                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
-                                            class="dropdown-item-config">
-                                                <i class="fas fa-edit"></i> 
-                                                <span>Editar Proyecto</span>
-                                            </a>
-
-                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                            {% if proyecto.estado_pro != "desactivado" %}
+                                                <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
                                                 class="dropdown-item-config">
-                                                <i class="fas fa-users-cog"></i> 
-                                                <span>Gestionar Equipo</span>
-                                            </a>
+                                                    <i class="fas fa-edit"></i> 
+                                                    <span>Editar Proyecto</span>
+                                                </a>
+
+                                                <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                                class="dropdown-item-config">
+                                                    <i class="fas fa-users-cog"></i> 
+                                                    <span>Gestionar Equipo</span>
+                                                </a>
+                                            {% else %}
+                                                <span class="dropdown-item-config text-danger" style="cursor:not-allowed">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span>Proyecto desactivado</span>
+                                                </span>
+                                            {% endif %}
                                             <hr class="dropdown-divider-config">
                                             <a href="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}" 
                                                 class="dropdown-item-config danger btn-eliminar-proyecto"
@@ -391,6 +431,20 @@
                                                 data-url="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}">
                                                 <i class="fas fa-trash-alt"></i>
                                                 <span>Eliminar</span>
+                                            </a>
+                                            <a href="{% url 'cambiar_estado_proyecto' semillero.id_sem proyecto.cod_pro %}"
+                                                class="dropdown-item-config {% if proyecto.estado_pro == 'desactivado' %}success{% else %}danger{% endif %} btn-cambiar-estado"
+                                                data-nombre="{{ proyecto.nom_pro }}"
+                                                data-estado="{{ proyecto.estado_pro }}"
+                                                data-url="{% url 'cambiar_estado_proyecto' semillero.id_sem proyecto.cod_pro %}">
+
+                                                {% if proyecto.estado_pro == 'desactivado' %}
+                                                        <i class="fas fa-check-circle"></i>
+                                                        <span>Activar</span>
+                                                {% else %}
+                                                        <i class="fas fa-ban"></i>
+                                                        <span>Desactivar</span>
+                                                {% endif %}
                                             </a>
                                         </div>
                                     </div>
@@ -547,9 +601,11 @@
                                                                 <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
-                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
-                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                                </a>
+                                                                {% if proyecto.estado_pro != "desactivado" %}
+                                                                    <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                        <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                    </a>
+                                                                {% endif %}
                                                             </div>
                                                         </div>
 
@@ -565,11 +621,20 @@
                                                                             <i class="fas fa-file-alt"></i>
                                                                             <span class="nombre-archivo">{{ archivo.nombre }}</span>
                                                                             <a href="{{ archivo.archivo.url }}" target="_blank" class="btn-ver">
-                                                                                <i class="fas fa-eye"></i> Ver
+                                                                                <i class="fas fa-eye"></i>
                                                                             </a>
                                                                             <a href="{{ archivo.archivo.url }}" download class="btn-descargar">
-                                                                                <i class="fas fa-download"></i> Descargar
+                                                                                <i class="fas fa-download"></i>
                                                                             </a>
+                                                                            {% if proyecto.estado_pro != "desactivado" %}
+                                                                                <form method="POST"
+                                                                                    action="{% url 'eliminar_archivo' semillero.id_sem proyecto.cod_pro entregable.cod_entre archivo.id %}">
+                                                                                    {% csrf_token %}
+                                                                                    <button type="submit" class="btn-eliminar">
+                                                                                        <i class="fa-solid fa-trash"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                            {% endif %}
                                                                         </li>
                                                                     {% empty %}
                                                                         <p>No hay archivos disponibles para este entregable.</p>
@@ -583,10 +648,11 @@
                                                         <div class="entregable-documentos sin-documentos">
                                                             <i class="fas fa-file-alt"></i>
                                                             <p>No hay documentos disponibles</p>
-
-                                                            <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
-                                                                <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                            </a>
+                                                            {% if proyecto.estado_pro != "desactivado" %}
+                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
+                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                </a>
+                                                            {% endif %}
                                                         </div>
                                                     {% endif %}
 
@@ -601,10 +667,12 @@
                                                                 {% csrf_token %}
                                                                 <input type="file" name="archivo" required>
                                                                 <div class="modal-botones">
-                                                                    <button type="submit" class="btn-confirmar">
-                                                                        <i class="fas fa-upload"></i> Subir
-                                                                    </button>
-                                                                    <a class="btn-cancelar">Cancelar</a>
+                                                                    {% if proyecto.estado_pro != "desactivado" %}
+                                                                        <button type="submit" class="btn-confirmar">
+                                                                            <i class="fas fa-upload"></i> Subir
+                                                                        </button>
+                                                                    {% endif %}
+                                                                    <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">Cancelar</a>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -669,17 +737,24 @@
                                         </label>
                                         
                                         <div class="dropdown-menu-config">
-                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
-                                            class="dropdown-item-config">
-                                                <i class="fas fa-edit"></i> 
-                                                <span>Editar Proyecto</span>
-                                            </a>
-
-                                            <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                            {% if proyecto.estado_pro != "desactivado" %}
+                                                <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}" 
                                                 class="dropdown-item-config">
-                                                <i class="fas fa-users-cog"></i> 
-                                                <span>Gestionar Equipo</span>
-                                            </a>
+                                                    <i class="fas fa-edit"></i> 
+                                                    <span>Editar Proyecto</span>
+                                                </a>
+
+                                                <a href="{% url 'resu-proyectos' semillero.id_sem proyecto.cod_pro %}?gestionar_equipo=1" 
+                                                class="dropdown-item-config">
+                                                    <i class="fas fa-users-cog"></i> 
+                                                    <span>Gestionar Equipo</span>
+                                                </a>
+                                            {% else %}
+                                                <span class="dropdown-item-config text-danger" style="cursor:not-allowed">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span>Proyecto desactivado</span>
+                                                </span>
+                                            {% endif %}
                                             <hr class="dropdown-divider-config">
                                             <a href="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}" 
                                                 class="dropdown-item-config danger btn-eliminar-proyecto"
@@ -687,6 +762,20 @@
                                                 data-url="{% url 'eliminar_proyecto_sem' semillero.id_sem proyecto.cod_pro %}">
                                                 <i class="fas fa-trash-alt"></i>
                                                 <span>Eliminar</span>
+                                            </a>
+                                            <a href="{% url 'cambiar_estado_proyecto' semillero.id_sem proyecto.cod_pro %}"
+                                                class="dropdown-item-config {% if proyecto.estado_pro == 'desactivado' %}success{% else %}danger{% endif %} btn-cambiar-estado"
+                                                data-nombre="{{ proyecto.nom_pro }}"
+                                                data-estado="{{ proyecto.estado_pro }}"
+                                                data-url="{% url 'cambiar_estado_proyecto' semillero.id_sem proyecto.cod_pro %}">
+
+                                                {% if proyecto.estado_pro == 'desactivado' %}
+                                                        <i class="fas fa-check-circle"></i>
+                                                        <span>Activar</span>
+                                                {% else %}
+                                                        <i class="fas fa-ban"></i>
+                                                        <span>Desactivar</span>
+                                                {% endif %}
                                             </a>
                                         </div>
                                     </div>
@@ -839,9 +928,11 @@
                                                                 <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
-                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
-                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                                </a>
+                                                                {% if proyecto.estado_pro != 'desactivado' %}
+                                                                    <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                        <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                    </a>
+                                                                {% endif %}
                                                             </div>
                                                         </div>
 
@@ -857,11 +948,20 @@
                                                                             <i class="fas fa-file-alt"></i>
                                                                             <span class="nombre-archivo">{{ archivo.nombre }}</span>
                                                                             <a href="{{ archivo.archivo.url }}" target="_blank" class="btn-ver">
-                                                                                <i class="fas fa-eye"></i> Ver
+                                                                                <i class="fas fa-eye"></i>
                                                                             </a>
                                                                             <a href="{{ archivo.archivo.url }}" download class="btn-descargar">
-                                                                                <i class="fas fa-download"></i> Descargar
+                                                                                <i class="fas fa-download"></i> 
                                                                             </a>
+                                                                            {% if proyecto.estado_pro != 'desactivado' %}
+                                                                                <form method="POST"
+                                                                                    action="{% url 'eliminar_archivo' semillero.id_sem proyecto.cod_pro entregable.cod_entre archivo.id %}">
+                                                                                    {% csrf_token %}
+                                                                                    <button type="submit" class="btn-eliminar">
+                                                                                        <i class="fa-solid fa-trash"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                            {% endif %}
                                                                         </li>
                                                                     {% empty %}
                                                                         <p>No hay archivos disponibles para este entregable.</p>
@@ -875,10 +975,11 @@
                                                         <div class="entregable-documentos sin-documentos">
                                                             <i class="fas fa-file-alt"></i>
                                                             <p>No hay documentos disponibles</p>
-
-                                                            <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
-                                                                <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                            </a>
+                                                            {% if proyecto.estado_pro != 'desactivado' %}
+                                                                <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir full-width">
+                                                                    <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                </a>
+                                                            {% endif %}
                                                         </div>
                                                     {% endif %}
 
@@ -896,7 +997,7 @@
                                                                     <button type="submit" class="btn-confirmar">
                                                                         <i class="fas fa-upload"></i> Subir
                                                                     </button>
-                                                                    <a class="btn-cancelar">Cancelar</a>
+                                                                    <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">Cancelar</a>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -1262,7 +1363,7 @@
         <div class="modal-contenedor">
 
             <!-- BOTÓN CERRAR -->
-            <a href="{% url 'resu-proyectos' semillero.id_sem%}#{{ tipo_seleccionado }}" class="modal-cerrar">&times;</a>
+            <a href="#" class="modal-cerrar" onclick="cerrarModal(event,'modal-editar')">×</a>
 
             <div class="modal-contenido">
 
@@ -1505,7 +1606,7 @@
 
                     <!-- ========== ACCIONES ========== -->
                     <div class="modal-acciones">
-                        <a href="{% url 'resu-proyectos' semillero.id_sem %}?tipo={{ tipo_seleccionado }}" class="modal-btn modal-btn-cancelar">
+                        <a href="#" class="modal-btn modal-btn-cancelar" onclick="cerrarModal(event,'modal-editar')">
                             <i class="fas fa-times"></i> Cancelar
                         </a>
                         <button type="submit" class="modal-btn modal-btn-primario">
@@ -1523,7 +1624,7 @@
     <div id="modal-gestionar-miembros" class="modal-overlay activo">
         <div class="modal-contenedor">
             <!-- Botón cerrar -->
-            <a href="{% url 'resu-proyectos' semillero.id_sem %}?tipo={{ tipo_seleccionado }}" class="modal-cerrar">&times;</a>
+            <a href="#" class="modal-cerrar" onclick="cerrarModal(event,'modal-gestionar-miembros')">×</a>
 
             <div class="modal-contenido">
                 <!-- HEADER -->
@@ -1902,15 +2003,27 @@
     </script>
     {% endif %}
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const params = new URLSearchParams(window.location.search);
-            const tipo = params.get("tipo");
-            if (tipo) {
-                const section = document.getElementById(tipo);
-                if (section) {
-                    section.scrollIntoView({ behavior: "smooth",  block: "start" });
-                }
+        function cerrarModal(event, modalId) {
+            if (event) event.preventDefault();
+
+            const modal = document.getElementById(modalId);
+
+            if (modal) {
+                modal.classList.remove("activo", "show");
+                modal.style.display = "";
             }
-        });
+
+            // Limpiar backdrop
+            const backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) backdrop.remove();
+
+            document.body.classList.remove("modal-open");
+            document.body.style.overflow = "auto";
+            document.body.style.paddingRight = "";
+
+            // ✅ SIN HASH
+            const baseUrl = "{% url 'resu-proyectos' semillero.id_sem %}";
+            history.pushState(null, "", baseUrl);
+        }
     </script>
 {% endblock %}

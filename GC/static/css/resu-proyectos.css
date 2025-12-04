@@ -3135,7 +3135,8 @@ i.fa-star[aria-disabled="true"]:hover {
 
 /* Botones dentro del modal */
 .btn-ver,
-.btn-descargar {
+.btn-descargar,
+.btn-eliminar {
     text-decoration: none;
     font-size: clamp(11px, 1.2vw, 13px);
     padding: clamp(5px, 0.8vw, 8px) clamp(10px, 1.6vw, 14px);
@@ -3165,6 +3166,17 @@ i.fa-star[aria-disabled="true"]:hover {
 }
 .btn-descargar:hover {
     background: #38a169;
+    color: #fff;
+}
+
+/* Botón Descargar */
+.btn-eliminar {
+    background: #fff0f0;
+    color: #dd2323;
+    border: 1px solid #e69a9a;
+}
+.btn-eliminar:hover {
+    background: #d11a1a;
     color: #fff;
 }
 

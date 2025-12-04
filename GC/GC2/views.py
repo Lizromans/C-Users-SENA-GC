@@ -1389,6 +1389,10 @@ def resu_proyectos(request, id_sem, cod_pro=None):
         proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
         mostrar_modal_gestionar = True
 
+        if not proyecto_editar.estado_pro:
+            messages.error(request, '❌ Este proyecto está desactivado y no puede ser editado.')
+            return redirect('resu-proyectos', id_sem=id_sem)
+
         usuarios_proyecto = UsuarioProyecto.objects.filter(cod_pro=proyecto_editar).select_related('cedula')
         aprendices_proyecto = ProyectoAprendiz.objects.filter(cod_pro=proyecto_editar).select_related('cedula_apre')
 
@@ -1455,6 +1459,10 @@ def resu_proyectos(request, id_sem, cod_pro=None):
         proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
         mostrar_modal_editar = True
 
+        if not proyecto_editar.estado_pro:
+            messages.error(request, ' Este proyecto está desactivado y no puede ser editado.')
+            return redirect('resu-proyectos', id_sem=id_sem)
+
         lineas_tec_lista = []
         lineas_inv_lista = []
         lineas_sem_lista = []
@@ -1511,7 +1519,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
             tipo_seleccionado = proyecto_sel.tipo.lower()
 
     proyectos_sennova = list(proyectos.filter(tipo__iexact="sennova"))
-    proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
+    proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidad instalada"))
     proyectos_formativos = list(proyectos.filter(tipo__iexact="formativo"))
 
     for proyecto in proyectos_sennova + proyectos_capacidad + proyectos_formativos:
@@ -1960,7 +1968,13 @@ def crear_proyecto(request, id_sem):
 @login_required
 def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
     entregable = get_object_or_404(Entregable, cod_pro=cod_pro, cod_entre=cod_entre)
+
+     # VERIFICAR SI EL PROYECTO ESTÁ ACTIVO
+    if not proyecto.estado_pro:
+        messages.error(request, "❌ Este proyecto está desactivado. No puedes subir entregables.")
+        return redirect('resu-proyectos', id_sem=id_sem)
 
     if request.method == 'POST':
 
@@ -1992,7 +2006,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         entregable.save()
 
         # Actualizar progreso del proyecto
-        actualizar_progreso_proyecto(entregable.cod_pro)
+        actualizar_progreso_proyecto(request, entregable.cod_pro)
 
         # Mostrar mensaje con cantidad de archivos
         messages.success(
@@ -2007,13 +2021,12 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
 
 @login_required
 def actualizar_progreso_proyecto(request, proyecto):
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión.")
-        return redirect('iniciarsesion')
-
+    # OBTENER USUARIO DESDE LA SESIÓN
+    cedula = request.session.get('cedula')  
+    
     try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
+        usuario = Usuario.objects.get(cedula=cedula)
+
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
@@ -2024,17 +2037,15 @@ def actualizar_progreso_proyecto(request, proyecto):
     if total_entregables == 0:
         proyecto.progreso = 0
         proyecto.estado_pro = "pendiente"
+
     else:
-        # Contar entregables completados (incluye entregas tardías)
         entregables_completados = entregables.filter(
             estado__in=['Completado', 'Entrega Tardía']
         ).count()
 
-        # Calcular porcentaje de progreso
         progreso = round((entregables_completados / total_entregables) * 100)
         proyecto.progreso = progreso
 
-        # ===== ASIGNAR ESTADO SEGÚN ENTREGABLES COMPLETADOS =====
         if entregables_completados == 0:
             proyecto.estado_pro = "pendiente"
         elif entregables_completados == 2:
@@ -2046,8 +2057,16 @@ def actualizar_progreso_proyecto(request, proyecto):
         elif entregables_completados >= 6:
             proyecto.estado_pro = "completado"
 
-    proyecto.save(update_fields=['progreso', 'estado_pro'])
-    
+            # ✅ GUARDAR FECHA SOLO LA PRIMERA VEZ
+            if not proyecto.fecha_completado:
+                proyecto.fecha_completado = date.today()
+
+        else:
+            # ✅ Si deja de estar completado, limpiar fecha
+            if proyecto.fecha_completado:
+                proyecto.fecha_completado = None
+
+    proyecto.save(update_fields=['progreso', 'estado_pro', 'fecha_completado'])
     # Actualizar progreso del semillero asociado
     semilleros = Semillero.objects.filter(semilleroproyecto__cod_pro=proyecto)
     for semillero in semilleros:
@@ -2099,40 +2118,58 @@ def verificar_y_actualizar_estados_entregables(request, proyecto):
                     entregable.save()
 
 @login_required
-def eliminar_entregable(request, id_sem, cod_pro, cod_entre):
-    """
-    Vista para eliminar un archivo de un entregable (opcional)
-    """
-    if request.method == 'POST':
-        semillero = get_object_or_404(Semillero, id_sem=id_sem)
-        proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
-        entregable = get_object_or_404(Entregable, cod_entre=cod_entre, cod_pro=proyecto)
-        
-        # Verificar que el proyecto pertenece al semillero
-        if not SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).exists():
-            messages.error(request, 'El proyecto no pertenece a este semillero')
-            return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
-        
-        try:
-            # Eliminar el archivo
-            if entregable.archivo:
-                entregable.archivo.delete(save=False)
-                entregable.archivo = None
-                entregable.estado = 'Pendiente'
-                entregable.save()
-                
-                # Actualizar progreso del proyecto
-                actualizar_progreso_proyecto(proyecto)
-                
-                messages.success(request, f'Archivo eliminado de "{entregable.nom_entre}"')
-            else:
-                messages.info(request, 'No hay archivo para eliminar')
-            
-            return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
-            
-        except Exception as e:
-            messages.error(request, f'Error al eliminar el archivo: {str(e)}')
-            return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
+def eliminar_archivo(request, id_sem, cod_pro, cod_entre, id_archivo):
+# OBTENER USUARIO DESDE LA SESIÓN
+    cedula = request.session.get('cedula')  
+    
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion')
+
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+
+    proyecto = get_object_or_404(
+        Proyecto.objects.filter(
+            semilleroproyecto__id_sem=semillero
+        ),
+        cod_pro=cod_pro
+    )
+
+    entregable = get_object_or_404(
+        Entregable,
+        cod_entre=cod_entre,
+        cod_pro=proyecto
+    )
+
+    archivo = get_object_or_404(
+        Archivo,
+        id=id_archivo,
+        entregable=entregable
+    )
+
+    # VERIFICAR SI EL PROYECTO ESTÁ ACTIVO
+    if not proyecto.estado_pro:
+        messages.error(request, "❌ El proyecto está desactivado. No puedes eliminar archivos.")
+        return redirect('resu-proyectos', id_sem=id_sem)
+
+    try:
+        archivo.archivo.delete(save=False)
+
+        archivo.delete()
+
+        if not entregable.archivos.exists():
+            entregable.estado = 'Pendiente'
+            entregable.save()
+
+        actualizar_progreso_proyecto(request, proyecto)
+
+        messages.success(request, f'Archivo eliminado correctamente')
+
+    except Exception as e:
+        messages.error(request, f'Error al eliminar el archivo: {str(e)}')
+
     return redirect('resu-proyectos', id_sem=id_sem)
 
 @login_required
@@ -2194,6 +2231,53 @@ def eliminar_proyecto_semillero(request, id_sem, cod_pro):
         messages.error(request, f'⚠️ Error al eliminar el proyecto: {e}')
 
     return redirect('resu-proyectos', id_sem=id_sem)
+
+@login_required
+def cambiar_estado_proyecto(request, id_sem, cod_pro):
+    # OBTENER USUARIO DESDE LA SESIÓN
+    cedula = request.session.get('cedula')  
+    
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion') 
+    
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+    proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro, semilleros=semillero)
+
+    estados_activos = [
+        'pendiente',
+        'diagnostico',
+        'planeacion',
+        'ejecucion',
+        'completado'
+    ]
+
+    if proyecto.estado_pro in estados_activos:
+        # DESACTIVAR
+        proyecto.estado_original = proyecto.estado_pro
+        proyecto.estado_pro = 'desactivado'
+        proyecto.activo = False
+
+        messages.warning(
+            request,
+            f'El proyecto "{proyecto.nom_pro}" fue DESACTIVADO'
+        )
+
+    else:
+        # ACTIVAR
+        proyecto.estado_pro = proyecto.estado_original if proyecto.estado_original else 'pendiente'
+        proyecto.estado_anterior = None
+        proyecto.activo = True
+
+        messages.success(
+            request,
+            f'El proyecto "{proyecto.nom_pro}" fue ACTIVADO'
+        )
+
+    proyecto.save()
+    return redirect('resu-proyectos', semillero.id_sem)
 
 @login_required
 def recursos(request, id_sem):
@@ -2362,21 +2446,11 @@ def proyectos(request):
     # --- ESTADÍSTICAS GENERALES ---
     total_proyectos = proyectos_list.count()
     
-    # Proyectos por estado
-    proyectos_desarrollo = proyectos_list.filter(
-        Q(estado_pro='planeacion') | Q(estado_pro='ejecucion')
-    ).count()
     proyectos_completados = proyectos_list.filter(estado_pro='completado').count()
-    proyectos_pendientes = proyectos_list.filter(estado_pro='diagnostico').count()
+    proyectos_pendientes = proyectos_list.filter(estado_pro='pendiente').count()
     
     # Proyectos creados este mes
     proyectos_mes = proyectos_list.filter(
-        fecha_creacion__gte=inicio_mes
-    ).count()
-    
-    # Proyectos en desarrollo este mes
-    desarrollo_mes = proyectos_list.filter(
-        Q(estado_pro='planeacion') | Q(estado_pro='ejecucion'),
         fecha_creacion__gte=inicio_mes
     ).count()
     
@@ -2387,7 +2461,6 @@ def proyectos(request):
     
     # Proyectos pendientes este mes
     pendientes_mes = proyectos_list.filter(
-        estado_pro='diagnostico',
         fecha_creacion__gte=inicio_mes
     ).count()
     
@@ -2428,11 +2501,9 @@ def proyectos(request):
     context = {
         # Estadísticas
         'total_proyectos': total_proyectos,
-        'proyectos_desarrollo': proyectos_desarrollo,
         'proyectos_completados': proyectos_completados,
         'proyectos_pendientes': proyectos_pendientes,
         'proyectos_mes': proyectos_mes,
-        'desarrollo_mes': desarrollo_mes,
         'completados_mes': completados_mes,
         'pendientes_mes': pendientes_mes,
         'proyectos': proyectos_list,

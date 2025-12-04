@@ -341,6 +341,8 @@ class Proyecto(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
     notas = models.TextField()
     programa_formacion = models.CharField(max_length=250, null=True, blank=True)
+    estado_original = models.CharField(max_length=245, null=True, blank=True)
+    fecha_completado = models.DateField(null=True, blank=True)
 
 
     class Meta:

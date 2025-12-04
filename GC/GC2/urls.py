@@ -36,8 +36,9 @@ urlpatterns = [
     path('recursos/<int:id_sem>/', views.recursos, name='recursos'),
     path('agregar_recurso/<int:id_sem>/', views.agregar_recurso, name='agregar_recurso'),
     path('semillero/<int:id_sem>/proyecto/<int:cod_pro>/entregable/<int:cod_entre>/subir/', views.subir_archivo_entregable, name='subir_archivo_entregable'),
-    path('semillero/<int:id_sem>/proyecto/<int:cod_pro>/entregable/<int:cod_entre>/eliminar/', views.eliminar_entregable, name='eliminar_entregable'),
+    path('semillero/<int:id_sem>/proyecto/<int:cod_pro>/entregable/<int:cod_entre>/archivo/<int:id_archivo>/eliminar/', views.eliminar_archivo, name='eliminar_archivo'),
     path('semillero/<int:id_sem>/eliminar-proyecto/<str:cod_pro>/', views.eliminar_proyecto_semillero, name='eliminar_proyecto_sem'),
+    path('semillero/<int:id_sem>/proyecto/<int:cod_pro>/cambiar-estado/', views.cambiar_estado_proyecto, name='cambiar_estado_proyecto'),
     path('recursos/<int:id_sem>/eliminar/<int:cod_doc>/', views.eliminar_recurso, name='eliminar_recurso'),
 
     

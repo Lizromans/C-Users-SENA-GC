@@ -59,7 +59,8 @@
             <select name="rol" class="select" required>
               <option value="">Selecciona tu rol</option>
               <option value="Dinamizador" {% if rol == 'Dinamizador' %}selected{% endif %}>Dinamizador</option>
-              <option value="Lider" {% if rol == 'Lider' %}selected{% endif %}>Líder</option>
+              <option value="Líder de Semillero" {% if rol == 'Líder de Semillero' %}selected{% endif %}>Líder de semillero</option>
+              <option value="Líder de Proyecto" {% if rol == 'Líder de Proyecto' %}selected{% endif %}>Líder de proyecto</option>
               <option value="Investigador" {% if rol == 'Investigador' %}selected{% endif %}>Investigador</option>
               <option value="Instructor" {% if rol == 'Instructor' %}selected{% endif %}>Instructor</option>
             </select>
