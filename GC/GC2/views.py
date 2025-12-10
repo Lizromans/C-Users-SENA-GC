@@ -54,6 +54,7 @@ from . import models
 from django.db.models import Value, CharField, F, Q, DateTimeField
 from django.db.models.functions import Cast
 from itertools import chain
+from django.urls import reverse
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -76,6 +77,196 @@ def descifrar_numero(numero_cifrado):
     except:
         return "****"  # Mostrar asteriscos si falla
 
+# NOTIFICACIONES
+def obtener_notificaciones(request):
+    notificaciones = []
+    ahora = timezone.now()
+
+    # 1. VALIDAR SESIÓN
+    usuario_id = request.session.get('cedula')
+    if not usuario_id:
+        return []
+
+    try:
+        usuario = Usuario.objects.get(cedula=usuario_id)
+    except Usuario.DoesNotExist:
+        return []
+
+    # 2. EVENTOS PRÓXIMOS (24h)
+    eventos = Evento.objects.filter(
+        fecha_eve__gte=ahora.date(),
+        fecha_eve__lte=(ahora + timedelta(days=1)).date(),
+        estado_eve__in=['Próximo', 'Programado']
+    ).order_by('fecha_eve', 'hora_inicio')[:3]
+
+    for evento in eventos:
+        dt_evento = datetime.combine(evento.fecha_eve, evento.hora_inicio)
+
+        if timezone.is_naive(dt_evento):
+            dt_evento = timezone.make_aware(dt_evento, timezone.get_current_timezone())
+
+        minutos = (dt_evento - ahora).total_seconds() / 60
+        if minutos < 0:
+            continue
+
+        horas = int(minutos // 60)
+
+        notificaciones.append({
+            'tipo': 'evento',
+            'icono': 'fa-calendar-check',
+            'clase_icono': 'warning',
+            'titulo': f'Evento Próximo: {evento.nom_eve}',
+            'mensaje': f'Comienza en {horas} hora(s)' if horas > 0 else f'Comienza en {int(minutos)} minuto(s)',
+            'tiempo': evento.fecha_eve.strftime('%d/%m/%Y'),
+            'url': reverse('eventos'),
+            'leida': False
+        })
+
+    # 3. ENTREGABLES PENDIENTES (próximos 7 días)
+    proyectos_usuario = UsuarioProyecto.objects.filter(
+        cedula=usuario
+    ).values_list('cod_pro', flat=True)
+
+    entregables_pendientes = Entregable.objects.filter(
+        cod_pro__in=proyectos_usuario,
+        estado='Pendiente',
+        fecha_fin__gte=ahora.date(),
+        fecha_fin__lte=(ahora + timedelta(days=7)).date()
+    ).select_related('cod_pro').order_by('fecha_fin')[:3]
+
+    for entregable in entregables_pendientes:
+        sempro = entregable.cod_pro.semilleroproyecto_set.first()
+
+        if sempro:
+            url = (
+                reverse('detalle-proyecto', kwargs={
+                    'id_sem': sempro.id_sem.id_sem,
+                    'cod_pro': entregable.cod_pro.cod_pro
+                }) + '?tab=entregables'
+            )
+        else:
+            url = reverse('proyectos')
+
+        dias_restantes = (entregable.fecha_fin - ahora.date()).days
+
+        notificaciones.append({
+            'tipo': 'entregable',
+            'icono': 'fa-file-alt',
+            'clase_icono': 'warning' if dias_restantes <= 2 else 'success',
+            'titulo': f'Entregable: {entregable.nom_entre}',
+            'mensaje': f'Vence en {dias_restantes} día(s) - {entregable.cod_pro.nom_pro}',
+            'tiempo': entregable.fecha_fin.strftime('%d/%m/%Y'),
+            'url': url,
+            'leida': False
+        })
+
+    # 4. PROYECTOS CON BAJO PROGRESO (<30%)
+    proyectos_estancados = Proyecto.objects.filter(
+        usuarioproyecto__cedula=usuario,
+        progreso__lt=30,
+        estado_pro__in=['planeacion', 'ejecucion']
+    ).order_by('progreso')[:2]
+
+    for proyecto in proyectos_estancados:
+        sempro = proyecto.semilleroproyecto_set.first()
+
+        if sempro:
+            url = reverse('detalle-proyecto', kwargs={
+                'id_sem': sempro.id_sem.id_sem,
+                'cod_pro': proyecto.cod_pro
+            })
+        else:
+            url = reverse('proyectos')
+
+        notificaciones.append({
+            'tipo': 'proyecto',
+            'icono': 'fa-exclamation-triangle',
+            'clase_icono': 'error',
+            'titulo': 'Proyecto con bajo progreso',
+            'mensaje': f'{proyecto.nom_pro} - {proyecto.progreso}% completado',
+            'tiempo': 'Requiere atención',
+            'url': url,
+            'leida': False
+        })
+
+    # 5. NUEVOS MIEMBROS (solo si es líder)
+    mis_semilleros = SemilleroUsuario.objects.filter(
+        cedula=usuario,
+        es_lider=True
+    ).values_list('id_sem', flat=True)
+
+    nuevos_miembros = SemilleroUsuario.objects.filter(
+        id_sem__in=mis_semilleros
+    ).select_related('cedula', 'id_sem').order_by('-semusu_id')[:2]
+
+    for miembro in nuevos_miembros:
+        if miembro.cedula.cedula == usuario.cedula:
+            continue
+
+        url = reverse('resu-miembros', kwargs={'id_sem': miembro.id_sem.id_sem})
+
+        notificaciones.append({
+            'tipo': 'miembro',
+            'icono': 'fa-user-plus',
+            'clase_icono': 'success',
+            'titulo': 'Nuevo miembro en semillero',
+            'mensaje': f'{miembro.cedula.nom_usu} se unió a {miembro.id_sem.nombre}',
+            'tiempo': 'Reciente',
+            'url': url,
+            'leida': False
+        })
+
+    # 6. ENTREGABLES RETRASADOS
+    entregables_retrasados = Entregable.objects.filter(
+        cod_pro__in=proyectos_usuario,
+        estado='Retrasado'
+    ).select_related('cod_pro')[:2]
+
+    for entregable in entregables_retrasados:
+        sempro = entregable.cod_pro.semilleroproyecto_set.first()
+
+        if sempro:
+            url = (
+                reverse('detalle-proyecto', kwargs={
+                    'id_sem': sempro.id_sem.id_sem,
+                    'cod_pro': entregable.cod_pro.cod_pro
+                }) + '?tab=entregables'
+            )
+        else:
+            url = reverse('proyectos')
+
+        notificaciones.append({
+            'tipo': 'retrasado',
+            'icono': 'fa-clock',
+            'clase_icono': 'error',
+            'titulo': 'Entregable retrasado',
+            'mensaje': f'{entregable.nom_entre} - {entregable.cod_pro.nom_pro}',
+            'tiempo': f'Venció el {entregable.fecha_fin.strftime("%d/%m/%Y")}',
+            'url': url,
+            'leida': False
+        })
+
+    return notificaciones
+
+def api_notificaciones(request):
+    from django.http import JsonResponse
+    try:
+        notificaciones = obtener_notificaciones(request)
+        return JsonResponse({
+            'notificaciones': notificaciones,
+            'count': len(notificaciones)
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+
+        return JsonResponse({
+            'notificaciones': [],
+            'count': 0,
+            'error': str(e)
+        }, status=500)
+
+# VISTA BIENVENIDO
 def bienvenido(request):
 
     # CONTADORES DINÁMICOS
@@ -539,13 +730,11 @@ def home(request):
         Proyecto.objects.filter(semilleroproyecto__id_sem__in=mis_semilleros_ids)
     ).distinct().values_list('cod_pro', flat=True)
     
-    # CORRECCIÓN: Convertir fecha_limite a date para comparar con DateField
     entregables_recientes = Entregable.objects.filter(
         cod_pro__in=todos_mis_proyectos,
         fecha_inicio__gte=fecha_limite.date()
     ).annotate(
         tipo_actividad=Value('entregable', output_field=CharField()),
-        # CORRECCIÓN: Convertir fecha_inicio (date) a datetime para ordenamiento consistente
         fecha_actividad=Cast(F('fecha_inicio'), output_field=DateTimeField())
     )
     
@@ -555,12 +744,11 @@ def home(request):
         fecha_eve__gte=fecha_limite.date()
     ).annotate(
         tipo_actividad=Value('evento', output_field=CharField()),
-        # CORRECCIÓN: Convertir fecha_eve (date) a datetime para ordenamiento consistente
+        
         fecha_actividad=Cast(F('fecha_eve'), output_field=DateTimeField())
     )
     
     # ===== COMBINAR Y ORDENAR =====
-    # CORRECCIÓN: Ahora todos los objetos tienen fecha_actividad como datetime
     actividades = sorted(
         chain(semilleros_recientes, proyectos_recientes, entregables_recientes, eventos_recientes),
         key=lambda x: x.fecha_actividad if hasattr(x, 'fecha_actividad') else timezone.now(),
@@ -575,6 +763,7 @@ def home(request):
         'total_proyectos': total_proyectos,
         'total_aprendices': total_aprendices,
         'actividades': actividades,
+        
     })
 
 # VISTAS PERFIL
@@ -692,7 +881,7 @@ def semilleros(request):
     
     for semillero in semilleros:
         # Calcular y actualizar progreso
-        actualizar_progreso_semillero(request, semillero)
+        actualizar_progreso_semillero(semillero)
         
         # Resto del código existente...
         cedulas = SemilleroUsuario.objects.filter(
@@ -920,20 +1109,7 @@ def eliminar_semilleros(request):
     # Si no es POST, redirigir
     return redirect('semilleros')
 
-@login_required
-def actualizar_progreso_semillero(request, semillero):
-    # Verificar usuario en sesión
-    cedula = request.session.get('cedula')
-    if not cedula:
-        messages.error(request, "Debes iniciar sesión.")
-        return redirect('iniciarsesion')
-
-    try:
-        usuario = Usuario.objects.get(cedula=cedula)
-    except Usuario.DoesNotExist:
-        messages.error(request, "Usuario no encontrado.")
-        return redirect('iniciarsesion')
-
+def actualizar_progreso_semillero(semillero):
     # Obtener proyectos del semillero
     proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
     total_proyectos = proyectos.count()
@@ -981,7 +1157,7 @@ def resumen(request, id_sem):
     ).count()
 
     # ACTUALIZAR progreso — con request
-    actualizar_progreso_semillero(request, semillero)
+    actualizar_progreso_semillero(semillero)
 
     return render(request, 'paginas/resumen.html', {
         'current_page': 'resumen',
@@ -1502,7 +1678,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
     proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
 
     for proyecto in proyectos:
-        verificar_y_actualizar_estados_entregables(request, proyecto)
+        verificar_y_actualizar_estados_entregables(proyecto)
 
     tipo_seleccionado = None
     if cod_pro:
@@ -2019,18 +2195,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     messages.error(request, 'Método no permitido.')
     return redirect('resu-proyectos', id_sem=id_sem)
 
-@login_required
-def actualizar_progreso_proyecto(request, proyecto):
-    # OBTENER USUARIO DESDE LA SESIÓN
-    cedula = request.session.get('cedula')  
-    
-    try:
-        usuario = Usuario.objects.get(cedula=cedula)
-
-    except Usuario.DoesNotExist:
-        messages.error(request, "Usuario no encontrado.")
-        return redirect('iniciarsesion')
-    
+def actualizar_progreso_proyecto(proyecto):  
     entregables = Entregable.objects.filter(cod_pro=proyecto)
     total_entregables = entregables.count()
 
@@ -2070,21 +2235,9 @@ def actualizar_progreso_proyecto(request, proyecto):
     # Actualizar progreso del semillero asociado
     semilleros = Semillero.objects.filter(semilleroproyecto__cod_pro=proyecto)
     for semillero in semilleros:
-        actualizar_progreso_semillero(request, semillero)
+        actualizar_progreso_semillero(semillero)
 
-@login_required
-def verificar_y_actualizar_estados_entregables(request, proyecto):
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión.")
-        return redirect('iniciarsesion')
-
-    try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
-    except Usuario.DoesNotExist:
-        messages.error(request, "Usuario no encontrado.")
-        return redirect('iniciarsesion')
-    
+def verificar_y_actualizar_estados_entregables(proyecto):
     from datetime import date
     
     fecha_actual = date.today()
@@ -2440,8 +2593,8 @@ def proyectos(request):
     
     #  Actualizar estados de TODOS los proyectos primero
     for proyecto in proyectos_list:
-        verificar_y_actualizar_estados_entregables(request, proyecto)
-        actualizar_progreso_proyecto(request, proyecto)  
+        verificar_y_actualizar_estados_entregables(proyecto)
+        actualizar_progreso_proyecto(proyecto)
     
     # --- ESTADÍSTICAS GENERALES ---
     total_proyectos = proyectos_list.count()
@@ -3276,6 +3429,8 @@ def eventos(request):
     virtuales_mes = Evento.objects.filter(modalidad_eve="Virtual", fecha_eve__month=mes_actual).count()
 
     contexto = {
+        'current_page': 'eventos',
+        'current_page_name': 'Eventos',
         'eventos': eventos,
         'total_eventos': total_eventos,
         'total_mes': total_mes,

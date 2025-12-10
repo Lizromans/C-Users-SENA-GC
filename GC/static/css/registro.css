@@ -4,7 +4,7 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed; /* Opcional: mantiene la imagen fija al hacer scroll */
+    background-attachment: fixed; 
     min-height: 97vh;
     width: 100vw;
     overflow-x: hidden; /* Evitar scroll horizontal por las partículas */

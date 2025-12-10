@@ -29,6 +29,32 @@
                     </span>
                 </div>
                 <div class="header-right">
+                    <div class="volver" onclick="history.back()">
+                        <i class="fa-solid fa-reply" aria-hidden="true"></i>
+                        <span>Volver</span> 
+                    </div>
+                    <div class="notification-icon">
+                        <a id="notification-bell">
+                            <i class="fa fa-bell" aria-hidden="true"></i>
+                            <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                        </a>
+                        
+                        <!-- Dropdown de notificaciones -->
+                        <div class="notification-dropdown" id="notification-dropdown">
+                            <div class="notification-header">
+                                <h6>Notificaciones</h6>
+                                <button class="btn-close-notifications" id="close-notifications">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="notification-body" id="notification-list">
+                                <div class="notification-loading">
+                                    <i class="fa fa-spinner fa-spin"></i> Cargando...
+                                </div>
+                            </div>
+                        
+                        </div>
+                    </div>
                     <div class="user-info">
                         <span class="user-icon">
                             {% if usuario.imagen_perfil %}
@@ -209,4 +235,5 @@
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/sidebar.js' %}"></script>
     <script src="{% static 'js/contraseña.js' %}"></script>
+    
 </html>

@@ -4,6 +4,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    # NOTIFICACIONES
+    path('api/notificaciones/', views.api_notificaciones, name='api_notificaciones'),
+
     path('', views.bienvenido, name='bienvenido'),
     path('home/', views.home, name='home'),
     path('registro/', views.registro, name='registro'),

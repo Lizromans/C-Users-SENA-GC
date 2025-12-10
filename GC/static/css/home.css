@@ -490,58 +490,7 @@
     color: var(--color-text-secondary);
     line-height: 1.6;
     font-size: clamp(0.9rem, 1.2vw, 1rem);
-}
-
-/* Estilos para mensajes de alerta */
-.mensajes-container {
-    position: fixed;
-    top: 16%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    max-width: 500px;
-    z-index: 9999;
-    text-align: center;
-}
-
-.alert {
-    padding: 15px 20px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-weight: 500;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 0.5s ease-in-out;
-    position: relative;
-    padding-right: 30px; /* Espacio para el botón */
-}
-
-.alert-success {
-    background-color: #dff0d8;
-    border: 1px solid #d6e9c6;
-    color: #3c763d;
-}
-
-.alert-danger {
-    background-color: #f2dede;
-    border: 1px solid #ebccd1;
-    color: #a94442;
-}
-
-.alert-info {
-    background-color: #d9edf7;
-    border: 1px solid #bce8f1;
-    color: black;
-}
-
-.close-btn {
-    position: absolute;
-    top: 2px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: inherit;
+    margin-bottom: clamp(-3px, 1vh, -6px);
 }
 
 @keyframes fadeIn {
@@ -554,3 +503,73 @@
         transform: translateY(0);
     }
 }
+
+/* --- Badges de Estado --- */
+.badge {
+    display: inline-block;
+    font-size: clamp(0.75rem, 1vw, 0.85rem);
+    font-weight: 600;
+    margin-right: clamp(6px, 0.8vw, 10px);
+}
+
+.badge-semillero {
+    background-color: transparent;
+    color: #d63031;
+}
+
+.badge-proyecto {
+    background-color: transparent;
+    color: #2d3436;
+}
+
+.badge-entregable {
+    background-color: transparent;
+    color: #2d3436;
+}
+
+.badge-evento {
+    background-color: transparent;
+    color: #e17055;
+}
+
+.badge-estado-programado {
+    background-color: transparent;
+    color: #0984e3;
+}
+
+.badge-estado-en_curso {
+    background-color: transparent;
+    color: #00b894;
+}
+
+.badge-estado-finalizado {
+    background-color: transparent;
+    color: #636e72;
+}
+
+.badge-estado-cancelado {
+    background-color: transparent;
+    color: #d63031;
+}
+
+/* --- Texto Adicional --- */
+.text-muted {
+    color: #95a5a6 !important;
+    font-size: clamp(0.8rem, 1vw, 0.9rem);
+}
+
+.d-block {
+    display: block;
+}
+
+.mt-1 {
+    margin-top: clamp(4px, 0.5vh, 8px);
+}
+
+/* --- Mensaje Sin Actividades --- */
+.timeline-description .fas.fa-info-circle {
+    margin-right: 8px;
+    color: #3498db;
+}
+
+

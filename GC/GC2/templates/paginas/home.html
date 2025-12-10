@@ -185,12 +185,12 @@
                                 <p class="timeline-description">
                                     {{ actividad.desc_eve }}
                                 </p>
-                                <span class="badge badge-evento">{{ actividad.modalidad_eve }}</span>
+                                <span class="badge badge-evento">{{ actividad.modalidad_eve }}</span>-
                                 <span class="badge badge-estado-{{ actividad.estado_eve|lower }}">{{ actividad.estado_eve }}</span>
                                 <small class="text-muted d-block mt-1">
                                     {{ actividad.hora_inicio|time:"H:i" }} - {{ actividad.hora_fin|time:"H:i" }}
                                     {% if actividad.direccion_eve %}
-                                        | 📍 {{ actividad.direccion_eve }}
+                                        |  📍 {{ actividad.direccion_eve }}
                                     {% endif %}
                                 </small>
                             {% endif %}
@@ -216,4 +216,5 @@
 </div>
 
 <script src="{% static 'js/mensaje.js' %}"></script>
+<script src="{% static 'js/notificaciones.js' %}"></script>
 {% endblock %}
