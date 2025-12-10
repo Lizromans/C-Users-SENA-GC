@@ -204,8 +204,7 @@
     height: clamp(40px, 10vw, 60px);
     object-fit: contain;
 }
-
-/* ====== BUSQUEDA ====== */
+/*====== SECCIÓN DE BÚSQUEDA Y FILTROS ====== */
 .seccion-busqueda {
     padding: clamp(1rem, 2vw, 1.5rem);
     background-color: var(--color-fondo-secundario);
@@ -213,7 +212,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    gap: clamp(1.5rem, 4vw, 2rem); 
+    gap: clamp(0.5rem, 1.5vw, 1rem); /* REDUCIDO */
     flex-wrap: wrap;
     justify-content: flex-start;
 }
@@ -227,16 +226,16 @@
 .busqueda-miembros {
     display: flex;
     align-items: center;
-    gap: clamp(0.8rem, 2vw, 1rem);
-    flex: 0 1 auto; 
-    min-width: 50%
+    gap: clamp(0.4rem, 1vw, 0.7rem); /* REDUCIDO */
+    flex: 1 1 auto; /* CAMBIADO PARA QUE CREZCA */
+    min-width: clamp(180px, 25vw, 350px);
 }
 
 /* Label del formulario */
 .busqueda-miembros label {
     font-weight: 600;
     color: #333;
-    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    font-size: clamp(0.85rem, 1.3vw, 0.95rem);
     white-space: nowrap;
 }
 
@@ -249,10 +248,10 @@
 /* Input de búsqueda */
 .input-miembros {
     width: 100%;
-    padding: clamp(0.5rem, 1vw, 0.65rem) clamp(2.5rem, 4vw, 3rem) clamp(0.5rem, 1vw, 0.65rem) clamp(0.5rem, 1vw, 0.65rem);
+    padding: clamp(0.45rem, 0.8vw, 0.6rem) clamp(2.5rem, 3.5vw, 3rem) clamp(0.45rem, 0.8vw, 0.6rem) clamp(0.5rem, 0.8vw, 0.65rem);
     border: 1px solid #ddd;
     border-radius: clamp(6px, 1vw, 8px);
-    font-size: clamp(0.85rem, 1.5vw, 0.9rem);
+    font-size: clamp(0.8rem, 1.3vw, 0.9rem);
     outline: none;
     transition: all 0.3s ease;
 }
@@ -265,7 +264,7 @@
 /* Botón de búsqueda (lupa) */
 .input-busqueda .search-icon {
     position: absolute;
-    right: clamp(0.5rem, 1vw, 0.8rem);
+    right: clamp(0.5rem, 0.8vw, 0.8rem);
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -273,7 +272,7 @@
     color: #666;
     cursor: pointer;
     padding: 0;
-    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    font-size: clamp(0.85rem, 1.3vw, 1rem);
     transition: color 0.3s ease;
 }
 
@@ -285,24 +284,29 @@
 .filtros-estado {
     display: flex;
     align-items: center;
-    gap: clamp(1.5rem, 4vw, 2rem); 
+    gap: clamp(0.4rem, 1vw, 0.7rem); /* REDUCIDO */
     flex: 0 1 auto;
     min-width: fit-content;
-    margin-right: auto;
+}
+
+.filtros-estado label {
+    font-weight: 600;
+    color: #333;
+    font-size: clamp(0.85rem, 1.3vw, 0.95rem);
+    white-space: nowrap;
 }
 
 .botones-estado {
     display: flex;
-    gap: clamp(0.4rem, 1.5vw, 0.6rem);
-    flex-wrap: wrap;
-    flex: 1;
+    gap: clamp(0.3rem, 1vw, 0.5rem); /* REDUCIDO */
+    flex-wrap: nowrap;
 }
 
 .btn-estado {
-    padding: clamp(0.5rem, 1.2vw, 0.65rem) clamp(1rem, 2vw, 1.4rem);
+    padding: clamp(0.45rem, 1vw, 0.6rem) clamp(0.9rem, 1.8vw, 1.3rem);
     border: none;
-    border-radius: clamp(18px, 3vw, 22px);
-    font-size: clamp(0.5rem, 1vw, 0.8rem);
+    border-radius: clamp(16px, 2.5vw, 20px);
+    font-size: clamp(0.75rem, 1.3vw, 0.85rem);
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -345,18 +349,28 @@
 
 /* FILTRO DE ROL (SELECT) */
 .filtro-rol {
-    margin-right: auto; 
+    display: flex;
+    align-items: center;
+    gap: clamp(0.4rem, 1vw, 0.7rem); /* REDUCIDO */
+    flex: 0 1 auto;
+}
+
+.filtro-rol label {
+    font-weight: 600;
+    color: #333;
+    font-size: clamp(0.85rem, 1.3vw, 0.95rem);
+    white-space: nowrap;
 }
 
 .filtro-rol select {
-    padding: clamp(0.5rem, 1vw, 0.65rem) clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(0.45rem, 0.8vw, 0.6rem) clamp(0.9rem, 1.8vw, 1.3rem);
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: clamp(8px, 1.5vw, 12px);
-    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    border-radius: clamp(7px, 1.2vw, 10px);
+    font-size: clamp(0.8rem, 1.3vw, 0.9rem);
     backdrop-filter: blur(10px);
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: clamp(150px, 20%, 200px);
+    min-width: clamp(110px, 12vw, 160px); /* SE ADAPTA */
     background-color: #fff;
     color: #333;
 }

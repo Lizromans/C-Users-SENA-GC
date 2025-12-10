@@ -733,7 +733,8 @@
     height: 100%;
     background-color: rgba(94, 93, 93, 0.267);
     z-index: 9999;
-    padding: clamp(40px, 10vh, 60px) ;
+    padding: clamp(40px, 10vh, 60px);
+    overflow-y: auto;
 }
 
 .modal-overlay:target {
