@@ -8,175 +8,173 @@
 {% block contenido %} {% endblock %}
 {% block main %}
 
-{% if messages %}
-    <div class="mensajes-container">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-          {{ message }}
-          <button type="button" class="close-btn" onclick="this.parentElement.remove()">×</button>
+<!-- Mensajes de alerta -->
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
+    <div class="perfil">
+        <div class="cont-1">
+            <div class="foto">
+                <form action="{% url 'actualizar_foto' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% if usuario.imagen_perfil %}
+                        <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
+                    {% else %}
+                        <div class="foto-placeholder">
+                            <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
+                        </div>
+                    {% endif %}
+
+                    <label for="foto-input" class="icon-edit">
+                        <img src="{% static 'img/edit.png' %}" alt="Editar foto">
+                    </label>
+                    <input type="file" name="imagen_perfil" id="foto-input" accept="image/*" onchange="this.form.submit()" hidden>
+                </form>
+            </div>
+
+            <div class="card">
+                <h5 class="card-title">Resumen</h5>
+                <div class="card-body">
+                    <div class="card-row">
+                        <p class="card-text">Estado:</p>
+                        <p class="text">{{ usuario.estado }}</p>
+                    </div>
+                    <div class="card-row">
+                        <p class="card-text">Última sesión:</p>
+                        <p class="text">
+                            {% if usuario.last_login %}
+                                {{ ultimo_acceso }}
+                            {% else %}
+                                Nunca ha iniciado sesión
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Estadísticas numéricas -->
+                    <div class="card-row">
+                        <p class="card-text">Semilleros:</p>
+                        <p class="card-num">{{ total_semilleros }}</p>
+                    </div>
+
+                    <div class="card-row">
+                        <p class="card-text">Proyectos:</p>
+                        <p class="card-num">{{ total_proyectos }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      {% endfor %}
+
+        <form method="POST" action="{% url 'perfil' %}">
+            {% csrf_token %}
+            <div class="informacion">
+                <!-- Información Personal -->
+                <div class="seccion">
+                    <div class="titulo">
+                        <img src="{% static 'img/User.png' %}" alt="Informacion Personal">
+                        <h6>Información Personal</h6>
+                    </div>
+                    <hr>
+                    <div class="info-group">
+                        <div class="info">
+                            <label for="nombre1">Nombres:</label>
+                            <input type="text" id="nombre1" name="nombre1" value="{{ usuario.nom_usu }}">
+                        </div>
+                        <div class="info">
+                            <label for="nombre2">Apellidos:</label>
+                            <input type="text" id="nombre2" name="nombre2" value="{{ usuario.ape_usu }}">
+                        </div>
+                        <div class="info">
+                            <label for="cedula">Cédula:</label>
+                            <input type="num" id="cedula" name="cedula" value="{{ usuario.cedula }}" readonly>
+                        </div>
+                        <div class="info">
+                            <label for="correo1">Correo Personal:</label>
+                            <input type="text" id="correo1" name="correo1" value="{{ usuario.correo_per|default_if_none:"" }}" placeholder="Ingrese su correo personal">
+                        </div>
+                        <div class="info">
+                            <label for="celular">Celular:</label>
+                            <input type="num" id="celular" name="celular" value="{{ usuario.telefono|default_if_none:"" }}" placeholder="Ingrese su número de celular">
+                        </div>
+                        <div class="info">
+                            <label for="fecha">Fecha de Nacimiento:</label>
+                            <input type="date" id="fecha" name="fecha" value="{% if usuario.fecha_nacimiento %}{{ usuario.fecha_nacimiento|date:'Y-m-d' }}{% endif %}" placeholder="Ingrese su fecha de nacimiento">
+                        </div>
+                    </div>
+                </div>
+                <!-- Información Profesional -->
+                <div class="seccion">
+                    <div class="titulo">
+                        <img src="{% static 'img/briefcase.png' %}" alt="Informacion Personal">
+                        <h6>Información Profesional</h6>
+                    </div>
+                    <hr>
+                    <div class="info-group">
+                        <div class="info">
+                            <label for="correo2">Correo Sena:</label>
+                            <input type="text" id="correo2" name="correo2" value="{{ usuario.correo_ins }}">
+                        </div>
+                        <div class="info">
+                            <label for="vinculacion">Vinculación laboral:</label>
+                            <select id="vinculacion" name="vinculacion" required>
+                                <option value="" disabled selected>Selecciona tu rol</option>
+                                <option value="Contratista" {% if usuario.vinculacion_laboral == "Contratista" %}selected{% endif %}>Contratista</option>
+                                <option value="Planta" {% if usuario.vinculacion_laboral == "Planta" %}selected{% endif %}>Planta</option>
+                            </select>
+                        </div>
+                        <div class="info">
+                            <label for="dependencia">Dependencia/Área:</label>
+                            <input type="text" id="dependencia" name="dependencia" value="{{ usuario.dependencia|default_if_none:"" }}" placeholder="Ingrese su dependencia/área">
+                        </div>
+                        <div class="info">
+                            <label for="rol">Rol:</label>
+                            <input type="text" id="rol" name="rol" value="{{ usuario.rol}}">
+                        </div>
+                    </div>
+                </div>
+                <!-- Información de Semilleros -->
+                <div class="seccion">
+                    <div class="titulo">
+                        <img src="{% static 'img/microscopio.png' %}" alt="Informacion Personal">
+                        <h6>Información de Semilleros</h6>
+                    </div>
+                    <hr>
+                    <div class="info-group2">
+                        {% for semillero in semilleros %}
+                        <div class="info">
+                            <input type="text" value="{{ semillero.sigla }}" disabled>
+                        </div>
+                        {% empty %}
+                        <p>No estás asociado a ningún semillero.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Información de Proyectos -->
+                <div class="seccion">
+                    <div class="titulo">
+                        <img src="{% static 'img/project.png' %}" alt="Informacion Personal">
+                        <h6>Información de Proyectos</h6>
+                    </div>
+                    <hr>
+                    <div class="info-group2">
+                        {% for proyecto in proyectos %}
+                        <div class="info">
+                            <textarea disabled>{{ proyecto.nom_pro }}</textarea>
+                        </div>
+                        {% empty %}
+                        <p>No estás asociado a ningún proyecto.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                <button type="submit" class="guardar">Guardar Cambios</button>
+            </div>
+        </form>
     </div>
-{% endif %}
-<div class="perfil">
-    <div class="cont-1">
-        <div class="foto">
-            <form action="{% url 'actualizar_foto' %}" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                {% if usuario.imagen_perfil %}
-                    <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
-                {% else %}
-                    <div class="foto-placeholder">
-                        <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
-                    </div>
-                {% endif %}
-
-                <label for="foto-input" class="icon-edit">
-                    <img src="{% static 'img/edit.png' %}" alt="Editar foto">
-                </label>
-                <input type="file" name="imagen_perfil" id="foto-input" accept="image/*" onchange="this.form.submit()" hidden>
-            </form>
-        </div>
-
-        <div class="card">
-            <h5 class="card-title">Resumen</h5>
-            <div class="card-body">
-                <div class="card-row">
-                    <p class="card-text">Estado:</p>
-                    <p class="text">{{ usuario.estado }}</p>
-                </div>
-                <div class="card-row">
-                    <p class="card-text">Última sesión:</p>
-                    <p class="text">
-                        {% if usuario.last_login %}
-                            {{ ultimo_acceso }}
-                        {% else %}
-                            Nunca ha iniciado sesión
-                        {% endif %}
-                    </p>
-                </div>
-
-                <!-- Estadísticas numéricas -->
-                <div class="card-row">
-                    <p class="card-text">Semilleros:</p>
-                    <p class="card-num">{{ total_semilleros }}</p>
-                </div>
-
-                <div class="card-row">
-                    <p class="card-text">Proyectos:</p>
-                    <p class="card-num">{{ total_proyectos }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <form method="POST" action="{% url 'perfil' %}">
-        {% csrf_token %}
-        <div class="informacion">
-            <!-- Información Personal -->
-            <div class="seccion">
-                <div class="titulo">
-                    <img src="{% static 'img/User.png' %}" alt="Informacion Personal">
-                    <h6>Información Personal</h6>
-                </div>
-                <hr>
-                <div class="info-group">
-                    <div class="info">
-                        <label for="nombre1">Nombres:</label>
-                        <input type="text" id="nombre1" name="nombre1" value="{{ usuario.nom_usu }}">
-                    </div>
-                    <div class="info">
-                        <label for="nombre2">Apellidos:</label>
-                        <input type="text" id="nombre2" name="nombre2" value="{{ usuario.ape_usu }}">
-                    </div>
-                    <div class="info">
-                        <label for="cedula">Cédula:</label>
-                        <input type="num" id="cedula" name="cedula" value="{{ usuario.cedula }}" readonly>
-                    </div>
-                    <div class="info">
-                        <label for="correo1">Correo Personal:</label>
-                        <input type="text" id="correo1" name="correo1" value="{{ usuario.correo_per|default_if_none:"" }}" placeholder="Ingrese su correo personal">
-                    </div>
-                    <div class="info">
-                        <label for="celular">Celular:</label>
-                        <input type="num" id="celular" name="celular" value="{{ usuario.telefono|default_if_none:"" }}" placeholder="Ingrese su número de celular">
-                    </div>
-                    <div class="info">
-                        <label for="fecha">Fecha de Nacimiento:</label>
-                        <input type="date" id="fecha" name="fecha" value="{% if usuario.fecha_nacimiento %}{{ usuario.fecha_nacimiento|date:'Y-m-d' }}{% endif %}" placeholder="Ingrese su fecha de nacimiento">
-                    </div>
-                </div>
-            </div>
-            <!-- Información Profesional -->
-            <div class="seccion">
-                <div class="titulo">
-                    <img src="{% static 'img/briefcase.png' %}" alt="Informacion Personal">
-                    <h6>Información Profesional</h6>
-                </div>
-                <hr>
-                <div class="info-group">
-                    <div class="info">
-                        <label for="correo2">Correo Sena:</label>
-                        <input type="text" id="correo2" name="correo2" value="{{ usuario.correo_ins }}">
-                    </div>
-                    <div class="info">
-                        <label for="vinculacion">Vinculación laboral:</label>
-                        <select id="vinculacion" name="vinculacion" required>
-                            <option value="" disabled selected>Selecciona tu rol</option>
-                            <option value="Contratista" {% if usuario.vinculacion_laboral == "Contratista" %}selected{% endif %}>Contratista</option>
-                            <option value="Planta" {% if usuario.vinculacion_laboral == "Planta" %}selected{% endif %}>Planta</option>
-                        </select>
-                    </div>
-                    <div class="info">
-                        <label for="dependencia">Dependencia/Área:</label>
-                        <input type="text" id="dependencia" name="dependencia" value="{{ usuario.dependencia|default_if_none:"" }}" placeholder="Ingrese su dependencia/área">
-                    </div>
-                    <div class="info">
-                        <label for="rol">Rol:</label>
-                        <input type="text" id="rol" name="rol" value="{{ usuario.rol}}">
-                    </div>
-                </div>
-            </div>
-            <!-- Información de Semilleros -->
-            <div class="seccion">
-                <div class="titulo">
-                    <img src="{% static 'img/microscopio.png' %}" alt="Informacion Personal">
-                    <h6>Información de Semilleros</h6>
-                </div>
-                <hr>
-                <div class="info-group2">
-                    {% for semillero in semilleros %}
-                    <div class="info">
-                        <input type="text" value="{{ semillero.sigla }}" disabled>
-                    </div>
-                    {% empty %}
-                    <p>No estás asociado a ningún semillero.</p>
-                    {% endfor %}
-                </div>
-            </div>
-            <!-- Información de Proyectos -->
-            <div class="seccion">
-                <div class="titulo">
-                    <img src="{% static 'img/project.png' %}" alt="Informacion Personal">
-                    <h6>Información de Proyectos</h6>
-                </div>
-                <hr>
-                <div class="info-group2">
-                    {% for proyecto in proyectos %}
-                    <div class="info">
-                        <textarea disabled>{{ proyecto.nom_pro }}</textarea>
-                    </div>
-                    {% empty %}
-                    <p>No estás asociado a ningún proyecto.</p>
-                    {% endfor %}
-                </div>
-            </div>
-            <hr>
-            <button type="submit" class="guardar">Guardar Cambios</button>
-        </div>
-    </form>
-</div>
 <script src="{% static 'js/notificaciones.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/mensaje.js' %}"></script>

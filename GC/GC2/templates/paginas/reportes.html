@@ -7,278 +7,287 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+<!-- Mensajes de alerta -->
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
 
-<div class="contenedor-principal">
-    <div class="titulo">
-        <h3>📋 Centro de Reportes</h3>
-        <p>Genera reportes detallados de los semilleros de investigación, incluyendo sus proyectos, entregables y miembros vinculados.</p>
-    </div>
-
-    <!-- REPORTES RÁPIDOS -->
-    <div class="reporte-rapido">
-        <div class="title">
-            <img src="{% static 'img/rayo.png' %}" alt="Icono de rayo" />
-            <h4>Reportes Rápidos</h4>
+    <div class="contenedor-principal">
+        <div class="titulo">
+            <h3>📋 Centro de Reportes</h3>
+            <p>Genera reportes detallados de los semilleros de investigación, incluyendo sus proyectos, entregables y miembros vinculados.</p>
         </div>
 
-        <div class="info">
-            <a href="{% url 'reporte_semilleros' %}" class="reporte-card enlace-card">
-                <div class="icon-container icon-file">
-                    <img src="{% static 'img/Report.png' %}" alt="Icono de reporte" />
-                </div>
-                <h3>Resumen General</h3>
-                <p>Todos los semilleros</p>
-            </a>
+        <!-- REPORTES RÁPIDOS -->
+        <div class="reporte-rapido">
+            <div class="title">
+                <img src="{% static 'img/rayo.png' %}" alt="Icono de rayo" />
+                <h4>Reportes Rápidos</h4>
+            </div>
 
-            <a href="{% url 'reporte_proyectos' %}" class="reporte-card enlace-card">
-                <div class="icon-container icon-rocket">
-                    <img src="{% static 'img/Rocket.png' %}" alt="Icono de cohete" />
-                </div>
-                <h3>Proyectos</h3>
-                <p>Todos los proyectos</p>
-            </a>
+            <div class="info">
+                <a href="{% url 'reporte_semilleros' %}" class="reporte-card enlace-card">
+                    <div class="icon-container icon-file">
+                        <img src="{% static 'img/Report.png' %}" alt="Icono de reporte" />
+                    </div>
+                    <h3>Resumen General</h3>
+                    <p>Todos los semilleros</p>
+                </a>
 
-            <a href="{% url 'reporte_participantes' %}" class="reporte-card enlace-card">
-                <div class="icon-container icon-users">
-                    <img src="{% static 'img/people.png' %}" alt="Icono de personas"/>
-                </div>
-                <h3>Participantes</h3>
-                <p>Último mes</p>
-            </a>
+                <a href="{% url 'reporte_proyectos' %}" class="reporte-card enlace-card">
+                    <div class="icon-container icon-rocket">
+                        <img src="{% static 'img/Rocket.png' %}" alt="Icono de cohete" />
+                    </div>
+                    <h3>Proyectos</h3>
+                    <p>Todos los proyectos</p>
+                </a>
 
-            <a href="{% url 'reporte_entregables' %}" class="reporte-card enlace-card">
-                <div class="icon-container icon-trophy">
-                    <img src="{% static 'img/Trophy.png' %}" alt="Icono de trofeo" />
-                </div>
-                <h3>Entregables</h3>
-                <p>Último mes</p>
-            </a>
+                <a href="{% url 'reporte_participantes' %}" class="reporte-card enlace-card">
+                    <div class="icon-container icon-users">
+                        <img src="{% static 'img/people.png' %}" alt="Icono de personas"/>
+                    </div>
+                    <h3>Participantes</h3>
+                    <p>Último mes</p>
+                </a>
+
+                <a href="{% url 'reporte_entregables' %}" class="reporte-card enlace-card">
+                    <div class="icon-container icon-trophy">
+                        <img src="{% static 'img/Trophy.png' %}" alt="Icono de trofeo" />
+                    </div>
+                    <h3>Entregables</h3>
+                    <p>Último mes</p>
+                </a>
+            </div>
         </div>
-    </div>
 
-    <form id="form-reportes" method="POST" action="{% url 'generar_reporte_dinamico' %}">
-    {% csrf_token %}
+        <form id="form-reportes" method="POST" action="{% url 'generar_reporte_dinamico' %}">
+        {% csrf_token %}
 
-        <!-- GENERADOR DE REPORTES PERSONALIZADOS -->
-        <div class="seccion-busqueda">
-            <div class="titulo2">
-                <h3>🎨 Constructor de Reportes Personalizados</h3>
-            </div>
-            
-            <!-- Selector de Categorías -->
-            <div class="contenedor-categorias">
-                <label class="categoria-selector">
-                    <input type="checkbox" name="categoria" value="semilleros" class="check-categoria">
-                    <span class="categoria-badge semilleros-badge">
-                        <i class="fas fa-microscope"></i> Semilleros
-                    </span>
-                </label>
-
-                <label class="categoria-selector">
-                    <input type="checkbox" name="categoria" value="proyectos" class="check-categoria">
-                    <span class="categoria-badge proyectos-badge">
-                        <i class="fas fa-rocket"></i> Proyectos
-                    </span>
-                </label>
-
-                <label class="categoria-selector">
-                    <input type="checkbox" name="categoria" value="miembros" class="check-categoria">
-                    <span class="categoria-badge miembros-badge">
-                        <i class="fas fa-users"></i> Miembros
-                    </span>
-                </label>
-
-                <label class="categoria-selector">
-                    <input type="checkbox" name="categoria" value="entregables" class="check-categoria">
-                    <span class="categoria-badge entregables-badge">
-                        <i class="fas fa-file-alt"></i> Entregables
-                    </span>
-                </label>
-            </div>
-
-            <!-- Campos Dinámicos -->
-            <div id="campos-dinamicos" class="campos-dinamicos">
-                <p class="info-texto">
-                    <i class="fas fa-info-circle"></i> 
-                    Selecciona las categorías para ver los campos disponibles
-                </p>
-            </div>
-
-            <!-- Opciones de Formato -->
-            <div class="formato-reporte">
-                <p>Formato de Exportación</p>
-                <div class="formato-opciones" id="formato">
-                    <label class="formato-radio">
-                        <input type="radio" name="formato" value="excel" checked>
-                        <span><i class="fas fa-file-excel"></i> Excel</span>
+            <!-- GENERADOR DE REPORTES PERSONALIZADOS -->
+            <div class="seccion-busqueda">
+                <div class="titulo2">
+                    <h3>🎨 Constructor de Reportes Personalizados</h3>
+                </div>
+                
+                <!-- Selector de Categorías -->
+                <div class="contenedor-categorias">
+                    <label class="categoria-selector">
+                        <input type="checkbox" name="categoria" value="semilleros" class="check-categoria">
+                        <span class="categoria-badge semilleros-badge">
+                            <i class="fas fa-microscope"></i> Semilleros
+                        </span>
                     </label>
 
-                    <label class="formato-radio">
-                        <input type="radio" name="formato" value="pdf">
-                        <span><i class="fas fa-file-pdf"></i> PDF</span>
+                    <label class="categoria-selector">
+                        <input type="checkbox" name="categoria" value="proyectos" class="check-categoria">
+                        <span class="categoria-badge proyectos-badge">
+                            <i class="fas fa-rocket"></i> Proyectos
+                        </span>
                     </label>
 
+                    <label class="categoria-selector">
+                        <input type="checkbox" name="categoria" value="miembros" class="check-categoria">
+                        <span class="categoria-badge miembros-badge">
+                            <i class="fas fa-users"></i> Miembros
+                        </span>
+                    </label>
+
+                    <label class="categoria-selector">
+                        <input type="checkbox" name="categoria" value="entregables" class="check-categoria">
+                        <span class="categoria-badge entregables-badge">
+                            <i class="fas fa-file-alt"></i> Entregables
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Campos Dinámicos -->
+                <div id="campos-dinamicos" class="campos-dinamicos">
+                    <p class="info-texto">
+                        <i class="fas fa-info-circle"></i> 
+                        Selecciona las categorías para ver los campos disponibles
+                    </p>
+                </div>
+
+                <!-- Opciones de Formato -->
+                <div class="formato-reporte">
+                    <p>Formato de Exportación</p>
+                    <div class="formato-opciones" id="formato">
+                        <label class="formato-radio">
+                            <input type="radio" name="formato" value="excel" checked>
+                            <span><i class="fas fa-file-excel"></i> Excel</span>
+                        </label>
+
+                        <label class="formato-radio">
+                            <input type="radio" name="formato" value="pdf">
+                            <span><i class="fas fa-file-pdf"></i> PDF</span>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!-- Guardar Plantilla -->
+                <div class="guardar-plantilla">
+                    <input type="text" name="nombre_plantilla" placeholder="Nombre de la plantilla (opcional)" class="input-plantilla" id="nombre-plantilla">
+                </div>
+
+                <div class="botones-item">
+                    <button type="button" id="btn-limpiar" class="limpiar">
+                        <i class="fas fa-sync-alt"></i> Limpiar                
+                    </button>
+
+
+                    <button type="submit" id="btn-generar" class="filtrar">
+                        <i class="fas fa-download"></i> Generar Reporte
+                    </button>
+                </div>
+
+                
+            </div>
+        </form>
+
+
+        <!-- REPORTES POR CATEGORÍA -->
+        <div class="resumen">
+
+            <!-- ANALÍTICA Y TENDENCIAS -->
+            <div class="grupo">
+                <div class="card analitica">
+                    <div class="icon-cont">
+                        <img class="icon" src="{% static 'img/Report.png' %}" alt="Icono Analítica">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Analítica</h5>
+                    </div>
+                </div>
+                <div class="scrollable-list">
+                    <ul class="lista">
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Tendencias de Crecimiento</span><br>
+                                <span class="subtitulo">Evolución temporal de semilleros, proyectos y participantes con gráficos</span>
+                            </div>
+                            <a href="{% url 'reporte_tendencias' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Productividad por Semillero</span><br>
+                                <span class="subtitulo">Comparativa de entregables completados y proyectos finalizados por semillero</span>
+                            </div>
+                            <a href="{% url 'reporte_productividad' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
-            <!-- Guardar Plantilla -->
-            <div class="guardar-plantilla">
-                <input type="text" name="nombre_plantilla" placeholder="Nombre de la plantilla (opcional)" class="input-plantilla" id="nombre-plantilla">
-            </div>
-
-            <div class="botones-item">
-                <button type="button" id="btn-limpiar" class="limpiar">
-                    <i class="fas fa-sync-alt"></i> Limpiar                
-                </button>
-
-
-                <button type="submit" id="btn-generar" class="filtrar">
-                    <i class="fas fa-download"></i> Generar Reporte
-                </button>
-            </div>
-
-            
-        </div>
-    </form>
-
-
-    <!-- REPORTES POR CATEGORÍA -->
-    <div class="resumen">
-
-        <!-- ANALÍTICA Y TENDENCIAS -->
-        <div class="grupo">
-            <div class="card analitica">
-                <div class="icon-cont">
-                    <img class="icon" src="{% static 'img/Report.png' %}" alt="Icono Analítica">
+            <!-- REPORTES TEMPORALES -->
+            <div class="grupo">
+                <div class="card temporales">
+                    <div class="icon-cont">
+                        <img class="icon" src="{% static 'img/Trophy.png' %}" alt="Icono Temporal">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Reportes Temporales</h5>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">Analítica</h5>
-                </div>
-            </div>
-            <div class="scrollable-list">
-                <ul class="lista">
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Tendencias de Crecimiento</span><br>
-                            <span class="subtitulo">Evolución temporal de semilleros, proyectos y participantes con gráficos</span>
-                        </div>
-                        <a href="{% url 'reporte_tendencias' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
+                <div class="scrollable-list">
+                    <ul class="lista">
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Reporte Mensual Ejecutivo</span><br>
+                                <span class="subtitulo">Resumen consolidado del mes: logros, avances y estadísticas clave</span>
+                            </div>
+                            <a href="{% url 'reporte_mensual_ejecutivo' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Informe Trimestral</span><br>
+                                <span class="subtitulo">Análisis de cumplimiento y resultados por trimestre</span>
+                            </div>
+                            <a href="{% url 'informe_trimestral' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
 
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Productividad por Semillero</span><br>
-                            <span class="subtitulo">Comparativa de entregables completados y proyectos finalizados por semillero</span>
-                        </div>
-                        <a href="{% url 'reporte_productividad' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Balance Anual</span><br>
+                                <span class="subtitulo">Resultados del año completo con análisis integral</span>
+                            </div>
+                            <a href="{% url 'balance_anual' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
 
-        <!-- REPORTES TEMPORALES -->
-        <div class="grupo">
-            <div class="card temporales">
-                <div class="icon-cont">
-                    <img class="icon" src="{% static 'img/Trophy.png' %}" alt="Icono Temporal">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Reportes Temporales</h5>
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Comparativo Año vs Año</span><br>
+                                <span class="subtitulo">Evolución interanual de indicadores clave de desempeño</span>
+                            </div>
+                            <a href="{% url 'comparativo_anual' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <div class="scrollable-list">
-                <ul class="lista">
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Reporte Mensual Ejecutivo</span><br>
-                            <span class="subtitulo">Resumen consolidado del mes: logros, avances y estadísticas clave</span>
-                        </div>
-                        <a href="{% url 'reporte_mensual_ejecutivo' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Informe Trimestral</span><br>
-                            <span class="subtitulo">Análisis de cumplimiento y resultados por trimestre</span>
-                        </div>
-                        <a href="{% url 'informe_trimestral' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
 
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Balance Anual</span><br>
-                            <span class="subtitulo">Resultados del año completo con análisis integral</span>
-                        </div>
-                        <a href="{% url 'balance_anual' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Comparativo Año vs Año</span><br>
-                            <span class="subtitulo">Evolución interanual de indicadores clave de desempeño</span>
-                        </div>
-                        <a href="{% url 'comparativo_anual' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- FORMACIÓN ACADÉMICA -->
-        <div class="grupo">
-            <div class="card academico">
-                <div class="icon-cont">
-                    <img class="icon" src="{% static 'img/student.png' %}" alt="Icono Académico">
+            <!-- FORMACIÓN ACADÉMICA -->
+            <div class="grupo">
+                <div class="card academico">
+                    <div class="icon-cont">
+                        <img class="icon" src="{% static 'img/student.png' %}" alt="Icono Académico">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Formación</h5>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">Formación</h5>
-                </div>
-            </div>
-            <div class="scrollable-list">
-                <ul class="lista">
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Proyectos Formativos por Programa</span><br>
-                            <span class="subtitulo">Agrupación de proyectos formativos según programa de formación</span>
-                        </div>
-                        <a href="{% url 'reporte_programa' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
+                <div class="scrollable-list">
+                    <ul class="lista">
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Proyectos Formativos por Programa</span><br>
+                                <span class="subtitulo">Agrupación de proyectos formativos según programa de formación</span>
+                            </div>
+                            <a href="{% url 'reporte_programa' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
 
-                    <li>
-                        <div class="texto-lista">
-                            <span class="titulo">Vinculación de Fichas</span><br>
-                            <span class="subtitulo">Fichas participantes y sus proyectos de investigación asociados</span>
-                        </div>
-                        <a href="{% url 'reporte_fichas' %}" class="boton-excel">
-                            <i class="fa fa-download"></i>
-                            <span>Excel</span>
-                        </a>
-                    </li>
-                </ul>
+                        <li>
+                            <div class="texto-lista">
+                                <span class="titulo">Vinculación de Fichas</span><br>
+                                <span class="subtitulo">Fichas participantes y sus proyectos de investigación asociados</span>
+                            </div>
+                            <a href="{% url 'reporte_fichas' %}" class="boton-excel">
+                                <i class="fa fa-download"></i>
+                                <span>Excel</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
 <script src="{% static 'js/notificaciones.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/reportes.js' %}"></script>
+<script src="{% static 'js/mensaje.js' %}"></script>
 {% endblock %}

@@ -7,6 +7,15 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+    <!-- Mensajes de alerta -->
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
+
 
     <div class="contenedor-principal">
         <div class="titulo">
@@ -181,4 +190,5 @@
     </div>
     <script src="{% static 'js/notificaciones.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/mensaje.js' %}"></script>
 {% endblock %}

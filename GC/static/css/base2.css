@@ -226,6 +226,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    overflow-y: scroll;
+    min-height: clamp(36px, 4.5vw, 50px);
 }
 
 .notification-icon a {

@@ -10,213 +10,222 @@
 {% block contenido %}{% endblock %}
 
 {% block main %}
-<div class="contenedor-principal">
+<!-- Mensajes de alerta -->
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    </script>
+    {% endif %}
 
-    <!-- ===== TÍTULO PRINCIPAL ===== -->
-    <div class="titulo">
-        <h3>📅 Eventos</h3>
-        <p>Gestiona, organiza y visualiza todos los eventos académicos de los semilleros de investigación.</p>
-    </div>
+    <div class="contenedor-principal">
 
-    <!-- ===== TARJETAS DE RESUMEN ===== -->
-    <div class="info">
-        <div class="grupo">
-            <div class="card naranja">
-                <div class="icon-cont eventos">
-                    <img class="icon" src="{% static 'img/calendar.png' %}" alt="Icono Eventos">
+        <!-- ===== TÍTULO PRINCIPAL ===== -->
+        <div class="titulo">
+            <h3>📅 Eventos</h3>
+            <p>Gestiona, organiza y visualiza todos los eventos académicos de los semilleros de investigación.</p>
+        </div>
+
+        <!-- ===== TARJETAS DE RESUMEN ===== -->
+        <div class="info">
+            <div class="grupo">
+                <div class="card naranja">
+                    <div class="icon-cont eventos">
+                        <img class="icon" src="{% static 'img/calendar.png' %}" alt="Icono Eventos">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ total_eventos }}</h5>
+                        <p>Total de Eventos</p>
+                    </div>
+                    <div class="info-badge naranja">
+                        <span>+{{ total_mes }} este mes</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ total_eventos }}</h5>
-                    <p>Total de Eventos</p>
+            </div>
+
+            <div class="grupo">
+                <div class="card azul">
+                    <div class="icon-cont presenciales">
+                        <img class="icon" src="{% static 'img/presencial.png' %}" alt="Icono Presenciales">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ presenciales }}</h5>
+                        <p>Eventos Presenciales</p>
+                    </div>
+                    <div class="info-badge azul">
+                        <span>+{{ presenciales_mes }} este mes</span>
+                    </div>
                 </div>
-                <div class="info-badge naranja">
-                    <span>+{{ total_mes }} este mes</span>
+            </div>
+
+            <div class="grupo">
+                <div class="card verde">
+                    <div class="icon-cont virtuales">
+                        <img class="icon" src="{% static 'img/virtual.png' %}" alt="Icono Virtuales">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ virtuales }}</h5>
+                        <p>Eventos Virtuales</p>
+                    </div>
+                    <div class="info-badge verde">
+                        <span>+{{ virtuales_mes }} este mes</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="grupo">
-            <div class="card azul">
-                <div class="icon-cont presenciales">
-                    <img class="icon" src="{% static 'img/presencial.png' %}" alt="Icono Presenciales">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ presenciales }}</h5>
-                    <p>Eventos Presenciales</p>
-                </div>
-                <div class="info-badge azul">
-                    <span>+{{ presenciales_mes }} este mes</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="grupo">
-            <div class="card verde">
-                <div class="icon-cont virtuales">
-                    <img class="icon" src="{% static 'img/virtual.png' %}" alt="Icono Virtuales">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ virtuales }}</h5>
-                    <p>Eventos Virtuales</p>
-                </div>
-                <div class="info-badge verde">
-                    <span>+{{ virtuales_mes }} este mes</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== SECCIÓN DE BÚSQUEDA Y FILTROS ===== -->
-    <div class="seccion-busqueda">
-        <div class="titulo2">
-            <h3>Búsqueda y Filtrados</h3>
-        </div>
-
-        <form method="get" class="form-filtros">
-            <div class="search-container">
-                <input type="text" name="buscar" placeholder="Buscar evento..." class="buscador" value="{{ request.GET.buscar }}">
-                <button type="submit" class="search-icon">
-                    <i class="fa fa-search"></i>
-                </button>
+        <!-- ===== SECCIÓN DE BÚSQUEDA Y FILTROS ===== -->
+        <div class="seccion-busqueda">
+            <div class="titulo2">
+                <h3>Búsqueda y Filtrados</h3>
             </div>
 
-            <div class="filtro-estado">
-                <label for="estado">Estado:</label>
-                <select name="estado" id="estado" class="filtro" onchange="this.form.submit()">
-                    <option value="" {% if not request.GET.estado %}selected{% endif %}>Todos</option>
-                    <option value="proximo" {% if request.GET.estado == 'proximo' %}selected{% endif %}>Próximo</option>
-                    <option value="en-curso" {% if request.GET.estado == 'en-curso' %}selected{% endif %}>En curso</option>
-                    <option value="finalizado" {% if request.GET.estado == 'finalizado' %}selected{% endif %}>Finalizado</option>
-                    <option value="programado" {% if request.GET.estado == 'programado' %}selected{% endif %}>Programado</option>
-                </select>
-            </div>
+            <form method="get" class="form-filtros">
+                <div class="search-container">
+                    <input type="text" name="buscar" placeholder="Buscar evento..." class="buscador" value="{{ request.GET.buscar }}">
+                    <button type="submit" class="search-icon">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
 
-            <div class="filtro-tipo">
-                <label for="tipo">Modalidad:</label>
-                <select name="modalidad" id="tipo" class="filtro" onchange="this.form.submit()">
-                    <option value="">Todos</option>
-                    <option value="presencial" {% if request.GET.modalidad == 'presencial' %}selected{% endif %}>Presencial</option>
-                    <option value="virtual" {% if request.GET.modalidad == 'virtual' %}selected{% endif %}>Virtual</option>
-                </select>
-            </div>
+                <div class="filtro-estado">
+                    <label for="estado">Estado:</label>
+                    <select name="estado" id="estado" class="filtro" onchange="this.form.submit()">
+                        <option value="" {% if not request.GET.estado %}selected{% endif %}>Todos</option>
+                        <option value="proximo" {% if request.GET.estado == 'proximo' %}selected{% endif %}>Próximo</option>
+                        <option value="en-curso" {% if request.GET.estado == 'en-curso' %}selected{% endif %}>En curso</option>
+                        <option value="finalizado" {% if request.GET.estado == 'finalizado' %}selected{% endif %}>Finalizado</option>
+                        <option value="programado" {% if request.GET.estado == 'programado' %}selected{% endif %}>Programado</option>
+                    </select>
+                </div>
 
-            <div class="botones-item">
-                <button type="button" class="limpiar" onclick="window.location.href='{% url 'eventos' %}'">
-                    <i class="fas fa-sync-alt"></i> Limpiar filtros
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <!-- ===== GRID DE EVENTOS ===== -->
-    <div class="eventos-section">
-        <div class="eventos-header">
-            <h3>Lista de Eventos</h3>
-            <button type="button" class="btn agregar" data-bs-toggle="modal" data-bs-target="#modalCrearEvento">
-                <i class="fas fa-plus"></i> Crear Evento
-            </button>
+                <div class="filtro-tipo">
+                    <label for="tipo">Modalidad:</label>
+                    <select name="modalidad" id="tipo" class="filtro" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        <option value="presencial" {% if request.GET.modalidad == 'presencial' %}selected{% endif %}>Presencial</option>
+                        <option value="virtual" {% if request.GET.modalidad == 'virtual' %}selected{% endif %}>Virtual</option>
+                    </select>
+                </div>
+
+                <div class="botones-item">
+                    <button type="button" class="limpiar" onclick="window.location.href='{% url 'eventos' %}'">
+                        <i class="fas fa-sync-alt"></i> Limpiar filtros
+                    </button>
+                </div>
+            </form>
         </div>
         
-        <div class="eventos-grid">
-            {% for evento in eventos %}
-                <div class="evento-card {% if evento.estado_eve|lower == 'próximo' %}estado-proximo
-                                        {% elif evento.estado_eve|lower == 'en curso' %}estado-en-curso
-                                        {% elif evento.estado_eve|lower == 'finalizado' %}estado-finalizado
-                                        {% elif evento.estado_eve|lower == 'cancelado' %}estado-cancelado
-                                        {% else %}estado-programado{% endif %}">
-                    <div class="evento-estado">
-                        {% if evento.estado_eve|lower == 'próximo' %}
-                            <span class="estado-badge proximo">Próximo</span>
+        <!-- ===== GRID DE EVENTOS ===== -->
+        <div class="eventos-section">
+            <div class="eventos-header">
+                <h3>Lista de Eventos</h3>
+                <button type="button" class="btn agregar" data-bs-toggle="modal" data-bs-target="#modalCrearEvento">
+                    <i class="fas fa-plus"></i> Crear Evento
+                </button>
+            </div>
+            
+            <div class="eventos-grid">
+                {% for evento in eventos %}
+                    <div class="evento-card {% if evento.estado_eve|lower == 'próximo' %}estado-proximo
+                                            {% elif evento.estado_eve|lower == 'en curso' %}estado-en-curso
+                                            {% elif evento.estado_eve|lower == 'finalizado' %}estado-finalizado
+                                            {% elif evento.estado_eve|lower == 'cancelado' %}estado-cancelado
+                                            {% else %}estado-programado{% endif %}">
+                        <div class="evento-estado">
+                            {% if evento.estado_eve|lower == 'próximo' %}
+                                <span class="estado-badge proximo">Próximo</span>
 
-                        {% elif evento.estado_eve|lower == 'en curso' %}
-                            <span class="estado-badge en-curso">En Curso</span>
+                            {% elif evento.estado_eve|lower == 'en curso' %}
+                                <span class="estado-badge en-curso">En Curso</span>
 
-                        {% elif evento.estado_eve|lower == 'finalizado' %}
-                            <span class="estado-badge finalizado">Finalizado</span>
+                            {% elif evento.estado_eve|lower == 'finalizado' %}
+                                <span class="estado-badge finalizado">Finalizado</span>
 
-                        {% elif evento.estado_eve|lower == 'cancelado' %}
-                            <span class="estado-badge cancelado">Cancelado</span>
+                            {% elif evento.estado_eve|lower == 'cancelado' %}
+                                <span class="estado-badge cancelado">Cancelado</span>
 
-                        {% else %}
-                            <span class="estado-badge programado">Programado</span>
-                        {% endif %}
-                    </div>
+                            {% else %}
+                                <span class="estado-badge programado">Programado</span>
+                            {% endif %}
+                        </div>
 
-                    <!-- Fecha destacada -->
-                    <div class="fecha-box">
-                        <span class="fecha-dia">{{ evento.fecha_eve|date:"d" }}</span>
-                        <span class="fecha-mes">{{ evento.fecha_eve|date:"b"|upper }}</span>
-                    </div>
+                        <!-- Fecha destacada -->
+                        <div class="fecha-box">
+                            <span class="fecha-dia">{{ evento.fecha_eve|date:"d" }}</span>
+                            <span class="fecha-mes">{{ evento.fecha_eve|date:"b"|upper }}</span>
+                        </div>
 
-                    <!-- Badge de modalidad -->
-                    <div class="modalidad-badge">
-                        {% if evento.modalidad_eve == 'Presencial' %}
-                            <span class="badge presencial">📍 PRESENCIAL</span>
-                        {% else %}
-                            <span class="badge virtual">💻 VIRTUAL</span>
-                        {% endif %}
-                    </div>
+                        <!-- Badge de modalidad -->
+                        <div class="modalidad-badge">
+                            {% if evento.modalidad_eve == 'Presencial' %}
+                                <span class="badge presencial">📍 PRESENCIAL</span>
+                            {% else %}
+                                <span class="badge virtual">💻 VIRTUAL</span>
+                            {% endif %}
+                        </div>
 
-                    <!-- Contenido principal -->
-                    <div class="evento-content">
-                        <h3 class="evento-titulo">{{ evento.nom_eve }}</h3>
-                        <p class="evento-descripcion">{{ evento.desc_eve|truncatewords:25 }}</p>
+                        <!-- Contenido principal -->
+                        <div class="evento-content">
+                            <h3 class="evento-titulo">{{ evento.nom_eve }}</h3>
+                            <p class="evento-descripcion">{{ evento.desc_eve|truncatewords:25 }}</p>
 
-                        <!-- Información del evento -->
-                        <div class="evento-info">
-                            <div class="info-item">
-                                <i class="fa fa-calendar"></i>
-                                <span>{{ evento.fecha_eve|date:"d-m-Y" }}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fa fa-clock"></i>
-                                <span>Hora de inicio: {{ evento.hora_inicio }}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fa fa-clock"></i>
-                                <span>Hora de finalización: {{ evento.hora_fin }}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fa fa-user"></i>
-                                <span>Creado por: {{ evento.cedula.nom_usu }} {{ evento.cedula.ape_usu }}</span>
-                            </div>
-                            <div class="info-item">
-                                {% if evento.modalidad_eve == 'Presencial' %}
-                                    <i class="fa fa-map-marker-alt"></i>
-                                    <a href="https://www.google.com/maps/search/?api=1&query={{ evento.direccion_eve|urlencode }}" target="_blank" class="evento-link">
-                                        {{ evento.direccion_eve }}
-                                    </a>
-                                {% else %}
-                                    <i class="fa fa-video"></i>
-                                    <a href="{{ evento.direccion_eve }}" target="_blank" class="evento-link">
-                                        {{ evento.direccion_eve }}
-                                    </a>
-                                {% endif %}
+                            <!-- Información del evento -->
+                            <div class="evento-info">
+                                <div class="info-item">
+                                    <i class="fa fa-calendar"></i>
+                                    <span>{{ evento.fecha_eve|date:"d-m-Y" }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fa fa-clock"></i>
+                                    <span>Hora de inicio: {{ evento.hora_inicio }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fa fa-clock"></i>
+                                    <span>Hora de finalización: {{ evento.hora_fin }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fa fa-user"></i>
+                                    <span>Creado por: {{ evento.cedula.nom_usu }} {{ evento.cedula.ape_usu }}</span>
+                                </div>
+                                <div class="info-item">
+                                    {% if evento.modalidad_eve == 'Presencial' %}
+                                        <i class="fa fa-map-marker-alt"></i>
+                                        <a href="https://www.google.com/maps/search/?api=1&query={{ evento.direccion_eve|urlencode }}" target="_blank" class="evento-link">
+                                            {{ evento.direccion_eve }}
+                                        </a>
+                                    {% else %}
+                                        <i class="fa fa-video"></i>
+                                        <a href="{{ evento.direccion_eve }}" target="_blank" class="evento-link">
+                                            {{ evento.direccion_eve }}
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Botones de acción -->
+                        {% if evento.estado_eve != 'Cancelado' and evento.estado_eve != 'Finalizado' %}
+                            <div class="botones">
+                                <button type="button" class="btn-editar" data-tooltip="Editar" 
+                                        data-bs-toggle="modal" data-bs-target="#modalEditarEvento{{ evento.cod_eve }}">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+
+                                <button type="button" class="btn-cancelar" data-tooltip="Cancelar" 
+                                        data-bs-toggle="modal" data-bs-target="#modalCancelarEvento{{ evento.cod_eve }}">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                            </div>
+                        {% endif %}
                     </div>
-
-                    <!-- Botones de acción -->
-                    {% if evento.estado_eve != 'Cancelado' and evento.estado_eve != 'Finalizado' %}
-                        <div class="botones">
-                            <button type="button" class="btn-editar" data-tooltip="Editar" 
-                                    data-bs-toggle="modal" data-bs-target="#modalEditarEvento{{ evento.cod_eve }}">
-                                <i class="fa fa-edit"></i>
-                            </button>
-
-                            <button type="button" class="btn-cancelar" data-tooltip="Cancelar" 
-                                    data-bs-toggle="modal" data-bs-target="#modalCancelarEvento{{ evento.cod_eve }}">
-                                <i class="fa fa-ban"></i>
-                            </button>
-                        </div>
-                    {% endif %}
-                </div>
-            {% empty %}
-                <p class="no-eventos">No hay eventos disponibles</p>
-            {% endfor %}
+                {% empty %}
+                    <p class="no-eventos">No hay eventos disponibles</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
-</div>
 
 <!-- MODAL CREAR EVENTO -->
 <div class="modal-overlay-evento" id="modalCrearEvento">
@@ -394,4 +403,5 @@
 {% endfor %}
 <script src="{% static 'js/notificaciones.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/mensaje.js' %}"></script>
 {% endblock %}

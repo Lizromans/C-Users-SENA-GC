@@ -7,15 +7,13 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
+    <!-- Mensajes de alerta -->
     {% if messages %}
-    <div class="mensajes-container">
+    <script>
         {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
-                {{ message }}
-                <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
-            </div>
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
         {% endfor %}
-    </div>
+    </script>
     {% endif %}
 
     <div class="contenedor-principal">
