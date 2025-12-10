@@ -1039,19 +1039,20 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     gap: clamp(15px, 2.5vw, 25px);
 }
 
-.modal-campo {
+.modal-campo{
     display: flex;
     flex-direction: column;
     gap: clamp(3px, 1vh, 5px);
 }
 
-.modal-campo > label {
+.modal-campo > label{
     font-weight: 700;
     font-size: clamp(0.85rem, 1.5vw, 0.95rem);
     color: #444;
 }
 
-#sub-campo { 
+#sub-campo, 
+.sub-campo { 
     margin-top: clamp(8px, 1vh, 10px);
 }
 
@@ -1068,6 +1069,18 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     font-size: clamp(0.85rem, 1.4vw, 0.95rem);
     transition: all 0.3s ease;
     background-color: white;
+}
+/* Aplica solo al campo de programa de formación */
+#campo_programa, 
+#campo_programa_edit {
+    display: flex;
+    flex-direction: column; /* etiqueta arriba, input debajo */
+    gap: 8px; /* espacio entre label e input */
+}
+
+#campo_programa input,
+#campo_programa_edit input {
+    width: 100%; /* que el input ocupe todo el ancho */
 }
 
 .modal-campo textarea {

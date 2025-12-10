@@ -399,6 +399,7 @@ class Evento(models.Model):
     hora_inicio = models.TimeField(max_length=45)
     hora_fin = models.TimeField(max_length=45)
     fecha_estado = models.DateTimeField(null=True, blank=True)
+    link = models.CharField(max_length=250, null=True, blank=True)
     cedula = models.ForeignKey(Usuario, on_delete=models.CASCADE,db_column='cedula')
 
     def save(self, *args, **kwargs):
@@ -409,7 +410,7 @@ class Evento(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'evento'
 
 # Tablas intermedias (relaciones ManyToMany)

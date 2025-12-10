@@ -1495,7 +1495,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
             proyecto_editar.nom_pro = request.POST.get('nom_pro', '').strip()
             proyecto_editar.tipo = request.POST.get('tipo', '').strip().lower()
             proyecto_editar.desc_pro = request.POST.get('desc_pro', '').strip()
-
+            proyecto_editar.programa_formacion = request.POST.get('programa_formacion', '').strip() if proyecto_editar.tipo == 'formativo' else None
             # LÍNEAS DESDE EL FORMULARIO
             lineas_tec = request.POST.getlist('lineastec[]')
             lineas_inv = request.POST.getlist('lineasinv[]')
@@ -2060,7 +2060,6 @@ def crear_proyecto(request, id_sem):
                 estado_pro="Activo",
                 programa_formacion=programa_formacion if tipo == "formativo" else None
             )
-
 
             # Asociar proyecto al semillero
             SemilleroProyecto.objects.create(id_sem=semillero, cod_pro=proyecto)
@@ -3448,59 +3447,58 @@ def eventos(request):
 
 @login_required
 def crear_evento(request):
-     # Obtener cédula de la sesión
+
     cedula = request.session.get('cedula')
-    
-    # Obtener el usuario actual
     try:
         usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
+
     if request.method == 'POST':
-        try:
-            # Obtener datos del formulario
-            nom_eve = request.POST.get('nom_eve')
-            fecha_eve = request.POST.get('fecha_eve')
-            desc_eve = request.POST.get('desc_eve', '')
-            modalidad_eve = request.POST.get('modalidad_eve')
-            direccion_eve = request.POST.get('direccion_eve', '')
-            estado_eve = request.POST.get('estado_eve', 'Programado')
-            hora_inicio = request.POST.get('hora_inicio')
-            hora_fin = request.POST.get('hora_fin')
 
-            # Validación
-            if not nom_eve or not fecha_eve:
-                messages.error(request, "Faltan campos obligatorios.")
-                return redirect('eventos')
+        nom_eve = request.POST.get('nom_eve')
+        fecha_eve = request.POST.get('fecha_eve')
+        desc_eve = request.POST.get('desc_eve', '')
+        modalidad_eve = request.POST.get('modalidad_eve')
+        direccion_eve = request.POST.get('direccion_eve', '')
+        estado_eve = request.POST.get('estado_eve', 'Programado')
+        hora_inicio = request.POST.get('hora_inicio')
+        hora_fin = request.POST.get('hora_fin')
+        link = request.POST.get('link', '')
 
-            # Obtener el usuario actual
-            cedula = request.session.get('cedula')
-            
-            # Crear el evento
-            evento = Evento.objects.create(
-                nom_eve=nom_eve,
-                fecha_eve=fecha_eve,
-                desc_eve=desc_eve,
-                modalidad_eve=modalidad_eve,
-                direccion_eve=direccion_eve,
-                estado_eve=estado_eve,
-                hora_inicio=hora_inicio,
-                hora_fin=hora_fin,
-                cedula=usuario
-            )
-            
-            messages.success(request, f"✅ Evento '{evento.nom_eve}' creado correctamente.")
+        # 🔹 Validación mínima
+        if not nom_eve or not fecha_eve:
+            messages.error(request, "Faltan campos obligatorios.")
             return redirect('eventos')
-            
-        except Usuario.DoesNotExist:
-            messages.error(request, "Usuario no encontrado en el sistema.")
+
+        # 🔹 Validación especial: Virtual → requiere link
+        if modalidad_eve == "Virtual" and not link.strip():
+            messages.error(request, "El link es obligatorio para eventos virtuales.")
             return redirect('eventos')
-            
-        except Exception as e:
-            messages.error(request, f"Error al crear el evento: {str(e)}")
+
+        # 🔹 Validación especial: Presencial → requiere dirección
+        if modalidad_eve == "Presencial" and not direccion_eve.strip():
+            messages.error(request, "La dirección es obligatoria para eventos presenciales.")
             return redirect('eventos')
-    
+
+        # 🔹 Crear el evento
+        Evento.objects.create(
+            nom_eve=nom_eve,
+            fecha_eve=fecha_eve,
+            desc_eve=desc_eve,
+            modalidad_eve=modalidad_eve,
+            direccion_eve=direccion_eve,
+            link=link,
+            estado_eve=estado_eve,
+            hora_inicio=hora_inicio,
+            hora_fin=hora_fin,
+            cedula=usuario
+        )
+
+        messages.success(request, f"Evento '{nom_eve}' creado correctamente.")
+        return redirect('eventos')
+
     return redirect('eventos')
 
 @login_required
@@ -3509,7 +3507,7 @@ def editar_evento(request, cod_eve):
     evento = get_object_or_404(Evento, cod_eve=cod_eve)
 
     if request.method == "POST":
-        # Actualizar campos
+
         evento.nom_eve = request.POST.get("nom_eve")
         evento.fecha_eve = request.POST.get("fecha_eve")
         evento.hora_inicio = request.POST.get("hora_inicio")
@@ -3518,20 +3516,23 @@ def editar_evento(request, cod_eve):
         evento.direccion_eve = request.POST.get("direccion_eve")
         evento.desc_eve = request.POST.get("desc_eve")
         evento.estado_eve = request.POST.get("estado_eve")
+        evento.link = request.POST.get("link", "")
 
-        # Guardar cambios
+        # VALIDACIONES
+        if evento.modalidad_eve == "Virtual" and evento.link.strip() == "":
+            messages.error(request, "Debe ingresar el link para eventos virtuales.")
+            return redirect("eventos")
+
+        if evento.modalidad_eve == "Presencial" and evento.direccion_eve.strip() == "":
+            messages.error(request, "Debe ingresar la dirección para eventos presenciales.")
+            return redirect("eventos")
+
         evento.save()
-
-        # Mensaje
         messages.success(request, f"El evento '{evento.nom_eve}' fue actualizado correctamente.")
 
         return redirect("eventos")
 
-    # GET → devolver la página con el modal abierto
-    return render(request, "paginas/eventos.html", {
-        "evento": evento,
-        "abrir_modal_editar": True
-    })
+    return redirect("eventos")
 
 @login_required
 def cancelar_evento(request):
@@ -3558,14 +3559,11 @@ def cancelar_evento(request):
 # VISTAS DE CENTRO DE AYUDA
 @login_required
 def centroayuda(request):
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
-        return redirect('iniciarsesion')
-
-    # Obtener usuario
+    cedula = request.session.get('cedula')
+    
+    # Obtener el usuario actual
     try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
+        usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
@@ -3576,16 +3574,12 @@ def centroayuda(request):
     return render(request, 'paginas/centroayuda.html', contexto)
 
 # VISTAS DE REPORTES
-@login_required
 def reportes(request):
-    usuario_id = request.session.get('cedula')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
-        return redirect('iniciarsesion')
-
-    # Obtener usuario
+    cedula = request.session.get('cedula')
+    
+    # Obtener el usuario actual
     try:
-        usuario = Usuario.objects.get(cedula=usuario_id)
+        usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
@@ -3595,9 +3589,7 @@ def reportes(request):
     }
     return render(request, 'paginas/reportes.html', contexto)
 
-@login_required
 def reporte_general_semilleros(request):
-
     # Crear archivo Excel
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -3610,6 +3602,7 @@ def reporte_general_semilleros(request):
         bottom=Side(style="thin")
     )
 
+    # Cabecera
     ws.append([
         "Código Semillero",
         "Siglas",
@@ -3627,19 +3620,15 @@ def reporte_general_semilleros(request):
     semilleros = Semillero.objects.all()
 
     for s in semilleros:
-
         cantidad_miembros = (
             SemilleroUsuario.objects.filter(id_sem=s).count() +
             Aprendiz.objects.filter(id_sem=s).count()
         )
-
         cantidad_proyectos = s.proyectos.count()
 
-        # Obtener líder del semillero
         lider_sem = SemilleroUsuario.objects.filter(id_sem=s, es_lider=True).first()
         nombre_lider = lider_sem.cedula.nom_usu if lider_sem else "Sin líder"
 
-        # Convertir objetivos a texto separado por comas
         objetivos = ", ".join(s.objetivo.splitlines()) if s.objetivo else ""
 
         ws.append([
@@ -3655,39 +3644,51 @@ def reporte_general_semilleros(request):
             s.progreso_sem,
             nombre_lider
         ])
-    fila_inicial = 1
-    fila_final = ws.max_row
-    columna_final = 12
 
-    for row in ws.iter_rows(min_row=fila_inicial, max_row=fila_final,
-                            min_col=1, max_col=columna_final):
+    # Aplicar bordes
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=11):
         for cell in row:
             cell.border = thin_border
 
-    # Respuesta Excel
+    # Preparar respuesta Excel
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = 'attachment; filename="reporte_semilleros.xlsx"'
-    
-    # GRAFICO: Miembros por semillero
-    categorias = Reference(ws, min_col=3, min_row=2, max_row=ws.max_row)  # nombre semillero
-    valores = Reference(ws, min_col=7, min_row=1, max_row=ws.max_row)     # cant miembros
-    crear_grafico_barras(ws, "Miembros por Semillero", categorias, valores, "L2")
 
-    # GRAFICO: Proyectos por semillero
-    categorias = Reference(ws, min_col=3, min_row=2, max_row=ws.max_row)
-    valores = Reference(ws, min_col=8, min_row=1, max_row=ws.max_row)
-    crear_grafico_barras(ws, "Proyectos por Semillero", categorias, valores, "L20")
+    # --- GRAFICO: Miembros por Semillero ---
+    categorias = Reference(ws, min_col=3, min_row=2, max_row=ws.max_row)  # Nombre Semillero
+    valores = Reference(ws, min_col=7, min_row=1, max_row=ws.max_row)     # Cantidad Miembros
+    chart_miembros = BarChart()
+    chart_miembros.title = "Miembros por Semillero"
+    chart_miembros.y_axis.title = "Cantidad"
+    chart_miembros.x_axis.title = "Semilleros"
+    chart_miembros.add_data(valores, titles_from_data=True)
+    chart_miembros.set_categories(categorias)
+    ws.add_chart(chart_miembros, "L2")
 
-    # GRAFICO: Progreso por semillero (líneas)
-    categorias = Reference(ws, min_col=3, min_row=2, max_row=ws.max_row)
-    valores = Reference(ws, min_col=10, min_row=1, max_row=ws.max_row)
-    crear_grafico_lineas(ws, "Progreso de Semilleros", categorias, valores, "L38")
+    # --- GRAFICO: Proyectos por Semillero ---
+    valores = Reference(ws, min_col=8, min_row=1, max_row=ws.max_row)  # Número de proyectos
+    chart_proyectos = BarChart()
+    chart_proyectos.title = "Proyectos por Semillero"
+    chart_proyectos.y_axis.title = "Cantidad"
+    chart_proyectos.x_axis.title = "Semilleros"
+    chart_proyectos.add_data(valores, titles_from_data=True)
+    chart_proyectos.set_categories(categorias)
+    ws.add_chart(chart_proyectos, "L20")
 
-    # GRAFICO: Estados (pastel)
+    # --- GRAFICO: Progreso por Semillero ---
+    valores = Reference(ws, min_col=10, min_row=1, max_row=ws.max_row)  # Progreso
+    chart_progreso = BarChart()
+    chart_progreso.title = "Progreso de Semilleros"
+    chart_progreso.y_axis.title = "Progreso (%)"
+    chart_progreso.x_axis.title = "Semilleros"
+    chart_progreso.add_data(valores, titles_from_data=True)
+    chart_progreso.set_categories(categorias)
+    ws.add_chart(chart_progreso, "L38")
+
+    # --- GRAFICO: Estados (Pastel) ---
     estados_count = {}
-
     for s in semilleros:
         if s.estado:
             estados_count[s.estado] = estados_count.get(s.estado, 0) + 1
@@ -3697,33 +3698,28 @@ def reporte_general_semilleros(request):
         ws.cell(row=fila_tabla, column=1, value="Estado").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
 
-        # Llenar tabla
         fila = fila_tabla
         for estado, cantidad in estados_count.items():
             fila += 1
             ws.append([estado, cantidad])
 
-        # Bordes
         for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
             for cell in row:
                 cell.border = thin_border
 
-        # Gráfico
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
-
-        chart = PieChart()
-        chart.title = "Estados de los Semilleros"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-
-        ws.add_chart(chart, "N55")
+        chart_estado = PieChart()
+        chart_estado.title = "Estados de los Semilleros"
+        chart_estado.add_data(data, titles_from_data=True)
+        chart_estado.set_categories(labels)
+        ws.add_chart(chart_estado, "N55")
 
     wb.save(response)
     return response
 
-@login_required
 def reporte_general_proyectos(request):
+    # Crear archivo Excel
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Proyectos"
@@ -3735,7 +3731,7 @@ def reporte_general_proyectos(request):
         bottom=Side(style="thin")
     )
 
-    # Encabezados
+    # --- Encabezados ---
     ws.append([
         "Nombre Proyecto",
         "Tipo",
@@ -3754,20 +3750,17 @@ def reporte_general_proyectos(request):
 
     proyectos = Proyecto.objects.all()
 
+    # --- Llenado de datos ---
     for p in proyectos:
-
         cantidad_miembros = (
             UsuarioProyecto.objects.filter(cod_pro=p).count() +
             ProyectoAprendiz.objects.filter(cod_pro=p).count()
         )
-
         cantidad_entregables = Entregable.objects.filter(cod_pro=p).count()
 
-        # Obtener líder del proyecto
         lider_pro = UsuarioProyecto.objects.filter(cod_pro=p, es_lider_pro=True).first()
         nombre_lider = lider_pro.cedula.nom_usu if lider_pro else "Sin líder"
 
-        # Convertir a texto separado por comas
         lineas_tec = ", ".join([l.strip() for l in p.linea_tec.split("\n") if l.strip()]) if p.linea_tec else ""
         lineas_inv = ", ".join([l.strip() for l in p.linea_inv.split("\n") if l.strip()]) if p.linea_inv else ""
         lineas_sem = ", ".join([l.strip() for l in p.linea_sem.split("\n") if l.strip()]) if p.linea_sem else ""
@@ -3788,39 +3781,51 @@ def reporte_general_proyectos(request):
             p.progreso,
             nombre_lider
         ])
-    fila_inicial = 1
-    fila_final = ws.max_row
-    columna_final = 13  # tus 13 columnas fijas
 
-    for row in ws.iter_rows(min_row=fila_inicial, max_row=fila_final,
-        min_col=1, max_col=columna_final):
+    # Aplicar bordes
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=13):
         for cell in row:
             cell.border = thin_border
 
+    # Preparar respuesta
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = 'attachment; filename="reporte_proyectos.xlsx"'
 
-
-    # GRAFICO: Progreso por proyecto
-    categorias = Reference(ws, min_col=1, min_row=2, max_row=ws.max_row)   # nombre proyecto
-    valores = Reference(ws, min_col=12, min_row=1, max_row=ws.max_row)     # progreso
-    crear_grafico_lineas(ws, "Progreso por Proyecto", categorias, valores, "N2")
-
-    # GRAFICO: Miembros por proyecto
+    # --- GRAFICO: Progreso por proyecto (barras) ---
     categorias = Reference(ws, min_col=1, min_row=2, max_row=ws.max_row)
+    valores = Reference(ws, min_col=12, min_row=1, max_row=ws.max_row)
+    chart_progreso = BarChart()
+    chart_progreso.title = "Progreso por Proyecto"
+    chart_progreso.y_axis.title = "Progreso (%)"
+    chart_progreso.x_axis.title = "Proyectos"
+    chart_progreso.add_data(valores, titles_from_data=True)
+    chart_progreso.set_categories(categorias)
+    ws.add_chart(chart_progreso, "N2")
+
+    # --- GRAFICO: Miembros por proyecto ---
     valores = Reference(ws, min_col=8, min_row=1, max_row=ws.max_row)
-    crear_grafico_barras(ws, "Miembros por Proyecto", categorias, valores, "N20")
+    chart_miembros = BarChart()
+    chart_miembros.title = "Miembros por Proyecto"
+    chart_miembros.y_axis.title = "Cantidad"
+    chart_miembros.x_axis.title = "Proyectos"
+    chart_miembros.add_data(valores, titles_from_data=True)
+    chart_miembros.set_categories(categorias)
+    ws.add_chart(chart_miembros, "N20")
 
-    # GRAFICO: Entregables por proyecto
-    categorias = Reference(ws, min_col=1, min_row=2, max_row=ws.max_row)
+    # --- GRAFICO: Entregables por proyecto ---
     valores = Reference(ws, min_col=9, min_row=1, max_row=ws.max_row)
-    crear_grafico_barras(ws, "Entregables por Proyecto", categorias, valores, "N38")
+    chart_entregables = BarChart()
+    chart_entregables.title = "Entregables por Proyecto"
+    chart_entregables.y_axis.title = "Cantidad"
+    chart_entregables.x_axis.title = "Proyectos"
+    chart_entregables.add_data(valores, titles_from_data=True)
+    chart_entregables.set_categories(categorias)
+    ws.add_chart(chart_entregables, "N38")
 
-    # GRAFICO: ESTADOS DE LOS PROYECTOS 
+    # --- GRAFICO: Estados de los proyectos (pastel) ---
     estados_count = {}
-
     for p in proyectos:
         if p.estado_pro:
             estados_count[p.estado_pro] = estados_count.get(p.estado_pro, 0) + 1
@@ -3830,31 +3835,25 @@ def reporte_general_proyectos(request):
         ws.cell(row=fila_tabla, column=1, value="Estado").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
 
-        # Llenar tabla
         fila = fila_tabla
         for estado, cantidad in estados_count.items():
             fila += 1
             ws.append([estado, cantidad])
 
-        # Bordes
         for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
             for cell in row:
                 cell.border = thin_border
 
-        # Gráfico
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
+        chart_estado = PieChart()
+        chart_estado.title = "Estados de los Proyectos"
+        chart_estado.add_data(data, titles_from_data=True)
+        chart_estado.set_categories(labels)
+        ws.add_chart(chart_estado, "N55")
 
-        chart = PieChart()
-        chart.title = "Estados de los Proyectos"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-
-        ws.add_chart(chart, "N55")
-
-    # GRAFICO: LÍNEAS TECNOLÓGICAS 
+    # --- GRAFICO: Líneas Tecnológicas (barras) ---
     lineas_tec_count = {}
-
     for p in proyectos:
         if p.linea_tec:
             for linea in [l.strip() for l in p.linea_tec.split("\n") if l.strip()]:
@@ -3870,24 +3869,20 @@ def reporte_general_proyectos(request):
             fila += 1
             ws.append([linea, cantidad])
 
-        # Bordes
         for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
             for cell in row:
                 cell.border = thin_border
 
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
+        chart_lineas_tec = BarChart()
+        chart_lineas_tec.title = "Proyectos por Línea Tecnológica"
+        chart_lineas_tec.add_data(data, titles_from_data=True)
+        chart_lineas_tec.set_categories(labels)
+        ws.add_chart(chart_lineas_tec, "N72")
 
-        chart = BarChart()
-        chart.title = "Proyectos por Línea Tecnológica"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-
-        ws.add_chart(chart, "N72")
-
-    # GRAFICO: LÍNEAS DE INVESTIGACIÓN
+    # --- GRAFICO: Líneas de Investigación (pastel) ---
     lineas_inv_count = {}
-
     for p in proyectos:
         if p.linea_inv:
             for linea in [l.strip() for l in p.linea_inv.split("\n") if l.strip()]:
@@ -3909,17 +3904,14 @@ def reporte_general_proyectos(request):
 
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
+        chart_lineas_inv = PieChart()
+        chart_lineas_inv.title = "Proyectos por Línea de Investigación"
+        chart_lineas_inv.add_data(data, titles_from_data=True)
+        chart_lineas_inv.set_categories(labels)
+        ws.add_chart(chart_lineas_inv, "N90")
 
-        chart = PieChart()
-        chart.title = "Proyectos por Línea de Investigación"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-
-        ws.add_chart(chart, "N90")
-
-    # GRAFICO: LÍNEAS DE SEMILLERO
+    # --- GRAFICO: Líneas de Semillero (barras) ---
     lineas_sem_count = {}
-
     for p in proyectos:
         if p.linea_sem:
             for linea in [l.strip() for l in p.linea_sem.split("\n") if l.strip()]:
@@ -3941,25 +3933,28 @@ def reporte_general_proyectos(request):
 
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
-
-        chart = BarChart()
-        chart.title = "Proyectos por Línea de Semillero"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-
-        ws.add_chart(chart, "N108")
+        chart_lineas_sem = BarChart()
+        chart_lineas_sem.title = "Proyectos por Línea de Semillero"
+        chart_lineas_sem.add_data(data, titles_from_data=True)
+        chart_lineas_sem.set_categories(labels)
+        ws.add_chart(chart_lineas_sem, "N108")
 
     wb.save(response)
     return response
 
-@login_required
 def reporte_entregables(request):
-
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Entregables"
 
-    # Encabezados base
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+
+    # --- Encabezados base ---
     encabezados = [
         "Proyecto",
         "Nombre Entregable",
@@ -3969,74 +3964,55 @@ def reporte_entregables(request):
         "Estado",
         "Fechas de Subida"
     ]
-
     ws.append(encabezados)
 
     entregables = Entregable.objects.all()
 
+    # --- Llenado de datos ---
     for e in entregables:
-
         archivos = Archivo.objects.filter(entregable=e)
+        fechas_subida = ", ".join([a.fecha_subida.strftime("%Y-%m-%d %H:%M") for a in archivos]) if archivos else ""
 
-        # Obtener fechas
-        fechas_subida = ", ".join([
-            a.fecha_subida.strftime("%Y-%m-%d %H:%M")
-            for a in archivos
-        ]) if archivos else ""
-
-        # Crear fila base
         fila = [
             e.cod_pro.nom_pro,
             e.nom_entre,
-            e.fecha_inicio,
-            e.fecha_fin,
+            e.fecha_inicio.strftime("%Y-%m-%d") if e.fecha_inicio else "",
+            e.fecha_fin.strftime("%Y-%m-%d") if e.fecha_fin else "",
             e.desc_entre,
             e.estado,
             fechas_subida,
         ]
-
-        # Agregar fila a Excel
         ws.append(fila)
         row = ws.max_row
 
-        # -------------------------------
-        #   AGREGAR ARCHIVOS EN COLUMNAS
-        # -------------------------------
-        col_base = len(encabezados) + 1  # Comienza después de Fechas
-
+        # Agregar archivos como hipervínculos en columnas adicionales
+        col_base = len(encabezados) + 1
         for i, archivo in enumerate(archivos, start=1):
-
             col = col_base + i - 1
             cell = ws.cell(row=row, column=col)
-
-            # Texto en la celda
             cell.value = f"Descargar archivo {i}"
-
-            # Hipervínculo real
-            url_archivo = request.build_absolute_uri(archivo.archivo.url)
-            cell.hyperlink = url_archivo
-
-            # Formato azul subrayado
+            cell.hyperlink = request.build_absolute_uri(archivo.archivo.url)
             cell.style = "Hyperlink"
-
-            # Agregar encabezado dinámico
             ws.cell(row=1, column=col).value = f"Archivo {i}"
 
-    # Descargar el archivo
+    # Aplicar bordes
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
+        for cell in row:
+            cell.border = thin_border
+
+    # Preparar respuesta
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = 'attachment; filename="reporte_entregables.xlsx"'
 
-    # GRAFICO: Entregables por estado
-
+    # --- GRAFICO: Entregables por estado (pastel) ---
     estados_count = {}
     for e in entregables:
         if e.estado:
             estados_count[e.estado] = estados_count.get(e.estado, 0) + 1
 
     if estados_count:
-
         fila_tabla = ws.max_row + 2
         ws.cell(row=fila_tabla, column=1, value="Estado").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
@@ -4046,25 +4022,25 @@ def reporte_entregables(request):
             fila += 1
             ws.append([estado, cantidad])
 
-        # Crear gráfico real
+        for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+            for cell in row_cells:
+                cell.border = thin_border
+
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
+        chart_estado = PieChart()
+        chart_estado.title = "Estados de los Entregables"
+        chart_estado.add_data(data, titles_from_data=True)
+        chart_estado.set_categories(labels)
+        ws.add_chart(chart_estado, "L2")
 
-        chart = PieChart()
-        chart.title = "Estados de los Entregables"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-
-        ws.add_chart(chart, "L2")
-
-    # GRAFICO: Entregables por proyecto
+    # --- GRAFICO: Entregables por proyecto (barras) ---
     proyectos_count = {}
     for e in entregables:
         nom = e.cod_pro.nom_pro
         proyectos_count[nom] = proyectos_count.get(nom, 0) + 1
 
     if proyectos_count:
-
         fila_tabla = ws.max_row + 2
         ws.cell(row=fila_tabla, column=1, value="Proyecto").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
@@ -4074,26 +4050,36 @@ def reporte_entregables(request):
             fila += 1
             ws.append([proyecto, cantidad])
 
+        for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+            for cell in row_cells:
+                cell.border = thin_border
+
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
-
-        chart = BarChart()
-        chart.title = "Entregables por Proyecto"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-
-        ws.add_chart(chart, "L20")
+        chart_proyectos = BarChart()
+        chart_proyectos.title = "Entregables por Proyecto"
+        chart_proyectos.y_axis.title = "Cantidad"
+        chart_proyectos.x_axis.title = "Proyectos"
+        chart_proyectos.add_data(data, titles_from_data=True)
+        chart_proyectos.set_categories(labels)
+        ws.add_chart(chart_proyectos, "L20")
 
     wb.save(response)
     return response
 
-@login_required
 def reporte_participantes(request):
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Participantes"
 
-    # Encabezados sin fecha de nacimiento
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+
+    # --- Encabezados ---
     encabezados = [
         "Nombre",
         "Rol",
@@ -4106,7 +4092,7 @@ def reporte_participantes(request):
     ws.append(encabezados)
 
     # -------------------------------
-    #   APRENDICES
+    # APRENDICES
     # -------------------------------
     aprendices = Aprendiz.objects.all()
     for a in aprendices:
@@ -4138,7 +4124,7 @@ def reporte_participantes(request):
                 ws.append(fila)
 
     # -------------------------------
-    #   USUARIOS (Instructores e Investigadores)
+    # USUARIOS (Instructores e Investigadores)
     # -------------------------------
     usuarios = Usuario.objects.filter(rol__in=["Instructor", "Investigador"])
     for u in usuarios:
@@ -4170,6 +4156,17 @@ def reporte_participantes(request):
                 ]
                 ws.append(fila)
 
+    # --- Aplicar bordes a tabla principal ---
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=len(encabezados)):
+        for cell in row:
+            cell.border = thin_border
+
+    # --- Preparar respuesta ---
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="reporte_participantes.xlsx"'
+
     # -------------------------------
     # GRAFICO: Participantes por rol
     # -------------------------------
@@ -4188,14 +4185,18 @@ def reporte_participantes(request):
             fila += 1
             ws.append([rol, cantidad])
 
+        # Aplicar bordes
+        for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+            for cell in row_cells:
+                cell.border = thin_border
+
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
-
-        chart = PieChart()
-        chart.title = "Participantes por Rol"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-        ws.add_chart(chart, "H2")
+        chart_roles = PieChart()
+        chart_roles.title = "Participantes por Rol"
+        chart_roles.add_data(data, titles_from_data=True)
+        chart_roles.set_categories(labels)
+        ws.add_chart(chart_roles, "H2")
 
     # -------------------------------
     # GRAFICO: Participantes por proyecto
@@ -4215,24 +4216,24 @@ def reporte_participantes(request):
             fila += 1
             ws.append([proyecto, cantidad])
 
+        # Aplicar bordes
+        for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+            for cell in row_cells:
+                cell.border = thin_border
+
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
+        chart_proyectos = BarChart()
+        chart_proyectos.title = "Participantes por Proyecto"
+        chart_proyectos.y_axis.title = "Cantidad"
+        chart_proyectos.x_axis.title = "Proyectos"
+        chart_proyectos.add_data(data, titles_from_data=True)
+        chart_proyectos.set_categories(labels)
+        ws.add_chart(chart_proyectos, "H20")
 
-        chart = BarChart()
-        chart.title = "Participantes por Proyecto"
-        chart.add_data(data, titles_from_data=True)
-        chart.set_categories(labels)
-        ws.add_chart(chart, "H20")
-
-    # Descargar archivo
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = 'attachment; filename="reporte_participantes.xlsx"'
     wb.save(response)
     return response
 
-@login_required
 def generar_reporte_excel(request):
 
     if request.method != "POST":
@@ -5456,31 +5457,6 @@ def generar_reporte_excel(request):
     wb.save(response)
     return response
 
-@login_required
-def crear_grafico_barras(ws, titulo, rango_categorias, rango_valores, celda_pos):
-    chart = BarChart()
-    chart.title = titulo
-    chart.add_data(rango_valores, titles_from_data=True)
-    chart.set_categories(rango_categorias)
-    ws.add_chart(chart, celda_pos)
-
-@login_required
-def crear_grafico_lineas(ws, titulo, rango_categorias, rango_valores, celda_pos):
-    chart = LineChart()
-    chart.title = titulo
-    chart.add_data(rango_valores, titles_from_data=True)
-    chart.set_categories(rango_categorias)
-    ws.add_chart(chart, celda_pos)
-
-@login_required
-def crear_grafico_pie(ws, titulo, rango_labels, rango_valores, celda_pos):
-    chart = PieChart()
-    chart.title = titulo
-    chart.add_data(rango_valores, titles_from_data=True)
-    chart.set_categories(rango_labels)
-    ws.add_chart(chart, celda_pos)
-
-@login_required
 def generar_reporte_dinamico(request):
     if request.method != "POST":
         return redirect("reportes")
@@ -5493,7 +5469,6 @@ def generar_reporte_dinamico(request):
     else:
         return generar_reporte_excel(request)
 
-@login_required
 def generar_reporte_pdf(request):
     # NOMBRE DEL ARCHIVO
     nombre_archivo = request.POST.get("nombre_plantilla", "").strip()
@@ -6012,7 +5987,6 @@ def generar_reporte_pdf(request):
     
     return response
 
-@login_required
 def reporte_tendencias_crecimiento(request):
     from collections import defaultdict
     
@@ -6171,7 +6145,6 @@ def reporte_tendencias_crecimiento(request):
     wb.save(response)
     return response
 
-@login_required
 def reporte_productividad_semillero(request):
     """
     Genera reporte Excel con productividad por semillero
@@ -6505,7 +6478,6 @@ def reporte_mensual_ejecutivo(request):
     wb.save(response)
     return response
 
-@login_required
 def informe_trimestral(request):
     """
     Análisis de cumplimiento y resultados por trimestre
@@ -6674,7 +6646,6 @@ def informe_trimestral(request):
     wb.save(response)
     return response
 
-@login_required
 def balance_anual(request):
     """
     Resultados del año completo con análisis integral
@@ -6872,7 +6843,6 @@ def balance_anual(request):
     wb.save(response)
     return response
 
-@login_required
 def comparativo_anual(request):
     """
     Evolución interanual de indicadores clave de desempeño
@@ -7123,7 +7093,6 @@ def comparativo_anual(request):
     wb.save(response)
     return response
 
-@login_required
 def reporte_programa(request):
     """
     Agrupación de proyectos formativos según programa de formación
@@ -7319,7 +7288,6 @@ def reporte_programa(request):
     wb.save(response)
     return response
 
-@login_required
 def reporte_fichas(request):
     """
     Fichas participantes y sus proyectos de investigación asociados

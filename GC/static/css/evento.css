@@ -147,7 +147,10 @@
     width: clamp(40px, 10vw, 60px);
     height: clamp(40px, 10vw, 60px);
     object-fit: contain;
+    filter: brightness(0) invert(1) !important;
+
 }
+
 
 .info-badge {
     position: absolute;
@@ -993,7 +996,7 @@
     background-color: transparent;
     align-items: center;
     padding: 50px 50px 20px;
-    border-bottom: 3px solid #39A900;
+    border-bottom: 2px solid #39A900;
 }
 
 .modal-header-cancelar h5 {

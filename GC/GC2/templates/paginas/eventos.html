@@ -263,17 +263,24 @@
 
                     <div class="col-evento">
                         <label for="modalidad_eve" class="form-label">Modalidad</label>
-                        <select id="modalidad_eve" name="modalidad_eve" required>
-                            <option value="" selected disabled>Seleccione una opción</option>
-                            <option value="Presencial">Presencial</option>
+                        <select name="modalidad_eve" id="modalidadSelect">
+                            <option value="">Seleccione…</option>
                             <option value="Virtual">Virtual</option>
+                            <option value="Presencial">Presencial</option>
                         </select>
                     </div>
+                    <!-- Campo para eventos Virtuales -->
+                    <div class="col-evento" id="campoLink" style="display:none;">
+                        <label for="link" class="form-label">Link del evento</label>
+                        <input type="text" id="link" name="link" maxlength="250">
+                    </div>
 
-                    <div class="col-evento">
+                    <!-- Campo para eventos Presenciales -->
+                    <div class="col-evento" id="campoDireccion" style="display:none;">
                         <label for="direccion_eve" class="form-label">Dirección</label>
                         <input type="text" id="direccion_eve" name="direccion_eve" maxlength="250">
                     </div>
+
 
                     <div class="col-evento col-evento-full">
                         <label for="desc_eve" class="form-label">Descripción</label>
@@ -344,11 +351,20 @@
                         </select>
                     </div>
 
-                    <div class="col-evento">
+                    <!-- Campo para Link (solo Virtual) -->
+                    <div class="col-evento" id="campoLink{{ evento.cod_eve }}" style="display:none;">
+                        <label for="link{{ evento.cod_eve }}" class="form-label">Link (solo Virtual)</label>
+                        <input type="text" id="link{{ evento.cod_eve }}" name="link" maxlength="250"
+                            value="{{ evento.link }}">
+                    </div>
+
+                    <!-- Campo para Dirección (solo Presencial) -->
+                    <div class="col-evento" id="campoDireccion{{ evento.cod_eve }}" style="display:none;">
                         <label for="direccion_eve{{ evento.cod_eve }}" class="form-label">Dirección</label>
                         <input type="text" id="direccion_eve{{ evento.cod_eve }}" name="direccion_eve" maxlength="250"
-                               value="{{ evento.direccion_eve }}">
+                            value="{{ evento.direccion_eve }}">
                     </div>
+
 
                     <div class="col-evento col-evento-full">
                         <label for="desc_eve{{ evento.cod_eve }}" class="form-label">Descripción</label>
@@ -404,4 +420,58 @@
 <script src="{% static 'js/notificaciones.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/mensaje.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  // Reutilizable para todos los selects de modalidad en la página (crear + editar)
+  document.querySelectorAll('select[name="modalidad_eve"]').forEach(select => {
+
+    // Buscar el contenedor más cercano: preferimos el modal dialog, si no el form, si no document
+    const container = select.closest('.modal-dialog-evento') || select.closest('form') || document;
+
+    // Dentro del mismo contenedor, encontrar los campos (compatibilidad con ids con sufijo o sin sufijo)
+    const campoLink = container.querySelector('[id^="campoLink"]') || container.querySelector('#campoLink');
+    const campoDireccion = container.querySelector('[id^="campoDireccion"]') || container.querySelector('#campoDireccion');
+
+    // Si no existen campos dentro del contenedor, no hacemos nada
+    if (!campoLink && !campoDireccion) return;
+
+    function actualizarCampos() {
+      const val = (select.value || "").trim();
+
+      if (val === "Virtual") {
+        if (campoLink) campoLink.style.display = "flex";
+        if (campoDireccion) campoDireccion.style.display = "none";
+      } else if (val === "Presencial") {
+        if (campoLink) campoLink.style.display = "none";
+        if (campoDireccion) campoDireccion.style.display = "flex";
+      } else {
+        if (campoLink) campoLink.style.display = "none";
+        if (campoDireccion) campoDireccion.style.display = "none";
+      }
+    }
+
+    // Inicializa según el valor actual (útil cuando el modal abre con valores ya cargados)
+    actualizarCampos();
+
+    // Maneja cambios del select
+    select.addEventListener('change', actualizarCampos);
+
+    // Si el modal se abre/visualiza mediante cambio de atributos (clase, style), es posible que el select haya sido insertado después.
+    // Para cubrir ese caso (poco común), observamos cambios dentro del contenedor y re-inicializamos si aparece el select
+    // (esto es seguro y ligero porque solo se activa si hay mutaciones).
+    const mo = new MutationObserver((mutations, obs) => {
+      // reenforce: si el select desaparece (no debería) o los campos cambian, re-ejecutar init
+      if (!container.contains(select)) return;
+      // re-ejecutar para ajustar visibilidad si algo cambió
+      actualizarCampos();
+    });
+    mo.observe(container, { childList: true, subtree: true });
+  });
+
+});
+</script>
+
+
+
 {% endblock %}

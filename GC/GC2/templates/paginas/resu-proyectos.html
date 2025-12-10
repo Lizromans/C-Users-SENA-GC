@@ -1088,11 +1088,16 @@
                                 </select>
                             </div>
                             
-                            <div id="campo_programa" class="modal-campo" style="display:none;">
+                            <div id="campo_programa" class="modal-campo sub-campo" style="display:none;">
                                 <label for="programa_formacion">Programa de formación:</label>
-                                <input type="text" name="programa_formacion" id="programa_formacion">
+                                <input 
+                                    type="text"
+                                    name="programa_formacion"
+                                    id="programa_formacion"
+                                    placeholder="Ej: Tecnología en Análisis y Desarrollo de Software"
+                                >
                             </div>
-                            
+
                             <div class="modal-campo">
                                 <label for="desc_pro">Descripción *</label>
                                 <textarea id="desc_pro" name="desc_pro" placeholder="Describe el propósito del proyecto..." required></textarea>
@@ -1404,6 +1409,17 @@
                                 <option value="capacidadinstalada" {% if proyecto_editar.tipo == 'capacidadinstalada' %}selected{% endif %}>Capacidad Instalada</option>
                                 <option value="formativo" {% if proyecto_editar.tipo == 'formativo' %}selected{% endif %}>Formativo</option>
                             </select>
+                        </div>
+
+                        <div id="campo_programa_edit" class="modal-campo sub-campo" style="display:none;">
+                            <label for="programa_formacion_edit">Programa de formación:</label>
+                            <input 
+                                type="text"
+                                name="programa_formacion"
+                                id="programa_formacion_edit"
+                                value="{{ proyecto_editar.programa_formacion|default:'' }}"
+                                placeholder="Ej: Tecnología en Análisis y Desarrollo de Software"
+                            >
                         </div>
 
                         <div class="modal-campo" id="sub-campo">
@@ -1977,11 +1993,31 @@
     {% endif %}
 
     <script>
-    document.getElementById("tipo").addEventListener("change", function () {
-        let campo = document.getElementById("campo_programa");
-        campo.style.display = (this.value === "formativo") ? "block" : "none";
+    document.addEventListener("DOMContentLoaded", function () {
+
+        function activarCampoPrograma(selectId, campoId) {
+            const select = document.getElementById(selectId);
+            const campo  = document.getElementById(campoId);
+
+            if (!select || !campo) return;
+
+            function actualizar() {
+                campo.style.display = (select.value === "formativo") ? "block" : "none";
+            }
+
+            actualizar();
+            select.addEventListener("change", actualizar);
+        }
+
+        // Para crear
+        activarCampoPrograma("tipo", "campo_programa");
+
+        // Para editar
+        activarCampoPrograma("tipo_edit", "campo_programa_edit");
+
     });
     </script>
+
 
     <script src="{% static 'js/mensaje.js' %}"></script>
     <script src="{% static 'js/notificaciones.js' %}"></script>
