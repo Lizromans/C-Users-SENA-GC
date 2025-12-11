@@ -2181,7 +2181,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         entregable.save()
 
         # Actualizar progreso del proyecto
-        actualizar_progreso_proyecto(request, entregable.cod_pro)
+        actualizar_progreso_proyecto(entregable.cod_pro)
 
         # Mostrar mensaje con cantidad de archivos
         messages.success(
@@ -2221,12 +2221,12 @@ def actualizar_progreso_proyecto(proyecto):
         elif entregables_completados >= 6:
             proyecto.estado_pro = "completado"
 
-            # ✅ GUARDAR FECHA SOLO LA PRIMERA VEZ
+            # GUARDAR FECHA SOLO LA PRIMERA VEZ
             if not proyecto.fecha_completado:
                 proyecto.fecha_completado = date.today()
 
         else:
-            # ✅ Si deja de estar completado, limpiar fecha
+            # Si deja de estar completado, limpiar fecha
             if proyecto.fecha_completado:
                 proyecto.fecha_completado = None
 
