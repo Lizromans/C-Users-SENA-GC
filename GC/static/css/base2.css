@@ -99,6 +99,10 @@ body {
   margin-left: clamp(6px, 1.5%, 12px);
 }
 
+.user p {
+    white-space: nowrap;
+}
+
 .header-right a {
   font-size: clamp(0.8rem, 1.5vw, 1rem);
   font-weight: 600;
