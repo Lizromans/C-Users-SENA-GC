@@ -318,7 +318,10 @@ body {
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 9999;
-    overflow: hidden;
+    
+    display: flex;
+    flex-direction: column; /* ← IMPORTANTÍSIMO */
+    overflow: hidden;  
 }
 
 .notification-dropdown.show {
@@ -365,8 +368,8 @@ body {
 
 /* =====LISTA======= */
 .notification-body {
-    max-height: clamp(300px, 50vh, 450px);
-    overflow-y: auto;
+    flex: 1;                     /* ← ocupa todo el espacio disponible */
+    overflow-y: auto;            /* ← SOLO la lista hace scroll */
     padding: 0;
 }
 
@@ -488,6 +491,15 @@ body {
     font-size: clamp(2rem, 3.5vw, 3.5rem);
     color: #e0e0e0;
     margin-bottom: clamp(12px, 2vh, 20px);
+}
+
+.notification-footer {
+    padding: clamp(12px, 1.8vh, 20px) clamp(15px, 2vw, 24px);
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(57, 169, 0, 0.05) 0%, transparent 100%);
 }
 
 /* Ajuste header cuando el sidebar está colapsado */
@@ -1007,3 +1019,4 @@ html.sidebar-collapsed .sidebar .config-btn .nav-icon,
 html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin-right: 0 !important;
 }
+

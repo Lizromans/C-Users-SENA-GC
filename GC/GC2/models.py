@@ -434,7 +434,6 @@ class SemilleroProyecto(models.Model):
         db_table = 'semillero_proyecto'
         unique_together = ('id_sem', 'cod_pro')
 
-
 class SemilleroUsuario(models.Model):
     semusu_id = models.AutoField(primary_key=True)
     es_lider = models.BooleanField(default=False)
