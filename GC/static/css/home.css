@@ -66,8 +66,8 @@
 .contenedor-info::after {
     content: '';
     position: absolute;
-    width: clamp(130px, 20vw, 210px);
-    height: clamp(130px, 20vw, 210px);
+    width: clamp(150px, 20vw, 250px);
+    height: clamp(150px, 20vw, 250px);
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 70%, transparent 100%);
     right: clamp(-60px, -7.5vw, -100px);
@@ -550,6 +550,11 @@
 .badge-estado-cancelado {
     background-color: transparent;
     color: #d63031;
+}
+
+.badge-estado-próximo {
+    background-color: transparent;
+    color: #ff9204;
 }
 
 /* --- Texto Adicional --- */

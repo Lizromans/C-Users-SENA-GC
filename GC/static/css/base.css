@@ -431,7 +431,7 @@ body {
 /* =====ICONOS DE TIPO======= */
 .notification-icon-type {
     flex-shrink: 0;
-    width: clamp(32px, 4.5vw, 48px);
+    width: clamp(32px, 4.5vw, 48px)!important;
     height: clamp(32px, 4.5vw, 48px);
     border-radius: 50%;
     display: flex;
@@ -497,9 +497,22 @@ body {
     padding: clamp(12px, 1.8vh, 20px) clamp(15px, 2vw, 24px);
     border-top: 1px solid #e9ecef;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     background: linear-gradient(135deg, rgba(57, 169, 0, 0.05) 0%, transparent 100%);
+}
+
+.notification-footer:hover {
+    background: linear-gradient(135deg, rgba(57, 169, 0, 0.1) 0%)!important;
+}
+
+.notification-footer a {
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    font-weight: 600;
+    color: var(--color-nav-active);
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+    background-color: transparent!important;
 }
 
 /* Ajuste header cuando el sidebar está colapsado */
@@ -1018,5 +1031,276 @@ html.sidebar-collapsed .sidebar .logout-btn {
 html.sidebar-collapsed .sidebar .config-btn .nav-icon,
 html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin-right: 0 !important;
+}
+
+/* ======= DRAWER ======= */
+/* Overlay oscuro de fondo */
+.notifications-drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 9998;
+    backdrop-filter: blur(2px);
+}
+
+.notifications-drawer-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Drawer principal */
+.notifications-drawer {
+    position: fixed;
+    top: 0;
+    right: -450px;
+    width: clamp(320px, 40vw, 450px);
+    height: 100vh;
+    background: white;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.notifications-drawer.show {
+    right: 0;
+}
+
+/* Header del drawer */
+.drawer-header {
+    padding: clamp(18px, 2.5vh, 24px) clamp(20px, 2.5vw, 28px);
+    border-bottom: 2px solid #e9ecef;
+    background: linear-gradient(135deg, rgba(57, 169, 0, 0.08) 0%, transparent 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.drawer-header-content {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 1.5vw, 14px);
+}
+
+.drawer-header h3 {
+    margin: 0;
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1vw, 12px);
+}
+
+.drawer-header h3 i {
+    color: var(--color-nav-active);
+    font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+}
+
+.drawer-close-btn {
+    background: none;
+    border: none;
+    font-size: clamp(1.4rem, 2vw, 1.8rem);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: clamp(6px, 1vh, 10px);
+    width: clamp(32px, 4vw, 40px);
+    height: clamp(32px, 4vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.drawer-close-btn:hover {
+    background-color: rgba(57, 169, 0, 0.1);
+    color: var(--color-nav-active);
+    transform: rotate(90deg);
+}
+
+/* Filtros de notificaciones */
+.drawer-filters {
+    padding: clamp(12px, 1.8vh, 18px) clamp(20px, 2.5vw, 28px);
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    gap: clamp(8px, 1vw, 12px);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.filter-btn {
+    padding: clamp(6px, 0.8vh, 8px) clamp(12px, 1.5vw, 16px);
+    border: 1px solid #dee2e6;
+    background: white;
+    color: var(--color-text-secondary);
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(0.75rem, 1vw, 0.85rem);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--color-nav-active);
+    color: var(--color-nav-active);
+    background: rgba(57, 169, 0, 0.05);
+}
+
+.filter-btn.active {
+    background: var(--color-nav-active);
+    color: white;
+    border-color: var(--color-nav-active);
+}
+
+/* Cuerpo del drawer */
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: clamp(12px, 1.5vh, 16px) 0;
+}
+
+.drawer-body::-webkit-scrollbar {
+    width: clamp(4px, 0.5vw, 6px);
+}
+
+.drawer-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.drawer-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+.drawer-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Secciones de notificaciones por fecha */
+.notification-section {
+    margin-bottom: clamp(16px, 2vh, 24px);
+}
+
+.notification-section-title {
+    padding: clamp(8px, 1vh, 12px) clamp(20px, 2.5vw, 28px);
+    font-size: clamp(0.75rem, 1vw, 0.85rem);
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #f8f9fa;
+    border-left: 3px solid var(--color-nav-active);
+}
+
+/* Items de notificación en el drawer */
+.drawer-notification-item {
+    padding: clamp(14px, 2vh, 18px) clamp(20px, 2.5vw, 28px);
+    border-bottom: 1px solid #f1f1f1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    gap: clamp(12px, 1.5vw, 16px);
+    position: relative;
+    align-items: flex-start;
+}
+
+.drawer-notification-item:hover {
+    background-color: #f8f9fa;
+    padding-left: clamp(24px, 3vw, 32px);
+}
+
+.drawer-notification-item.unread {
+    background-color: rgba(57, 169, 0, 0.05);
+    border-left: 3px solid var(--color-nav-active);
+}
+
+.drawer-notification-item.unread:hover {
+    background-color: rgba(57, 169, 0, 0.08);
+}
+
+/* Estado vacío */
+.drawer-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(40px, 8vh, 80px) clamp(20px, 3vw, 40px);
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.drawer-empty-state i {
+    font-size: clamp(3rem, 5vw, 4rem);
+    color: #e0e0e0;
+    margin-bottom: clamp(16px, 2vh, 24px);
+}
+
+.drawer-empty-state h4 {
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: clamp(8px, 1vh, 12px);
+}
+
+.drawer-empty-state p {
+    font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Footer del drawer */
+.drawer-footer {
+    padding: clamp(14px, 2vh, 18px) clamp(20px, 2.5vw, 28px);
+    border-top: 2px solid #e9ecef;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: clamp(10px, 1.5vw, 14px);
+    flex-shrink: 0;
+}
+
+.drawer-action-btn {
+    padding: clamp(8px, 1vh, 10px) clamp(14px, 1.8vw, 18px);
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.drawer-action-btn.primary {
+    background: var(--color-nav-active);
+    color: white;
+    border-color: var(--color-nav-active);
+}
+
+.drawer-action-btn.primary:hover {
+    background: var(--color-text-active);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+}
+
+.drawer-action-btn.secondary {
+    background: white;
+    color: var(--color-text-primary);
+    border-color: #dee2e6;
+}
+
+.drawer-action-btn.secondary:hover {
+    background: #f8f9fa;
+    border-color: var(--color-nav-active);
+    color: var(--color-nav-active);
 }
 

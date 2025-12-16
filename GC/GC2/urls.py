@@ -6,6 +6,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     # NOTIFICACIONES
     path('api/notificaciones/', views.api_notificaciones, name='api_notificaciones'),
+    path('api/notifications/all/', views.api_todas_notificaciones, name='api_todas_notificaciones'),
+    path('api/notifications/mark-all-read/', views.api_marcar_leidas, name='api_marcar_leidas'),
+    path('api/notifications/clear-all/', views.api_limpiar_todas, name='api_limpiar_todas'),
 
     path('', views.bienvenido, name='bienvenido'),
     path('home/', views.home, name='home'),
@@ -58,7 +61,7 @@ urlpatterns = [
 
     #EVENTOS
     path('eventos/', views.eventos, name='eventos'),
-    path('crear_evento', views.crear_evento, name='crear_evento'),
+    path('crear_evento/', views.crear_evento, name='crear_evento'),
     path('cancelar_evento/', views.cancelar_evento, name='cancelar_evento'),
     path("editar_evento/<int:cod_eve>/", views.editar_evento, name="editar_evento"),
 

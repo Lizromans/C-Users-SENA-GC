@@ -55,7 +55,8 @@ from django.db.models import Value, CharField, F, Q, DateTimeField
 from django.db.models.functions import Cast
 from itertools import chain
 from django.urls import reverse
-from .notifications import obtener_notificaciones
+from .notifications import (obtener_notificaciones_usuario, obtener_notificaciones_con_resumen)
+from django.views.decorators.http import require_http_methods
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -78,28 +79,160 @@ def descifrar_numero(numero_cifrado):
     except:
         return "****"  # Mostrar asteriscos si falla
 
-# NOTIFICACIONES
+@require_http_methods(["GET"])
 def api_notificaciones(request):
-    from django.http import JsonResponse
+    """
+    API endpoint para obtener notificaciones del usuario actual
+    Endpoint: /api/notificaciones/
+    """
     try:
-        notificaciones = obtener_notificaciones(request)
+        # Verificar que hay sesión activa
+        if not request.session.get('cedula'):
+            return JsonResponse({
+                'success': False,
+                'error': 'No hay sesión activa',
+                'notificaciones': [],
+                'count': 0
+            }, status=401)
+        
+        # Obtener el usuario desde la sesión
+        cedula = request.session.get('cedula')
+        
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+        except Usuario.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuario no encontrado',
+                'notificaciones': [],
+                'count': 0
+            }, status=404)
+        
+        # Pasar el objeto usuario, no el request
+        resultado = obtener_notificaciones_usuario(usuario, limite=18)
+        
         return JsonResponse({
-            'notificaciones': notificaciones,
-            'count': len(notificaciones)
+            'success': True,
+            'notificaciones': resultado['notificaciones'],
+            'count': resultado['total'],
+            'resumen': resultado['resumen']
         })
+        
     except Exception as e:
+        print(f"Error en api_notificaciones: {str(e)}")
         import traceback
         traceback.print_exc()
-
+        
         return JsonResponse({
+            'success': False,
+            'error': str(e),
             'notificaciones': [],
-            'count': 0,
+            'count': 0
+        }, status=500)
+
+@require_http_methods(["GET"])
+def api_todas_notificaciones(request):
+    """
+    API endpoint para obtener TODAS las notificaciones con resumen completo
+    Endpoint: /api/notifications/all/
+    """
+    try:
+        # Verificar sesión
+        if not request.session.get('cedula'):
+            return JsonResponse({
+                'success': False,
+                'error': 'No hay sesión activa',
+                'notifications': []
+            }, status=401)
+        
+        cedula = request.session.get('cedula')
+        
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+        except Usuario.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuario no encontrado',
+                'notifications': []
+            }, status=404)
+        
+        # Obtener hasta 50 notificaciones
+        resultado = obtener_notificaciones_usuario(usuario, limite=50)
+        
+        return JsonResponse({
+            'success': True,
+            'notifications': resultado['notificaciones'],
+            'count': resultado['total'],
+            'resumen': resultado['resumen']
+        })
+        
+    except Exception as e:
+        print(f"Error en api_todas_notificaciones: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        return JsonResponse({
+            'success': False,
+            'error': str(e),
+            'notifications': []
+        }, status=500)
+
+@require_http_methods(["POST"])
+def api_marcar_leidas(request):
+    """
+    API endpoint para marcar todas las notificaciones como leídas
+    Endpoint: /api/notifications/mark-all-read/
+    """
+    try:
+        if not request.session.get('cedula'):
+            return JsonResponse({
+                'success': False,
+                'error': 'No hay sesión activa'
+            }, status=401)
+        
+        # Por ahora, solo retornar success
+        # TODO: Implementar persistencia real de estado leído
+        return JsonResponse({
+            'success': True,
+            'message': 'Notificaciones marcadas como leídas'
+        })
+        
+    except Exception as e:
+        print(f"Error en api_marcar_leidas: {str(e)}")
+        return JsonResponse({
+            'success': False,
             'error': str(e)
         }, status=500)
 
+@require_http_methods(["POST"])
+def api_limpiar_todas(request):
+    """
+    API endpoint para limpiar todas las notificaciones
+    Endpoint: /api/notifications/clear-all/
+    """
+    try:
+        if not request.session.get('cedula'):
+            return JsonResponse({
+                'success': False,
+                'error': 'No hay sesión activa'
+            }, status=401)
+        
+        # Por ahora, solo retornar success
+        # TODO: Implementar limpieza real de notificaciones
+        return JsonResponse({
+            'success': True,
+            'message': 'Notificaciones eliminadas'
+        })
+        
+    except Exception as e:
+        print(f"Error en api_limpiar_todas: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)  
+
 # VISTA BIENVENIDO
 def bienvenido(request):
-
     # CONTADORES DINÁMICOS
     investigadores = Usuario.objects.filter(rol="Investigador").count()
     instructores = Usuario.objects.filter(rol="Instructor").count()
@@ -594,7 +727,6 @@ def home(request):
         'total_proyectos': total_proyectos,
         'total_aprendices': total_aprendices,
         'actividades': actividades,
-        
     })
 
 # VISTAS PERFIL
@@ -3278,7 +3410,6 @@ def eventos(request):
 
 @login_required
 def crear_evento(request):
-
     cedula = request.session.get('cedula')
     try:
         usuario = Usuario.objects.get(cedula=cedula)
