@@ -1197,18 +1197,23 @@
                             <i class="fas fa-clipboard-check"></i>
                             <h6>Entregables del Proyecto</h6>
                         </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            Es necesario seleccionar el tipo de proyecto previamente, con el fin de visualizar los entregables correspondientes.
+                        </small>
                         <hr class="modal-hr modal-hr-terciario">
                         
                         <div id="entregables-container">
-                            <!-- Entregable 1: Formalización de Proyecto -->
-                            <div class="entregable-item" data-obligatorio="true">
+                            
+                            <!-- Entregable para Sennova/Capacidad Instalada (inicialmente oculto) -->
+                            <div class="entregable-item entregable-investigacion" style="display: none;" data-obligatorio="true">
                                 <div class="modal-campo">
-                                    <label for="entregable_1">
-                                        Formalización de Proyecto *
+                                    <label for="entregable_investigacion">
+                                        Resultados y Productos de Investigación *
                                         <span class="badge-obligatorio">Obligatorio</span>
                                     </label>
                                     <p class="descripcion-entregable">
-                                        Documento que establece el marco formal del proyecto, incluyendo título, justificación, alcance, participantes y recursos necesarios.
+                                        Resultados y productos de investigación conforme a los parámetros de Minciencias.
                                     </p>
                                     <div class="calendar-container">
                                         <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_1')"></i>
@@ -1216,130 +1221,156 @@
                                             name="fecha_entregable_1" 
                                             id="fechaRango_1" 
                                             placeholder="Selecciona rango de fechas" 
-                                            readonly 
-                                            required>
-                                        <input type="hidden" name="fecha_inicio_1" id="fecha_inicio_1">
-                                        <input type="hidden" name="fecha_fin_1" id="fecha_fin_1">
+                                            readonly>
+                                        <input type="hidden" name="fecha_inicio_7" id="fecha_inicio_7">
+                                        <input type="hidden" name="fecha_fin_7" id="fecha_fin_7">
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Entregable 2: Diagnóstico -->
-                            <div class="entregable-item" data-obligatorio="true">
-                                <div class="modal-campo">
-                                    <label for="entregable_2">
-                                        Diagnóstico *
-                                        <span class="badge-obligatorio">Obligatorio</span>
-                                    </label>
-                                    <p class="descripcion-entregable">
-                                        Análisis de la situación actual, identificación de problemáticas, necesidades y oportunidades del contexto donde se desarrollará el proyecto.
-                                    </p>
-                                    <div class="calendar-container">
-                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_2')"></i>
-                                        <input type="text" 
-                                            name="fecha_entregable_2" 
-                                            id="fechaRango_2" 
-                                            placeholder="Selecciona rango de fechas" 
-                                            readonly 
-                                            required>
-                                        <input type="hidden" name="fecha_inicio_2" id="fecha_inicio_2">
-                                        <input type="hidden" name="fecha_fin_2" id="fecha_fin_2">
+                            
+                            <!-- Entregables para Formativos (inicialmente visibles) -->
+                            <div class="formativos" style="display:none">
+                                <!-- Entregable 1: Formalización de Proyecto -->
+                                <div class="entregable-item" data-obligatorio="true">
+                                    <div class="modal-campo">
+                                        <label for="entregable_1">
+                                            Formalización de Proyecto *
+                                            <span class="badge-obligatorio">Obligatorio</span>
+                                        </label>
+                                        <p class="descripcion-entregable">
+                                            Documento que establece el marco formal del proyecto, incluyendo título, justificación, alcance, participantes y recursos necesarios.
+                                        </p>
+                                        <div class="calendar-container">
+                                            <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_1')"></i>
+                                            <input type="text" 
+                                                name="fecha_entregable_1" 
+                                                id="fechaRango_1" 
+                                                placeholder="Selecciona rango de fechas" 
+                                                readonly 
+                                                required>
+                                            <input type="hidden" name="fecha_inicio_1" id="fecha_inicio_1">
+                                            <input type="hidden" name="fecha_fin_1" id="fecha_fin_1">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Entregable 3: Planeación -->
-                            <div class="entregable-item" data-obligatorio="true">
-                                <div class="modal-campo">
-                                    <label for="entregable_3">
-                                        Planeación *
-                                        <span class="badge-obligatorio">Obligatorio</span>
-                                    </label>
-                                    <p class="descripcion-entregable">
-                                        Planificación detallada con cronograma, actividades, metodología, recursos, responsables y estrategias para el desarrollo del proyecto.
-                                    </p>
-                                    <div class="calendar-container">
-                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_3')"></i>
-                                        <input type="text" 
-                                            name="fecha_entregable_3" 
-                                            id="fechaRango_3" 
-                                            placeholder="Selecciona rango de fechas" 
-                                            readonly 
-                                            required>
-                                        <input type="hidden" name="fecha_inicio_3" id="fecha_inicio_3">
-                                        <input type="hidden" name="fecha_fin_3" id="fecha_fin_3">
+                                <!-- Entregable 2: Diagnóstico -->
+                                <div class="entregable-item" data-obligatorio="true">
+                                    <div class="modal-campo">
+                                        <label for="entregable_2">
+                                            Diagnóstico *
+                                            <span class="badge-obligatorio">Obligatorio</span>
+                                        </label>
+                                        <p class="descripcion-entregable">
+                                            Análisis de la situación actual, identificación de problemáticas, necesidades y oportunidades del contexto donde se desarrollará el proyecto.
+                                        </p>
+                                        <div class="calendar-container">
+                                            <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_2')"></i>
+                                            <input type="text" 
+                                                name="fecha_entregable_2" 
+                                                id="fechaRango_2" 
+                                                placeholder="Selecciona rango de fechas" 
+                                                readonly 
+                                                required>
+                                            <input type="hidden" name="fecha_inicio_2" id="fecha_inicio_2">
+                                            <input type="hidden" name="fecha_fin_2" id="fecha_fin_2">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Entregable 4: Ejecución -->
-                            <div class="entregable-item" data-obligatorio="true">
-                                <div class="modal-campo">
-                                    <label for="entregable_4">
-                                        Ejecución *
-                                        <span class="badge-obligatorio">Obligatorio</span>
-                                    </label>
-                                    <p class="descripcion-entregable">
-                                        Informe de implementación del proyecto, evidencias de actividades realizadas, resultados obtenidos y ajustes aplicados durante el proceso.
-                                    </p>
-                                    <div class="calendar-container">
-                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_4')"></i>
-                                        <input type="text" 
-                                            name="fecha_entregable_4" 
-                                            id="fechaRango_4" 
-                                            placeholder="Selecciona rango de fechas" 
-                                            readonly 
-                                            required>
-                                        <input type="hidden" name="fecha_inicio_4" id="fecha_inicio_4">
-                                        <input type="hidden" name="fecha_fin_4" id="fecha_fin_4">
+                                <!-- Entregable 3: Planeación -->
+                                <div class="entregable-item" data-obligatorio="true">
+                                    <div class="modal-campo">
+                                        <label for="entregable_3">
+                                            Planeación *
+                                            <span class="badge-obligatorio">Obligatorio</span>
+                                        </label>
+                                        <p class="descripcion-entregable">
+                                            Planificación detallada con cronograma, actividades, metodología, recursos, responsables y estrategias para el desarrollo del proyecto.
+                                        </p>
+                                        <div class="calendar-container">
+                                            <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_3')"></i>
+                                            <input type="text" 
+                                                name="fecha_entregable_3" 
+                                                id="fechaRango_3" 
+                                                placeholder="Selecciona rango de fechas" 
+                                                readonly 
+                                                required>
+                                            <input type="hidden" name="fecha_inicio_3" id="fecha_inicio_3">
+                                            <input type="hidden" name="fecha_fin_3" id="fecha_fin_3">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Entregable 5: Evaluación -->
-                            <div class="entregable-item" data-obligatorio="true">
-                                <div class="modal-campo">
-                                    <label for="entregable_5">
-                                        Evaluación *
-                                        <span class="badge-obligatorio">Obligatorio</span>
-                                    </label>
-                                    <p class="descripcion-entregable">
-                                        Análisis del cumplimiento de objetivos, medición de impacto, identificación de logros, dificultades y lecciones aprendidas del proyecto.
-                                    </p>
-                                    <div class="calendar-container">
-                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_5')"></i>
-                                        <input type="text" 
-                                            name="fecha_entregable_5" 
-                                            id="fechaRango_5" 
-                                            placeholder="Selecciona rango de fechas" 
-                                            readonly 
-                                            required>
-                                        <input type="hidden" name="fecha_inicio_5" id="fecha_inicio_5">
-                                        <input type="hidden" name="fecha_fin_5" id="fecha_fin_5">
+                                <!-- Entregable 4: Ejecución -->
+                                <div class="entregable-item" data-obligatorio="true">
+                                    <div class="modal-campo">
+                                        <label for="entregable_4">
+                                            Ejecución *
+                                            <span class="badge-obligatorio">Obligatorio</span>
+                                        </label>
+                                        <p class="descripcion-entregable">
+                                            Informe de implementación del proyecto, evidencias de actividades realizadas, resultados obtenidos y ajustes aplicados durante el proceso.
+                                        </p>
+                                        <div class="calendar-container">
+                                            <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_4')"></i>
+                                            <input type="text" 
+                                                name="fecha_entregable_4" 
+                                                id="fechaRango_4" 
+                                                placeholder="Selecciona rango de fechas" 
+                                                readonly 
+                                                required>
+                                            <input type="hidden" name="fecha_inicio_4" id="fecha_inicio_4">
+                                            <input type="hidden" name="fecha_fin_4" id="fecha_fin_4">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Entregable 6: Conclusiones -->
-                            <div class="entregable-item" data-obligatorio="true">
-                                <div class="modal-campo">
-                                    <label for="entregable_6">
-                                        Conclusiones *
-                                        <span class="badge-obligatorio">Obligatorio</span>
-                                    </label>
-                                    <p class="descripcion-entregable">
-                                        Reflexiones finales, recomendaciones para futuros proyectos, aportes al conocimiento y perspectivas de continuidad o réplica del proyecto.
-                                    </p>
-                                    <div class="calendar-container">
-                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_6')"></i>
-                                        <input type="text" 
-                                            name="fecha_entregable_6" 
-                                            id="fechaRango_6" 
-                                            placeholder="Selecciona rango de fechas" 
-                                            readonly 
-                                            required>
-                                        <input type="hidden" name="fecha_inicio_6" id="fecha_inicio_6">
-                                        <input type="hidden" name="fecha_fin_6" id="fecha_fin_6">
+                                <!-- Entregable 5: Evaluación -->
+                                <div class="entregable-item" data-obligatorio="true">
+                                    <div class="modal-campo">
+                                        <label for="entregable_5">
+                                            Evaluación *
+                                            <span class="badge-obligatorio">Obligatorio</span>
+                                        </label>
+                                        <p class="descripcion-entregable">
+                                            Análisis del cumplimiento de objetivos, medición de impacto, identificación de logros, dificultades y lecciones aprendidas del proyecto.
+                                        </p>
+                                        <div class="calendar-container">
+                                            <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_5')"></i>
+                                            <input type="text" 
+                                                name="fecha_entregable_5" 
+                                                id="fechaRango_5" 
+                                                placeholder="Selecciona rango de fechas" 
+                                                readonly 
+                                                required>
+                                            <input type="hidden" name="fecha_inicio_5" id="fecha_inicio_5">
+                                            <input type="hidden" name="fecha_fin_5" id="fecha_fin_5">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Entregable 6: Conclusiones -->
+                                <div class="entregable-item" data-obligatorio="true">
+                                    <div class="modal-campo">
+                                        <label for="entregable_6">
+                                            Conclusiones *
+                                            <span class="badge-obligatorio">Obligatorio</span>
+                                        </label>
+                                        <p class="descripcion-entregable">
+                                            Reflexiones finales, recomendaciones para futuros proyectos, aportes al conocimiento y perspectivas de continuidad o réplica del proyecto.
+                                        </p>
+                                        <div class="calendar-container">
+                                            <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_6')"></i>
+                                            <input type="text" 
+                                                name="fecha_entregable_6" 
+                                                id="fechaRango_6" 
+                                                placeholder="Selecciona rango de fechas" 
+                                                readonly 
+                                                required>
+                                            <input type="hidden" name="fecha_inicio_6" id="fecha_inicio_6">
+                                            <input type="hidden" name="fecha_fin_6" id="fecha_fin_6">
+                                        </div>
                                     </div>
                                 </div>
                             </div>

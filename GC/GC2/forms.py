@@ -145,7 +145,7 @@ class AprendizForm(forms.ModelForm):
     
     MEDIO_BANCARIO_CHOICES = [
         ('', 'Seleccione entidad bancaria'), 
-        ('Llave', 'Llave'), 
+        ('Bre-B', 'Bre-B'), 
         ('Bancolombia', 'Bancolombia'),
         ('Davivienda', 'Davivienda'),
         ('Banco de Bogotá', 'Banco de Bogotá'),
@@ -356,4 +356,4 @@ class AprendizForm(forms.ModelForm):
             aprendiz.save()
         
         return aprendiz
-    
+

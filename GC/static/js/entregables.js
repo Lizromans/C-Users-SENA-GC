@@ -146,4 +146,41 @@ function inicializarAcordeonProyecto(codProyecto) {
         });
     });
 }
+document.addEventListener('DOMContentLoaded', function () {
+
+    const tipoSelect = document.getElementById('tipo');
+    const contenedor = document.getElementById('entregables-container');
+
+    const entregableInvestigacion = document.querySelector('.entregable-investigacion');
+    const entregablesFormativos = document.querySelector('.formativos');
+
+    function actualizarEntregables() {
+        const tipo = tipoSelect.value;
+
+        // Ocultar todo siempre
+        contenedor.style.display = 'none';
+        entregableInvestigacion.style.display = 'none';
+        entregablesFormativos.style.display = 'none';
+
+        if (!tipo) return;
+
+        // Mostrar contenedor general
+        contenedor.style.display = 'block';
+
+        // Sennova o Capacidad Instalada → 1 entregable
+        if (tipo === 'sennova' || tipo === 'capacidadinstalada') {
+            entregableInvestigacion.style.display = 'block';
+        }
+
+        // Formativo → 6 entregables
+        if (tipo === 'formativo') {
+            entregablesFormativos.style.display = 'grid';
+        }
+    }
+
+    // Ejecutar al cargar y al cambiar
+    actualizarEntregables();
+    tipoSelect.addEventListener('change', actualizarEntregables);
+});
+
 
