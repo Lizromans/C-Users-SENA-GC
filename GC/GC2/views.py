@@ -2043,25 +2043,16 @@ def crear_proyecto(request, id_sem):
                         except Aprendiz.DoesNotExist:
                             pass
 
-            # Crear entregables por defecto con fechas
-            entregables_default = [
-                {"nombre": "Formalización de Proyecto", "descripcion": "Documento formal del proyecto."},
-                {"nombre": "Diagnóstico", "descripcion": "Análisis de la situación actual."},
-                {"nombre": "Planeación", "descripcion": "Cronograma y metodología del proyecto."},
-                {"nombre": "Ejecución", "descripcion": "Evidencias y resultados del proyecto."},
-                {"nombre": "Evaluación", "descripcion": "Cumplimiento e impacto del proyecto."},
-                {"nombre": "Conclusiones", "descripcion": "Reflexiones finales y recomendaciones."},
-            ]
-
+            # Crear entregables según el tipo de proyecto
             ultimo_entregable = Entregable.objects.order_by('-cod_entre').first()
             base_cod = ultimo_entregable.cod_entre if ultimo_entregable else 0
 
-            for i, entregable_data in enumerate(entregables_default, start=1):
-                #  Leer fecha_inicio y fecha_fin
-                fecha_inicio_str = request.POST.get(f'fecha_inicio_{i}')
-                fecha_fin_str = request.POST.get(f'fecha_fin_{i}')
+            if tipo in ["sennova", "capacidadinstalada"]:
+                # UN SOLO ENTREGABLE para Sennova y Capacidad Instalada
+                desc_entre = request.POST.get("desc_entre")
+                fecha_inicio_str = request.POST.get('fecha_inicio_1')
+                fecha_fin_str = request.POST.get('fecha_fin_1')
 
-                # Convertir formato de fecha
                 fecha_inicio = None
                 fecha_fin = None
                 
@@ -2071,24 +2062,65 @@ def crear_proyecto(request, id_sem):
                     if fecha_fin_str:
                         fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
                 except ValueError:
-                    # Si el formato es distinto, intenta dd/mm/yyyy
                     try:
                         if fecha_inicio_str:
                             fecha_inicio = datetime.strptime(fecha_inicio_str, '%d/%m/%Y').date()
                         if fecha_fin_str:
                             fecha_fin = datetime.strptime(fecha_fin_str, '%d/%m/%Y').date()
                     except Exception as e:
-                        print(f"Error al convertir fechas del entregable {i}: {e}")
+                        print(f"Error al convertir fechas del entregable: {e}")
 
                 Entregable.objects.create(
-                    cod_entre=base_cod + i,
-                    nom_entre=entregable_data["nombre"],
-                    desc_entre=entregable_data["descripcion"],
+                    cod_entre=base_cod + 1,
+                    nom_entre="Resultados y Productos de Investigación",
+                    desc_entre=desc_entre,
                     estado="Pendiente",
                     fecha_inicio=fecha_inicio,
-                    fecha_fin=fecha_fin,  
+                    fecha_fin=fecha_fin,
                     cod_pro=proyecto
                 )
+
+            else:
+                # SEIS ENTREGABLES para proyectos Formativos
+                entregables_default = [
+                    {"nombre": "Formalización de Proyecto", "descripcion": "Documento formal del proyecto."},
+                    {"nombre": "Diagnóstico", "descripcion": "Análisis de la situación actual."},
+                    {"nombre": "Planeación", "descripcion": "Cronograma y metodología del proyecto."},
+                    {"nombre": "Ejecución", "descripcion": "Evidencias y resultados del proyecto."},
+                    {"nombre": "Evaluación", "descripcion": "Cumplimiento e impacto del proyecto."},
+                    {"nombre": "Conclusiones", "descripcion": "Reflexiones finales y recomendaciones."},
+                ]
+
+                for i, entregable_data in enumerate(entregables_default, start=1):
+                    fecha_inicio_str = request.POST.get(f'fecha_inicio_{i}')
+                    fecha_fin_str = request.POST.get(f'fecha_fin_{i}')
+
+                    fecha_inicio = None
+                    fecha_fin = None
+                    
+                    try:
+                        if fecha_inicio_str:
+                            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
+                        if fecha_fin_str:
+                            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        try:
+                            if fecha_inicio_str:
+                                fecha_inicio = datetime.strptime(fecha_inicio_str, '%d/%m/%Y').date()
+                            if fecha_fin_str:
+                                fecha_fin = datetime.strptime(fecha_fin_str, '%d/%m/%Y').date()
+                        except Exception as e:
+                            print(f"Error al convertir fechas del entregable {i}: {e}")
+
+                    Entregable.objects.create(
+                        cod_entre=base_cod + i,
+                        nom_entre=entregable_data["nombre"],
+                        desc_entre=entregable_data["descripcion"],
+                        estado="Pendiente",
+                        fecha_inicio=fecha_inicio,
+                        fecha_fin=fecha_fin,
+                        cod_pro=proyecto
+                    )
 
             messages.success(request, f'Proyecto "{nom_pro}" creado correctamente.')
             return redirect('resu-proyectos', id_sem=id_sem)

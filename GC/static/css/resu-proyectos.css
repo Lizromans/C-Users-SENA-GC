@@ -1015,6 +1015,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 
 .modal-hr-terciario {
     background-color: #00304D;
+    margin-bottom: clamp(16px, 3vh, 20px);
 }
 
 .modal-hr-cuaternario {

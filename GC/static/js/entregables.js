@@ -146,4 +146,46 @@ function inicializarAcordeonProyecto(codProyecto) {
         });
     });
 }
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoSelect = document.getElementById('tipo');
+    const entregablesInvestigacion = document.querySelector('.entregable-investigacion');
+    const entregablesFormativos = document.querySelector('.entregables-formativos');
+    
+    function actualizarEntregables() {
+        const tipoSeleccionado = tipoSelect.value.toLowerCase();
+        
+        if (tipoSeleccionado === 'sennova' || tipoSeleccionado === 'capacidadinstalada') {
+            // Mostrar solo entregable de investigación
+            entregablesInvestigacion.style.display = 'block';
+            entregablesFormativos.style.display = 'none';
+            
+            // Hacer requerido el campo de investigación
+            document.getElementById('fechaRango_1').setAttribute('required', 'required');
+            
+            // Quitar requerido de los formativos
+            entregablesFormativos.querySelectorAll('input[required]').forEach(input => {
+                input.removeAttribute('required');
+            });
+        } else {
+            // Mostrar entregables formativos
+            entregablesInvestigacion.style.display = 'none';
+            entregablesFormativos.style.display = 'block';
+            
+            // Quitar requerido del de investigación
+            document.getElementById('fechaRango_1').removeAttribute('required');
+            
+            // Hacer requeridos los formativos (solo los 6 fechaRango principales)
+            for (let i = 1; i <= 6; i++) {
+                const input = entregablesFormativos.querySelector(`#fechaRango_${i}`);
+                if (input) {
+                    input.setAttribute('required', 'required');
+                }
+            }
+        }
+    }
+    
+    // Ejecutar al cargar y al cambiar
+    actualizarEntregables();
+    tipoSelect.addEventListener('change', actualizarEntregables);
+});
 
