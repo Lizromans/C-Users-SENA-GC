@@ -1319,12 +1319,25 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     gap: clamp(12px, 2vw, 24px);
 }
 
-/* ====== GRID DE ENTREGABLES: 2 COLUMNAS, 3 FILAS ====== */
+/* ========== CONTENEDOR PRINCIPAL DE ENTREGABLES ========== */
 #entregables-container {
+    display: block;
+    width: 100%;
+    counter-reset: entregable-counter; /* Para numeración automática */
+}
+
+/* ========== LAYOUT GRID DE ENTREGABLES ========== */
+/* Entregable único para Sennova/Capacidad (investigación) */
+.entregable-investigacion {
+    grid-column: 1 / -1; /* Ocupa todo el ancho */
+    width: 100%;
+}
+
+/* Grid de entregables formativos: 2 columnas, múltiples filas */
+.entregables-formativos {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: clamp(15px, 2vh, 25px);
-    margin-bottom: clamp(12px, 2vh, 18px);
+    gap: clamp(15px, 2.5vw, 20px);
 }
 
 .entregable-item {
