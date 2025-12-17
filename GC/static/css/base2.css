@@ -222,7 +222,7 @@ body {
 /* =====NOTIFICACIONES ======= */
 .notification-icon {
     position: relative;
-    font-size: clamp(1.2rem, 2vw, 2rem);
+    font-size: clamp(1.3rem, 2vw, 2.1rem);
     color: var(--color-text-primary);
     cursor: pointer;
     margin-right: clamp(10px, 2vw, 20px);
@@ -321,7 +321,10 @@ body {
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 9999;
-    overflow: hidden;
+    
+    display: flex;
+    flex-direction: column; /* ← IMPORTANTÍSIMO */
+    overflow: hidden;  
 }
 
 .notification-dropdown.show {
@@ -368,8 +371,8 @@ body {
 
 /* =====LISTA======= */
 .notification-body {
-    max-height: clamp(300px, 50vh, 450px);
-    overflow-y: auto;
+    flex: 1;                     /* ← ocupa todo el espacio disponible */
+    overflow-y: auto;            /* ← SOLO la lista hace scroll */
     padding: 0;
 }
 
@@ -431,7 +434,7 @@ body {
 /* =====ICONOS DE TIPO======= */
 .notification-icon-type {
     flex-shrink: 0;
-    width: clamp(32px, 4.5vw, 48px);
+    width: clamp(32px, 4.5vw, 48px)!important;
     height: clamp(32px, 4.5vw, 48px);
     border-radius: 50%;
     display: flex;
@@ -1284,6 +1287,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin-right: 0 !important;
 }
 
+
 /* ======= DRAWER ======= */
 /* Overlay oscuro de fondo */
 .notifications-drawer-overlay {
@@ -1554,4 +1558,5 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     border-color: var(--color-nav-active);
     color: var(--color-nav-active);
 }
+
 
