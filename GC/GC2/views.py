@@ -55,6 +55,7 @@ from django.db.models import Value, CharField, F, Q, DateTimeField
 from django.db.models.functions import Cast
 from itertools import chain
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -770,7 +771,6 @@ def home(request):
 @login_required
 def perfil(request):
     cedula = request.session.get('cedula')
-    
     try:
         usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
@@ -830,7 +830,9 @@ def perfil(request):
     semilleros = usuario.semilleros.all()
     total_semilleros = semilleros.count()
 
-    proyectos = usuario.proyectos.all()
+    proyectos = SemilleroProyecto.objects.filter(
+        cod_pro__usuarios=usuario
+    ).select_related('id_sem', 'cod_pro')
     total_proyectos = proyectos.count()
 
     context = {
@@ -878,7 +880,42 @@ def semilleros(request):
         return redirect('iniciarsesion')
     
     semilleros = usuario.semilleros.all()
+
+    # Búsqueda por texto
+    buscar = request.GET.get("buscar")
+    if buscar:
+        semilleros = semilleros.filter(
+            Q(cod_sem__icontains=buscar) |
+            Q(sigla__icontains=buscar) |
+            Q(nombre__icontains=buscar)
+        )
+
+    # Filtro por rango de fechas
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
     
+    if fecha_inicio:
+        fecha_inicio_parsed = parse_date(fecha_inicio)
+        if fecha_inicio_parsed:
+            semilleros = semilleros.filter(fecha_creacion__gte=fecha_inicio_parsed)
+    
+    if fecha_fin:
+        fecha_fin_parsed = parse_date(fecha_fin)
+        if fecha_fin_parsed:
+            semilleros = semilleros.filter(fecha_creacion__lte=fecha_fin_parsed)
+
+    # Ordenamiento
+    ordenar = request.GET.get("ordenar", "")
+    if ordenar == "recientes":
+        semilleros = semilleros.order_by("-fecha_creacion")
+    elif ordenar == "antiguos":
+        semilleros = semilleros.order_by("fecha_creacion")
+    elif ordenar == "az":
+        semilleros = semilleros.order_by("nombre")
+    elif ordenar == "za":
+        semilleros = semilleros.order_by("-nombre")
+    
+    # Cálculos adicionales para cada semillero
     for semillero in semilleros:
         # Calcular y actualizar progreso
         actualizar_progreso_semillero(semillero)
@@ -2954,6 +2991,12 @@ def miembros(request):
         usuario_sel = Usuario.objects.filter(cedula=miembro_id).first()
         if usuario_sel:
             tipo_miembro = 'usuario'
+            proyectos = SemilleroProyecto.objects.filter(
+                cod_pro__usuarioproyecto__cedula=usuario_sel
+            ).select_related(
+                'id_sem',
+                'cod_pro'
+            ).distinct()
             miembro_seleccionado = {
                 'id': usuario_sel.cedula,
                 'cedula': usuario_sel.cedula,
@@ -2969,7 +3012,7 @@ def miembros(request):
                 'imagen_perfil': usuario_sel.imagen_perfil,
                 'estado': usuario_sel.estado,
                 'semilleros': usuario_sel.semilleros.all(),
-                'proyectos': usuario_sel.proyectos.all(),
+                'proyectos': proyectos,
             }
         else:
             aprendiz_sel = Aprendiz.objects.filter(cedula_apre=miembro_id).first()
@@ -3007,6 +3050,12 @@ def miembros(request):
                     else:
                         numero_visible = "**********"
 
+                    proyectos = SemilleroProyecto.objects.filter(
+                        cod_pro__proyectoaprendiz__cedula_apre=aprendiz_sel
+                    ).select_related(
+                        'id_sem',
+                        'cod_pro'
+                    ).distinct() 
                 miembro_seleccionado = {
                     'id': aprendiz_sel.cedula_apre,
                     'cedula': aprendiz_sel.cedula_apre,
@@ -3023,7 +3072,7 @@ def miembros(request):
                     'rol': 'Aprendiz',
                     'estado': aprendiz_sel.estado_apre,
                     'semilleros': [aprendiz_sel.id_sem] if aprendiz_sel.id_sem else [],
-                    'proyectos': Proyecto.objects.filter(proyectoaprendiz__cedula_apre=aprendiz_sel).distinct(),
+                    'proyectos': proyectos,
                 }
 
     contexto = {

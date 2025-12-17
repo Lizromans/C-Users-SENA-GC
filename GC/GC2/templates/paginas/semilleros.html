@@ -28,29 +28,69 @@
             <h1 class="titulo">Semilleros</h1>
         </div>
         
-        <div class="buscador">
+        <form method="GET" class="buscador">
             <div class="input-group">
-                <input type="text" class="form-control" placeholder="Buscar semillero..." aria-label="Buscar semillero" aria-describedby="button-search">
-                <button class="btn btn-primary" type="button" id="button-search">
+                <input type="text" 
+                    class="form-control" 
+                    name="buscar"
+                    placeholder="Buscar semillero..." 
+                    aria-label="Buscar semillero"
+                    value="{{ request.GET.buscar }}">
+                
+                <button class="btn btn-primary" type="submit" id="button-search">
                     <i class="fa fa-search"></i>
                 </button>
             </div>
+            
             <div class="filtros">
-                <select class="form-select" aria-label="Filtrar por categoría">
-                    <option selected>Filtrar por categoría</option>
-                    {% for categoria in categorias %}
-                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-                    {% endfor %}
-                </select>
-                <select class="form-select" aria-label="Ordenar por">
-                    <option selected>Ordenar por</option>
-                    <option value="1">Más recientes</option>
-                    <option value="2">Más antiguos</option>
-                    <option value="3">A-Z</option>
-                    <option value="4">Z-A</option>
+                <input type="date" 
+                    class="date" 
+                    name="fecha_inicio"
+                    value="{{ request.GET.fecha_inicio }}"
+                    placeholder="Fecha inicio"
+                    aria-label="Fecha inicio">
+                
+                <input type="date" 
+                    class="date" 
+                    name="fecha_fin"
+                    value="{{ request.GET.fecha_fin }}"
+                    placeholder="Fecha fin"
+                    aria-label="Fecha fin">
+                
+                <select class="form-select" 
+                        name="ordenar"
+                        aria-label="Ordenar por"
+                        onchange="this.form.submit()">
+
+                    <option value="">Ordenar por</option>
+                    <option value="recientes"
+                        {% if request.GET.ordenar == "recientes" %}selected{% endif %}>
+                        Más recientes
+                    </option>
+                    <option value="antiguos"
+                        {% if request.GET.ordenar == "antiguos" %}selected{% endif %}>
+                        Más antiguos
+                    </option>
+                    <option value="az"
+                        {% if request.GET.ordenar == "az" %}selected{% endif %}>
+                        A-Z
+                    </option>
+                    <option value="za"
+                        {% if request.GET.ordenar == "za" %}selected{% endif %}>
+                        Z-A
+                    </option>
                 </select>
             </div>
-        </div>
+            
+            <div class="botones-item">
+                <button type="button" class="limpiar">
+                    <i class="fa fa-filter"></i> Aplicar filtros
+                </button>
+                <button type="button" class="limpiar" onclick="window.location.href='{% url 'semilleros' %}'">
+                    <i class="fas fa-sync-alt"></i> Limpiar filtros
+                </button>
+            </div>
+        </form>
         
         <div class="contenedor-semillero">
             <div class="header-semilleros">

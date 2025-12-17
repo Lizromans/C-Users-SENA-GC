@@ -172,7 +172,10 @@
                     <tbody>
                         {% for miembro in miembros %}
                         <tr>
-                            <td class="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</td>
+                            <td class="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}
+                                    {% if miembro.id|stringformat:"s" == usuario.cedula|stringformat:"s" %}
+                                        (Yo)
+                                    {% endif %}</td>
                             <td>{{ miembro.correo_sena }}</td>
                             <td>{{ miembro.celular }}</td>
                             <td>{{ miembro.rol }}</td>
@@ -224,7 +227,12 @@
                                 </span>
                             </div>
                             <div class="card-body">
-                                <h5 id="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}</h5>
+                                <h5 id="nombre">
+                                    {{ miembro.nombres }} {{ miembro.apellidos }}
+                                    {% if miembro.id|stringformat:"s" == usuario.cedula|stringformat:"s" %}
+                                        (Yo)
+                                    {% endif %}
+                                </h5>
                                 <p id="correo">{{ miembro.correo_sena }}</p>
                                 <p id="celular">{{ miembro.celular }}</p>
                             </div>
@@ -459,8 +467,10 @@
                             <div class="perfil-info-grid">
                                 {% for semillero in miembro_seleccionado.semilleros %}
                                     <div class="perfil-campo">
-                                        <input type="text" class="perfil-input-readonly" readonly
-                                            value="{{ semillero.sigla }} - {{ semillero.nombre }}">
+                                        <a href="{% url 'resumen' semillero.id_sem %}"
+                                        class="perfil-input-readonly perfil-link">
+                                            {{ semillero.sigla }}
+                                        </a>
                                     </div>
                                 {% empty %}
                                     <p class="perfil-sin-datos">No está asociado a ningún semillero.</p>
@@ -476,13 +486,19 @@
                             </div>
                             <hr class="perfil-hr-proyectos">
                             <div class="perfil-info-grid">
-                                {% for proyecto in miembro_seleccionado.proyectos %}
+                                {% for sp in miembro_seleccionado.proyectos %}
                                     <div class="perfil-campo">
-                                        <input type="text" class="perfil-input-readonly" readonly
-                                            value="{{ proyecto.nom_pro }}">
+                                        <a href="{% url 'detalle-proyecto' sp.id_sem.id_sem sp.cod_pro.cod_pro %}"
+                                        class="perfil-input-readonly perfil-link">
+
+                                            {{ sp.cod_pro.nom_pro }}
+
+                                        </a>
                                     </div>
                                 {% empty %}
-                                    <p class="perfil-sin-datos">No está asociado a ningún proyecto.</p>
+                                    <p class="perfil-sin-datos">
+                                        No está asociado a ningún proyecto.
+                                    </p>
                                 {% endfor %}
                             </div>
                         </div>

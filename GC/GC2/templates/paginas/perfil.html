@@ -146,7 +146,9 @@
                     <div class="info-group2">
                         {% for semillero in semilleros %}
                         <div class="info">
-                            <input type="text" value="{{ semillero.sigla }}" disabled>
+                            <a href="{% url 'resumen' semillero.id_sem %}" class="input-fake">
+                                {{ semillero.sigla }}
+                            </a>
                         </div>
                         {% empty %}
                         <p>No estás asociado a ningún semillero.</p>
@@ -163,7 +165,10 @@
                     <div class="info-group2">
                         {% for proyecto in proyectos %}
                         <div class="info">
-                            <textarea disabled>{{ proyecto.nom_pro }}</textarea>
+                            <a href="{% url 'detalle-proyecto' proyecto.id_sem.id_sem proyecto.cod_pro.cod_pro %}"
+                                class="textarea-fake">
+                                {{ proyecto.cod_pro.nom_pro }}
+                            </a>
                         </div>
                         {% empty %}
                         <p>No estás asociado a ningún proyecto.</p>
