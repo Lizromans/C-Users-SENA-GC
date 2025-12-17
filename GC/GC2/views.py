@@ -1658,7 +1658,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
             tipo_seleccionado = proyecto_sel.tipo.lower()
 
     proyectos_sennova = list(proyectos.filter(tipo__iexact="sennova"))
-    proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidad instalada"))
+    proyectos_capacidad = list(proyectos.filter(tipo__iexact="capacidadinstalada"))
     proyectos_formativos = list(proyectos.filter(tipo__iexact="formativo"))
 
     for proyecto in proyectos_sennova + proyectos_capacidad + proyectos_formativos:
@@ -2007,7 +2007,20 @@ def crear_proyecto(request, id_sem):
                 messages.error(request, 'Debe ingresar el programa de formación para un proyecto formativo.')
                 return redirect('resu-proyectos', id_sem=id_sem)
 
-
+            # Capturar datos de categorías para Sennova/Capacidad
+            desc_entre_personalizada = None
+            
+            if tipo in ["sennova", "capacidadinstalada"]:
+                categoria_principal = request.POST.get('categoria_principal')
+                subcategorias_json = request.POST.get('subcategorias_json')
+                
+                if categoria_principal and subcategorias_json:
+                    from .forms import construir_descripcion_entregable
+                    desc_entre_personalizada = construir_descripcion_entregable(
+                        categoria_principal, 
+                        subcategorias_json
+                    )
+                    
             # Crear proyecto
             ultimo_proyecto = Proyecto.objects.order_by('-cod_pro').first()
             nuevo_cod_pro = ultimo_proyecto.cod_pro + 1 if ultimo_proyecto else 1
@@ -2071,8 +2084,8 @@ def crear_proyecto(request, id_sem):
 
                 Entregable.objects.create(
                     cod_entre=base_cod + 1,
-                    nom_entre="Resultados y Productos de Investigación",
-                    desc_entre=None,
+                    nom_entre="Resultados",
+                    desc_entre=desc_entre_personalizada,
                     estado="Pendiente",
                     fecha_inicio=fecha_inicio,
                     fecha_fin=fecha_fin,
@@ -2701,7 +2714,7 @@ def detalle_proyecto(request, id_sem, cod_pro):
     
     # ==================== SEPARAR PROYECTOS POR TIPO ====================
     proyectos_sennova = list(proyectos.filter(tipo__iexact="Sennova"))
-    proyectos_capacidad = list(proyectos.filter(tipo__iexact="Capacidad Instalada"))
+    proyectos_capacidad = list(proyectos.filter(tipo__iexact="CapacidadInstalada"))
     proyectos_formativos = list(proyectos.filter(tipo__iexact="Formativo"))
     
     # ==================== PROCESAR MIEMBROS DE CADA PROYECTO ====================
@@ -2758,7 +2771,7 @@ def detalle_proyecto(request, id_sem, cod_pro):
     
     # ==================== CONTEXTO ====================
     context = {
-        'current_page': 'detalle_proyectos',
+        'current_page': 'resu_proyectos',
         'current_page_name': 'Detalle Proyecto',
         'usuario': usuario,
         'semillero': semillero,
