@@ -56,6 +56,7 @@ from django.db.models.functions import Cast
 from itertools import chain
 from django.urls import reverse
 from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date
 from .notifications import (obtener_notificaciones_usuario, obtener_notificaciones_con_resumen)
 from django.views.decorators.http import require_http_methods
 
