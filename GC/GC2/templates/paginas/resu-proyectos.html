@@ -1197,9 +1197,14 @@
                             <i class="fas fa-clipboard-check"></i>
                             <h6>Entregables del Proyecto</h6>
                         </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            Es necesario seleccionar el tipo de proyecto previamente, con el fin de visualizar los entregables correspondientes.
+                        </small>
                         <hr class="modal-hr modal-hr-terciario">
                         
                         <div id="entregables-container">
+                            
                             <!-- Entregable para Sennova/Capacidad Instalada (inicialmente oculto) -->
                             <div class="entregable-item entregable-investigacion" style="display: none;" data-obligatorio="true">
                                 <div class="modal-campo">
@@ -1208,7 +1213,7 @@
                                         <span class="badge-obligatorio">Obligatorio</span>
                                     </label>
                                     <p class="descripcion-entregable">
-                                        Resultados y productos de investigación
+                                        Resultados y productos de investigación conforme a los parámetros de Minciencias.
                                     </p>
                                     <div class="calendar-container">
                                         <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_1')"></i>
@@ -1217,14 +1222,14 @@
                                             id="fechaRango_1" 
                                             placeholder="Selecciona rango de fechas" 
                                             readonly>
-                                        <input type="hidden" name="fecha_inicio_1" id="fecha_inicio_1">
-                                        <input type="hidden" name="fecha_fin_1" id="fecha_fin_1">
+                                        <input type="hidden" name="fecha_inicio_7" id="fecha_inicio_7">
+                                        <input type="hidden" name="fecha_fin_7" id="fecha_fin_7">
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Entregables para Formativos (inicialmente visibles) -->
-                            <div class="entregables-formativos">
+                            <div class="formativos" style="display:none">
                                 <!-- Entregable 1: Formalización de Proyecto -->
                                 <div class="entregable-item" data-obligatorio="true">
                                     <div class="modal-campo">

@@ -2049,7 +2049,6 @@ def crear_proyecto(request, id_sem):
 
             if tipo in ["sennova", "capacidadinstalada"]:
                 # UN SOLO ENTREGABLE para Sennova y Capacidad Instalada
-                desc_entre = request.POST.get("desc_entre")
                 fecha_inicio_str = request.POST.get('fecha_inicio_1')
                 fecha_fin_str = request.POST.get('fecha_fin_1')
 
@@ -2073,7 +2072,7 @@ def crear_proyecto(request, id_sem):
                 Entregable.objects.create(
                     cod_entre=base_cod + 1,
                     nom_entre="Resultados y Productos de Investigación",
-                    desc_entre=desc_entre,
+                    desc_entre=None,
                     estado="Pendiente",
                     fecha_inicio=fecha_inicio,
                     fecha_fin=fecha_fin,
