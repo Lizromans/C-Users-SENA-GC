@@ -311,7 +311,7 @@ input[type="text"]:focus, input[type="num"]:focus, select:focus {
     gap: 10px;
 }
 
-input[disabled]{
+.input-fake {
     background-color: #38a90071;
     border: 2px solid #39A900;
     border-radius: 10px;
@@ -320,16 +320,18 @@ input[disabled]{
     font-weight: 600;
     cursor: pointer;
     text-align: center;
+    text-decoration: none;
+    padding: clamp(6px, 1.2vw, 12px) clamp(10px, 2vw, 20px);
 }
 
-input[disabled]:hover{
+.input-fake:hover{
     background-color: #39A900;
     color: var(--color-nav-hover);
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
-textarea[disabled]{
+.textarea-fake {
     background-color: #38a90071;
     border: 2px solid #39A900;
     border-radius: 10px;
@@ -338,11 +340,12 @@ textarea[disabled]{
     font-weight: 600;
     cursor: pointer;
     text-align: center;
-    resize: none; /* Evita que el usuario cambie el tamaño del textarea */
-    padding: 2% 11% 2% 11%; /* Espaciado interno */
+    resize: none;
+    padding: 2% 11% 2% 11%;
+    text-decoration: none;
 }
 
-textarea[disabled]:hover{
+.textarea-fake:hover{
     background-color: #39A900;
     color: var(--color-nav-hover);
     transform: translateY(-2px);

@@ -1190,6 +1190,7 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     cursor: pointer;
     text-align: center;
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 
 .perfil-input-readonly:hover {
