@@ -356,4 +356,6 @@ class AprendizForm(forms.ModelForm):
             aprendiz.save()
         
         return aprendiz
+    
+class
 
