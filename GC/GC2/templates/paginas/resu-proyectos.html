@@ -327,26 +327,6 @@
                                                             {% endif %}
                                                         </div>
                                                     {% endif %}
-
-                                                    <!-- Modal para subir archivos -->
-                                                    <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
-                                                        <div class="modal-cont">
-                                                            <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento</h3>
-                                                            <p>Selecciona un archivo para adjuntar al entregable:</p>
-
-                                                            <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
-                                                                method="post" enctype="multipart/form-data">
-                                                                {% csrf_token %}
-                                                                <input type="file" name="archivo" multiple required>
-                                                                <div class="modal-botones">
-                                                                    <button type="submit" class="btn-confirmar">
-                                                                        <i class="fas fa-upload"></i> Subir
-                                                                    </button>
-                                                                    <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">Cancelar</a>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </div>
                                             {% endfor %}
@@ -655,28 +635,7 @@
                                                             {% endif %}
                                                         </div>
                                                     {% endif %}
-
-                                                    <!-- Modal para subir archivos -->
-                                                    <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
-                                                        <div class="modal-cont">
-                                                            <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento</h3>
-                                                            <p>Selecciona un archivo para adjuntar al entregable:</p>
-
-                                                            <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
-                                                                method="post" enctype="multipart/form-data">
-                                                                {% csrf_token %}
-                                                                <input type="file" name="archivo" required>
-                                                                <div class="modal-botones">
-                                                                    {% if proyecto.estado_pro != "desactivado" %}
-                                                                        <button type="submit" class="btn-confirmar">
-                                                                            <i class="fas fa-upload"></i> Subir
-                                                                        </button>
-                                                                    {% endif %}
-                                                                    <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">Cancelar</a>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                             {% endfor %}
@@ -1209,17 +1168,17 @@
                             <div class="entregable-item entregable-investigacion" style="display: none;" data-obligatorio="true">
                                 <div class="modal-campo">
                                     <label for="entregable_investigacion">
-                                        Resultados y Productos de Investigación *
+                                        Resultados *
                                         <span class="badge-obligatorio">Obligatorio</span>
                                     </label>
                                     <p class="descripcion-entregable">
                                         Resultados y productos de investigación conforme a los parámetros de Minciencias.
                                     </p>
                                     <div class="calendar-container">
-                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_1')"></i>
+                                        <i class="fa-solid fa-calendar-days" onclick="abrirCalendario('fechaRango_investigacion')"></i>
                                         <input type="text" 
-                                            name="fecha_entregable_1" 
-                                            id="fechaRango_1" 
+                                            name="fecha_entregable_investigacion" 
+                                            id="fechaRango_investigacion" 
                                             placeholder="Selecciona rango de fechas" 
                                             readonly>
                                         <input type="hidden" name="fecha_inicio_7" id="fecha_inicio_7">
@@ -1835,6 +1794,217 @@
     </div>
     {% endif %}
 
+    {% for proyecto in proyectos_sennova %}
+        {% for entregable in proyecto.entregable_set.all %}
+        <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
+            <div class="modal-cont modal-cont-categorizado">
+                <a href="#" class="modal-cerrar">&times;</a>
+                
+                <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento al entregable</h3>
+                <p class="modal-descripcion">
+                    <strong>Proyecto:</strong> {{ proyecto.nom_pro }}<br>
+                    <strong>Entregable:</strong> {{ entregable.nom_entre }}
+                </p>
+
+                <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
+                    method="post" 
+                    enctype="multipart/form-data"
+                    id="form-subir-{{ entregable.cod_entre }}">
+                    {% csrf_token %}
+                    
+                    <!-- ✅ CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
+                    {% if proyecto.tipo|lower == 'sennova' or proyecto.tipo|lower == 'capacidadinstalada' or proyecto.tipo|lower == 'capacidad instalada' %}
+                    <div class="seccion-categorizacion">
+                        <h6 class="seccion-titulo">
+                            <i class="fas fa-tags"></i> Categoría del Producto Minciencias
+                        </h6>
+                        <hr class="separador">
+                        
+                        <div class="campo-formulario">
+                            <label for="categoria_principal_{{ entregable.cod_entre }}">
+                                Categoría de Producto *
+                            </label>
+                            <select name="categoria_principal" 
+                                    id="categoria_principal_{{ entregable.cod_entre }}"
+                                    class="form-select"
+                                    required
+                                    onchange="actualizarProductos{{ entregable.cod_entre }}(this.value)">
+                                <option value="" disabled selected>Seleccione una categoría...</option>
+                                <option value="tipo1">Tipo 1: Generación de Nuevo Conocimiento</option>
+                                <option value="tipo2">Tipo 2: Desarrollo Tecnológico e Innovación</option>
+                                <option value="tipo3">Tipo 3: Apropiación Social del Conocimiento</option>
+                                <option value="tipo4">Tipo 4: Divulgación Pública de la Ciencia</option>
+                                <option value="tipo5">Tipo 5: Formación de Recurso Humano en CTeI</option>
+                            </select>
+                        </div>
+
+                        <div id="productos-container-{{ entregable.cod_entre }}" class="productos-container" style="display: none;">
+                            <div class="campo-formulario">
+                                <label for="producto_especifico_{{ entregable.cod_entre }}">
+                                    Producto Específico *
+                                </label>
+                                <select name="producto_especifico"
+                                        id="producto_especifico_{{ entregable.cod_entre }}"
+                                        class="form-select"
+                                        required
+                                        onchange="actualizarSubcategorias{{ entregable.cod_entre }}(this.value)">
+                                    <option value="" disabled selected>Primero seleccione una categoría</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="subcategorias-container-{{ entregable.cod_entre }}" class="subcategorias-container"></div>
+                        <input type="hidden" name="subcategorias_json" id="subcategorias_json_{{ entregable.cod_entre }}">
+                    </div>
+                    {% endif %}
+
+                    <!-- ✅ SECCIÓN DE ARCHIVOS (para todos los tipos) -->
+                    <div class="seccion-archivos">
+                        <h6 class="seccion-titulo">
+                            <i class="fas fa-paperclip"></i> Archivos Adjuntos
+                        </h6>
+                        <hr class="separador">
+                        
+                        <div class="campo-formulario">
+                            <label for="archivo_{{ entregable.cod_entre }}">
+                                Seleccionar archivos *
+                            </label>
+                            <input type="file" 
+                                name="archivo" 
+                                id="archivo_{{ entregable.cod_entre }}"
+                                multiple 
+                                required
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png">
+                            <small class="texto-ayuda">
+                                <i class="fas fa-info-circle"></i>
+                                Formatos permitidos: PDF, Word, Excel, PowerPoint, imágenes
+                            </small>
+                        </div>
+
+                        <div id="preview-archivos-{{ entregable.cod_entre }}" class="preview-archivos"></div>
+                    </div>
+
+                    <!-- ✅ BOTONES DE ACCIÓN -->
+                    <div class="modal-botones">
+                        <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn-confirmar">
+                            <i class="fas fa-upload"></i> Subir
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Capacidad Instalada -->
+    {% for proyecto in proyectos_capacidad %}
+        {% for entregable in proyecto.entregable_set.all %}
+        <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
+            <div class="modal-cont modal-cont-categorizado">
+                <a href="#" class="modal-cerrar">&times;</a>
+                
+                <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento al entregable</h3>
+                <p class="modal-descripcion">
+                    <strong>Proyecto:</strong> {{ proyecto.nom_pro }}<br>
+                    <strong>Entregable:</strong> {{ entregable.nom_entre }}
+                </p>
+
+                <form action="{% url 'subir_archivo_entregable' semillero.id_sem proyecto.cod_pro entregable.cod_entre %}"
+                    method="post" 
+                    enctype="multipart/form-data"
+                    id="form-subir-{{ entregable.cod_entre }}">
+                    {% csrf_token %}
+                    
+                    <!-- ✅ CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
+                    {% if proyecto.tipo|lower == 'sennova' or proyecto.tipo|lower == 'capacidadinstalada' or proyecto.tipo|lower == 'capacidad instalada' %}
+                    <div class="seccion-categorizacion">
+                        <h6 class="seccion-titulo">
+                            <i class="fas fa-tags"></i> Categoría del Producto Minciencias
+                        </h6>
+                        <hr class="separador">
+                        
+                        <div class="campo-formulario">
+                            <label for="categoria_principal_{{ entregable.cod_entre }}">
+                                Categoría de Producto *
+                            </label>
+                            <select name="categoria_principal" 
+                                    id="categoria_principal_{{ entregable.cod_entre }}"
+                                    class="form-select"
+                                    required
+                                    onchange="actualizarProductos{{ entregable.cod_entre }}(this.value)">
+                                <option value="" disabled selected>Seleccione una categoría...</option>
+                                <option value="tipo1">Tipo 1: Generación de Nuevo Conocimiento</option>
+                                <option value="tipo2">Tipo 2: Desarrollo Tecnológico e Innovación</option>
+                                <option value="tipo3">Tipo 3: Apropiación Social del Conocimiento</option>
+                                <option value="tipo4">Tipo 4: Divulgación Pública de la Ciencia</option>
+                                <option value="tipo5">Tipo 5: Formación de Recurso Humano en CTeI</option>
+                            </select>
+                        </div>
+
+                        <div id="productos-container-{{ entregable.cod_entre }}" class="productos-container" style="display: none;">
+                            <div class="campo-formulario">
+                                <label for="producto_especifico_{{ entregable.cod_entre }}">
+                                    Producto Específico *
+                                </label>
+                                <select name="producto_especifico"
+                                        id="producto_especifico_{{ entregable.cod_entre }}"
+                                        class="form-select"
+                                        required
+                                        onchange="actualizarSubcategorias{{ entregable.cod_entre }}(this.value)">
+                                    <option value="" disabled selected>Primero seleccione una categoría</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="subcategorias-container-{{ entregable.cod_entre }}" class="subcategorias-container"></div>
+                        <input type="hidden" name="subcategorias_json" id="subcategorias_json_{{ entregable.cod_entre }}">
+                    </div>
+                    {% endif %}
+
+                    <!-- ✅ SECCIÓN DE ARCHIVOS -->
+                    <div class="seccion-archivos">
+                        <h6 class="seccion-titulo">
+                            <i class="fas fa-paperclip"></i> Archivos Adjuntos
+                        </h6>
+                        <hr class="separador">
+                        
+                        <div class="campo-formulario">
+                            <label for="archivo_{{ entregable.cod_entre }}">
+                                Seleccionar archivos *
+                            </label>
+                            <input type="file" 
+                                name="archivo" 
+                                id="archivo_{{ entregable.cod_entre }}"
+                                multiple 
+                                required
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png">
+                            <small class="texto-ayuda">
+                                <i class="fas fa-info-circle"></i>
+                                Formatos permitidos: PDF, Word, Excel, PowerPoint, imágenes
+                            </small>
+                        </div>
+
+                        <div id="preview-archivos-{{ entregable.cod_entre }}" class="preview-archivos"></div>
+                    </div>
+
+                    <!-- ✅ BOTONES DE ACCIÓN -->
+                    <div class="modal-botones">
+                        <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn-confirmar">
+                            <i class="fas fa-upload"></i> Subir
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% endfor %}
+
     {% if proyecto_editar %}
     <script>
     // Función para obtener el token CSRF
@@ -2094,6 +2264,399 @@
             history.pushState(null, "", baseUrl);
         }
     </script>
+<script>
+// ==================== ESTRUCTURA DE CATEGORÍAS ====================
+const estructuraCategorias = {
+    tipo1: {
+        titulo: 'Tipo 1: Generación de Nuevo Conocimiento',
+        productos: [
+            { 
+                valor: 'articulos_investigacion', 
+                texto: 'Artículos de investigación',
+                subcategorias: []
+            },
+            { 
+                valor: 'libros_investigacion', 
+                texto: 'Libros resultados de investigación',
+                subcategorias: []
+            },
+            { 
+                valor: 'libros_formacion', 
+                texto: 'Libros de Formación',
+                subcategorias: [
+                    { 
+                        tipo: 'select', 
+                        nombre: 'tipo_libro', 
+                        label: 'Tipo de libro', 
+                        opciones: [
+                            'Libros de texto',
+                            'Manuales y guías de aprendizaje',
+                            'Materiales educativos',
+                            'Libros sobre metodologías',
+                            'Otro'
+                        ]
+                    }
+                ]
+            },
+            {
+                valor: 'capitulos_libro',
+                texto: 'Capítulos en libro resultado de investigación',
+                subcategorias: [
+                    { 
+                        tipo: 'select', 
+                        nombre: 'medio_publicacion', 
+                        label: 'Medio de publicación', 
+                        opciones: ['Digital', 'Papel']
+                    }
+                ]
+            },
+            { 
+                valor: 'productos_patentados', 
+                texto: 'Productos tecnológicos patentados',
+                subcategorias: []
+            }
+        ]
+    },
+    
+    tipo2: {
+        titulo: 'Tipo 2: Desarrollo Tecnológico e Innovación',
+        productos: [
+            {
+                valor: 'disenos_industriales',
+                texto: 'Diseños industriales',
+                subcategorias: [
+                    { 
+                        tipo: 'select', 
+                        nombre: 'tiene_proteccion', 
+                        label: 'El producto tiene', 
+                        opciones: ['Registro', 'Patente', 'Secreto empresarial', 'Ninguno']
+                    }
+                ]
+            },
+            {
+                valor: 'software',
+                texto: 'Software',
+                subcategorias: [
+                    { 
+                        tipo: 'select', 
+                        nombre: 'tipo_software', 
+                        label: 'Tipo', 
+                        opciones: ['Computacional', 'Multimedia', 'Otra']
+                    },
+                    { 
+                        tipo: 'select', 
+                        nombre: 'disponibilidad', 
+                        label: 'Disponibilidad', 
+                        opciones: ['Restringido', 'No restringido']
+                    },
+                    { 
+                        tipo: 'select', 
+                        nombre: 'tiene_proteccion', 
+                        label: 'El software tiene', 
+                        opciones: ['Registro', 'Patente', 'Secreto empresarial', 'Ninguno']
+                    }
+                ]
+            }
+        ]
+    },
+    
+    tipo3: {
+        titulo: 'Tipo 3: Apropiación Social del Conocimiento',
+        productos: [
+            { 
+                valor: 'procesos_asc_social', 
+                texto: 'Procesos ASC para fortalecimiento social',
+                subcategorias: []
+            }
+        ]
+    },
+    
+    tipo4: {
+        titulo: 'Tipo 4: Divulgación Pública de la Ciencia',
+        productos: [
+            {
+                valor: 'eventos_cientificos',
+                texto: 'Eventos científicos',
+                subcategorias: [
+                    { 
+                        tipo: 'checkbox', 
+                        nombre: 'rol', 
+                        label: 'Rol', 
+                        opciones: ['Ponente magistral', 'Ponente', 'Organizador']
+                    }
+                ]
+            }
+        ]
+    },
+    
+    tipo5: {
+        titulo: 'Tipo 5: Formación de Recurso Humano',
+        productos: [
+            {
+                valor: 'trabajos_dirigidos',
+                texto: 'Trabajos dirigidos',
+                subcategorias: [
+                    { 
+                        tipo: 'select', 
+                        nombre: 'nivel', 
+                        label: 'Tipo', 
+                        opciones: [
+                            'Direcciones de Tesis de doctorado',
+                            'Trabajo de grado de maestría',
+                            'Trabajo de pregrado',
+                            'Monografía de especialización'
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+};
+
+// ==================== GENERAR FUNCIONES PARA CADA ENTREGABLE ====================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Sistema de categorías dinámicas inicializado');
+    
+    // Obtener todos los formularios de subir archivos
+    const formularios = document.querySelectorAll('[id^="form-subir-"]');
+    
+    formularios.forEach(form => {
+        const codEntregable = form.id.replace('form-subir-', '');
+        console.log('📋 Configurando entregable:', codEntregable);
+        
+        // Crear funciones para este entregable
+        crearFuncionesEntregable(codEntregable);
+    });
+});
+
+function crearFuncionesEntregable(codEntregable) {
+    // Función: actualizar productos según categoría
+    window['actualizarProductos' + codEntregable] = function(tipoCategoria) {
+        console.log(`🔄 Actualizando productos para ${codEntregable}, tipo: ${tipoCategoria}`);
+        
+        const selectProducto = document.getElementById('producto_especifico_' + codEntregable);
+        const containerProducto = document.getElementById('productos-container-' + codEntregable);
+        const containerSubcat = document.getElementById('subcategorias-container-' + codEntregable);
+        
+        if (!selectProducto || !tipoCategoria) {
+            console.error('❌ No se encontró el select de producto o no hay tipo');
+            return;
+        }
+        
+        // Limpiar select de productos
+        selectProducto.innerHTML = '<option value="" disabled selected>Seleccione un producto...</option>';
+        
+        // Limpiar subcategorías
+        if (containerSubcat) {
+            containerSubcat.innerHTML = '';
+        }
+        
+        // Obtener productos del tipo seleccionado
+        const estructura = estructuraCategorias[tipoCategoria];
+        if (!estructura) {
+            console.error('❌ No se encontró estructura para:', tipoCategoria);
+            return;
+        }
+        
+        console.log('✅ Productos encontrados:', estructura.productos.length);
+        
+        // Llenar productos
+        estructura.productos.forEach(prod => {
+            const option = document.createElement('option');
+            option.value = prod.valor;
+            option.textContent = prod.texto;
+            selectProducto.appendChild(option);
+        });
+        
+        // Mostrar contenedor de productos
+        if (containerProducto) {
+            containerProducto.style.display = 'block';
+            console.log('✅ Contenedor de productos mostrado');
+        }
+    };
+    
+    // Función: actualizar subcategorías según producto
+    window['actualizarSubcategorias' + codEntregable] = function(valorProducto) {
+        console.log(`🔄 Actualizando subcategorías para ${codEntregable}, producto: ${valorProducto}`);
+        
+        const containerSubcat = document.getElementById('subcategorias-container-' + codEntregable);
+        const selectCategoria = document.getElementById('categoria_principal_' + codEntregable);
+        
+        if (!containerSubcat || !selectCategoria) {
+            console.error('❌ No se encontraron contenedores');
+            return;
+        }
+        
+        // Limpiar subcategorías anteriores
+        containerSubcat.innerHTML = '';
+        
+        // Obtener tipo de categoría actual
+        const tipoCategoria = selectCategoria.value;
+        const estructura = estructuraCategorias[tipoCategoria];
+        if (!estructura) return;
+        
+        // Buscar el producto seleccionado
+        const productoData = estructura.productos.find(p => p.valor === valorProducto);
+        if (!productoData || !productoData.subcategorias || productoData.subcategorias.length === 0) {
+            console.log('ℹ️ No hay subcategorías para este producto');
+            return;
+        }
+        
+        console.log('✅ Subcategorías encontradas:', productoData.subcategorias.length);
+        
+        // Crear campos de subcategorías
+        productoData.subcategorias.forEach(subcat => {
+            const campoDiv = crearCampoSubcategoria(subcat, codEntregable);
+            if (campoDiv) {
+                containerSubcat.appendChild(campoDiv);
+            }
+        });
+        
+        // Actualizar campo oculto JSON
+        actualizarCampoJSON(codEntregable);
+    };
+}
+
+// ==================== FUNCIÓN AUXILIAR: CREAR CAMPO ====================
+function crearCampoSubcategoria(subcategoria, codEntregable) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'campo-formulario';
+    wrapper.style.marginBottom = '15px';
+    
+    const label = document.createElement('label');
+    label.textContent = subcategoria.label;
+    label.style.fontWeight = '500';
+    label.style.display = 'block';
+    label.style.marginBottom = '8px';
+    wrapper.appendChild(label);
+    
+    if (subcategoria.tipo === 'select') {
+        const select = document.createElement('select');
+        select.name = `subcategoria_${subcategoria.nombre}`;
+        select.className = 'form-select';
+        select.dataset.nombre = subcategoria.nombre;
+        select.dataset.codEntregable = codEntregable;
+        
+        // Opción por defecto
+        const optDefault = document.createElement('option');
+        optDefault.value = '';
+        optDefault.textContent = 'Seleccione...';
+        select.appendChild(optDefault);
+        
+        // Opciones
+        subcategoria.opciones.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.textContent = opt;
+            select.appendChild(option);
+        });
+        
+        // Evento change
+        select.addEventListener('change', () => actualizarCampoJSON(codEntregable));
+        
+        wrapper.appendChild(select);
+    }
+    else if (subcategoria.tipo === 'text') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = `subcategoria_${subcategoria.nombre}`;
+        input.className = 'form-control';
+        input.placeholder = subcategoria.placeholder || '';
+        input.dataset.nombre = subcategoria.nombre;
+        input.dataset.codEntregable = codEntregable;
+        
+        // Evento input
+        input.addEventListener('input', () => actualizarCampoJSON(codEntregable));
+        
+        wrapper.appendChild(input);
+    }
+    else if (subcategoria.tipo === 'checkbox') {
+        const checkGroup = document.createElement('div');
+        checkGroup.className = 'checkbox-group';
+        checkGroup.style.display = 'flex';
+        checkGroup.style.flexDirection = 'column';
+        checkGroup.style.gap = '8px';
+        
+        subcategoria.opciones.forEach(opt => {
+            const checkWrapper = document.createElement('label');
+            checkWrapper.style.display = 'flex';
+            checkWrapper.style.alignItems = 'center';
+            checkWrapper.style.gap = '8px';
+            checkWrapper.style.cursor = 'pointer';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = `subcategoria_${subcategoria.nombre}[]`;
+            checkbox.value = opt;
+            checkbox.dataset.nombre = subcategoria.nombre;
+            checkbox.dataset.codEntregable = codEntregable;
+            
+            // Evento change
+            checkbox.addEventListener('change', () => actualizarCampoJSON(codEntregable));
+            
+            const span = document.createElement('span');
+            span.textContent = opt;
+            
+            checkWrapper.appendChild(checkbox);
+            checkWrapper.appendChild(span);
+            checkGroup.appendChild(checkWrapper);
+        });
+        
+        wrapper.appendChild(checkGroup);
+    }
+    
+    return wrapper;
+}
+
+// ==================== FUNCIÓN: ACTUALIZAR JSON OCULTO ====================
+function actualizarCampoJSON(codEntregable) {
+    const datos = {};
+    
+    // Capturar categoría principal
+    const selectPrincipal = document.getElementById(`categoria_principal_${codEntregable}`);
+    if (selectPrincipal && selectPrincipal.value) {
+        datos.categoria = selectPrincipal.value;
+    }
+    
+    // Capturar producto específico
+    const selectProducto = document.getElementById(`producto_especifico_${codEntregable}`);
+    if (selectProducto && selectProducto.value) {
+        datos.producto = selectProducto.value;
+    }
+    
+    // Capturar subcategorías (selects y text)
+    const campos = document.querySelectorAll(`[data-cod-entregable="${codEntregable}"]`);
+    campos.forEach(campo => {
+        if (campo.type === 'checkbox') return; // Los checkboxes se procesan aparte
+        
+        const nombre = campo.dataset.nombre;
+        if (campo.value) {
+            datos[nombre] = campo.value;
+        }
+    });
+    
+    // Capturar checkboxes
+    const checkboxGroups = {};
+    const checkboxes = document.querySelectorAll(`[data-cod-entregable="${codEntregable}"][type="checkbox"]:checked`);
+    checkboxes.forEach(checkbox => {
+        const nombre = checkbox.dataset.nombre;
+        if (!checkboxGroups[nombre]) {
+            checkboxGroups[nombre] = [];
+        }
+        checkboxGroups[nombre].push(checkbox.value);
+    });
+    
+    // Agregar arrays de checkboxes
+    Object.assign(datos, checkboxGroups);
+    
+    // Actualizar campo oculto
+    const inputHidden = document.getElementById(`subcategorias_json_${codEntregable}`);
+    if (inputHidden) {
+        inputHidden.value = JSON.stringify(datos);
+        console.log(`📝 JSON actualizado para ${codEntregable}:`, datos);
+    }
+}
+</script>
     
     
 {% endblock %}

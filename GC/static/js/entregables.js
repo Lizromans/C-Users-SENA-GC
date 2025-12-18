@@ -1,50 +1,38 @@
-// Script para controlar la apertura/cierre de entregables (acordeón) y dropdown de configuración
+// ========================================
+// SISTEMA DE GESTIÓN DE ENTREGABLES
+// ========================================
+
 document.addEventListener('DOMContentLoaded', function() {
     
     // ====== ACORDEÓN DE ENTREGABLES ======
-   
-    // Obtener todos los checkboxes de entregables
     const entregableToggles = document.querySelectorAll('.entregable-toggle');
     
-    // Función para actualizar el estado de los chevrones
     function actualizarChevron(toggle) {
         const label = document.querySelector(`label[for="${toggle.id}"]`);
         const chevron = label?.querySelector('.entregable-chevron, .fa-chevron-down, .fa-chevron-right');
         
         if (chevron) {
-            if (toggle.checked) {
-                chevron.style.transform = 'rotate(180deg)';
-            } else {
-                chevron.style.transform = 'rotate(0deg)';
-            }
+            chevron.style.transform = toggle.checked ? 'rotate(180deg)' : 'rotate(0deg)';
         }
     }
     
-    // Función para cerrar todos los entregables excepto el especificado
     function cerrarTodosEntregables(excepto = null) {
         entregableToggles.forEach(toggle => {
             if (toggle !== excepto) {
                 toggle.checked = false;
-                actualizarChevron(toggle); // Actualizar chevron al cerrar
+                actualizarChevron(toggle);
             }
         });
     }
     
-    // Agregar evento a cada checkbox
     entregableToggles.forEach(toggle => {
         toggle.addEventListener('change', function() {
-            // Si se está abriendo este entregable
             if (this.checked) {
-                // Cerrar todos los demás entregables
                 cerrarTodosEntregables(this);
             }
-            // Actualizar el chevron del entregable actual
             actualizarChevron(this);
         });
-    });
-    
-    // Inicializar estado de chevrones al cargar la página
-    entregableToggles.forEach(toggle => {
+        
         const label = document.querySelector(`label[for="${toggle.id}"]`);
         const chevron = label?.querySelector('.entregable-chevron, .fa-chevron-down, .fa-chevron-right');
         
@@ -54,18 +42,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Función global para cerrar todos los entregables
     window.cerrarTodosEntregables = function() {
         cerrarTodosEntregables();
     };
     
-    
     // ====== DROPDOWN DE CONFIGURACIÓN ======
-    
-    // Obtener todos los checkboxes de dropdown
     const dropdownToggles = document.querySelectorAll('.dropdown-toggle-config');
     
-    // Función para cerrar todos los dropdowns excepto el especificado
     function cerrarTodosDropdowns(excepto = null) {
         dropdownToggles.forEach(toggle => {
             if (toggle !== excepto) {
@@ -74,38 +57,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Agregar evento a cada checkbox de dropdown
     dropdownToggles.forEach(toggle => {
         toggle.addEventListener('change', function() {
-            // Si se está abriendo este dropdown
             if (this.checked) {
-                // Cerrar todos los demás dropdowns
                 cerrarTodosDropdowns(this);
             }
         });
     });
     
-    // Cerrar dropdown al hacer clic fuera
     document.addEventListener('click', function(event) {
         const clickDentroDropdown = event.target.closest('.config-dropdown-wrapper');
-        
-        // Si el clic no fue dentro de ningún dropdown
         if (!clickDentroDropdown) {
             cerrarTodosDropdowns();
         }
     });
     
-    // Prevenir que el clic en el dropdown lo cierre inmediatamente
     document.querySelectorAll('.config-dropdown-wrapper').forEach(wrapper => {
         wrapper.addEventListener('click', function(event) {
             event.stopPropagation();
         });
     });
     
-    // Cerrar dropdown al hacer clic en una opción (excepto si es un enlace con #)
     document.querySelectorAll('.dropdown-item-config').forEach(item => {
         item.addEventListener('click', function(event) {
-            // Si el enlace no es solo un ancla (#), cerrar el dropdown
             if (this.getAttribute('href') !== '#') {
                 const wrapper = this.closest('.config-dropdown-wrapper');
                 const toggle = wrapper?.querySelector('.dropdown-toggle-config');
@@ -115,9 +89,106 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // ========================================
+    // MOSTRAR/OCULTAR ENTREGABLES SEGÚN TIPO DE PROYECTO
+    // (Solo para modal de CREAR proyecto - sin categorización)
+    // ========================================
+    
+    const tipoSelect = document.getElementById('tipo');
+    const contenedor = document.getElementById('entregables-container');
+    const entregableInvestigacion = document.querySelector('.entregable-investigacion');
+    const entregablesFormativos = document.querySelector('.formativos');
+    
+    function actualizarEntregables() {
+        if (!tipoSelect || !contenedor) return;
+        
+        const tipo = tipoSelect.value;
+        
+        // Ocultar todo por defecto
+        if (entregableInvestigacion) entregableInvestigacion.style.display = 'none';
+        if (entregablesFormativos) entregablesFormativos.style.display = 'none';
+        
+        if (!tipo) {
+            contenedor.style.display = 'none';
+            return;
+        }
+        
+        // Mostrar contenedor general
+        contenedor.style.display = 'block';
+        
+        // Sennova o Capacidad Instalada → Solo fechas (SIN categorías en crear)
+        if (tipo === 'sennova' || tipo === 'capacidadinstalada') {
+            if (entregableInvestigacion) {
+                entregableInvestigacion.style.display = 'block';
+            }
+        }
+        
+        // Formativo → 6 entregables con fechas
+        if (tipo === 'formativo') {
+            if (entregablesFormativos) {
+                entregablesFormativos.style.display = 'grid';
+            }
+        }
+    }
+    
+    // Ejecutar al cargar y al cambiar tipo de proyecto
+    if (tipoSelect) {
+        actualizarEntregables();
+        tipoSelect.addEventListener('change', actualizarEntregables);
+    }
+    
+    // ========================================
+    // VALIDACIÓN DE FECHAS EN FORMULARIO
+    // ========================================
+    
+    const formCrear = document.querySelector('form[action*="crear_proyecto"]');
+    if (formCrear) {
+        formCrear.addEventListener('submit', function(e) {
+            const tipo = tipoSelect?.value;
+            
+            if (!tipo) {
+                e.preventDefault();
+                alert('Por favor, seleccione un tipo de proyecto.');
+                tipoSelect?.focus();
+                return;
+            }
+            
+            // Validar que se hayan seleccionado fechas para los entregables visibles
+            if (tipo === 'sennova' || tipo === 'capacidadinstalada') {
+                const fechaInput = document.getElementById('fechaRango_investigacion');
+                if (fechaInput && !fechaInput.value) {
+                    e.preventDefault();
+                    alert('Por favor, seleccione las fechas para el entregable de Resultados y Productos de Investigación.');
+                    fechaInput.focus();
+                    return;
+                }
+            }
+            
+            if (tipo === 'formativo') {
+                const fechasFormativo = [
+                    'fechaRango_1', 'fechaRango_2', 'fechaRango_3',
+                    'fechaRango_4', 'fechaRango_5', 'fechaRango_6'
+                ];
+                
+                for (let i = 0; i < fechasFormativo.length; i++) {
+                    const fechaInput = document.getElementById(fechasFormativo[i]);
+                    if (fechaInput && !fechaInput.value) {
+                        e.preventDefault();
+                        alert(`Por favor, complete todas las fechas de los entregables formativos (Entregable ${i + 1}).`);
+                        fechaInput.focus();
+                        return;
+                    }
+                }
+            }
+        });
+    }
 });
 
-// ====== Función alternativa por proyecto específico ======
+// ========================================
+// FUNCIÓN DE ACORDEÓN POR PROYECTO
+// ========================================
+
 function inicializarAcordeonProyecto(codProyecto) {
     const togglesProyecto = document.querySelectorAll(
         `input[id^="entregable-${codProyecto}-"].entregable-toggle`
@@ -146,41 +217,101 @@ function inicializarAcordeonProyecto(codProyecto) {
         });
     });
 }
-document.addEventListener('DOMContentLoaded', function () {
 
-    const tipoSelect = document.getElementById('tipo');
-    const contenedor = document.getElementById('entregables-container');
+// ========================================
+// UTILIDADES GLOBALES
+// ========================================
 
-    const entregableInvestigacion = document.querySelector('.entregable-investigacion');
-    const entregablesFormativos = document.querySelector('.formativos');
-
-    function actualizarEntregables() {
-        const tipo = tipoSelect.value;
-
-        // Ocultar todo siempre
-        contenedor.style.display = 'none';
-        entregableInvestigacion.style.display = 'none';
-        entregablesFormativos.style.display = 'none';
-
-        if (!tipo) return;
-
-        // Mostrar contenedor general
-        contenedor.style.display = 'block';
-
-        // Sennova o Capacidad Instalada → 1 entregable
-        if (tipo === 'sennova' || tipo === 'capacidadinstalada') {
-            entregableInvestigacion.style.display = 'block';
-        }
-
-        // Formativo → 6 entregables
-        if (tipo === 'formativo') {
-            entregablesFormativos.style.display = 'grid';
-        }
+// Función para cerrar modales
+window.cerrarModal = function(event, modalId) {
+    if (event) event.preventDefault();
+    
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('activo', 'show');
+        modal.style.display = 'none';
     }
+    
+    // Limpiar backdrop
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
+    
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = 'auto';
+    document.body.style.paddingRight = '';
+};
 
-    // Ejecutar al cargar y al cambiar
-    actualizarEntregables();
-    tipoSelect.addEventListener('change', actualizarEntregables);
+// Función para abrir modales
+window.abrirModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('activo', 'show');
+        modal.style.display = 'flex';
+        
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+// ========================================
+// PREVIEW DE ARCHIVOS ANTES DE SUBIR
+// ========================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Buscar todos los inputs de archivo en modales de subir
+    const inputsArchivo = document.querySelectorAll('input[type="file"][id^="archivo_"]');
+    
+    inputsArchivo.forEach(input => {
+        input.addEventListener('change', function() {
+            const files = this.files;
+            const codEntregable = this.id.replace('archivo_', '');
+            const previewContainer = document.getElementById(`preview-archivos-${codEntregable}`);
+            
+            if (!previewContainer) return;
+            
+            // Limpiar preview anterior
+            previewContainer.innerHTML = '';
+            
+            if (files.length === 0) return;
+            
+            // Crear lista de archivos seleccionados
+            previewContainer.innerHTML = '<p style="margin: 10px 0; font-weight: 600;">Archivos seleccionados:</p>';
+            
+            const lista = document.createElement('ul');
+            lista.style.cssText = 'list-style: none; padding: 0; margin: 10px 0;';
+            
+            Array.from(files).forEach(file => {
+                const item = document.createElement('li');
+                item.style.cssText = 'padding: 8px; margin-bottom: 5px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; gap: 8px;';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-file';
+                icon.style.color = '#64748b';
+                
+                const nombre = document.createElement('span');
+                nombre.textContent = file.name;
+                nombre.style.flex = '1';
+                
+                const tamano = document.createElement('span');
+                tamano.textContent = formatearTamano(file.size);
+                tamano.style.cssText = 'font-size: 0.875rem; color: #64748b;';
+                
+                item.appendChild(icon);
+                item.appendChild(nombre);
+                item.appendChild(tamano);
+                lista.appendChild(item);
+            });
+            
+            previewContainer.appendChild(lista);
+        });
+    });
 });
 
-
+// Función auxiliar para formatear tamaño de archivo
+function formatearTamano(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}

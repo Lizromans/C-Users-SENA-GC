@@ -3232,3 +3232,221 @@ i.fa-star[aria-disabled="true"]:hover {
     transform: none !important;
     cursor: not-allowed;
 }
+
+.modal-cont-categorizado {
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-descripcion {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.seccion-categorizacion,
+.seccion-archivos {
+    margin-bottom: 25px;
+}
+
+.seccion-titulo {
+    font-size: 15px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.separador {
+    margin: 10px 0 15px 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+.campo-formulario {
+    margin-bottom: 18px;
+}
+
+.campo-formulario label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #475569;
+    font-size: 14px;
+}
+
+.form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+    transition: all 0.2s;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.productos-container {
+    animation: slideDown 0.3s ease-out;
+}
+
+.subcategorias-container {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    animation: slideDown 0.3s ease-out;
+}
+
+.subcategorias-container:empty {
+    display: none !important;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.campo-subcategoria {
+    margin-bottom: 15px;
+}
+
+.campo-subcategoria label {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.checkbox-group label:hover {
+    background-color: #e2e8f0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #cbd5e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+input[type="file"]:hover {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+}
+
+.texto-ayuda {
+    display: block;
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.preview-archivos {
+    margin-top: 12px;
+}
+
+.archivo-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.archivo-preview-item i {
+    color: #3b82f6;
+}
+
+.archivo-preview-nombre {
+    flex: 1;
+    color: #334155;
+}
+
+.archivo-preview-size {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.modal-botones {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-cancelar,
+.btn-confirmar {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-cancelar {
+    background: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+}
+
+.btn-cancelar:hover {
+    background: #e2e8f0;
+}
+
+.btn-confirmar {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-confirmar:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}

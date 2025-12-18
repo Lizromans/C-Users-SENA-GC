@@ -443,7 +443,6 @@ def recuperar_contrasena(request):
                         'site_name': 'GC'
                     })
                     
-                    # Cambiado fail_silently a False para que muestre errores
                     send_mail(
                         subject,
                         message,
@@ -452,10 +451,8 @@ def recuperar_contrasena(request):
                         html_message=message,
                         fail_silently=False
                     )
-                    print(f"Correo enviado exitosamente a {admin.correo_ins}")
+                    
                 except Exception as email_error:
-                    print(f"Error al enviar correo: {email_error}")
-                    # Ahora mostramos el error al usuario para facilitar la depuración
                     messages.error(request, f"Problema al enviar el correo: {email_error}")
                     return redirect('iniciarsesion')
                 
@@ -464,8 +461,7 @@ def recuperar_contrasena(request):
             return redirect('iniciarsesion')
             
         except Exception as e:
-            print(f"Error durante recuperación de contraseña: {e}")
-            messages.error(request, f"{str(e)}")
+            messages.error(request, "Error al procesar la solicitud. Intenta nuevamente.")
             return redirect('iniciarsesion')
     
     # Si no es POST, redirigir a la página de inicio de sesión
@@ -483,7 +479,6 @@ def reset_password(request, uidb64, token):
 
         # 2️⃣ Validar el token
         if default_token_generator.check_token(usuario, token):
-            print(f"✅ Token válido para el usuario: {usuario.nom_usu}")
             return render(request, 'paginas/reset_password.html', {
                 'valid': True,
                 'uidb64': uidb64,
@@ -491,12 +486,10 @@ def reset_password(request, uidb64, token):
                 'current_page_name': 'Restablecer Contraseña'
             })
         else:
-            print("❌ Token inválido o expirado")
             messages.error(request, "El enlace de restablecimiento no es válido o ha expirado.")
             return redirect('iniciarsesion')
 
     except Exception as e:
-        print(f"⚠️ Error en reset_password: {e}")
         messages.error(request, "Error al procesar el enlace de restablecimiento.")
         return redirect('iniciarsesion')
 
@@ -539,7 +532,6 @@ def reset_password_confirm(request):
                 return redirect('iniciarsesion')
 
         except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist) as e:
-            print(f"⚠️ Error al restablecer contraseña: {e}")
             messages.error(request, "El enlace de restablecimiento no es válido.")
             return redirect('iniciarsesion')
     
@@ -2100,8 +2092,14 @@ def crear_proyecto(request, id_sem):
 
             if tipo in ["sennova", "capacidadinstalada"]:
                 # UN SOLO ENTREGABLE para Sennova y Capacidad Instalada
-                fecha_inicio_str = request.POST.get('fecha_inicio_1')
-                fecha_fin_str = request.POST.get('fecha_fin_1')
+                fecha_inicio_str = request.POST.get('fecha_inicio_7')
+                fecha_fin_str = request.POST.get('fecha_fin_7')
+
+                # ✅ VALIDAR QUE LAS FECHAS EXISTAN
+                if not fecha_inicio_str or not fecha_fin_str:
+                    messages.error(request, 'Error: Debes seleccionar las fechas de inicio y fin del entregable.')
+                    proyecto.delete()  # Eliminar el proyecto creado
+                    return redirect('resu-proyectos', id_sem=id_sem)
 
                 fecha_inicio = None
                 fecha_fin = None
@@ -2118,12 +2116,20 @@ def crear_proyecto(request, id_sem):
                         if fecha_fin_str:
                             fecha_fin = datetime.strptime(fecha_fin_str, '%d/%m/%Y').date()
                     except Exception as e:
-                        print(f"Error al convertir fechas del entregable: {e}")
+                        messages.error(request, 'Error: Formato de fecha inválido. Usa YYYY-MM-DD o DD/MM/YYYY.')
+                        proyecto.delete()  # Eliminar el proyecto creado
+                        return redirect('resu-proyectos', id_sem=id_sem)
+
+                # ✅ VALIDAR QUE LAS FECHAS SE HAYAN CONVERTIDO CORRECTAMENTE
+                if not fecha_inicio or not fecha_fin:
+                    messages.error(request, 'Error: No se pudieron procesar las fechas del entregable.')
+                    proyecto.delete()
+                    return redirect('resu-proyectos', id_sem=id_sem)
 
                 Entregable.objects.create(
                     cod_entre=base_cod + 1,
-                    nom_entre="Resultados",
-                    desc_entre=desc_entre_personalizada,
+                    nom_entre="Resultados y Productos de Investigación",
+                    desc_entre=desc_entre_personalizada if desc_entre_personalizada else "Resultados y productos de investigación conforme a los parámetros de Minciencias.",
                     estado="Pendiente",
                     fecha_inicio=fecha_inicio,
                     fecha_fin=fecha_fin,
@@ -2145,6 +2151,12 @@ def crear_proyecto(request, id_sem):
                     fecha_inicio_str = request.POST.get(f'fecha_inicio_{i}')
                     fecha_fin_str = request.POST.get(f'fecha_fin_{i}')
 
+                    # ✅ VALIDAR QUE LAS FECHAS EXISTAN
+                    if not fecha_inicio_str or not fecha_fin_str:
+                        messages.error(request, f'Error: Debes seleccionar las fechas para el entregable {i} ({entregable_data["nombre"]}).')
+                        proyecto.delete()  # Eliminar el proyecto creado
+                        return redirect('resu-proyectos', id_sem=id_sem)
+
                     fecha_inicio = None
                     fecha_fin = None
                     
@@ -2160,7 +2172,15 @@ def crear_proyecto(request, id_sem):
                             if fecha_fin_str:
                                 fecha_fin = datetime.strptime(fecha_fin_str, '%d/%m/%Y').date()
                         except Exception as e:
-                            print(f"Error al convertir fechas del entregable {i}: {e}")
+                            messages.error(request, f'Error: Formato de fecha inválido en entregable {i}.')
+                            proyecto.delete()
+                            return redirect('resu-proyectos', id_sem=id_sem)
+
+                    # ✅ VALIDAR QUE LAS FECHAS SE HAYAN CONVERTIDO
+                    if not fecha_inicio or not fecha_fin:
+                        messages.error(request, f'Error: No se pudieron procesar las fechas del entregable {i}.')
+                        proyecto.delete()
+                        return redirect('resu-proyectos', id_sem=id_sem)
 
                     Entregable.objects.create(
                         cod_entre=base_cod + i,
@@ -2185,32 +2205,72 @@ def crear_proyecto(request, id_sem):
         'miembros_semillero': miembros_semillero
     })
 
+import unicodedata
+
 @login_required
 def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
     entregable = get_object_or_404(Entregable, cod_pro=cod_pro, cod_entre=cod_entre)
 
-     # VERIFICAR SI EL PROYECTO ESTÁ ACTIVO
+    # VERIFICAR SI EL PROYECTO ESTÁ ACTIVO
     if not proyecto.estado_pro:
         messages.error(request, "❌ Este proyecto está desactivado. No puedes subir entregables.")
         return redirect('resu-proyectos', id_sem=id_sem)
 
     if request.method == 'POST':
-
-        # PERMITIMOS VARIOS ARCHIVOS
         archivos = request.FILES.getlist('archivo')
 
         if not archivos:
             messages.error(request, '⚠️ Debes seleccionar uno o más archivos para subir.')
             return redirect('resu-proyectos', id_sem=id_sem)
 
-        # Guardamos todos los archivos
+        # ✅ PROCESAR CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada)
+        if proyecto.tipo.lower() in ['sennova', 'capacidadinstalada', 'capacidad instalada']:
+            subcategorias_json = request.POST.get('subcategorias_json')
+            
+            if subcategorias_json:
+                try:
+                    from .forms import construir_descripcion_entregable
+                    import json
+                    
+                    datos = json.loads(subcategorias_json)
+                    categoria_principal = datos.get('categoria', '')
+                    
+                    # Construir descripción
+                    desc_nueva = construir_descripcion_entregable(
+                        categoria_principal,
+                        subcategorias_json
+                    )
+                    
+                    # ✅ NORMALIZAR UNICODE - SOLUCIÓN AL ERROR
+                    nombre_archivo_normalizado = unicodedata.normalize('NFC', archivos[0].name)
+                    desc_nueva = unicodedata.normalize('NFC', desc_nueva)
+                    
+                    # ✅ ACTUALIZAR o AGREGAR a la descripción existente
+                    if entregable.desc_entre:
+                        # Si ya hay descripción, agregar separador
+                        entregable.desc_entre = unicodedata.normalize('NFC', entregable.desc_entre)
+                        entregable.desc_entre += f"\n\n--- Entrega {nombre_archivo_normalizado} ---\n{desc_nueva}"
+                    else:
+                        entregable.desc_entre = desc_nueva
+                    
+                    entregable.save()
+                    
+                except json.JSONDecodeError:
+                    messages.warning(request, '⚠️ No se pudo procesar la categorización del entregable. El archivo se ha subido correctamente.')
+                except Exception as e:
+                    messages.warning(request, '⚠️ Hubo un problema al guardar la categorización. El archivo se ha subido correctamente.')
+
+        # Guardar archivos (código existente)
         for archivo in archivos:
+            # ✅ NORMALIZAR NOMBRE DEL ARCHIVO
+            nombre_normalizado = unicodedata.normalize('NFC', archivo.name)
+            
             Archivo.objects.create(
                 entregable=entregable,
                 archivo=archivo,
-                nombre=archivo.name
+                nombre=nombre_normalizado  # Usar nombre normalizado
             )
 
         fecha_actual = date.today()
@@ -2228,7 +2288,6 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         # Actualizar progreso del proyecto
         actualizar_progreso_proyecto(entregable.cod_pro)
 
-        # Mostrar mensaje con cantidad de archivos
         messages.success(
             request,
             f'✅ {len(archivos)} archivo(s) subido(s) correctamente al entregable "{entregable.nom_entre}".'
@@ -2316,17 +2375,60 @@ def verificar_y_actualizar_estados_entregables(proyecto):
 
 @login_required
 def eliminar_archivo(request, id_sem, cod_pro, cod_entre, id_archivo):
-# OBTENER USUARIO DESDE LA SESIÓN
-    cedula = request.session.get('cedula')  
+    """
+    Elimina un archivo de un entregable y actualiza el estado del entregable/proyecto
+    """
+    # ==================== 1. VALIDACIÓN DE SESIÓN ====================
+    cedula = request.session.get('cedula')
     
     try:
         usuario = Usuario.objects.get(cedula=cedula)
     except Usuario.DoesNotExist:
-        messages.error(request, "Usuario no encontrado.")
+        messages.error(request, "❌ Usuario no encontrado.")
         return redirect('iniciarsesion')
 
+    try:
+        # ==================== 2. OBTENCIÓN Y VALIDACIÓN DE OBJETOS ====================
+        semillero, proyecto, entregable, archivo = obtener_objetos_eliminacion_archivo(
+            id_sem, cod_pro, cod_entre, id_archivo
+        )
+
+        # ==================== 3. VERIFICAR PERMISOS ====================
+        if not verificar_permisos_proyecto(proyecto):
+            messages.error(request, "❌ El proyecto está desactivado. No puedes eliminar archivos.")
+            return redirect('resu-proyectos', id_sem=id_sem)
+
+        # ==================== 4. ELIMINAR ARCHIVO ====================
+        nombre_archivo = eliminar_archivo_fisico(archivo)
+
+        # ==================== 5. ACTUALIZAR ESTADO DEL ENTREGABLE ====================
+        actualizar_estado_entregable(entregable)
+
+        # ==================== 6. ACTUALIZAR PROGRESO DEL PROYECTO ====================
+        actualizar_progreso_proyecto(proyecto)
+
+        # ==================== 7. MENSAJE DE ÉXITO ====================
+        messages.success(request, f'✅ Archivo "{nombre_archivo}" eliminado correctamente')
+
+    except Exception as e:
+        messages.error(request, f'❌ Error al eliminar el archivo: {str(e)}')
+
+    return redirect('resu-proyectos', id_sem=id_sem)
+
+def obtener_objetos_eliminacion_archivo(id_sem, cod_pro, cod_entre, id_archivo):
+    """
+    Obtiene y valida todos los objetos necesarios para la eliminación
+    
+    Returns:
+        tuple: (semillero, proyecto, entregable, archivo)
+    
+    Raises:
+        Http404: Si algún objeto no existe o no está relacionado correctamente
+    """
+    # Obtener semillero
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
 
+    # Obtener proyecto y verificar que pertenece al semillero
     proyecto = get_object_or_404(
         Proyecto.objects.filter(
             semilleroproyecto__id_sem=semillero
@@ -2334,93 +2436,113 @@ def eliminar_archivo(request, id_sem, cod_pro, cod_entre, id_archivo):
         cod_pro=cod_pro
     )
 
+    # Obtener entregable y verificar que pertenece al proyecto
     entregable = get_object_or_404(
         Entregable,
         cod_entre=cod_entre,
         cod_pro=proyecto
     )
 
+    # Obtener archivo y verificar que pertenece al entregable
     archivo = get_object_or_404(
         Archivo,
         id=id_archivo,
         entregable=entregable
     )
 
-    # VERIFICAR SI EL PROYECTO ESTÁ ACTIVO
+    return semillero, proyecto, entregable, archivo
+
+def verificar_permisos_proyecto(proyecto):
+    """
+    Verifica si el proyecto está activo y permite modificaciones
+    
+    Args:
+        proyecto: Objeto Proyecto
+    
+    Returns:
+        bool: True si está activo, False en caso contrario
+    """
     if not proyecto.estado_pro:
-        messages.error(request, "❌ El proyecto está desactivado. No puedes eliminar archivos.")
-        return redirect('resu-proyectos', id_sem=id_sem)
+        return False
+    
+    if proyecto.estado_pro.lower() == 'desactivado':
+        return False
+    
+    return True
 
+def eliminar_archivo_fisico(archivo):
+    """
+    Elimina el archivo físico del sistema y el registro de la base de datos
+    
+    Args:
+        archivo: Objeto Archivo
+    
+    Returns:
+        str: Nombre del archivo eliminado
+    
+    Raises:
+        Exception: Si hay error al eliminar el archivo físico
+    """
+    nombre_archivo = archivo.nombre if hasattr(archivo, 'nombre') else "archivo"
+    
     try:
-        archivo.archivo.delete(save=False)
-
-        archivo.delete()
-
-        if not entregable.archivos.exists():
-            entregable.estado = 'Pendiente'
-            entregable.save()
-
-        actualizar_progreso_proyecto(request, proyecto)
-
-        messages.success(request, f'Archivo eliminado correctamente')
-
+        # Eliminar archivo físico
+        if archivo.archivo:
+            archivo.archivo.delete(save=False)
     except Exception as e:
-        messages.error(request, f'Error al eliminar el archivo: {str(e)}')
+        raise Exception(f"No se pudo eliminar el archivo físico: {e}")
+    
+    # Eliminar registro de la base de datos
+    archivo.delete()
+    
+    return nombre_archivo
 
-    return redirect('resu-proyectos', id_sem=id_sem)
-
+def actualizar_estado_entregable(entregable):
+    """
+    Actualiza el estado del entregable después de eliminar un archivo
+    
+    Si no quedan archivos, el estado vuelve a 'Pendiente'
+    
+    Args:
+        entregable: Objeto Entregable
+    """
+    # Verificar si quedan archivos
+    archivos_restantes = Archivo.objects.filter(entregable=entregable).exists()
+    
+    if not archivos_restantes:
+        entregable.estado = 'Pendiente'
+        entregable.save()
+    
 @login_required
 def eliminar_proyecto_semillero(request, id_sem, cod_pro):
+    """
+    Elimina un proyecto y restaura los roles de sus líderes
+    """
     try:
+        # ==================== 1. VALIDACIÓN Y OBTENCIÓN DE OBJETOS ====================
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
         proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
+        
+        # Verificar que el proyecto pertenece al semillero
+        if not SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).exists():
+            messages.error(request, '❌ Este proyecto no pertenece a este semillero.')
+            return redirect('resu-proyectos', id_sem=id_sem)
 
-        # Restaurar roles de los líderes de proyecto
-        lideres_proyecto = UsuarioProyecto.objects.filter(
-            cod_pro=proyecto, es_lider_pro=True
-        ).select_related('cedula')
+        # ==================== 2. RESTAURAR ROLES DE LÍDERES ====================
+        restaurar_roles_lideres_proyecto(proyecto, semillero)
 
-        for relacion_lider in lideres_proyecto:
-            usuario_lider = relacion_lider.cedula
-            if usuario_lider.rol == 'Líder de Proyecto':
-                otros_proyectos_lider = UsuarioProyecto.objects.filter(
-                    cedula=usuario_lider, es_lider_pro=True
-                ).exclude(cod_pro=proyecto).exists()
+        # ==================== 3. ELIMINAR ENTREGABLES Y ARCHIVOS ====================
+        eliminar_entregables_y_archivos(proyecto)
 
-                if not otros_proyectos_lider:
-                    if hasattr(usuario_lider, 'rol_original') and usuario_lider.rol_original:
-                        usuario_lider.rol = usuario_lider.rol_original
-                    else:
-                        es_lider_semillero = SemilleroUsuario.objects.filter(
-                            cedula=usuario_lider, es_lider=True
-                        ).exists()
-                        if es_lider_semillero:
-                            usuario_lider.rol = 'Líder de Semillero'
-                        elif usuario_lider.vinculacion_laboral and 'instructor' in usuario_lider.vinculacion_laboral.lower():
-                            usuario_lider.rol = 'Instructor'
-                        else:
-                            usuario_lider.rol = 'Investigador'
-                    usuario_lider.save()
+        # ==================== 4. ELIMINAR RELACIONES ====================
+        eliminar_relaciones_proyecto(proyecto, semillero)
 
-        # Eliminar entregables y sus archivos asociados
-        entregables = Entregable.objects.filter(cod_pro=proyecto)
-        for entregable in entregables:
-            archivos = Archivo.objects.filter(entregable=entregable)
-            for archivo in archivos:
-                archivo.archivo.delete(save=False)  # eliminar físicamente
-            archivos.delete()
-        entregables.delete()
-
-        # Eliminar relaciones con usuarios y aprendices
-        UsuarioProyecto.objects.filter(cod_pro=proyecto).delete()
-        ProyectoAprendiz.objects.filter(cod_pro=proyecto).delete()
-
-        # Eliminar relación con semillero
-        SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).delete()
-
-        # Eliminar proyecto
+        # ==================== 5. ELIMINAR PROYECTO ====================
         nombre_proyecto = proyecto.nom_pro
         proyecto.delete()
+
+        # ==================== 6. ACTUALIZAR PROGRESO DEL SEMILLERO ====================
+        actualizar_progreso_semillero(semillero)
 
         messages.success(request, f'✅ Proyecto "{nombre_proyecto}" eliminado correctamente y roles restaurados.')
 
@@ -2429,6 +2551,92 @@ def eliminar_proyecto_semillero(request, id_sem, cod_pro):
 
     return redirect('resu-proyectos', id_sem=id_sem)
 
+def restaurar_roles_lideres_proyecto(proyecto, semillero):
+
+    lideres_proyecto = UsuarioProyecto.objects.filter(
+        cod_pro=proyecto, 
+        es_lider_pro=True
+    ).select_related('cedula')
+
+    for relacion_lider in lideres_proyecto:
+        usuario_lider = relacion_lider.cedula
+        
+        # Solo procesar si el usuario es actualmente "Líder de Proyecto"
+        if usuario_lider.rol != 'Líder de Proyecto':
+            continue
+        
+        # Verificar si es líder en otros proyectos
+        otros_proyectos_lider = UsuarioProyecto.objects.filter(
+            cedula=usuario_lider, 
+            es_lider_pro=True
+        ).exclude(cod_pro=proyecto).exists()
+
+        # Si NO es líder en otros proyectos, restaurar rol
+        if not otros_proyectos_lider:
+            nuevo_rol = determinar_rol_original(usuario_lider, semillero)
+            usuario_lider.rol = nuevo_rol
+            usuario_lider.save()
+
+def determinar_rol_original(usuario, semillero):
+    # 1. Verificar si tiene rol original guardado
+    if hasattr(usuario, 'rol_original') and usuario.rol_original:
+        return usuario.rol_original
+    
+    # 2. Verificar si es líder de algún semillero
+    es_lider_semillero = SemilleroUsuario.objects.filter(
+        cedula=usuario, 
+        es_lider=True
+    ).exists()
+    
+    if es_lider_semillero:
+        return 'Líder de Semillero'
+    
+    # 3. Basarse en vinculación laboral
+    if usuario.vinculacion_laboral:
+        vinculacion_lower = usuario.vinculacion_laboral.lower()
+        if 'instructor' in vinculacion_lower:
+            return 'Instructor'
+        elif 'investigador' in vinculacion_lower:
+            return 'Investigador'
+    
+    # 4. Por defecto: Instructor
+    return 'Instructor'
+
+def eliminar_entregables_y_archivos(proyecto):
+    entregables = Entregable.objects.filter(cod_pro=proyecto)
+    
+    total_archivos_eliminados = 0
+    total_entregables = entregables.count()
+    
+    for entregable in entregables:
+        archivos = Archivo.objects.filter(entregable=entregable)
+        
+        # Eliminar archivos físicos
+        for archivo in archivos:
+            try:
+                if archivo.archivo:
+                    archivo.archivo.delete(save=False)
+                    total_archivos_eliminados += 1
+            except Exception as e:
+                # Continuar con el siguiente archivo
+                pass
+        
+        # Eliminar registros de archivos
+        archivos.delete()
+    
+    # Eliminar entregables
+    entregables.delete()
+
+def eliminar_relaciones_proyecto(proyecto, semillero):
+    # Eliminar relaciones con usuarios
+    usuarios_eliminados = UsuarioProyecto.objects.filter(cod_pro=proyecto).delete()[0]
+    
+    # Eliminar relaciones con aprendices
+    aprendices_eliminados = ProyectoAprendiz.objects.filter(cod_pro=proyecto).delete()[0]
+    
+    # Eliminar relación con semillero
+    SemilleroProyecto.objects.filter(id_sem=semillero, cod_pro=proyecto).delete()
+    
 @login_required
 def cambiar_estado_proyecto(request, id_sem, cod_pro):
     # OBTENER USUARIO DESDE LA SESIÓN
