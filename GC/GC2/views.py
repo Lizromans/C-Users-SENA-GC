@@ -3235,43 +3235,40 @@ def miembros(request):
             if aprendiz_sel:
                 tipo_miembro = 'aprendiz'
                 
-                #  CAMBIO: Verificar si hay número revelado para ESTE aprendiz específico
+                # ✅ Verificar si hay número revelado
                 numeros_revelados = request.session.get('numeros_revelados', {})
                 info_numero = numeros_revelados.get(str(miembro_id))
                 
                 if info_numero:
-                    # Verificar si han pasado 60 segundos
                     timestamp_revelado = info_numero.get('timestamp', 0)
                     tiempo_transcurrido = timezone.now().timestamp() - timestamp_revelado
                     
                     if tiempo_transcurrido < 60:
-                        # Aún no han pasado 60 segundos, mostrar completo
                         numero_visible = info_numero['numero']
                     else:
-                        # Ya pasaron 60 segundos, ocultar automáticamente
                         del numeros_revelados[str(miembro_id)]
                         request.session['numeros_revelados'] = numeros_revelados
                         
-                        # Mostrar parcialmente
                         numero_descifrado = descifrar_numero(aprendiz_sel.numero_cuenta)
                         if numero_descifrado and numero_descifrado != "****":
                             numero_visible = f"*********{numero_descifrado[-4:]}"
                         else:
                             numero_visible = "**********"
                 else:
-                    # No hay número revelado, mostrar parcialmente
                     numero_descifrado = descifrar_numero(aprendiz_sel.numero_cuenta)
                     if numero_descifrado and numero_descifrado != "****":
                         numero_visible = f"*********{numero_descifrado[-4:]}"
                     else:
                         numero_visible = "**********"
 
-                    proyectos = SemilleroProyecto.objects.filter(
-                        cod_pro__proyectoaprendiz__cedula_apre=aprendiz_sel
-                    ).select_related(
-                        'id_sem',
-                        'cod_pro'
-                    ).distinct() 
+                # ✅ DEFINIR proyectos AQUÍ, ANTES de usarlo
+                proyectos = SemilleroProyecto.objects.filter(
+                    cod_pro__proyectoaprendiz__cedula_apre=aprendiz_sel
+                ).select_related(
+                    'id_sem',
+                    'cod_pro'
+                ).distinct()
+                
                 miembro_seleccionado = {
                     'id': aprendiz_sel.cedula_apre,
                     'cedula': aprendiz_sel.cedula_apre,
@@ -3281,14 +3278,14 @@ def miembros(request):
                     'fecha_nacimiento': aprendiz_sel.fecha_nacimiento,
                     'correo_sena': aprendiz_sel.correo_ins,
                     'medio_bancario': aprendiz_sel.medio_bancario,
-                    'numero_cuenta_visible': numero_visible,  
+                    'numero_cuenta_visible': numero_visible,
                     'celular': aprendiz_sel.telefono,
                     'ficha': aprendiz_sel.ficha,
                     'programa': aprendiz_sel.programa,
                     'rol': 'Aprendiz',
                     'estado': aprendiz_sel.estado_apre,
                     'semilleros': [aprendiz_sel.id_sem] if aprendiz_sel.id_sem else [],
-                    'proyectos': proyectos,
+                    'proyectos': proyectos,  # ← Ahora proyectos ya está definido
                 }
 
     contexto = {
