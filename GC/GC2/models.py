@@ -368,9 +368,32 @@ class Entregable(models.Model):
     desc_entre = models.CharField(max_length=250)
     estado = models.CharField(max_length=45)
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE,db_column='cod_pro')
-
+    categoria_minciencias = models.CharField(
+        max_length=50, 
+        blank=True, 
+        null=True,
+        choices=[
+            ('tipo1', 'Tipo 1: Generación de Nuevo Conocimiento'),
+            ('tipo2', 'Tipo 2: Desarrollo Tecnológico e Innovación'),
+            ('tipo3', 'Tipo 3: Apropiación Social del Conocimiento'),
+            ('tipo4', 'Tipo 4: Divulgación Pública de la Ciencia'),
+            ('tipo5', 'Tipo 5: Formación de Recurso Humano en CTeI'),
+        ]
+    )
+    
+    producto_especifico = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True
+    )
+    
+    subcategorias_json = models.TextField(
+        blank=True, 
+        null=True,
+        help_text="JSON con subcategorías del producto"
+    )
     class Meta:
-        managed = False
+        managed = True
         db_table = 'entregable'
 
 class Archivo(models.Model):

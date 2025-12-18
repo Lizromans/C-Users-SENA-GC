@@ -2206,73 +2206,111 @@ def crear_proyecto(request, id_sem):
     })
 
 import unicodedata
+import json
 
-@login_required
 def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
     entregable = get_object_or_404(Entregable, cod_pro=cod_pro, cod_entre=cod_entre)
 
-    # VERIFICAR SI EL PROYECTO ESTÁ ACTIVO
-    if not proyecto.estado_pro:
+    if not proyecto.estado_pro or proyecto.estado_pro == "desactivado":
         messages.error(request, "❌ Este proyecto está desactivado. No puedes subir entregables.")
         return redirect('resu-proyectos', id_sem=id_sem)
 
     if request.method == 'POST':
+        # ✅ PRIMERO: PROCESAR CATEGORIZACIÓN
+        if proyecto.tipo.lower() in ['sennova', 'capacidadinstalada', 'capacidad instalada']:
+            categoria_principal = request.POST.get('categoria_principal', '')
+            producto_especifico = request.POST.get('producto_especifico', '')
+            subcategorias_json = request.POST.get('subcategorias_json', '')
+            
+            # ✅ GUARDAR DATOS ESTRUCTURADOS
+            if categoria_principal:
+                entregable.categoria_minciencias = categoria_principal
+            
+            if producto_especifico:
+                entregable.producto_especifico = producto_especifico
+            
+            if subcategorias_json and subcategorias_json.strip():
+                try:
+                    from .forms import construir_descripcion_entregable, limpiar_descripcion_anterior
+                    
+                    # Parsear JSON
+                    datos = json.loads(subcategorias_json)
+                    
+                    # ✅ GUARDAR JSON RAW
+                    entregable.subcategorias_json = subcategorias_json
+                    
+                    # Construir descripción legible
+                    desc_nueva = construir_descripcion_entregable(
+                        categoria_principal,
+                        subcategorias_json
+                    )
+                    
+                    # Normalizar
+                    desc_nueva = unicodedata.normalize('NFC', desc_nueva)
+                    
+                    # Limpiar y agregar descripción
+                    if entregable.desc_entre:
+                        entregable.desc_entre = limpiar_descripcion_anterior(entregable.desc_entre)
+                        entregable.desc_entre = unicodedata.normalize('NFC', entregable.desc_entre)
+                        
+                        if entregable.desc_entre.strip():
+                            entregable.desc_entre += f"\n\n{desc_nueva}"
+                        else:
+                            entregable.desc_entre = desc_nueva
+                    else:
+                        entregable.desc_entre = desc_nueva
+                    
+                    # ✅ GUARDAR TODOS LOS CAMPOS
+                    entregable.save(update_fields=[
+                        'desc_entre', 
+                        'categoria_minciencias', 
+                        'producto_especifico', 
+                        'subcategorias_json'
+                    ])
+                    
+                    print(f"✅ Categorización guardada correctamente")
+                    
+                except json.JSONDecodeError as e:
+                    print(f"❌ Error al parsear JSON: {e}")
+                    messages.warning(request, '⚠️ No se pudo procesar la categorización del entregable.')
+                except Exception as e:
+                    print(f"❌ Error al guardar categorización: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    messages.warning(request, f'⚠️ Error al guardar categorización: {str(e)}')
+            else:
+                # Si no hay subcategorías, igual guardar categoría y producto
+                entregable.save(update_fields=[
+                    'categoria_minciencias', 
+                    'producto_especifico'
+                ])
+
+        # ✅ SEGUNDO: PROCESAR ARCHIVOS
         archivos = request.FILES.getlist('archivo')
 
         if not archivos:
             messages.error(request, '⚠️ Debes seleccionar uno o más archivos para subir.')
             return redirect('resu-proyectos', id_sem=id_sem)
 
-        # ✅ PROCESAR CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada)
-        if proyecto.tipo.lower() in ['sennova', 'capacidadinstalada', 'capacidad instalada']:
-            subcategorias_json = request.POST.get('subcategorias_json')
-            
-            if subcategorias_json:
-                try:
-                    from .forms import construir_descripcion_entregable
-                    import json
-                    
-                    datos = json.loads(subcategorias_json)
-                    categoria_principal = datos.get('categoria', '')
-                    
-                    # Construir descripción
-                    desc_nueva = construir_descripcion_entregable(
-                        categoria_principal,
-                        subcategorias_json
-                    )
-                    
-                    # ✅ NORMALIZAR UNICODE - SOLUCIÓN AL ERROR
-                    nombre_archivo_normalizado = unicodedata.normalize('NFC', archivos[0].name)
-                    desc_nueva = unicodedata.normalize('NFC', desc_nueva)
-                    
-                    # ✅ ACTUALIZAR o AGREGAR a la descripción existente
-                    if entregable.desc_entre:
-                        # Si ya hay descripción, agregar separador
-                        entregable.desc_entre = unicodedata.normalize('NFC', entregable.desc_entre)
-                        entregable.desc_entre += f"\n\n--- Entrega {nombre_archivo_normalizado} ---\n{desc_nueva}"
-                    else:
-                        entregable.desc_entre = desc_nueva
-                    
-                    entregable.save()
-                    
-                except json.JSONDecodeError:
-                    messages.warning(request, '⚠️ No se pudo procesar la categorización del entregable. El archivo se ha subido correctamente.')
-                except Exception as e:
-                    messages.warning(request, '⚠️ Hubo un problema al guardar la categorización. El archivo se ha subido correctamente.')
-
-        # Guardar archivos (código existente)
+        # Guardar archivos
+        archivos_guardados = 0
         for archivo in archivos:
-            # ✅ NORMALIZAR NOMBRE DEL ARCHIVO
-            nombre_normalizado = unicodedata.normalize('NFC', archivo.name)
-            
-            Archivo.objects.create(
-                entregable=entregable,
-                archivo=archivo,
-                nombre=nombre_normalizado  # Usar nombre normalizado
-            )
+            try:
+                nombre_normalizado = unicodedata.normalize('NFC', archivo.name)
+                
+                Archivo.objects.create(
+                    entregable=entregable,
+                    archivo=archivo,
+                    nombre=nombre_normalizado
+                )
+                archivos_guardados += 1
+            except Exception as e:
+                print(f"❌ Error al guardar archivo {archivo.name}: {e}")
+                messages.error(request, f'Error al guardar {archivo.name}')
 
+        # ✅ ACTUALIZAR ESTADO
         fecha_actual = date.today()
 
         if entregable.fecha_fin:
@@ -2283,16 +2321,17 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         else:
             entregable.estado = 'Completado'
 
-        entregable.save()
+        entregable.save(update_fields=['estado'])
 
-        # Actualizar progreso del proyecto
+        # ✅ ACTUALIZAR PROGRESO
         actualizar_progreso_proyecto(entregable.cod_pro)
 
-        messages.success(
-            request,
-            f'✅ {len(archivos)} archivo(s) subido(s) correctamente al entregable "{entregable.nom_entre}".'
-        )
-
+        if archivos_guardados > 0:
+            messages.success(
+                request,
+                f'✅ {archivos_guardados} archivo(s) subido(s) correctamente al entregable "{entregable.nom_entre}".'
+            )
+        
         return redirect('resu-proyectos', id_sem=id_sem)
 
     messages.error(request, 'Método no permitido.')
