@@ -159,7 +159,17 @@
                                 <p class="timeline-description">
                                     Se creó el proyecto <strong>{{ actividad.nom_pro }}</strong>
                                 </p>
-                                <span class="badge badge-proyecto">{{ actividad.tipo }}</span>
+                                <span class="badge badge-proyecto">
+                                    {% if actividad.tipo == "capacidadinstalada" %}
+                                        Capacidad Instalada
+                                    {% elif actividad.tipo == "formativo" %}
+                                        Formativo
+                                    {% elif actividad.tipo == "sennova" %}
+                                        Sennova
+                                    {% else %}
+                                        {{ actividad.tipo|capfirst }}
+                                    {% endif %}
+                                </span>
                                 <small class="text-muted d-block mt-1">
                                     Estado: {{ actividad.estado_pro }} | Progreso: {{ actividad.progreso }}%
                                 </small>
