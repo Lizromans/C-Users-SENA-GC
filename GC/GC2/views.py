@@ -5,13 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
-from .forms import UsuarioRegistroForm
+from .forms import UsuarioRegistroForm, FormularioSoporte
 from .models import Documento, Usuario, Semillero,SemilleroUsuario, Archivo, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento, Evento
 from django.utils import timezone 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+from django.core.mail import send_mail,EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -3833,6 +3833,55 @@ def centroayuda(request):
         'usuario': usuario
     }
     return render(request, 'paginas/centroayuda.html', contexto)
+
+def formulario_soporte(request):
+    if request.method == 'POST':
+        form = FormularioSoporte(request.POST, request.FILES)
+        if form.is_valid():
+            # Obtener datos del formulario
+            nombre = form.cleaned_data['nombreCompleto']
+            email_remitente = form.cleaned_data['email']
+            asunto = form.cleaned_data['asunto']
+            descripcion = form.cleaned_data['descripcion']
+            urgencia = form.cleaned_data['urgencia']
+            
+            # Construir el mensaje
+            cuerpo_mensaje = f"""
+            Se ha recibido una nueva solicitud de soporte:
+            
+            Nombre: {nombre}
+            Email: {email_remitente}
+            Asunto: {asunto}
+            Urgencia: {urgencia}
+            
+            Descripción:
+            {descripcion}
+            """
+            
+            # Crear email
+            email = EmailMessage(
+                f'Solicitud de Soporte: {asunto}',
+                cuerpo_mensaje,
+                'tu_sitio@ejemplo.com',  # Remitente
+                ['mundobovinoapp@gmail.com'],  # Destinatario 
+                reply_to=[email_remitente]
+            )
+            
+            # Adjuntar archivos
+            files = request.FILES.getlist('adjuntos')
+            if files:
+                # Limitar a 3 archivos
+                for i, adjunto in enumerate(files[:3]):
+                    email.attach(adjunto.name, adjunto.read(), adjunto.content_type)
+            
+            # Enviar correo
+            email.send()
+            messages.success(request, 'Tu solicitud ha sido enviada correctamente.')
+            return render(request, 'paginas/centroayuda.html', {'form': FormularioSoporte()})
+    else:
+        form = FormularioSoporte()
+    
+    return render(request, 'paginas/centroayuda.html', {'form': form})
 
 # VISTAS DE REPORTES
 def reportes(request):

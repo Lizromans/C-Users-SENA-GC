@@ -126,27 +126,68 @@
                     </div>
                 </div>
                 <div class="scrollable-list">
-                    {% for pregunta in preguntas %}
-                    <ul class="lista">
-                        <li>
-                            <div class="icon-cont">
-                                <img src="{% static 'img/soporte.png' %}" alt="Icono" class="icono">
-                            </div>
-                            <div class="texto-lista">
-                                <span class="titulo">{{ pregunta.titulo }}</span><br>
-                                <span class="subtitulo">{{ pregunta.categoria }}</span>
-                            </div>
-                            <div class="acciones">
-                                <a href="#modal-pregunta-{{ pregunta.id }}" class="fas fa-eye" title="Ver respuesta"></a>
-                            </div>
-                        </li>
-                    </ul>
-                    {% empty %}
                     <div class="empty-message">
-                        <i class="fa fa-folder-open"></i>
-                        <p>No hay preguntas frecuentes disponibles</p>
+                        <button class="form"data-bs-toggle="modal" data-bs-target="#modalformulario">
+                            <i class="fa-solid fa-envelope"></i>
+                            solicitud soporte técnico
+                        </button>
                     </div>
-                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalformulario" tabindex="-1" aria-labelledby="modalLabel9" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <a href="{% url 'centroayuda' %}" class="modal-cerrar-form">&times;</a>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel9">Formulario de soporte</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'formulario_soporte' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                    
+                        <div class="mb-3">
+                            <label for="nombreCompleto" class="form-label">Nombre completo</label>
+                            <input type="text" class="form-control" id="nombreCompleto" name="nombreCompleto" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email de contacto</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="asunto" class="form-label">Asunto</label>
+                            <input type="text" class="form-control" id="asunto" name="asunto" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción detallada del problema</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="5" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="urgencia" class="form-label">Nivel de urgencia</label>
+                            <select class="form-select" id="urgencia" name="urgencia">
+                                <option value="" selected disabled>Seleccione una opción</option>
+                                <option value="critico">Crítico</option>
+                                <option value="media" >Importante</option>
+                                <option value="alta">Generales</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="adjuntos" class="form-label">Adjuntar capturas de pantalla (hasta 3 archivos)</label>
+                            <input class="form-control" type="file" id="adjuntos" name="adjuntos" multiple accept="image/*">
+                            <div class="form-text">Formatos aceptados: JPG, PNG, GIF</div>
+                        </div>
+                        <div id="image-preview" class="mt-2 d-flex flex-wrap"></div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn">Enviar solicitud</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

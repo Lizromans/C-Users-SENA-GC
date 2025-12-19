@@ -69,6 +69,7 @@ urlpatterns = [
 
     #CENTRO DE AYUDA
     path('centroayuda/', views.centroayuda, name='centroayuda'),
+    path('formulario_soporte/', views.formulario_soporte, name='formulario_soporte'),
 
     #REPORTES
     path('reportes/', views.reportes, name='reportes'),
