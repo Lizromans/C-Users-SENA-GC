@@ -126,12 +126,20 @@
                     </div>
                 </div>
                 <div class="scrollable-list">
-                    <div class="empty-message">
-                        <button class="form"data-bs-toggle="modal" data-bs-target="#modalformulario">
-                            <i class="fa-solid fa-envelope"></i>
-                            solicitud soporte técnico
-                        </button>
-                    </div>
+                    <ul class="lista">
+                        <li>
+                            <div class="icon-cont">
+                                <img src="{% static 'img/soporte.png' %}" alt="Icono" class="icono">
+                            </div>
+                            <div class="texto-lista">
+                                <span class="titulo">Solicitud de Soporte Técnico</span><br>
+                                <span class="subtitulo">Formulario para reportar incidencias técnicas y solicitar ayuda especializada.</span>
+                            </div>
+                            <div class="acciones">
+                                <i class="fa-solid fa-envelope" title="Ver Formulario" data-bs-toggle="modal" data-bs-target="#modalformulario"></i>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
