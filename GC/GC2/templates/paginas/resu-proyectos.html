@@ -255,7 +255,7 @@
                                                 <div class="entregable-detalles-desplegable">
                                                     <div class="entregable-detalles-grid">
                                                         <div class="entregable-detalle-columna descripcion">
-                                                            <p><strong>Descripción:</strong> {{ entregable.desc_entre|default:"Sin descripción" }}</p>
+                                                            <p><strong>Descripción:</strong> {{ entregable.desc_entre|default:" Resultados y productos de investigación conforme a los parámetros de Minciencias." }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
                                                             <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
@@ -563,7 +563,7 @@
                                                 <div class="entregable-detalles-desplegable">
                                                     <div class="entregable-detalles-grid">
                                                         <div class="entregable-detalle-columna descripcion">
-                                                            <p><strong>Descripción:</strong> {{ entregable.desc_entre|default:"Sin descripción" }}</p>
+                                                            <p><strong>Descripción:</strong> {{ entregable.desc_entre|default:" Resultados y productos de investigación conforme a los parámetros de Minciencias." }}</p>
                                                         </div>
                                                         <div class="entregable-detalle-columna fecha">
                                                             <p><strong>Fecha inicio:</strong> {{ entregable.fecha_inicio|date:"d/m/Y"|default:"No especificada" }}</p>
@@ -2413,111 +2413,136 @@
         }
     };
 
-    // ==================== GENERAR FUNCIONES PARA CADA ENTREGABLE ====================
+    // ==================== INICIALIZACIÓN ====================
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('✅ Sistema de categorías dinámicas inicializado');
+        console.log('✅ Sistema de categorización unificado inicializado');
         
-        // Obtener todos los formularios de subir archivos
+        // Configurar todos los formularios de entregables
         const formularios = document.querySelectorAll('[id^="form-subir-"]');
         
         formularios.forEach(form => {
             const codEntregable = form.id.replace('form-subir-', '');
             console.log('📋 Configurando entregable:', codEntregable);
-            
-            // Crear funciones para este entregable
-            crearFuncionesEntregable(codEntregable);
+            configurarFormularioEntregable(codEntregable);
         });
     });
 
-    function crearFuncionesEntregable(codEntregable) {
-        // Función: actualizar productos según categoría
-        window['actualizarProductos' + codEntregable] = function(tipoCategoria) {
-            console.log(`🔄 Actualizando productos para ${codEntregable}, tipo: ${tipoCategoria}`);
-            
-            const selectProducto = document.getElementById('producto_especifico_' + codEntregable);
-            const containerProducto = document.getElementById('productos-container-' + codEntregable);
-            const containerSubcat = document.getElementById('subcategorias-container-' + codEntregable);
-            
-            if (!selectProducto || !tipoCategoria) {
-                console.error('❌ No se encontró el select de producto o no hay tipo');
-                return;
-            }
-            
-            // Limpiar select de productos
-            selectProducto.innerHTML = '<option value="" disabled selected>Seleccione un producto...</option>';
-            
-            // Limpiar subcategorías
-            if (containerSubcat) {
-                containerSubcat.innerHTML = '';
-            }
-            
-            // Obtener productos del tipo seleccionado
-            const estructura = estructuraCategorias[tipoCategoria];
-            if (!estructura) {
-                console.error('❌ No se encontró estructura para:', tipoCategoria);
-                return;
-            }
-            
-            console.log('✅ Productos encontrados:', estructura.productos.length);
-            
-            // Llenar productos
-            estructura.productos.forEach(prod => {
-                const option = document.createElement('option');
-                option.value = prod.valor;
-                option.textContent = prod.texto;
-                selectProducto.appendChild(option);
-            });
-            
-            // Mostrar contenedor de productos
-            if (containerProducto) {
-                containerProducto.style.display = 'block';
-                console.log('✅ Contenedor de productos mostrado');
-            }
-        };
+    // ==================== CONFIGURAR FORMULARIO POR ENTREGABLE ====================
+    function configurarFormularioEntregable(codEntregable) {
+        const selectCategoria = document.getElementById(`categoria_principal_${codEntregable}`);
+        const selectProducto = document.getElementById(`producto_especifico_${codEntregable}`);
         
-        // Función: actualizar subcategorías según producto
-        window['actualizarSubcategorias' + codEntregable] = function(valorProducto) {
-            console.log(`🔄 Actualizando subcategorías para ${codEntregable}, producto: ${valorProducto}`);
-            
-            const containerSubcat = document.getElementById('subcategorias-container-' + codEntregable);
-            const selectCategoria = document.getElementById('categoria_principal_' + codEntregable);
-            
-            if (!containerSubcat || !selectCategoria) {
-                console.error('❌ No se encontraron contenedores');
-                return;
-            }
-            
-            // Limpiar subcategorías anteriores
-            containerSubcat.innerHTML = '';
-            
-            // Obtener tipo de categoría actual
-            const tipoCategoria = selectCategoria.value;
-            const estructura = estructuraCategorias[tipoCategoria];
-            if (!estructura) return;
-            
-            // Buscar el producto seleccionado
-            const productoData = estructura.productos.find(p => p.valor === valorProducto);
-            if (!productoData || !productoData.subcategorias || productoData.subcategorias.length === 0) {
-                console.log('ℹ️ No hay subcategorías para este producto');
-                return;
-            }
-            
-            console.log('✅ Subcategorías encontradas:', productoData.subcategorias.length);
-            
-            // Crear campos de subcategorías
-            productoData.subcategorias.forEach(subcat => {
-                const campoDiv = crearCampoSubcategoria(subcat, codEntregable);
-                if (campoDiv) {
-                    containerSubcat.appendChild(campoDiv);
-                }
+        if (!selectCategoria) {
+            console.error(`❌ No se encontró select de categoría para: ${codEntregable}`);
+            return;
+        }
+        
+        // Listener: cuando cambia la categoría
+        selectCategoria.addEventListener('change', function() {
+            actualizarProductos(codEntregable, this.value);
+        });
+        
+        // Listener: cuando cambia el producto
+        if (selectProducto) {
+            selectProducto.addEventListener('change', function() {
+                actualizarSubcategorias(codEntregable, this.value);
             });
-            
-            // Actualizar campo oculto JSON
-            actualizarCampoJSON(codEntregable);
-        };
+        }
+        
+        console.log(`✅ Formulario configurado para entregable: ${codEntregable}`);
     }
 
-    // ==================== FUNCIÓN AUXILIAR: CREAR CAMPO ====================
+    // ==================== ACTUALIZAR PRODUCTOS ====================
+    function actualizarProductos(codEntregable, tipoCategoria) {
+        console.log(`🔄 Actualizando productos para ${codEntregable}, tipo: ${tipoCategoria}`);
+        
+        const selectProducto = document.getElementById(`producto_especifico_${codEntregable}`);
+        const containerProducto = document.getElementById(`productos-container-${codEntregable}`);
+        const containerSubcat = document.getElementById(`subcategorias-container-${codEntregable}`);
+        
+        if (!selectProducto || !tipoCategoria) {
+            console.error('❌ No se encontró el select de producto o no hay tipo');
+            return;
+        }
+        
+        // Limpiar select de productos
+        selectProducto.innerHTML = '<option value="" disabled selected>Seleccione un producto...</option>';
+        
+        // Limpiar subcategorías
+        if (containerSubcat) {
+            containerSubcat.innerHTML = '';
+        }
+        
+        // Obtener productos del tipo seleccionado
+        const estructura = estructuraCategorias[tipoCategoria];
+        if (!estructura) {
+            console.error('❌ No se encontró estructura para:', tipoCategoria);
+            return;
+        }
+        
+        console.log('✅ Productos encontrados:', estructura.productos.length);
+        
+        // Llenar productos
+        estructura.productos.forEach(prod => {
+            const option = document.createElement('option');
+            option.value = prod.valor;
+            option.textContent = prod.texto;
+            selectProducto.appendChild(option);
+        });
+        
+        // Mostrar contenedor de productos
+        if (containerProducto) {
+            containerProducto.style.display = 'block';
+            console.log('✅ Contenedor de productos mostrado');
+        }
+        
+        // Actualizar JSON
+        actualizarCampoJSON(codEntregable);
+    }
+
+    // ==================== ACTUALIZAR SUBCATEGORÍAS ====================
+    function actualizarSubcategorias(codEntregable, valorProducto) {
+        console.log(`🔄 Actualizando subcategorías para ${codEntregable}, producto: ${valorProducto}`);
+        
+        const containerSubcat = document.getElementById(`subcategorias-container-${codEntregable}`);
+        const selectCategoria = document.getElementById(`categoria_principal_${codEntregable}`);
+        
+        if (!containerSubcat || !selectCategoria) {
+            console.error('❌ No se encontraron contenedores');
+            return;
+        }
+        
+        // Limpiar subcategorías anteriores
+        containerSubcat.innerHTML = '';
+        
+        // Obtener tipo de categoría actual
+        const tipoCategoria = selectCategoria.value;
+        const estructura = estructuraCategorias[tipoCategoria];
+        if (!estructura) return;
+        
+        // Buscar el producto seleccionado
+        const productoData = estructura.productos.find(p => p.valor === valorProducto);
+        if (!productoData || !productoData.subcategorias || productoData.subcategorias.length === 0) {
+            console.log('ℹ️ No hay subcategorías para este producto');
+            actualizarCampoJSON(codEntregable);
+            return;
+        }
+        
+        console.log('✅ Subcategorías encontradas:', productoData.subcategorias.length);
+        
+        // Crear campos de subcategorías
+        productoData.subcategorias.forEach(subcat => {
+            const campoDiv = crearCampoSubcategoria(subcat, codEntregable);
+            if (campoDiv) {
+                containerSubcat.appendChild(campoDiv);
+            }
+        });
+        
+        // Actualizar campo oculto JSON
+        actualizarCampoJSON(codEntregable);
+    }
+
+    // ==================== CREAR CAMPO DE SUBCATEGORÍA ====================
     function crearCampoSubcategoria(subcategoria, codEntregable) {
         const wrapper = document.createElement('div');
         wrapper.className = 'campo-formulario';
@@ -2608,7 +2633,7 @@
         return wrapper;
     }
 
-    // ==================== FUNCIÓN: ACTUALIZAR JSON OCULTO ====================
+    // ==================== ACTUALIZAR CAMPO JSON OCULTO ====================
     function actualizarCampoJSON(codEntregable) {
         const datos = {};
         
@@ -2656,6 +2681,39 @@
             console.log(`📝 JSON actualizado para ${codEntregable}:`, datos);
         }
     }
+
+    // ==================== VALIDACIÓN ANTES DE ENVIAR ====================
+    // Función opcional para validar antes de submit
+    function validarCategorizacionEntregable(codEntregable) {
+        const inputJson = document.getElementById(`subcategorias_json_${codEntregable}`);
+        
+        if (!inputJson || !inputJson.value) {
+            alert('⚠️ Debe completar la categorización antes de subir el archivo');
+            return false;
+        }
+        
+        try {
+            const datos = JSON.parse(inputJson.value);
+            
+            if (!datos.categoria || !datos.producto) {
+                alert('⚠️ Debe seleccionar una categoría y un producto');
+                return false;
+            }
+            
+            console.log('✅ Categorización válida:', datos);
+            return true;
+            
+        } catch (e) {
+            console.error('❌ Error al validar JSON:', e);
+            alert('Error en la categorización. Por favor, intente nuevamente.');
+            return false;
+        }
+    }
+
+    // Exponer funciones globalmente si es necesario
+    window.actualizarProductos = actualizarProductos;
+    window.actualizarSubcategorias = actualizarSubcategorias;
+    window.validarCategorizacionEntregable = validarCategorizacionEntregable;
     </script>
     
     

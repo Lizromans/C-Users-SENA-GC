@@ -442,35 +442,58 @@ CAMPOS_LEGIBLES = {
 # 4. CONSTRUIR DESCRIPCIÓN
 # =====================================================
 
+# En GC2/forms.py
+
 def construir_descripcion_entregable(categoria_principal, subcategorias_json):
+    """
+    Construye una descripción en formato texto para guardar en desc_entre
+    ✅ SIN EMOJIS para compatibilidad con MySQL utf8
+    """
     try:
+        import json
+        
         datos = json.loads(subcategorias_json)
-        partes = []
-
-        partes.append(f"📋 CATEGORÍA MINCIENCIAS: {CATEGORIAS_MAP.get(categoria_principal, 'No especificada')}")
-        partes.append(f"📦 PRODUCTO: {PRODUCTOS_MAP.get(datos.get('producto'), 'No especificado')}")
-
-        detalles = []
+        lineas = []
+        
+        # === CATEGORÍA PRINCIPAL ===
+        categoria_texto = CATEGORIAS_MAP.get(categoria_principal, 'No especificada')
+        lineas.append(f"CATEGORÍA MINCIENCIAS: {categoria_texto}")  # ⬅️ Sin emoji
+        lineas.append("")  # Línea vacía
+        
+        # === PRODUCTO ESPECÍFICO ===
+        producto_key = datos.get('producto')
+        if producto_key:
+            producto_texto = PRODUCTOS_MAP.get(producto_key, 'No especificado')
+            lineas.append(f"PRODUCTO: {producto_texto}")  # ⬅️ Sin emoji
+            lineas.append("")
+        
+        # === SUBCATEGORÍAS DINÁMICAS ===
+        campos_procesados = {'categoria', 'producto'}
+        
         for key, value in datos.items():
-            if key in ['categoria', 'producto'] or not value:
+            if key in campos_procesados or not value:
                 continue
-
+            
             etiqueta = CAMPOS_LEGIBLES.get(key, key.replace('_', ' ').title())
-
+            
+            # Manejar listas
             if isinstance(value, list):
-                detalles.append(f"  • {etiqueta}: {', '.join(value)}")
+                if value:  # Solo si tiene elementos
+                    lineas.append(f"{etiqueta}:")  # ⬅️ Sin emoji
+                    for item in value:
+                        lineas.append(f"  - {item}")
+                    lineas.append("")
+            # Manejar valores simples
             else:
-                detalles.append(f"  • {etiqueta}: {value}")
-
-        if detalles:
-            partes.append("\n📝 DETALLES:")
-            partes.extend(detalles)
-
-        return "\n".join(partes)
-
+                lineas.append(f"{etiqueta}: {value}")  # ⬅️ Sin emoji
+        
+        return "\n".join(lineas)
+        
+    except json.JSONDecodeError as e:
+        return f"Error al procesar categorización: {e}"
     except Exception as e:
-        return f"Error al generar descripción: {e}"
-
+        return f"Error inesperado: {e}"
+    
 # =====================================================
 # 5. LIMPIAR DESCRIPCIÓN ANTERIOR
 # =====================================================

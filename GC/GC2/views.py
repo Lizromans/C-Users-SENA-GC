@@ -59,6 +59,15 @@ from django.utils.dateparse import parse_date
 from django.utils.dateparse import parse_date
 from .notifications import (obtener_notificaciones_usuario, obtener_notificaciones_con_resumen)
 from django.views.decorators.http import require_http_methods
+from .forms import (
+    UsuarioRegistroForm, 
+    AprendizForm,
+    construir_descripcion_entregable, 
+    limpiar_descripcion_anterior,
+    CATEGORIAS_MAP,  # ← Agregar esta línea
+    PRODUCTOS_MAP,   # ← Opcional, por si lo necesitas
+    CAMPOS_LEGIBLES  # ← Opcional, por si lo necesitas
+)
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -2037,20 +2046,6 @@ def crear_proyecto(request, id_sem):
                 messages.error(request, 'Debe ingresar el programa de formación para un proyecto formativo.')
                 return redirect('resu-proyectos', id_sem=id_sem)
 
-            # Capturar datos de categorías para Sennova/Capacidad
-            desc_entre_personalizada = None
-            
-            if tipo in ["sennova", "capacidadinstalada"]:
-                categoria_principal = request.POST.get('categoria_principal')
-                subcategorias_json = request.POST.get('subcategorias_json')
-                
-                if categoria_principal and subcategorias_json:
-                    from .forms import construir_descripcion_entregable
-                    desc_entre_personalizada = construir_descripcion_entregable(
-                        categoria_principal, 
-                        subcategorias_json
-                    )
-                    
             # Crear proyecto
             ultimo_proyecto = Proyecto.objects.order_by('-cod_pro').first()
             nuevo_cod_pro = ultimo_proyecto.cod_pro + 1 if ultimo_proyecto else 1
@@ -2129,7 +2124,7 @@ def crear_proyecto(request, id_sem):
                 Entregable.objects.create(
                     cod_entre=base_cod + 1,
                     nom_entre="Resultados y Productos de Investigación",
-                    desc_entre=desc_entre_personalizada if desc_entre_personalizada else "Resultados y productos de investigación conforme a los parámetros de Minciencias.",
+                    desc_entre="Resultados y productos de investigación conforme a los parámetros de Minciencias.",  # ⬅️ Descripción genérica
                     estado="Pendiente",
                     fecha_inicio=fecha_inicio,
                     fecha_fin=fecha_fin,
@@ -2208,86 +2203,69 @@ def crear_proyecto(request, id_sem):
 import unicodedata
 import json
 
+@login_required
 def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
     entregable = get_object_or_404(Entregable, cod_pro=cod_pro, cod_entre=cod_entre)
 
     if not proyecto.estado_pro or proyecto.estado_pro == "desactivado":
-        messages.error(request, "❌ Este proyecto está desactivado. No puedes subir entregables.")
+        messages.error(request, "⏸️ Este proyecto está desactivado. No puedes subir entregables.")
         return redirect('resu-proyectos', id_sem=id_sem)
 
     if request.method == 'POST':
-        # ✅ PRIMERO: PROCESAR CATEGORIZACIÓN
+        # ✅ PROCESAR CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada)
         if proyecto.tipo.lower() in ['sennova', 'capacidadinstalada', 'capacidad instalada']:
             categoria_principal = request.POST.get('categoria_principal', '')
-            producto_especifico = request.POST.get('producto_especifico', '')
             subcategorias_json = request.POST.get('subcategorias_json', '')
             
-            # ✅ GUARDAR DATOS ESTRUCTURADOS
-            if categoria_principal:
-                entregable.categoria_minciencias = categoria_principal
-            
-            if producto_especifico:
-                entregable.producto_especifico = producto_especifico
-            
-            if subcategorias_json and subcategorias_json.strip():
+            # ✅ VALIDAR que ambos campos existan antes de procesar
+            if categoria_principal and subcategorias_json and subcategorias_json.strip():
                 try:
                     from .forms import construir_descripcion_entregable, limpiar_descripcion_anterior
+                    import unicodedata
                     
-                    # Parsear JSON
-                    datos = json.loads(subcategorias_json)
-                    
-                    # ✅ GUARDAR JSON RAW
-                    entregable.subcategorias_json = subcategorias_json
-                    
-                    # Construir descripción legible
-                    desc_nueva = construir_descripcion_entregable(
+                    # Construir la nueva categorización
+                    desc_categorizacion = construir_descripcion_entregable(
                         categoria_principal,
                         subcategorias_json
                     )
                     
-                    # Normalizar
-                    desc_nueva = unicodedata.normalize('NFC', desc_nueva)
+                    # Normalizar el texto
+                    desc_categorizacion = unicodedata.normalize('NFC', desc_categorizacion)
                     
-                    # Limpiar y agregar descripción
+                    # 🆕 CAMBIO CRÍTICO: Reemplazar completamente la descripción genérica
+                    descripcion_generica = "Resultados y productos de investigación conforme a los parámetros de Minciencias."
+                    
+                    if entregable.desc_entre and descripcion_generica in entregable.desc_entre:
+                        # Si existe la descripción genérica, la eliminamos completamente
+                        entregable.desc_entre = entregable.desc_entre.replace(descripcion_generica, "").strip()
+                    
+                    # Limpiar cualquier categorización anterior
                     if entregable.desc_entre:
                         entregable.desc_entre = limpiar_descripcion_anterior(entregable.desc_entre)
                         entregable.desc_entre = unicodedata.normalize('NFC', entregable.desc_entre)
-                        
-                        if entregable.desc_entre.strip():
-                            entregable.desc_entre += f"\n\n{desc_nueva}"
-                        else:
-                            entregable.desc_entre = desc_nueva
+                    
+                    # ✅ Agregar SOLO la nueva categorización
+                    if entregable.desc_entre and entregable.desc_entre.strip():
+                        # Si queda algo después de limpiar, agregamos separador
+                        entregable.desc_entre += f"\n\n--- Categorización Minciencias ---\n{desc_categorizacion}"
                     else:
-                        entregable.desc_entre = desc_nueva
+                        # Si no queda nada (o está vacío), solo ponemos la categorización
+                        entregable.desc_entre = f"--- Categorización Minciencias ---\n{desc_categorizacion}"
                     
-                    # ✅ GUARDAR TODOS LOS CAMPOS
-                    entregable.save(update_fields=[
-                        'desc_entre', 
-                        'categoria_minciencias', 
-                        'producto_especifico', 
-                        'subcategorias_json'
-                    ])
+                    # ✅ GUARDAR INMEDIATAMENTE la descripción (ANTES de procesar archivos)
+                    entregable.save(update_fields=['desc_entre'])
                     
-                    print(f"✅ Categorización guardada correctamente")
+                    # ✅ VERIFICAR QUE SE GUARDÓ
+                    entregable.refresh_from_db()
                     
-                except json.JSONDecodeError as e:
-                    print(f"❌ Error al parsear JSON: {e}")
+                except json.JSONDecodeError:
                     messages.warning(request, '⚠️ No se pudo procesar la categorización del entregable.')
                 except Exception as e:
-                    print(f"❌ Error al guardar categorización: {e}")
-                    import traceback
-                    traceback.print_exc()
                     messages.warning(request, f'⚠️ Error al guardar categorización: {str(e)}')
-            else:
-                # Si no hay subcategorías, igual guardar categoría y producto
-                entregable.save(update_fields=[
-                    'categoria_minciencias', 
-                    'producto_especifico'
-                ])
 
-        # ✅ SEGUNDO: PROCESAR ARCHIVOS
+        # ✅ PROCESAR ARCHIVOS (después de guardar la categorización)
         archivos = request.FILES.getlist('archivo')
 
         if not archivos:
@@ -2298,6 +2276,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         archivos_guardados = 0
         for archivo in archivos:
             try:
+                import unicodedata
                 nombre_normalizado = unicodedata.normalize('NFC', archivo.name)
                 
                 Archivo.objects.create(
@@ -2306,11 +2285,11 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
                     nombre=nombre_normalizado
                 )
                 archivos_guardados += 1
-            except Exception as e:
-                print(f"❌ Error al guardar archivo {archivo.name}: {e}")
+            except Exception:
                 messages.error(request, f'Error al guardar {archivo.name}')
 
-        # ✅ ACTUALIZAR ESTADO
+        # ✅ ACTUALIZAR ESTADO (después de guardar archivos)
+        from datetime import date
         fecha_actual = date.today()
 
         if entregable.fecha_fin:
@@ -2321,6 +2300,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         else:
             entregable.estado = 'Completado'
 
+        # ✅ GUARDAR NUEVAMENTE (solo el estado, sin tocar desc_entre)
         entregable.save(update_fields=['estado'])
 
         # ✅ ACTUALIZAR PROGRESO
@@ -2337,6 +2317,41 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     messages.error(request, 'Método no permitido.')
     return redirect('resu-proyectos', id_sem=id_sem)
 
+def construir_descripcion_entregable(categoria_principal, subcategorias_json):
+    """
+    Construye una descripción en formato lista para guardar en desc_entre
+    Similar al formato de líneas en proyectos
+    """
+    try:
+        datos = json.loads(subcategorias_json)
+        lineas = []
+        
+        # Línea 1: Categoría principal
+        categoria_texto = CATEGORIAS_MAP.get(categoria_principal, 'No especificada')
+        lineas.append(f"Categoría: {categoria_texto}")
+        
+        # Línea 2: Producto específico
+        producto_texto = PRODUCTOS_MAP.get(datos.get('producto'), 'No especificado')
+        lineas.append(f"Producto: {producto_texto}")
+        
+        # Líneas adicionales: Detalles/subcategorías
+        for key, value in datos.items():
+            if key in ['categoria', 'producto'] or not value:
+                continue
+            
+            etiqueta = CAMPOS_LEGIBLES.get(key, key.replace('_', ' ').title())
+            
+            if isinstance(value, list):
+                lineas.append(f"{etiqueta}: {', '.join(value)}")
+            else:
+                lineas.append(f"{etiqueta}: {value}")
+        
+        # Unir con saltos de línea (igual que las líneas de proyecto)
+        return "\n".join(lineas)
+        
+    except Exception as e:
+        return f"Error al generar categorización: {e}"
+    
 def actualizar_progreso_proyecto(proyecto):  
     entregables = Entregable.objects.filter(cod_pro=proyecto)
     total_entregables = entregables.count()
@@ -2440,13 +2455,31 @@ def eliminar_archivo(request, id_sem, cod_pro, cod_entre, id_archivo):
         # ==================== 4. ELIMINAR ARCHIVO ====================
         nombre_archivo = eliminar_archivo_fisico(archivo)
 
-        # ==================== 5. ACTUALIZAR ESTADO DEL ENTREGABLE ====================
+        # ==================== 5. VERIFICAR SI QUEDAN ARCHIVOS ====================
+        archivos_restantes = Archivo.objects.filter(entregable=entregable).exists()
+        
+        # ==================== 6. RESTAURAR DESCRIPCIÓN GENÉRICA SI NO HAY ARCHIVOS ====================
+        if not archivos_restantes and proyecto.tipo.lower() in ['sennova', 'capacidadinstalada', 'capacidad instalada']:
+            # Si no quedan archivos y es un proyecto Sennova/Capacidad Instalada
+            # Restaurar la descripción genérica original
+            from .forms import limpiar_descripcion_anterior
+            
+            # Limpiar cualquier categorización existente
+            if entregable.desc_entre:
+                entregable.desc_entre = limpiar_descripcion_anterior(entregable.desc_entre)
+            
+            # Restaurar descripción genérica
+            descripcion_generica = "Resultados y productos de investigación conforme a los parámetros de Minciencias."
+            entregable.desc_entre = descripcion_generica
+            entregable.save(update_fields=['desc_entre'])
+
+        # ==================== 7. ACTUALIZAR ESTADO DEL ENTREGABLE ====================
         actualizar_estado_entregable(entregable)
 
-        # ==================== 6. ACTUALIZAR PROGRESO DEL PROYECTO ====================
+        # ==================== 8. ACTUALIZAR PROGRESO DEL PROYECTO ====================
         actualizar_progreso_proyecto(proyecto)
 
-        # ==================== 7. MENSAJE DE ÉXITO ====================
+        # ==================== 9. MENSAJE DE ÉXITO ====================
         messages.success(request, f'✅ Archivo "{nombre_archivo}" eliminado correctamente')
 
     except Exception as e:
