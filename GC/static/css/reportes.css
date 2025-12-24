@@ -70,7 +70,7 @@
     padding: clamp(10px, 2vw, 18px) clamp(16px, 4vw, 28px);
     display: grid;
     gap: clamp(1rem, 3vw, 2rem);
-    width: 70%;
+    width: 90%;
     height: 80%;
     margin: 0 auto;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));

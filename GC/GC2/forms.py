@@ -357,17 +357,3 @@ class AprendizForm(forms.ModelForm):
         
         return aprendiz
 
-class FormularioSoporte(forms.Form):
-    nombreCompleto = forms.CharField(max_length=100, label="Nombre completo")
-    email = forms.EmailField(label="Email de contacto")
-    asunto = forms.CharField(max_length=200, label="Asunto")
-    descripcion = forms.CharField(widget=forms.Textarea, label="Descripción detallada del problema")
-    urgencia = forms.ChoiceField(
-        choices=[
-            ('critico', 'Crítico'),
-            ('importante', 'Importante'),
-            ('general', 'Generales'),
-        ],
-        label="Nivel de urgencia"
-    )
-   

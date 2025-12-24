@@ -368,9 +368,9 @@ class Entregable(models.Model):
     desc_entre = models.CharField(max_length=250)
     estado = models.CharField(max_length=45)
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE,db_column='cod_pro')
-
+    
     class Meta:
-        managed = False
+        managed = True
         db_table = 'entregable'
 
 class Archivo(models.Model):
