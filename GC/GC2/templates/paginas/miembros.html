@@ -152,10 +152,12 @@
             <div class="resumen">
                 <div class="header">
                     <h3>Lista de Miembros</h3>
-                    <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
-                        <i class="fa-solid fa-link"></i> 
-                        Invitar Aprendiz
-                    </button>
+                    {% if perms.GC2.add_aprendiz %}
+                        <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
+                            <i class="fa-solid fa-link"></i> 
+                            Invitar Aprendiz
+                        </button>
+                    {% endif %}
                 </div>
                 <table>
                     <thead>
@@ -199,10 +201,12 @@
             <div class="resumen">
                 <div class="titulo-tarjeta">
                     <h3>Lista de Miembros</h3>
-                    <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
-                        <i class="fa-solid fa-link"></i> 
-                        Invitar Aprendiz
-                    </button>
+                    {% if perms.GC2.add_aprendiz %}
+                        <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
+                            <i class="fa-solid fa-link"></i> 
+                            Invitar Aprendiz
+                        </button>
+                    {% endif %}
                 </div>
                 
                 <div class="tarjetas-grid">

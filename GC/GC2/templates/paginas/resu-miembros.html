@@ -20,10 +20,12 @@
                 <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
                 Añadir Miembro
             </button>
-            <button class="btn btn-asignar" data-bs-toggle="modal" data-bs-target="#modal-semillero">
-                <img src="{% static 'img/Medal.png' %}" alt="Icono de Asignar Lider De Semillero">
-                Asignar Lider De Semillero
-            </button>
+            {% if perms.GC2.change_usuario %}
+                <button class="btn btn-asignar" data-bs-toggle="modal" data-bs-target="#modal-semillero">
+                    <img src="{% static 'img/Medal.png' %}" alt="Icono de Asignar Lider De Semillero">
+                    Asignar Lider De Semillero
+                </button>
+            {% endif %}
         </div>
         
         <div class="contenedor-miembros">

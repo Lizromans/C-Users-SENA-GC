@@ -207,17 +207,19 @@
 
                         <!-- Botones de acción -->
                         {% if evento.estado_eve != 'Cancelado' and evento.estado_eve != 'Finalizado' %}
-                            <div class="botones">
-                                <button type="button" class="btn-editar" data-tooltip="Editar" 
-                                        data-bs-toggle="modal" data-bs-target="#modalEditarEvento{{ evento.cod_eve }}">
-                                    <i class="fa fa-edit"></i>
-                                </button>
+                            {% if usuario.cedula == evento.cedula.cedula %}
+                                <div class="botones">
+                                    <button type="button" class="btn-editar" data-tooltip="Editar" 
+                                            data-bs-toggle="modal" data-bs-target="#modalEditarEvento{{ evento.cod_eve }}">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
 
-                                <button type="button" class="btn-cancelar" data-tooltip="Cancelar" 
-                                        data-bs-toggle="modal" data-bs-target="#modalCancelarEvento{{ evento.cod_eve }}">
-                                    <i class="fa fa-ban"></i>
-                                </button>
-                            </div>
+                                    <button type="button" class="btn-cancelar" data-tooltip="Cancelar" 
+                                            data-bs-toggle="modal" data-bs-target="#modalCancelarEvento{{ evento.cod_eve }}">
+                                        <i class="fa fa-ban"></i>
+                                    </button>
+                                </div>
+                            {% endif %}   
                         {% endif %}
                     </div>
                 {% empty %}

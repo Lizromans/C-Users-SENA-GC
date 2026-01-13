@@ -58,6 +58,7 @@ def asignar_grupo_por_rol(sender, instance, created, **kwargs):
         'lider de semillero': 'Lider semillero',
         'lider de proyecto': 'Lider proyecto',
         'instructor': 'Instructor',
+        'investigador': 'Instructor'
     }
 
     nombre_grupo = mapa_roles.get(rol_normalizado)

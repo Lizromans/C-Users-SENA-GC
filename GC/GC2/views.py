@@ -1,7 +1,7 @@
 from ctypes import alignment
 from urllib import request
 from django.shortcuts import render,redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
@@ -909,6 +909,7 @@ def semilleros(request):
     })
 
 @login_required
+@permission_required('GC2.add_semillero')
 def crear_semillero(request):
     cedula = request.session.get('cedula')
     try:
@@ -960,6 +961,7 @@ def crear_semillero(request):
     return redirect('semilleros')
 
 @login_required
+@permission_required('GC2.delete_semillero')
 def eliminar_semilleros(request):
     cedula = request.session.get('cedula')
     try:
@@ -1286,6 +1288,7 @@ def resu_miembros(request, id_sem):
     return render(request, 'paginas/resu-miembros.html', context)
 
 @login_required
+@permission_required('GC2.add_usuario')
 def agregar_miembros(request, id_sem):
     if request.method == 'POST':
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
@@ -1330,6 +1333,7 @@ def agregar_miembros(request, id_sem):
     return redirect('resu-miembros', id_sem=id_sem)
 
 @login_required
+@permission_required('GC2.change_usuario')
 def asignar_lider_semillero(request, id_sem):
     if request.method == "POST":
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
@@ -1814,6 +1818,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
     return render(request, 'paginas/resu-proyectos.html', context)
 
 @login_required
+@permission_required('GC2.change_usuario')
 def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
     """
     Asigna o quita el rol de líder de proyecto mediante AJAX
@@ -1929,6 +1934,7 @@ def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
         return JsonResponse({'success': False, 'error': str(e)})
 
 @login_required
+@permission_required('GC2.change_usuario')
 def alternar_estado_miembro(request, id_sem, cod_pro):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
@@ -2210,7 +2216,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     entregable = get_object_or_404(Entregable, cod_pro=cod_pro, cod_entre=cod_entre)
 
     if not proyecto.estado_pro or proyecto.estado_pro == "desactivado":
-        messages.error(request, "⏸️ Este proyecto está desactivado. No puedes subir entregables.")
+        messages.error(request, "Este proyecto está desactivado. No puedes subir entregables.")
         return redirect('resu-proyectos', id_sem=id_sem)
 
     if request.method == 'POST':
@@ -2428,6 +2434,7 @@ def verificar_y_actualizar_estados_entregables(proyecto):
                     entregable.save()
 
 @login_required
+@permission_required('GC2.delete_archivo')
 def eliminar_archivo(request, id_sem, cod_pro, cod_entre, id_archivo):
     """
     Elimina un archivo de un entregable y actualiza el estado del entregable/proyecto

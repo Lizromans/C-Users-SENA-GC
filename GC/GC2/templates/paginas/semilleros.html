@@ -94,12 +94,16 @@
         
         <div class="contenedor-semillero">
             <div class="header-semilleros">
-                <button class="btn crear-semillero" data-bs-toggle="modal" data-bs-target="#modal-crear">
-                    <i class="fas fa-plus"></i> Crear Semillero
-                </button>
-                <a href="#modo-eliminar" class="btn eliminar-semillero">
-                    <i class="fa fa-trash-alt"></i> Eliminar Semilleros
-                </a>
+                {% if perms.GC2.add_semillero %}
+                    <button class="btn crear-semillero" data-bs-toggle="modal" data-bs-target="#modal-crear">
+                        <i class="fas fa-plus"></i> Crear Semillero
+                    </button>
+                {% endif %}
+                {% if perms.GC2.delete_semillero %}
+                    <a href="#modo-eliminar" class="btn eliminar-semillero">
+                        <i class="fa fa-trash-alt"></i> Eliminar Semilleros
+                    </a>
+                {% endif %}
             </div>
             
             <!-- Formulario para eliminar múltiples semilleros -->
