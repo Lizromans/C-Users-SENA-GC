@@ -396,9 +396,6 @@ def mostrar_recuperar_contrasena(request):
     })
 
 def recuperar_contrasena(request):
-    """
-    Esta vista procesa el formulario de recuperación de contraseña
-    """
     if request.method == 'POST':
         email = request.POST.get('email')
         
@@ -455,16 +452,12 @@ def recuperar_contrasena(request):
     return redirect('iniciarsesion')
 
 def reset_password(request, uidb64, token):
-    """
-    Vista que muestra el formulario de restablecimiento de contraseña
-    cuando el usuario hace clic en el enlace del correo.
-    """
     try:
-        # 1️⃣ Decodificar el UID
+        # Decodificar el UID
         uid = force_str(urlsafe_base64_decode(uidb64))
         usuario = Usuario.objects.get(pk=uid)
 
-        # 2️⃣ Validar el token
+        # Validar el token
         if default_token_generator.check_token(usuario, token):
             return render(request, 'paginas/reset_password.html', {
                 'valid': True,
@@ -481,9 +474,6 @@ def reset_password(request, uidb64, token):
         return redirect('iniciarsesion')
 
 def reset_password_confirm(request):
-    """
-    Vista que procesa el formulario de restablecimiento de contraseña.
-    """
     if request.method == 'POST':
         uidb64 = request.POST.get('uidb64')
         token = request.POST.get('token')
@@ -526,9 +516,6 @@ def reset_password_confirm(request):
     return redirect('iniciarsesion')
 
 def login_required(view_func):
-    """
-    Decorador personalizado que verifica si el usuario ha iniciado sesión
-    """
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
     
