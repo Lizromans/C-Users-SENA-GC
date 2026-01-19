@@ -2,7 +2,7 @@ from ctypes import alignment
 from urllib import request
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm, FormularioSoporte
@@ -371,6 +371,8 @@ def iniciarsesion(request):
         request.session['rol'] = usuario.rol
         request.session['correo_ins'] = usuario.correo_ins
         
+        login(request, usuario)
+
         # Configurar tiempo de expiración de sesión (opcional)
         request.session.set_expiry(3600)  # 1 hora
         
