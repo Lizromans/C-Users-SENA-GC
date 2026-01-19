@@ -54,7 +54,7 @@ def asignar_grupo_por_rol(sender, instance, created, **kwargs):
     # Diccionario de equivalencias rol → nombre del grupo
     mapa_roles = {
         'dinamizador': 'Dinamizador',
-        'lider de semilleros': 'Lider de semilleros',
+        'coordinador semillero': 'Coordinador semillero',
         'lider de semillero': 'Lider semillero',
         'lider de proyecto': 'Lider proyecto',
         'instructor': 'Instructor',
