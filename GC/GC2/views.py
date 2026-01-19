@@ -64,9 +64,9 @@ from .forms import (
     AprendizForm,
     construir_descripcion_entregable, 
     limpiar_descripcion_anterior,
-    CATEGORIAS_MAP,  # ← Agregar esta línea
-    PRODUCTOS_MAP,   # ← Opcional, por si lo necesitas
-    CAMPOS_LEGIBLES  # ← Opcional, por si lo necesitas
+    CATEGORIAS_MAP,  
+    PRODUCTOS_MAP,  
+    CAMPOS_LEGIBLES 
 )
 
 # Funciones de cifrado/descifrado
@@ -88,14 +88,10 @@ def descifrar_numero(numero_cifrado):
         cipher = Fernet(base64.urlsafe_b64encode(key))
         return cipher.decrypt(numero_cifrado.encode()).decode()
     except:
-        return "****"  # Mostrar asteriscos si falla
+        return "****"  
 
 @require_http_methods(["GET"])
 def api_notificaciones(request):
-    """
-    API endpoint para obtener notificaciones del usuario actual
-    Endpoint: /api/notificaciones/
-    """
     try:
         # Verificar que hay sesión activa
         if not request.session.get('cedula'):
@@ -105,8 +101,7 @@ def api_notificaciones(request):
                 'notificaciones': [],
                 'count': 0
             }, status=401)
-        
-        # Obtener el usuario desde la sesión
+    
         cedula = request.session.get('cedula')
         
         try:
@@ -119,7 +114,6 @@ def api_notificaciones(request):
                 'count': 0
             }, status=404)
         
-        # Pasar el objeto usuario, no el request
         resultado = obtener_notificaciones_usuario(usuario, limite=18)
         
         return JsonResponse({
@@ -143,12 +137,7 @@ def api_notificaciones(request):
 
 @require_http_methods(["GET"])
 def api_todas_notificaciones(request):
-    """
-    API endpoint para obtener TODAS las notificaciones con resumen completo
-    Endpoint: /api/notifications/all/
-    """
     try:
-        # Verificar sesión
         if not request.session.get('cedula'):
             return JsonResponse({
                 'success': False,
@@ -167,7 +156,6 @@ def api_todas_notificaciones(request):
                 'notifications': []
             }, status=404)
         
-        # Obtener hasta 50 notificaciones
         resultado = obtener_notificaciones_usuario(usuario, limite=50)
         
         return JsonResponse({
@@ -190,10 +178,6 @@ def api_todas_notificaciones(request):
 
 @require_http_methods(["POST"])
 def api_marcar_leidas(request):
-    """
-    API endpoint para marcar todas las notificaciones como leídas
-    Endpoint: /api/notifications/mark-all-read/
-    """
     try:
         if not request.session.get('cedula'):
             return JsonResponse({
@@ -201,8 +185,6 @@ def api_marcar_leidas(request):
                 'error': 'No hay sesión activa'
             }, status=401)
         
-        # Por ahora, solo retornar success
-        # TODO: Implementar persistencia real de estado leído
         return JsonResponse({
             'success': True,
             'message': 'Notificaciones marcadas como leídas'
@@ -217,10 +199,6 @@ def api_marcar_leidas(request):
 
 @require_http_methods(["POST"])
 def api_limpiar_todas(request):
-    """
-    API endpoint para limpiar todas las notificaciones
-    Endpoint: /api/notifications/clear-all/
-    """
     try:
         if not request.session.get('cedula'):
             return JsonResponse({
@@ -228,8 +206,6 @@ def api_limpiar_todas(request):
                 'error': 'No hay sesión activa'
             }, status=401)
         
-        # Por ahora, solo retornar success
-        # TODO: Implementar limpieza real de notificaciones
         return JsonResponse({
             'success': True,
             'message': 'Notificaciones eliminadas'
