@@ -5824,6 +5824,9 @@ def generar_reporte_dinamico(request):
         return generar_reporte_excel(request)
 
 def generar_reporte_pdf(request):
+    from reportlab.lib.units import inch
+    from reportlab.pdfgen import canvas as pdf_canvas
+    
     # NOMBRE DEL ARCHIVO
     nombre_archivo = request.POST.get("nombre_plantilla", "").strip()
     if not nombre_archivo:
@@ -5835,13 +5838,78 @@ def generar_reporte_pdf(request):
 
     # Crear buffer y documento
     buffer = BytesIO()
+    
+    # ==================== FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA ====================
+    def agregar_encabezado_pie(canvas, doc):
+        """
+        Agrega encabezado y pie de página a cada página del PDF
+        """
+        canvas.saveState()
+        
+        # Obtener dimensiones de la página
+        width, height = landscape(A4)
+        
+        # ==================== ENCABEZADO ====================
+        # Línea superior decorativa
+        canvas.setStrokeColor(colors.HexColor('#2C3E50'))
+        canvas.setLineWidth(3)
+        canvas.line(30, height - 40, width - 30, height - 40)
+        
+        # Logo o título del sistema (izquierda)
+        canvas.setFont('Helvetica-Bold', 14)
+        canvas.setFillColor(colors.HexColor('#2C3E50'))
+        canvas.drawString(40, height - 32, "GC - Gestión de Conocimiento")
+        
+        # Información de fecha (derecha)
+        canvas.setFont('Helvetica', 9)
+        canvas.setFillColor(colors.HexColor('#7F8C8D'))
+        fecha_actual = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
+        canvas.drawRightString(width - 40, height - 32, f"Generado: {fecha_actual}")
+        
+        # Línea decorativa debajo del encabezado
+        canvas.setStrokeColor(colors.HexColor('#3498DB'))
+        canvas.setLineWidth(1)
+        canvas.line(30, height - 45, width - 30, height - 45)
+        
+        # ==================== PIE DE PÁGINA ====================
+        # Línea superior del pie
+        canvas.setStrokeColor(colors.HexColor('#3498DB'))
+        canvas.setLineWidth(1)
+        canvas.line(30, 35, width - 30, 35)
+        
+        # Información del sistema (izquierda)
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.HexColor('#7F8C8D'))
+        canvas.drawString(40, 22, "Centro de Recursos Naturales Renovables La Salada - SENA")
+        
+        # Número de página (centro)
+        canvas.setFont('Helvetica-Bold', 9)
+        canvas.setFillColor(colors.HexColor('#2C3E50'))
+        page_num = canvas.getPageNumber()
+        texto_pagina = f"Página {page_num}"
+        canvas.drawCentredString(width / 2, 22, texto_pagina)
+        
+        # Información adicional (derecha)
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.HexColor('#7F8C8D'))
+        canvas.drawRightString(width - 40, 22, "www.sena.edu.co")
+        
+        # Línea inferior decorativa
+        canvas.setStrokeColor(colors.HexColor('#2C3E50'))
+        canvas.setLineWidth(2)
+        canvas.line(30, 15, width - 30, 15)
+        
+        canvas.restoreState()
+    
+    # ==================== CREAR DOCUMENTO CON MÁRGENES AJUSTADOS ====================
     doc = SimpleDocTemplate(
         buffer, 
         pagesize=landscape(A4),
         rightMargin=30, 
         leftMargin=30,
-        topMargin=30, 
-        bottomMargin=18
+        topMargin=60,      
+        bottomMargin=50,   
+        title=nombre_archivo
     )
     
     # Estilos
@@ -6172,8 +6240,8 @@ def generar_reporte_pdf(request):
         elements.append(Paragraph("Aprendices", heading_style))
         aprendices = Aprendiz.objects.all()
         
-        # ✅ Usar TODOS los campos seleccionados (incluyendo los específicos de aprendices)
-        if campos["miembros"] and aprendices.exists():  # ✅ Verificar que hay datos
+        # Usar TODOS los campos seleccionados (incluyendo los específicos de aprendices)
+        if campos["miembros"] and aprendices.exists():  # Verificar que hay datos
             data = [campos["miembros"]]
             
             for a in aprendices:
@@ -6273,13 +6341,13 @@ def generar_reporte_pdf(request):
                     elif campo == "Fecha de Entrega":
                         valor = e.fecha_fin.strftime("%Y-%m-%d") if e.fecha_fin else ""
                     elif campo == "Proyecto Asociado":
-                        # ✅ Verificar que cod_pro no sea None antes de acceder a nom_pro
+                        # Verificar que cod_pro no sea None antes de acceder a nom_pro
                         if e.cod_pro and hasattr(e.cod_pro, 'nom_pro') and e.cod_pro.nom_pro:
                             valor = str(e.cod_pro.nom_pro)
                         else:
                             valor = "Sin proyecto"
                     elif campo == "Responsable":
-                        # ✅ Verificar que cod_pro existe antes de buscar el líder
+                        # Verificar que cod_pro existe antes de buscar el líder
                         if e.cod_pro:
                             resp = UsuarioProyecto.objects.filter(
                                 cod_pro=e.cod_pro, 
@@ -6310,7 +6378,7 @@ def generar_reporte_pdf(request):
                 elif campo in ["Nombre del Entregable", "Proyecto Asociado", "Responsable"]:
                     col_widths.append(150)
                 else:
-                    col_widths.append(100)  # ✅ Ancho por defecto
+                    col_widths.append(100)  # Ancho por defecto
             
             total_width = sum(col_widths)
             if total_width > ancho_disponible:
@@ -6334,7 +6402,8 @@ def generar_reporte_pdf(request):
             ]))
             elements.append(t)
     # Construir PDF
-    doc.build(elements)
+    doc.build(elements, onFirstPage=agregar_encabezado_pie, onLaterPages=agregar_encabezado_pie)
+    
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)

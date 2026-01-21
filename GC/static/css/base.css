@@ -1,12 +1,22 @@
 :root {
     --color-primario: #fdfdfd;
-    --color-sidebar-bg: #f8f9fa;
-    --color-sidebar-shadow: rgba(0, 0, 0, 0.1);
-    --color-nav-hover: #e9ecef;
+    --color-sidebar-bg: #ffffff;
+    --color-sidebar-border: #e8eaed;
+    --color-sidebar-shadow: rgba(0, 0, 0, 0.08);
+    
+    /* Colores del nav */
+    --color-nav-hover: #f1f8ec;
     --color-nav-active: #39A900;
+    --color-nav-active-bg: rgba(57, 169, 0, 0.12);
+    --color-nav-border-active: #39A900;
+    
+    /* Textos */
     --color-text-primary: #212529;
     --color-text-active: #007832;
     --color-text-secondary: #6c757d;
+    --color-text-muted: #95a5a6;
+    
+    /* Dimensiones */
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
@@ -296,7 +306,7 @@ body {
 .notification-badge.many {
     font-size: clamp(0.5rem, 0.75vw, 0.65rem);
     height: clamp(16px, 2.2vw, 22px);
-    padding: 0!important;   /* ⬅ solo padding horizontal */
+    padding: 0!important;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -320,7 +330,7 @@ body {
     z-index: 9999;
     
     display: flex;
-    flex-direction: column; /* ← IMPORTANTÍSIMO */
+    flex-direction: column;
     overflow: hidden;  
 }
 
@@ -368,8 +378,8 @@ body {
 
 /* =====LISTA======= */
 .notification-body {
-    flex: 1;                     /* ← ocupa todo el espacio disponible */
-    overflow-y: auto;            /* ← SOLO la lista hace scroll */
+    flex: 1;
+    overflow-y: auto;
     padding: 0;
 }
 
@@ -529,12 +539,12 @@ body.sidebar-collapsed .header-container {
     width: var(--sidebar-width);
     height: 100vh;
     background-color: var(--color-sidebar-bg);
-    border-right: 1px solid #dee2e6;
-    box-shadow: 2px 0 10px var(--color-sidebar-shadow);
+    border-right: 1px solid var(--color-sidebar-border);
+    box-shadow: 2px 0 8px var(--color-sidebar-shadow);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: width 0.3s ease;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
 }
 
@@ -554,7 +564,7 @@ body.sidebar-collapsed .header-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background-color: #ffffff;
+    background-color: var(--color-sidebar-bg);
 }
 
 .sidebar-body nav{
@@ -571,41 +581,60 @@ body.sidebar-collapsed .header-container {
 .sidebar-header {
     display: flex;
     align-items: center;
-    padding: clamp(15px, 3%, 25px) clamp(18px, 3.5%, 30px) clamp(12px, 2.5%, 20px);
-    border-bottom: 1px solid #dee2e6;
-    background: white;
+    padding: clamp(18px, 3%, 25px) clamp(20px, 3.5%, 30px);
+    border-bottom: 1px solid var(--color-sidebar-border);
+    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
     min-height: var(--header-height);
+    gap: clamp(12px, 2%, 16px);
+    transition: all 0.3s ease;
 }
 
 .btn-open {
-    background: none;
-    border: none;
-    font-size: clamp(1rem, 2vw, 1.4rem);
+    background: transparent;
+    border: 1.5px solid var(--color-sidebar-border);
+    font-size: clamp(1rem, 2vw, 1.3rem);
     color: var(--color-text-primary);
-    padding: clamp(6px, 1.5%, 10px);
-    margin-right: clamp(8px, 2%, 15px);
+    padding: clamp(8px, 1.5%, 12px);
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: clamp(36px, 5%, 42px);
+    height: clamp(36px, 5%, 42px);
+    flex-shrink: 0;
+    opacity: 1 !important;
+    visibility: visible !important;
     transition: color 0.2s ease;
 }
 
 .btn-open:hover {
+    background-color: var(--color-nav-hover);
+    border-color: var(--color-nav-active);
     color: var(--color-nav-active);
+    transform: scale(1.05);
+}
+
+.btn-open:active {
+    transform: scale(0.95);
 }
 
 .sidebar-title {
-    font-size: clamp(0.75rem, 1.3vw, 1.1rem);
-    font-weight: 600;
-    color: var(--color-text-primary);
-    white-space: nowrap;
+    width: clamp(100px, 12vw, 150px);
+    height: auto;
     overflow: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    margin-top: clamp(2%, 3.1%, 4%);
+    transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25))
+            drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
 }
+
 
 /* Ocultar título cuando colapsado */
 .sidebar.collapsed .sidebar-title {
     opacity: 0;
     transform: translateX(-10px);
+    pointer-events: none;
 }
 
 /* ======= CENTRAR EL BOTÓN EN COLLAPSED ======= */
@@ -716,14 +745,44 @@ body.sidebar-collapsed .header-container {
         inset 12px 0 24px rgba(57, 169, 0, 0.1);
 }
 
-/* Ajustes de colapso en enlaces e íconos */
+* Ajustes de colapso en enlaces e íconos */
 .sidebar.collapsed .nav-link {
-    padding-left: clamp(15px, 3%, 25px);
+    padding: clamp(12px, 2%, 16px) clamp(15px, 3%, 20px);
+    justify-content: center;
+}
+
+.sidebar.collapsed .nav-link:hover {
+    padding-left: clamp(15px, 3%, 20px);
 }
 
 .sidebar.collapsed .nav-text {
     opacity: 0;
     transform: translateX(-10px);
+    position: absolute;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .nav-icon {
+    margin: 0;
+}* Ajustes de colapso en enlaces e íconos */
+.sidebar.collapsed .nav-link {
+    padding: clamp(12px, 2%, 16px) clamp(15px, 3%, 20px);
+    justify-content: center;
+}
+
+.sidebar.collapsed .nav-link:hover {
+    padding-left: clamp(15px, 3%, 20px);
+}
+
+.sidebar.collapsed .nav-text {
+    opacity: 0;
+    transform: translateX(-10px);
+    position: absolute;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .nav-icon {
+    margin: 0;
 }
 
 /* ======= CONTENIDO PRINCIPAL ======= */
@@ -765,6 +824,11 @@ body.sidebar-collapsed .main-content {
     outline-offset: 2px;
 }
 
+.nav-link:focus {
+    outline: 2px solid var(--color-nav-active);
+    outline-offset: 2px;
+}
+
 .nav-text {
   color: var(--color-text-primary);
   transition: color 0.3s ease;
@@ -800,10 +864,10 @@ body.sidebar-collapsed .main-content {
 .config-btn, .logout-btn {
     display: flex;
     align-items: center;
-    gap: clamp(6px, 1.5%, 10px);
+    gap: clamp(6px, 1.5%, 8px);
     border: none;
     width: 100%;
-    padding: clamp(10px, 2%, 15px) clamp(18px, 3.5%, 30px);
+    padding: clamp(10px, 2%, 15px) ;
     background-color: transparent;
     animation: slideIn 0.3s ease forwards;
     cursor: pointer;

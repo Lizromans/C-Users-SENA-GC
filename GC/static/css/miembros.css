@@ -1623,3 +1623,8 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     color: #e74c3c;
     font-weight: bold;
 }
+
+/*==== MODAL LINK REGISTRO =====*/
+.modal{
+    margin-top: clamp(-120px, -10vw, -120px);
+}

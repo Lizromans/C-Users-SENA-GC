@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %} NOMBRE {% endblock %}
+{% block titulo %} Home {% endblock %}
 {% block css %}
 <link href="{% static 'css/home.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -46,86 +46,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Contenedor Secundario -->
-        <div class="contenedor-secundario">
-            <!-- Opción 1: Usando clases específicas -->
-            <div class="grupo">
-                <div class="card">
-                    <div class="icon-cont semilleros">
-                        <span class="icon">🌱</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Gestionar Semilleros</h5>            
-                    </div>
-                </div>
-                <div class="texto-inferior">
-                    <p>Administra tus semilleros de investigación, añade estudiantes y supervisa proyectos activos.</p>
-                </div>
-                <button class="redirigir semilleros" onclick="location.href='{% url 'semilleros' %}'"> Ir a Semilleros </button>
-            </div>
-            
-            <div class="grupo">
-                <div class="card">
-                    <div class="icon-cont proyectos">
-                        <span class="icon">📊</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Gestionar Proyectos</h5>            
-                    </div>
-                </div>
-                <div class="texto-inferior">
-                    <p>Supervisa y administra todos los proyectos en desarrollo.</p>
-                </div>
-                <button class="redirigir proyectos" onclick="location.href='{% url 'proyectos' %}'"> Ver Proyectos </button>
-            </div>
-
-            <div class="grupo">
-                <div class="card">
-                    <div class="icon-cont miembros">
-                        <span class="icon">👥</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Gestionar Miembros</h5>            
-                    </div>
-                </div>
-                <div class="texto-inferior">
-                    <p>Administra la información de los Miembros y tenla cuando la necesites.</p>
-                </div>
-                <button class="redirigir miembros" onclick="location.href='{% url 'miembros' %}'"> Ver Miembros </button>
-            </div>
-
-            <div class="grupo">
-                <div class="card">
-                    <div class="icon-cont reportes">
-                        <span class="icon">📋</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Gestionar Reportes</h5>            
-                    </div>
-                </div>
-                <div class="texto-inferior">
-                    <p>Genera reportes de actividad, progreso y resultados de tus semilleros</p>
-                </div>
-                <button class="redirigir reportes" onclick="location.href='{% url 'reportes' %}'"> Ir a Reportes </button>
-            </div>
-
-            <div class="grupo">
-                <div class="card">
-                    <div class="icon-cont ayuda">
-                        <span class="icon">❓</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Centro de Ayuda</h5>            
-                    </div>
-                </div>
-                <div class="texto-inferior">
-                    <p>Accede a papers, documentos y recursos compartidos para tus investigaciones.</p>
-                </div>
-                <button class="redirigir ayuda" onclick="location.href='{% url 'centroayuda' %}'"> Ir a Centro de Ayuda </button>
-            </div>
-        </div>
-
+        
         <!-- Contenedor terciario -->
         <div class="contenedor-tres">
             <h2>Actividad Reciente</h2>

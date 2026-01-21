@@ -568,7 +568,7 @@
             
             <h3 class="modal-verificacion-titulo">Verificación de Seguridad</h3>
             
-            <!-- ✅ MOSTRAR INTENTOS RESTANTES (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
+            <!-- MOSTRAR INTENTOS RESTANTES (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
             {% if request.session.intentos_restantes %}
             <div class="intentos-restantes">
                 <i class="fa fa-exclamation-triangle"></i>
@@ -605,7 +605,7 @@
                 </button>
             </form>
             
-            <!-- ✅ BOTÓN REENVIAR CÓDIGO (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
+            <!-- BOTÓN REENVIAR CÓDIGO (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
             {% if request.session.intentos_restantes %}
             <div class="reenviar-codigo-container">
                 <button type="button" class="btn-reenviar-codigo" id="btnReenviarCodigo" onclick="reenviarCodigo('{{ aprendiz_verificacion.cedula_apre }}')">

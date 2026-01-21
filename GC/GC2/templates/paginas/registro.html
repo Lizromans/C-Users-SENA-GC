@@ -17,6 +17,7 @@
     </script>
   {% endif %}
 
+  <!-- Partículas de fondo animadas -->
   <div class="bg-particles">
       <div class="particle"></div>
       <div class="particle"></div>
@@ -35,10 +36,10 @@
       <!-- Panel Azul -->
       <div class="blue-panel" id="bluePanel">
         <!-- Botón de regresar -->
-        <a  class="back-arrow" href="{% url 'bienvenido' %}">
-          <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back" >
+        <a class="back-arrow" href="{% url 'bienvenido' %}">
+          <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back">
         </a>  
-        <img src="{% static 'img/logo1.png' %}" alt="Logo SENA">
+        <img src="{% static 'img/logo1.png' %}" alt="Logo SENA" class="logo-sena">
         <h2 id="blueTitle">¿Eres un usuario nuevo?</h2>
         <p id="blueText">Regístrate para acceder al sistema de gestión del conocimiento</p>
         <button id="toggleBtn">Registrarse</button>
@@ -46,6 +47,10 @@
 
       <!-- Formulario -->
       <div class="form-container" id="formContainer">
+        <div class="header-content">
+            <img src="{% static 'img/logo_gc2.png' %}" alt="Logo InnHub" class="header-gc-logo">
+            <img src="{% static 'img/nombre1.png' %}" alt="Logo Sena Blanco" class="header-titulo">
+        </div>
         <h2 id="formTitle">INICIAR SESIÓN</h2>
 
         <form class="datos" method="POST" action="{% url 'iniciarsesion' %}" id="mainForm" novalidate>
@@ -125,70 +130,67 @@
     </div>
   {% endif %}
 
-  <script>
-    const container = document.getElementById("container");
-    const toggleBtn = document.getElementById("toggleBtn");
-    const formContainer = document.getElementById("formContainer");
-    const blueTitle = document.getElementById("blueTitle");
-    const blueText = document.getElementById("blueText");
-    const formTitle = document.getElementById("formTitle");
+<script>
+  const container = document.getElementById("container");
+  const toggleBtn = document.getElementById("toggleBtn");
+  const formContainer = document.getElementById("formContainer");
+  const blueTitle = document.getElementById("blueTitle");
+  const blueText = document.getElementById("blueText");
+  const formTitle = document.getElementById("formTitle");
 
-    // CAMBIO PRINCIPAL: Inicia siempre en true (login)
-    let isLogin = true;
+  let isLogin = true;
 
-    // Función para alternar visibilidad de contraseña
-    function togglePassword(fieldId) {
-      const field = document.getElementById(fieldId);
-      const icon = document.getElementById('toggleIcon_' + fieldId);
-      
-      if (field && icon) {
-        if (field.type === 'password') {
-          field.type = 'text';
-          icon.classList.remove('fa-eye');
-          icon.classList.add('fa-eye-slash');
-        } else {
-          field.type = 'password';
-          icon.classList.remove('fa-eye-slash');
-          icon.classList.add('fa-eye');
-        }
+  function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById('toggleIcon_' + fieldId);
+    
+    if (field && icon) {
+      if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
       }
     }
+  }
 
-    function showLoginForm() {
+  function showLoginForm() {
+    // Añadir clase de fade out
+    formContainer.style.opacity = '0';
+    
+    setTimeout(() => {
       blueTitle.textContent = "¿Eres un usuario nuevo?";
       blueText.textContent = "Regístrate para acceder al sistema de gestión del conocimiento";
       toggleBtn.textContent = "Registrarse";
-      formTitle.textContent = "INICIAR SESIÓN";
+      
       formContainer.innerHTML = `
+        <div class="header-content">
+            <img src="{% static 'img/logo_gc2.png' %}" alt="Logo InnHub" class="header-gc-logo">
+            <img src="{% static 'img/nombre1.png' %}" alt="Logo Sena Blanco" class="header-titulo">
+        </div>
         <h2>INICIAR SESIÓN</h2>
         <form method="POST" action="{% url 'iniciarsesion' %}" novalidate>
           {% csrf_token %}
           
-          <!-- Rol -->
           <div class="select_container">
             <select name="rol" class="select" required>
               <option value="">Selecciona tu rol</option>
-              <option value="Dinamizador" {% if rol == 'Dinamizador' %}selected{% endif %}>Dinamizador</option>
-              <option value="Coordinador" {% if rol == 'Coordinador' %}selected{% endif %}>Coordinador</option>
-              <option value="Líder de Semillero" {% if rol == 'Líder de Semillero' %}selected{% endif %}>Líder de semillero</option>
-              <option value="Líder de Proyecto" {% if rol == 'Líder de Proyecto' %}selected{% endif %}>Líder de proyecto</option>
-              <option value="Investigador" {% if rol == 'Investigador' %}selected{% endif %}>Investigador</option>
-              <option value="Instructor" {% if rol == 'Instructor' %}selected{% endif %}>Instructor</option>
+              <option value="Dinamizador">Dinamizador</option>
+              <option value="Coordinador">Coordinador</option>
+              <option value="Líder de Semillero">Líder de semillero</option>
+              <option value="Líder de Proyecto">Líder de proyecto</option>
+              <option value="Investigador">Investigador</option>
+              <option value="Instructor">Instructor</option>
             </select>
-            {% if error_rol %}
-              <div class="error-rol">{{ error_rol }}</div>
-            {% endif %}
           </div>
           
-          <!-- Cedula -->
           <div class="form-group m-1">
-            <input type="text" name="cedula" class="input" placeholder="Cédula" value="{% if cedula %}{{ cedula }}{% endif %}" required>
-            {% if error_user %}
-              <div class="error-cedula">{{ error_user }}</div>
-            {% endif %}
+            <input type="text" name="cedula" class="input" placeholder="Cédula" required>
           </div>
 
-          <!-- Contraseña -->
           <div class="form-group m-1">
             <div class="password-field-container">
               <input type="password" name="password" id="loginPassword" class="input" placeholder="Contraseña" required>
@@ -196,9 +198,6 @@
                 <i class="fas fa-eye" id="toggleIcon_loginPassword"></i>
               </span>
             </div>
-            {% if error_password %}
-              <div class="error-contrase">{{ error_password }}</div>
-            {% endif %}
           </div>
 
           <a id="olvido" href="{% url 'mostrar_recuperar_contrasena' %}">¿Olvidó su contraseña?</a>
@@ -208,34 +207,44 @@
           </div>
         </form>
       `;
-    }
+      
+      // Fade in
+      setTimeout(() => {
+        formContainer.style.opacity = '1';
+      }, 50);
+    }, 300);
+  }
 
-    function showRegisterForm() {
+  function showRegisterForm() {
+    // Añadir clase de fade out
+    formContainer.style.opacity = '0';
+    
+    setTimeout(() => {
       blueTitle.textContent = "¿Ya tienes cuenta?";
       blueText.textContent = "Inicia sesión para acceder a todas las funcionalidades del sistema";
       toggleBtn.textContent = "Iniciar sesión";
-      formTitle.textContent = "REGISTRO";
+      
       formContainer.innerHTML = `
+        <div class="header-content">
+            <img src="{% static 'img/logo_gc2.png' %}" alt="Logo InnHub" class="header-gc-logo">
+            <img src="{% static 'img/nombre1.png' %}" alt="Logo Sena Blanco" class="header-titulo">
+        </div>
         <h2>REGISTRO</h2>
         <form class="datos" method="POST" action="{% url 'registro' %}" novalidate>
           {% csrf_token %}
 
-          <!-- Cédula -->
           <div class="form-group m-1">
             <input type="text" name="cedula" class="input" placeholder="Cédula" required>
           </div>
 
-          <!-- Nombre -->
           <div class="form-group m-1">
             <input type="text" name="nom_usu" class="input" placeholder="Nombre" required>
           </div>
 
-          <!-- Apellido -->
           <div class="form-group m-1">
             <input type="text" name="ape_usu" class="input" placeholder="Apellido" required>
           </div>
 
-          <!-- Correo Institucional -->
           <div class="form-group m-1">
             <input type="email" name="correo_ins" class="input" placeholder="Correo Institucional" required>
             <small class="form-text text-muted">
@@ -243,7 +252,6 @@
             </small>
           </div>
 
-          <!-- Rol -->
           <div class="select_container">
             <select name="rol" class="select" required>
               <option value="">Selecciona tu rol</option>
@@ -252,7 +260,6 @@
             </select>
           </div>
 
-          <!-- Contraseña -->
           <div class="form-group m-1">
             <div class="password-field-container">
               <input type="password" name="contraseña" id="password" class="input" placeholder="Contraseña" required>
@@ -262,7 +269,6 @@
             </div>
           </div>
 
-          <!-- Confirmar Contraseña -->
           <div class="form-group m-1">
             <div class="password-field-container">
               <input type="password" name="conf_contraseña" id="confpassword" class="input" placeholder="Confirmar Contraseña" required>
@@ -272,43 +278,50 @@
             </div>
           </div>
 
-          <!-- Botón -->
           <div class="form-group m-1">
             <button type="submit" class="btn">Registrarse</button>
           </div>
         </form>
       `;
-    }
-
-    toggleBtn.addEventListener("click", () => {
-      container.classList.toggle("active");
-      isLogin = !isLogin;
-
-      if (isLogin) {
-        showLoginForm();
-      } else {
-        showRegisterForm();
-      }
-    });
-
-    // Función global para el toggle de contraseña en login
-    window.togglePasswordLogin = function() {
-      const field = document.getElementById('loginPassword');
-      const icon = document.getElementById('toggleIcon_loginPassword');
       
-      if (field && icon) {
-        if (field.type === 'password') {
-          field.type = 'text';
-          icon.classList.remove('fa-eye');
-          icon.classList.add('fa-eye-slash');
-        } else {
-          field.type = 'password';
-          icon.classList.remove('fa-eye-slash');
-          icon.classList.add('fa-eye');
-        }
+      // Fade in
+      setTimeout(() => {
+        formContainer.style.opacity = '1';
+      }, 50);
+    }, 300);
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    container.classList.toggle("active");
+    isLogin = !isLogin;
+
+    if (isLogin) {
+      showLoginForm();
+    } else {
+      showRegisterForm();
+    }
+  });
+
+  window.togglePasswordLogin = function() {
+    const field = document.getElementById('loginPassword');
+    const icon = document.getElementById('toggleIcon_loginPassword');
+    
+    if (field && icon) {
+      if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
       }
-    };
-  </script>
+    }
+  };
+</script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/mensaje.js' %}"></script>
+
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
   <script src="{% static 'js/mensaje.js' %}"></script>
 </body>
