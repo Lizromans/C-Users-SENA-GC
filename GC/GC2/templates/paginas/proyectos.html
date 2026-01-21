@@ -149,19 +149,25 @@
                             </td>
                             <td class="estado">
                                 {% if proyecto.estado_pro == 'pendiente' %}
-                                    <span class="estado pendiente">Pendiente</span>
+                                    <span class="estado pendiente" title="Pendiente">Pendiente</span>
+
                                 {% elif proyecto.estado_pro == 'diagnostico' %}
-                                    <span class="estado diagnostico">En diagnóstico</span>
+                                    <span class="estado diagnostico" title="En diagnóstico">En diagnóstico</span>
+
                                 {% elif proyecto.estado_pro == 'planeacion' %}
-                                    <span class="estado planeacion">Planeación</span>
+                                    <span class="estado planeacion" title="Planeación">Planeación</span>
+
                                 {% elif proyecto.estado_pro == 'ejecucion' %}
-                                    <span class="estado ejecucion">En ejecución</span>
+                                    <span class="estado ejecucion" title="En ejecución">En ejecución</span>
+
                                 {% elif proyecto.estado_pro == 'completado' %}
-                                    <span class="estado completado">Completado</span>
+                                    <span class="estado completado" title="Completado">Completado</span>
+
                                 {% else %}
-                                    <span class="estado desconocido">Sin estado</span>
+                                    <span class="estado desconocido" title="Sin estado">Sin estado</span>
                                 {% endif %}
                             </td>
+
                             <td>
                                 <div class="progress-bar">
                                     <div class="progress-fill" 
@@ -169,7 +175,8 @@
                                         style="width: {{ proyecto.progreso }}%"
                                         aria-valuenow="{{ proyecto.progreso }}" 
                                         aria-valuemin="0" 
-                                        aria-valuemax="100"> {{ proyecto.progreso }}%
+                                        aria-valuemax="100"
+                                        title="{{ proyecto.progreso }}%"> {{ proyecto.progreso }}%
                                     </div>
                                 </div>
                             </td>

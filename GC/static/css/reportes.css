@@ -252,7 +252,7 @@
 
 .resumen {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(450px, 50vw, 550px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, clamp(300px, 60vw, 450px)), 1fr));
     gap: clamp(1rem, 2vw, 2rem);
     width: 100%;
     background-color: var(--color-fondo-secundario);
@@ -407,23 +407,27 @@
 
 /* ====== TEXTO LISTA ====== */
 .texto-lista {
-    flex: 1;
-    max-width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Controla el espacio entre título y subtítulo */
 }
 
 .texto-lista .titulo {
-    font-size: clamp(0.95rem, 1.1vw, 1.05rem);    font-weight: 600;
+    font-size: clamp(0.7rem, 1.1vw, 0.99rem);
+    font-weight: 799;
     color: #000000;
     word-wrap: break-word;
+    display: block; /* Fuerza que ocupe toda la línea */
+    line-height: 1.3; /* Mejora el espaciado interno */
 }
 
 .texto-lista .subtitulo {
-    font-size: clamp(0.7rem, 1vw, 0.8rem);
-    color: #666;
+    font-size: clamp(0.45rem, 1.2vw, 0.8rem);
+    color: #555;
     word-wrap: break-word;
-    line-height: 1.4;
+    display: block; /* Fuerza que ocupe toda la línea */
+    line-height: 1.4; /* Mejora el espaciado interno */
 }
-
 /* ====== BOTÓN EXCEL ====== */
 .boton-excel,
 .boton-excel:hover {

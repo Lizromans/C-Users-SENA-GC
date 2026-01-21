@@ -282,11 +282,6 @@
     cursor: pointer;
     padding: 0;
     font-size: inherit;
-    transition: color 0.3s ease;
-}
-
-.search-icon:hover{
-    color: #4CAF50;
 }
 
 .filtro {
@@ -359,6 +354,7 @@ table {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
 }
 
 /* Encabezado */
@@ -374,7 +370,8 @@ thead th {
     font-size: clamp(0.75rem, 1.8vw, 1rem);
     text-transform: uppercase;
     letter-spacing: clamp(0.3px, 0.5vw, 0.5px);
-    white-space: nowrap;
+    white-space: normal; 
+    word-wrap: break-word; 
 }
 
 /* Cuerpo de la tabla */
@@ -398,6 +395,8 @@ tbody td {
     padding: clamp(0.7rem, 1.8vw, 1rem) clamp(0.5rem, 1.5vw, 1rem);
     color: #333;
     font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
 }
 
 /* Columnas específicas */
@@ -407,17 +406,22 @@ tbody td {
 }
 
 td.estado {
+    max-width: 120px; 
     vertical-align: middle;
 }
 
 span.estado {
-    display: inline-block;
-    padding: clamp(0.3rem, 0.8vw, 0.4rem) clamp(0.7rem, 1.5vw, 1rem);
-    border-radius: clamp(15px, 3vw, 20px);
-    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
-    
+    display: block;             
+    max-width: 100%;
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
+
 span.estado.pendiente {
     background-color: #ffc67b4f;
     color: #ff6600;
@@ -451,6 +455,7 @@ span.estado.completado {
     min-width: clamp(120px, 15vw, 180px);
 }
 
+/* Modificar .btn */
 .btn {
     padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.7rem, 1.5vw, 1rem);
     border: none;
@@ -459,10 +464,12 @@ span.estado.completado {
     font-size: clamp(0.7rem, 1.4vw, 0.85rem);
     font-weight: 600;
     transition: all 0.3s ease;
-    white-space: nowrap;
+    white-space: nowrap; 
     background-color: #38a900cc;
     width: 90%;
-    color:var(--color-primario)
+    color: var(--color-primario);
+    text-overflow: ellipsis; 
+    overflow: hidden; 
 }
 
 .btn:hover{

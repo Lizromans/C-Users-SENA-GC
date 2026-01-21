@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block titulo %} NOMBRE {% endblock %}
+{% block titulo %} Gestión deSemilleros {% endblock %}
 
 {% block css %}
 <link href="{% static 'css/semilleros.css' %}" rel="stylesheet">
@@ -29,68 +29,58 @@
         </div>
         
         <form method="GET" class="buscador">
+
+            <!-- Buscador -->
             <div class="input-group">
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     name="buscar"
-                    placeholder="Buscar semillero..." 
-                    aria-label="Buscar semillero"
+                    placeholder="Buscar semillero..."
                     value="{{ request.GET.buscar }}">
-                
-                <button class="btn btn-primary" type="submit" id="button-search">
+                <button class="btn btn-primary" type="submit">
                     <i class="fa fa-search"></i>
                 </button>
             </div>
-            
-            <div class="filtros">
-                <input type="date" 
-                    class="date" 
-                    name="fecha_inicio"
-                    value="{{ request.GET.fecha_inicio }}"
-                    placeholder="Fecha inicio"
-                    aria-label="Fecha inicio">
-                
-                <input type="date" 
-                    class="date" 
-                    name="fecha_fin"
-                    value="{{ request.GET.fecha_fin }}"
-                    placeholder="Fecha fin"
-                    aria-label="Fecha fin">
-                
-                <select class="form-select" 
-                        name="ordenar"
-                        aria-label="Ordenar por"
-                        onchange="this.form.submit()">
 
+            <!-- Fechas (lado a lado) -->
+            <div class="filtros-fecha">
+                <input type="date"
+                    class="date"
+                    name="fecha_inicio"
+                    value="{{ request.GET.fecha_inicio }}">
+                <input type="date"
+                    class="date"
+                    name="fecha_fin"
+                    value="{{ request.GET.fecha_fin }}">
+            </div>
+
+            <!-- Ordenar -->
+            <div class="ordenar">
+                <select class="form-select"
+                        name="ordenar"
+                        onchange="this.form.submit()">
                     <option value="">Ordenar por</option>
-                    <option value="recientes"
-                        {% if request.GET.ordenar == "recientes" %}selected{% endif %}>
-                        Más recientes
-                    </option>
-                    <option value="antiguos"
-                        {% if request.GET.ordenar == "antiguos" %}selected{% endif %}>
-                        Más antiguos
-                    </option>
-                    <option value="az"
-                        {% if request.GET.ordenar == "az" %}selected{% endif %}>
-                        A-Z
-                    </option>
-                    <option value="za"
-                        {% if request.GET.ordenar == "za" %}selected{% endif %}>
-                        Z-A
-                    </option>
+                    <option value="recientes">Más recientes</option>
+                    <option value="antiguos">Más antiguos</option>
+                    <option value="az">A-Z</option>
+                    <option value="za">Z-A</option>
                 </select>
             </div>
-            
+
+            <!-- Botones -->
             <div class="botones-item">
                 <button type="submit" class="aplicar">
                     <i class="fa fa-filter"></i> Aplicar filtros
                 </button>
-                <button type="button" class="limpiar" onclick="window.location.href='{% url 'semilleros' %}'">
+                <button type="button"
+                        class="limpiar"
+                        onclick="window.location.href='{% url 'semilleros' %}'">
                     <i class="fas fa-sync-alt"></i> Limpiar filtros
                 </button>
             </div>
+
         </form>
+
         
         <div class="contenedor-semillero">
             <div class="header-semilleros">

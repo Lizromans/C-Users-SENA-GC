@@ -52,14 +52,14 @@
                     </div>
                 </div>
                 <div class="scrollable-list">
-                    {% for documento in documentos %}
                     <ul class="lista">
+                        {% for documento in documentos %}
                         <li>
                             <div class="icon-cont">
                                 <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
                             </div>
                             <div class="texto-lista">
-                                <span class="titulo">{{ documento.titulo }}</span><br>
+                                <span class="titulo">{{ documento.titulo }}</span>
                                 <span class="subtitulo">{{ documento.tipo_archivo }}</span>
                             </div>
                             <div class="acciones">
@@ -67,13 +67,13 @@
                                 <a href="{{ documento.archivo.url }}" download class="fa fa-download" aria-hidden="true" title="Descargar"></a>
                             </div>
                         </li>
+                        {% empty %}
+                        <div class="empty-message">
+                            <i class="fa fa-folder-open"></i>
+                            <p>No hay documentos disponibles en este momento</p>
+                        </div>
+                        {% endfor %}
                     </ul>
-                    {% empty %}
-                    <div class="empty-message">
-                        <i class="fa fa-folder-open"></i>
-                        <p>No hay documentos disponibles en este momento</p>
-                    </div>
-                    {% endfor %}
                 </div>
             </div>
             
@@ -89,28 +89,30 @@
                     </div>
                 </div>
                 <div class="scrollable-list">
-                    {% for video in videos %}
                     <ul class="lista">
+                        {% for video in videos %}
                         <li>
                             <div class="icon-cont">
                                 <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
                             </div>
+
                             <div class="texto-lista">
-                                <span class="titulo">{{ video.titulo }}</span><br>
+                                <span class="titulo">{{ video.titulo }}</span>
                                 <span class="subtitulo">{{ video.tipo_archivo }}</span>
                             </div>
+
                             <div class="acciones">
                                 <a href="{{ video.archivo.url }}" target="_blank" class="fas fa-eye" title="Ver"></a>
-                                <a href="{{ video.archivo.url }}" download class="fa fa-download descargar" aria-hidden="true" title="Descargar"></a>
+                                <a href="{{ video.archivo.url }}" download class="fa fa-download descargar" title="Descargar"></a>
                             </div>
                         </li>
+                        {% empty %}
+                        <div class="empty-message">
+                            <i class="fa fa-folder-open"></i>
+                            <p>No hay videos disponibles en este momento</p>
+                        </div>
+                        {% endfor %}
                     </ul>
-                    {% empty %}
-                    <div class="empty-message">
-                        <i class="fa fa-folder-open"></i>
-                        <p>No hay videos disponibles en este momento</p>
-                    </div>
-                    {% endfor %}
                 </div>
             </div>
 
@@ -132,7 +134,7 @@
                                 <img src="{% static 'img/soporte.png' %}" alt="Icono" class="icono">
                             </div>
                             <div class="texto-lista">
-                                <span class="titulo">Solicitud de Soporte Técnico</span><br>
+                                <span class="titulo">Solicitud de Soporte Técnico</span>
                                 <span class="subtitulo">Formulario para reportar incidencias técnicas y solicitar ayuda especializada.</span>
                             </div>
                             <div class="acciones">

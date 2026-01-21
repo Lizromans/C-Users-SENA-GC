@@ -2774,8 +2774,8 @@ def recursos(request, id_sem):
     
     return render(request, 'paginas/recursos.html', {
         'current_page': 'recursos', 
-        'semillero': semillero,
         'current_page_name': 'Semilleros',
+        'semillero': semillero,
         'documentos': documentos,
         'fichas': fichas,
         'total_miembros': total_miembros,
