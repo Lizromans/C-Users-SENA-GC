@@ -1114,9 +1114,12 @@
                             <div class="modal-campo" id="sub-campo">
                                 <label>Líneas de Investigación *</label>
                                 <div class="modal-check-group">
-                                    <label><input type="checkbox" name="lineasinv[]" value="Investigación Aplicada"> Investigación Aplicada</label>
-                                    <label><input type="checkbox" name="lineasinv[]" value="Desarrollo Tecnológico"> Desarrollo Tecnológico</label>
-                                    <label><input type="checkbox" name="lineasinv[]" value="Innovación"> Innovación</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Servicios ecosistémicos, ambientales y de turismo sostenible"> Servicios ecosistémicos, ambientales y de turismo sostenible</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Producción agrícola y pecuaria sostenible"> Producción agrícola y pecuaria sostenible</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Transformación y sofisticación de la agroindustria"> Transformación y sofisticación de la agroindustria</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Gestión empresarial agroalimentaria"> Gestión empresarial agroalimentaria</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Promoción sostenible de la diversificación alimentaria"> Promoción sostenible de la diversificación alimentaria</label>
+                                    <label><input type="checkbox" name="lineasinv[]" value="Desarrollo de soluciones tecnológicas, de infraestructura y de energía para el campo"> Desarrollo de soluciones tecnológicas, de infraestructura y de energía para el campo</label>
                                 </div>
                             </div>
                             
@@ -1511,21 +1514,39 @@
                                 <label>Líneas de Investigación *</label>
                                 <div class="modal-check-group">
                                     <label>
-                                        <input type="checkbox" name="lineasinv[]" value="Investigación Aplicada"
-                                        {% if "Investigación Aplicada" in lineas_inv_lista %}checked{% endif %}>
-                                        Investigación Aplicada
+                                        <input type="checkbox" name="lineasinv[]" value="Servicios ecosistémicos, ambientales y de turismo sostenible"
+                                        {% if "Servicios ecosistémicos, ambientales y de turismo sostenible" in lineas_inv_lista %}checked{% endif %}>
+                                        Servicios ecosistémicos, ambientales y de turismo sostenible
                                     </label>
 
                                     <label>
-                                        <input type="checkbox" name="lineasinv[]" value="Desarrollo Tecnológico"
-                                        {% if "Desarrollo Tecnológico" in lineas_inv_lista %}checked{% endif %}>
-                                        Desarrollo Tecnológico
+                                        <input type="checkbox" name="lineasinv[]" value="Producción agrícola y pecuaria sostenible"
+                                        {% if "Producción agrícola y pecuaria sostenible" in lineas_inv_lista %}checked{% endif %}>
+                                        Producción agrícola y pecuaria sostenible
                                     </label>
 
                                     <label>
-                                        <input type="checkbox" name="lineasinv[]" value="Innovación"
-                                        {% if "Innovación" in lineas_inv_lista %}checked{% endif %}>
-                                        Innovación
+                                        <input type="checkbox" name="lineasinv[]" value="Transformación y sofisticación de la agroindustria"
+                                        {% if "Transformación y sofisticación de la agroindustria" in lineas_inv_lista %}checked{% endif %}>
+                                        Transformación y sofisticación de la agroindustria
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="lineasinv[]" value="Gestión empresarial agroalimentaria"
+                                        {% if "Gestión empresarial agroalimentaria" in lineas_inv_lista %}checked{% endif %}>
+                                        Gestión empresarial agroalimentaria
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="lineasinv[]" value="Promoción sostenible de la diversificación alimentaria"
+                                        {% if "Promoción sostenible de la diversificación alimentaria" in lineas_inv_lista %}checked{% endif %}>
+                                        Promoción sostenible de la diversificación alimentaria
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="lineasinv[]" value="Desarrollo de soluciones tecnológicas, de infraestructura y de energía para el campo"
+                                        {% if "Desarrollo de soluciones tecnológicas, de infraestructura y de energía para el campo" in lineas_inv_lista %}checked{% endif %}>
+                                        Desarrollo de soluciones tecnológicas, de infraestructura y de energía para el campo
                                     </label>
                                 </div>
                             </div>
@@ -1861,7 +1882,7 @@
                     id="form-subir-{{ entregable.cod_entre }}">
                     {% csrf_token %}
                     
-                    <!-- ✅ CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
+                    <!-- CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
                     {% if proyecto.tipo|lower == 'sennova' or proyecto.tipo|lower == 'capacidadinstalada' or proyecto.tipo|lower == 'capacidad instalada' %}
                     <div class="seccion-categorizacion">
                         <h6 class="seccion-titulo">
@@ -1907,7 +1928,7 @@
                     </div>
                     {% endif %}
 
-                    <!-- ✅ SECCIÓN DE ARCHIVOS (para todos los tipos) -->
+                    <!-- SECCIÓN DE ARCHIVOS (para todos los tipos) -->
                     <div class="seccion-archivos">
                         <h6 class="seccion-titulo">
                             <i class="fas fa-paperclip"></i> Archivos Adjuntos
@@ -1933,7 +1954,7 @@
                         <div id="preview-archivos-{{ entregable.cod_entre }}" class="preview-archivos"></div>
                     </div>
 
-                    <!-- ✅ BOTONES DE ACCIÓN -->
+                    <!-- BOTONES DE ACCIÓN -->
                     <div class="modal-botones">
                         <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">
                             <i class="fas fa-times"></i> Cancelar
@@ -1967,7 +1988,7 @@
                     id="form-subir-{{ entregable.cod_entre }}">
                     {% csrf_token %}
                     
-                    <!-- ✅ CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
+                    <!-- CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
                     {% if proyecto.tipo|lower == 'sennova' or proyecto.tipo|lower == 'capacidadinstalada' or proyecto.tipo|lower == 'capacidad instalada' %}
                     <div class="seccion-categorizacion">
                         <h6 class="seccion-titulo">
