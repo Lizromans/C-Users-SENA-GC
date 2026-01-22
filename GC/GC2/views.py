@@ -338,7 +338,7 @@ def iniciarsesion(request):
             errores['error_password'] = "La contraseña es obligatoria."
 
         if errores:
-            return render(request, 'paginas/iniciarsesion.html', {
+            return render(request, 'paginas/registro.html', {
                 **errores,
                 'cedula': cedula,
                 'rol': rol,
@@ -348,7 +348,7 @@ def iniciarsesion(request):
         try:
             usuario = Usuario.objects.get(cedula=cedula)
         except Usuario.DoesNotExist:
-            return render(request, 'paginas/iniciarsesion.html', {
+            return render(request, 'paginas/registro.html', {
                 'error_user': 'Usuario no registrado.',
                 'cedula': cedula,
                 'rol': rol,
@@ -356,7 +356,7 @@ def iniciarsesion(request):
             })
 
         if not usuario.check_password(password):
-            return render(request, 'paginas/iniciarsesion.html', {
+            return render(request, 'paginas/registro.html', {
                 'error_password': 'Contraseña incorrecta.',
                 'cedula': cedula,
                 'rol': rol,
@@ -364,7 +364,7 @@ def iniciarsesion(request):
             })
 
         if usuario.rol != rol:
-            return render(request, 'paginas/iniciarsesion.html', {
+            return render(request, 'paginas/registro.html', {
                 'error_rol': 'El rol seleccionado no coincide con tu usuario.',
                 'cedula': cedula,
                 'rol': rol,
@@ -372,7 +372,7 @@ def iniciarsesion(request):
             })
 
         if not usuario.email_verificado:
-            return render(request, 'paginas/iniciarsesion.html', {
+            return render(request, 'paginas/registro.html', {
                 'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
                 'cedula': cedula,
                 'rol': rol,
