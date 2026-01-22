@@ -252,22 +252,42 @@ def registro(request):
                 # Valores por defecto explícitos
                 usuario.email_verificado = False
                 usuario.is_active = True       
-                usuario.estado = 'Activo'     
+                usuario.estado = 'Activo'
                 
+                # Guardar el usuario
                 usuario.save()
 
                 # Enviar correo de verificación
-                if hasattr(usuario, 'generar_token_verificacion'):
-                    usuario.generar_token_verificacion()
-                if hasattr(usuario, 'enviar_email_verificacion'):
-                    usuario.enviar_email_verificacion(request)
-
-                messages.success(request, "¡Registro exitoso! Verifica tu correo electrónico.")
+                try:
+                    if hasattr(usuario, 'generar_token_verificacion'):
+                        usuario.generar_token_verificacion()
+                    if hasattr(usuario, 'enviar_email_verificacion'):
+                        usuario.enviar_email_verificacion(request)
+                    
+                    messages.success(request, "¡Registro exitoso! Verifica tu correo electrónico.")
+                except Exception as email_error:
+                    # Si falla el envío del correo, aún así el usuario se creó
+                    messages.warning(
+                        request, 
+                        "Usuario registrado, pero hubo un problema al enviar el correo de verificación. "
+                        "Por favor contacta al administrador."
+                    )
+                    print(f"Error al enviar email: {email_error}")  # Para debugging
+                
                 return redirect('iniciarsesion')
+                
             except Exception as e:
-                messages.error(request, f"Error al registrar usuario: {e}")
+                messages.error(request, f"Error al registrar usuario: {str(e)}")
+                print(f"Error en registro: {e}")  # Para debugging
         else:
-            messages.error(request, "Por favor corrige los errores en el formulario.")
+            # Mostrar errores específicos del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    if field == '__all__':
+                        messages.error(request, error)
+                    else:
+                        field_name = form.fields[field].label or field
+                        messages.error(request, f"{field_name}: {error}")
     else:
         form = UsuarioRegistroForm()
 
@@ -310,7 +330,6 @@ def iniciarsesion(request):
 
         errores = {}
 
-        # Validaciones básicas
         if not rol:
             errores['error_rol'] = "Debe seleccionar un rol."
         if not cedula:
@@ -319,52 +338,47 @@ def iniciarsesion(request):
             errores['error_password'] = "La contraseña es obligatoria."
 
         if errores:
-            return render(request, 'paginas/registro.html', {
+            return render(request, 'paginas/iniciarsesion.html', {
                 **errores,
                 'cedula': cedula,
                 'rol': rol,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # Buscar usuario por cédula
         try:
             usuario = Usuario.objects.get(cedula=cedula)
         except Usuario.DoesNotExist:
-            return render(request, 'paginas/registro.html', {
+            return render(request, 'paginas/iniciarsesion.html', {
                 'error_user': 'Usuario no registrado.',
                 'cedula': cedula,
                 'rol': rol,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # Verificar contraseña
         if not usuario.check_password(password):
-            return render(request, 'paginas/registro.html', {
+            return render(request, 'paginas/iniciarsesion.html', {
                 'error_password': 'Contraseña incorrecta.',
                 'cedula': cedula,
                 'rol': rol,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # Verificar rol
         if usuario.rol != rol:
-            return render(request, 'paginas/registro.html', {
+            return render(request, 'paginas/iniciarsesion.html', {
                 'error_rol': 'El rol seleccionado no coincide con tu usuario.',
                 'cedula': cedula,
                 'rol': rol,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # Verificar correo electrónico
         if not usuario.email_verificado:
-            return render(request, 'paginas/registro.html', {
+            return render(request, 'paginas/iniciarsesion.html', {
                 'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
                 'cedula': cedula,
                 'rol': rol,
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        # ✅ TODO CORRECTO - Crear sesión personalizada
         request.session['cedula'] = usuario.cedula
         request.session['nom_usu'] = usuario.nom_usu
         request.session['ape_usu'] = usuario.ape_usu
@@ -373,14 +387,25 @@ def iniciarsesion(request):
         
         login(request, usuario)
 
-        # Configurar tiempo de expiración de sesión (opcional)
         request.session.set_expiry(3600)  # 1 hora
-        
-        # Actualizar último acceso
+
         usuario.last_login = timezone.now()
         usuario.save(update_fields=['last_login'])
 
         messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
+
+        perfil_incompleto = (
+            not usuario.correo_per or
+            not usuario.telefono or
+            not usuario.fecha_nacimiento or
+            not usuario.vinculacion_laboral or
+            not usuario.dependencia
+        )
+        
+        if perfil_incompleto:
+            messages.info(request, "Por favor completa tu perfil con la información faltante.")
+            return redirect('perfil')
+        
         return redirect('home')
 
     return render(request, 'paginas/registro.html', {

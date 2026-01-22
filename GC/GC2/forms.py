@@ -76,15 +76,16 @@ class UsuarioRegistroForm(forms.ModelForm):
         contraseña = cleaned_data.get('contraseña')
         conf_contraseña = cleaned_data.get('conf_contraseña')
 
-        # Validar coincidencia
-        if contraseña and conf_contraseña and contraseña != conf_contraseña:
-            self.add_error('conf_contraseña', "Las contraseñas no coinciden.")
-        else:
-            # Validar fortaleza con los validadores de Django
+        # Validar fortaleza primero (solo si existe la contraseña)
+        if contraseña:
             try:
                 validate_password(contraseña)
             except ValidationError as e:
                 self.add_error('contraseña', e)
+
+        # Luego validar coincidencia
+        if contraseña and conf_contraseña and contraseña != conf_contraseña:
+            self.add_error('conf_contraseña', "Las contraseñas no coinciden.")
 
         return cleaned_data
 
