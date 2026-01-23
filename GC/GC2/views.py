@@ -1,4 +1,6 @@
 from ctypes import alignment
+import os
+from tkinter import Image
 from urllib import request
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
@@ -66,8 +68,15 @@ from .forms import (
     limpiar_descripcion_anterior,
     CATEGORIAS_MAP,  
     PRODUCTOS_MAP,  
-    CAMPOS_LEGIBLES 
+    CAMPOS_LEGIBLES
 )
+# ReportLab - Canvas & gráficos
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+from reportlab.lib.utils import ImageReader
+from openpyxl.styles import Alignment
+from django.utils import timezone
+
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -2567,14 +2576,6 @@ def eliminar_archivo_fisico(archivo):
     return nombre_archivo
 
 def actualizar_estado_entregable(entregable):
-    """
-    Actualiza el estado del entregable después de eliminar un archivo
-    
-    Si no quedan archivos, el estado vuelve a 'Pendiente'
-    
-    Args:
-        entregable: Objeto Entregable
-    """
     # Verificar si quedan archivos
     archivos_restantes = Archivo.objects.filter(entregable=entregable).exists()
     
@@ -2584,9 +2585,6 @@ def actualizar_estado_entregable(entregable):
     
 @login_required
 def eliminar_proyecto_semillero(request, id_sem, cod_pro):
-    """
-    Elimina un proyecto y restaura los roles de sus líderes
-    """
     try:
         # ==================== 1. VALIDACIÓN Y OBTENCIÓN DE OBJETOS ====================
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
@@ -4614,7 +4612,6 @@ def reporte_participantes(request):
     return response
 
 def generar_reporte_excel(request):
-
     if request.method != "POST":
         return redirect("constructor_reportes")
 
@@ -4660,7 +4657,38 @@ def generar_reporte_excel(request):
     # ==================== SEMILLEROS ====================
     if "semilleros" in categorias:
         ws = wb.create_sheet("Semilleros")
+        # ====== RECUADRO SUPERIOR DERECHO ======
+        # LOGO
+        logo = Image("static/img/logo_gc.png")
+        logo.width = 120
+        logo.height = 120
+        ws.add_image(logo, "B1")
+
+        # CUADRO INFO
+        ws.merge_cells("D1:F2")
+        ws.merge_cells("D3:F4")
+
+        ws["D1"] = f"Creado por:\n{request.user.nom_usu} {request.user.ape_usu}"
+        ws["D3"] = f"Fecha y hora de generación:\n{timezone.now().strftime('%Y-%m-%d %H:%M')}"
+
+        for cell in ["D1", "D3"]:
+            ws[cell].alignment = Alignment(vertical="center", horizontal="left", wrap_text=True)
+            ws[cell].font = Font(bold=True)
+
+        # Bordes del cuadro
+        border = Border(
+            left=Side(style="thin"),
+            right=Side(style="thin"),
+            top=Side(style="thin"),
+            bottom=Side(style="thin"),
+        )
+
+        for row in ws["D1:F4"]:
+            for c in row:
+                c.border = border
+
         
+
         # Título en negrita
         ws.cell(row=1, column=1, value="SEMILLEROS").font = Font(bold=True)
         
@@ -4844,8 +4872,8 @@ def generar_reporte_excel(request):
             chart_prog.y_axis.title = "Progreso (%)"
             chart_prog.x_axis.title = "Semilleros"
             
-            data = Reference(ws, min_col=col_inicio_tabla_prog + 1, min_row=fila_encabezado, max_row=fila_actual - 1)
-            labels = Reference(ws, min_col=col_inicio_tabla_prog, min_row=fila_inicio_datos, max_row=fila_actual - 1)
+            data = Reference(ws, min_col=col_inicio_tabla_prog + 1, min_row=fila_encabezado, max_row=fila_actual - 7)
+            labels = Reference(ws, min_col=col_inicio_tabla_prog, min_row=fila_inicio_datos, max_row=fila_actual - 8)
             
             chart_prog.add_data(data, titles_from_data=True)
             chart_prog.set_categories(labels)
@@ -5848,6 +5876,28 @@ def generar_reporte_dinamico(request):
     else:
         return generar_reporte_excel(request)
 
+def agregar_marca_agua_pdf(c):
+    ruta = os.path.join(settings.BASE_DIR, "static", "img", "logo_gc.png")
+    logo = ImageReader(ruta)
+
+    ancho, alto = landscape(A4)
+
+    c.saveState()
+    c.setFillAlpha(0.08)  # 👈 Marca de agua elegante
+
+    c.translate(ancho / 2, alto / 2)
+
+    c.drawImage(
+        logo,
+        -9 * cm,
+        -9 * cm,
+        width=18 * cm,
+        height=18 * cm,
+        mask='auto'
+    )
+
+    c.restoreState()
+
 def generar_reporte_pdf(request):
     from reportlab.lib.units import inch
     from reportlab.pdfgen import canvas as pdf_canvas
@@ -5870,6 +5920,8 @@ def generar_reporte_pdf(request):
         Agrega encabezado y pie de página a cada página del PDF
         """
         canvas.saveState()
+
+        agregar_marca_agua_pdf(canvas)
         
         # Obtener dimensiones de la página
         width, height = landscape(A4)
@@ -5883,7 +5935,7 @@ def generar_reporte_pdf(request):
         # Logo o título del sistema (izquierda)
         canvas.setFont('Helvetica-Bold', 14)
         canvas.setFillColor(colors.HexColor('#2C3E50'))
-        canvas.drawString(40, height - 32, "GC - Gestión de Conocimiento")
+        canvas.drawString(40, height - 32, "Powered by InnHub")
         
         # Información de fecha (derecha)
         canvas.setFont('Helvetica', 9)

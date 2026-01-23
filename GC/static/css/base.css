@@ -71,6 +71,25 @@ body {
   width: fit-content;
 }
 
+.header-logo-container {
+    margin-bottom: clamp(3px, 1vh, 5px);
+}
+
+.header-gc-logo {
+    width: clamp(94px, 15vw, 114px);
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5))
+            drop-shadow(0 0 18px rgba(79, 195, 247, 0.3));
+    transition: all 0.3s ease-in-out;
+}
+
+.header-gc-logo:hover {
+    filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.7))
+            drop-shadow(0 0 25px rgba(79, 195, 247, 0.5))
+            brightness(1.1);
+    transform: scale(1.05);
+}
+
 .user-info {
   background-color: #ffffff;
   box-shadow: 0 2px 4px var(--color-sidebar-shadow);
@@ -126,9 +145,9 @@ body {
 }
 
 .sidebar-icon {
-  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+  font-size: clamp(0.rem, 1.5vw, 1rem);
   font-weight: 200;
-  color: var(--color-text-primary);
+  color: var(--color-text-primary); 
 }
 
 /* ======= BOTÓN VOLVER ======= */

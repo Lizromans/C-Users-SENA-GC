@@ -40,7 +40,7 @@ body {
 }
 
 .header-logo {
-    width: clamp(30px, 4%, 60px);
+    width: clamp(40.3px, 4vw, 63.3px);
     height: auto;
     filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5))
             drop-shadow(0 0 18px rgba(79, 195, 247, 0.3));
@@ -78,7 +78,7 @@ body {
 }
 
 .header-gc-logo {
-    width: clamp(35px, 4%, 65px);
+    width: clamp(98px, 15vw, 148px);
     height: auto;
     filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5))
             drop-shadow(0 0 18px rgba(79, 195, 247, 0.3));
@@ -90,21 +90,6 @@ body {
             drop-shadow(0 0 25px rgba(79, 195, 247, 0.5))
             brightness(1.1);
     transform: scale(1.05);
-}
-
-.header-title {
-    width: clamp(100px, 15%, 180px);
-    height: auto;
-    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4))
-            drop-shadow(0 0 15px rgba(79, 195, 247, 0.25));
-    transition: all 0.3s ease-in-out;
-}
-
-.header-title:hover {
-    filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.6))
-            drop-shadow(0 0 20px rgba(79, 195, 247, 0.4))
-            brightness(1.08);
-    transform: scale(1.02);
 }
 
 /* ====== MAIN ====== */

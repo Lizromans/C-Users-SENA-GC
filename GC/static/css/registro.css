@@ -440,7 +440,7 @@ body {
     margin: 10px 0;
     font-family: 'Work Sans', sans-serif;
     font-weight: 700;
-    font-size: 1.8rem;
+    font-size: 1.7rem;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
                  0 0 40px rgba(80, 229, 249, 0.2);
     z-index: 2;
@@ -495,7 +495,6 @@ body {
         0 0 40px rgba(80, 229, 249, 0.4);
 }
 
-
 /* ====== HEADER DEL FORMULARIO ====== */
 .header-content {
     display: flex;
@@ -514,7 +513,7 @@ body {
 }
 /* Logo InnHub */
 .header-gc-logo {
-    width: clamp(70px, 10%, 110px);
+    width: clamp(185px, 15%, 195px);
     height: auto;
     filter: contrast(0.90)
             brightness(1.01)
@@ -530,19 +529,6 @@ body {
     margin-left: -2.5%;
 }
 
-/* Título */
-.header-titulo {
-    width: clamp(220px, 15%, 300px);
-    height: auto;
-    filter: contrast(1.12)
-            brightness(1.06)
-            saturate(1.15)
-            drop-shadow(0 0 10px rgba(0, 212, 255, 0.4))
-            drop-shadow(0 0 18px rgba(79, 195, 247, 0.3))
-            drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* ====== FORMULARIOS ====== */
 .form-container {
     width: 45%;
@@ -550,18 +536,17 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-top: -2%;
+    
     opacity: 1;
     transition: opacity 0.2s ease-in-out; /* Transición de opacidad */
 }
 
 /* Título más BOLD y con efecto */
 .form-container h2 {
-    margin-bottom: 25px;
     color: #00304D;
     text-align: center;
     font-weight: 900;
-    font-size: 2.1rem;
+    font-size: clamp(0.95rem, 5vw, 1.3rem);
     letter-spacing: 1.5px;
     text-shadow: 0 2px 10px rgba(0, 48, 77, 0.15),
                  0 0 25px rgba(0, 112, 179, 0.1);
@@ -569,6 +554,7 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    animation: fadeContent 0.6s ease-in-out;
 }
 
 /* Inputs y selects mejorados */

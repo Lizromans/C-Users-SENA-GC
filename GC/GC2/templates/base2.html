@@ -20,8 +20,11 @@
         <div class="header-container">
             <header class="header-content">
                 <div class="header-left">
+                    <div class="header-logo-container">
+                        <img src="{% static 'img/logo_gc.png' %}" alt="Logo InnHub" class="header-gc-logo">
+                        <img src="{% static 'img/nombre.png' %}" alt="Nombre de la Aplicaicón" class="header-title">
+                    </div>
                     <span class="sidebar-icon">
-                        <i class="fa fa-dashboard" aria-hidden="true"></i>
                         Dashboard
                         {% if current_page_name %}
                             / {{ current_page_name }}

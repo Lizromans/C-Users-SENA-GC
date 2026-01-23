@@ -48,8 +48,7 @@
       <!-- Formulario -->
       <div class="form-container" id="formContainer">
         <div class="header-content">
-            <img src="{% static 'img/logo_gc2.png' %}" alt="Logo InnHub" class="header-gc-logo">
-            <img src="{% static 'img/nombre1.png' %}" alt="Logo Sena Blanco" class="header-titulo">
+          <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
         </div>
         <h2 id="formTitle">INICIAR SESIÓN</h2>
 
@@ -168,8 +167,7 @@
       
       formContainer.innerHTML = `
         <div class="header-content">
-            <img src="{% static 'img/logo_gc2.png' %}" alt="Logo InnHub" class="header-gc-logo">
-            <img src="{% static 'img/nombre1.png' %}" alt="Logo Sena Blanco" class="header-titulo">
+          <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
         </div>
         <h2>INICIAR SESIÓN</h2>
         <form method="POST" action="{% url 'iniciarsesion' %}" novalidate>
@@ -226,8 +224,7 @@
       
       formContainer.innerHTML = `
         <div class="header-content">
-            <img src="{% static 'img/logo_gc2.png' %}" alt="Logo InnHub" class="header-gc-logo">
-            <img src="{% static 'img/nombre1.png' %}" alt="Logo Sena Blanco" class="header-titulo">
+          <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
         </div>
         <h2>REGISTRO</h2>
         <form class="datos" method="POST" action="{% url 'registro' %}" novalidate>
