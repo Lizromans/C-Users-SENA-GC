@@ -326,13 +326,12 @@ def registro(request):
     context = {
         'form': form,
         'current_page_name': 'Registro',
-        'mostrar_registro': False,  
+        'mostrar_registro': True,  # CRÍTICO
         **errores_contexto,  
         **valores_preservados,  
     }
     
     return render(request, 'paginas/registro.html', context)
-
 
 def iniciarsesion(request):
     
@@ -357,7 +356,7 @@ def iniciarsesion(request):
                 **errores,
                 'cedula': cedula,
                 'rol': rol,
-                'mostrar_registro': True, 
+                'mostrar_registro': False,  # CRÍTICO
                 'current_page_name': 'Iniciar Sesión'
             })
 
@@ -369,7 +368,7 @@ def iniciarsesion(request):
                 'error_user': 'Usuario no registrado.',
                 'cedula': cedula,
                 'rol': rol,
-                'mostrar_registro': True,  # CRÍTICO
+                'mostrar_registro': False,  # CRÍTICO
                 'current_page_name': 'Iniciar Sesión'
             })
 
@@ -379,7 +378,7 @@ def iniciarsesion(request):
                 'error_password': 'Contraseña incorrecta.',
                 'cedula': cedula,
                 'rol': rol,
-                'mostrar_registro': True,  # CRÍTICO
+                'mostrar_registro': False,  # CRÍTICO
                 'current_page_name': 'Iniciar Sesión'
             })
 
@@ -389,7 +388,7 @@ def iniciarsesion(request):
                 'error_rol': 'El rol seleccionado no coincide con tu usuario.',
                 'cedula': cedula,
                 'rol': rol,
-                'mostrar_registro': True,  # CRÍTICO
+                'mostrar_registro': False,  # CRÍTICO
                 'current_page_name': 'Iniciar Sesión'
             })
 
@@ -399,7 +398,7 @@ def iniciarsesion(request):
                 'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
                 'cedula': cedula,
                 'rol': rol,
-                'mostrar_registro': True,  
+                'mostrar_registro': False,  
                 'current_page_name': 'Iniciar Sesión'
             })
 
@@ -435,7 +434,7 @@ def iniciarsesion(request):
         return redirect('home')
 
     return render(request, 'paginas/registro.html', {
-        'mostrar_registro': True,  
+        'mostrar_registro': False,  
         'current_page_name': 'Iniciar Sesión'
     })
 
