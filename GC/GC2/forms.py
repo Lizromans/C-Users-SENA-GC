@@ -460,14 +460,14 @@ def construir_descripcion_entregable(categoria_principal, subcategorias_json):
         
         # === CATEGORÍA PRINCIPAL ===
         categoria_texto = CATEGORIAS_MAP.get(categoria_principal, 'No especificada')
-        lineas.append(f"CATEGORÍA MINCIENCIAS: {categoria_texto}")  # ⬅️ Sin emoji
+        lineas.append(f"--CATEGORÍA MINCIENCIAS: {categoria_texto}")  
         lineas.append("")  # Línea vacía
         
         # === PRODUCTO ESPECÍFICO ===
         producto_key = datos.get('producto')
         if producto_key:
             producto_texto = PRODUCTOS_MAP.get(producto_key, 'No especificado')
-            lineas.append(f"PRODUCTO: {producto_texto}")  # ⬅️ Sin emoji
+            lineas.append(f"--PRODUCTO: {producto_texto}")  
             lineas.append("")
         
         # === SUBCATEGORÍAS DINÁMICAS ===
@@ -482,13 +482,13 @@ def construir_descripcion_entregable(categoria_principal, subcategorias_json):
             # Manejar listas
             if isinstance(value, list):
                 if value:  # Solo si tiene elementos
-                    lineas.append(f"{etiqueta}:")  # ⬅️ Sin emoji
+                    lineas.append(f"{etiqueta}:")  
                     for item in value:
                         lineas.append(f"  - {item}")
                     lineas.append("")
             # Manejar valores simples
             else:
-                lineas.append(f"{etiqueta}: {value}")  # ⬅️ Sin emoji
+                lineas.append(f"{etiqueta}: {value}") 
         
         return "\n".join(lineas)
         
@@ -500,10 +500,6 @@ def construir_descripcion_entregable(categoria_principal, subcategorias_json):
 # 5. LIMPIAR DESCRIPCIÓN ANTERIOR
 
 def limpiar_descripcion_anterior(descripcion):
-    """
-    Limpia categorizaciones anteriores de la descripción
-    manteniendo solo la descripción base original
-    """
     if not descripcion:
         return ""
     
