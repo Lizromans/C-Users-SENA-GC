@@ -76,27 +76,18 @@ body {
 }
 
 .header-gc-logo {
-    width: clamp(35px, 4vw, 45px);
+    width: clamp(94px, 15vw, 114px);
     height: auto;
     filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5))
             drop-shadow(0 0 18px rgba(79, 195, 247, 0.3));
     transition: all 0.3s ease-in-out;
 }
 
-.header-logo-container:hover {
+.header-gc-logo:hover {
     filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.7))
             drop-shadow(0 0 25px rgba(79, 195, 247, 0.5))
             brightness(1.1);
     transform: scale(1.05);
-}
-
-.header-title {
-    width: clamp(100px, 15vw, 110px);
-    height: auto;
-    opacity: 0.95;
-    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4))
-            drop-shadow(0 0 15px rgba(79, 195, 247, 0.25));
-    transition: all 0.3s ease-in-out;
 }
 
 .user-info {

@@ -26,9 +26,10 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 import openpyxl
 from openpyxl import Workbook
-from openpyxl.chart import BarChart, LineChart, PieChart, Reference
+from openpyxl.chart import BarChart, LineChart, PieChart, Reference, Series
 from datetime import date
-from openpyxl.styles import Border, Side, Font, PatternFill
+from openpyxl.drawing.image import Image as XLImage
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
@@ -71,10 +72,8 @@ from .forms import (
     CAMPOS_LEGIBLES
 )
 # ReportLab - Canvas & gráficos
-from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 from reportlab.lib.utils import ImageReader
-from openpyxl.styles import Alignment
 from django.utils import timezone
 
 
@@ -3967,33 +3966,46 @@ def reportes(request):
     return render(request, 'paginas/reportes.html', contexto)
 
 def reporte_general_semilleros(request):
-    # Crear archivo Excel
-    wb = openpyxl.Workbook()
+    wb = Workbook()
     ws = wb.active
     ws.title = "Semilleros"
 
+    crear_encabezado_reporte(ws, request)
+
+    # ===== BORDE =====
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
 
-    # Cabecera
-    ws.append([
-        "Código Semillero",
-        "Siglas",
-        "Nombre Semillero",
-        "Descripción",
-        "Objetivos",
-        "Fecha Creación",
-        "Cantidad de Miembros",
-        "Número de Proyectos",
-        "Estado",
-        "Progreso General",
-        "Lider de Semillero"
-    ])
+    # ===== TÍTULO GENERAL =====
+    ws.merge_cells("A7:K7")
+    titulo = ws["A7"]
+    titulo.value = "REPORTE GENERAL DE SEMILLEROS"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = Alignment(horizontal="center")
 
+    # ===== ENCABEZADOS TABLA PRINCIPAL =====
+    fila_encabezado = 8
+    encabezados = [
+        "Código Semillero", "Siglas", "Nombre Semillero", "Descripción",
+        "Objetivos", "Fecha Creación", "Cantidad de Miembros",
+        "Número de Proyectos", "Estado", "Progreso General",
+        "Líder de Semillero"
+    ]
+
+    for col, texto in enumerate(encabezados, start=1):
+        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+        cell.border = thin_border
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    fila_actual = fila_encabezado + 1
+
+    # ===== DATOS =====
     semilleros = Semillero.objects.all()
 
     for s in semilleros:
@@ -4001,11 +4013,10 @@ def reporte_general_semilleros(request):
             SemilleroUsuario.objects.filter(id_sem=s).count() +
             Aprendiz.objects.filter(id_sem=s).count()
         )
+
         cantidad_proyectos = s.proyectos.count()
-
-        lider_sem = SemilleroUsuario.objects.filter(id_sem=s, es_lider=True).first()
-        nombre_lider = lider_sem.cedula.nom_usu if lider_sem else "Sin líder"
-
+        lider = SemilleroUsuario.objects.filter(id_sem=s, es_lider=True).first()
+        nombre_lider = lider.cedula.nom_usu + " " + lider.cedula.ape_usu if lider else "Sin líder"
         objetivos = ", ".join(s.objetivo.splitlines()) if s.objetivo else ""
 
         ws.append([
@@ -4014,7 +4025,7 @@ def reporte_general_semilleros(request):
             s.nombre,
             s.desc_sem,
             objetivos,
-            s.fecha_creacion.strftime("%Y-%m-%d %H:%M"),
+            s.fecha_creacion.strftime("%Y-%m-%d"),
             cantidad_miembros,
             cantidad_proyectos,
             s.estado,
@@ -4022,112 +4033,141 @@ def reporte_general_semilleros(request):
             nombre_lider
         ])
 
-    # Aplicar bordes
-    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=11):
-        for cell in row:
-            cell.border = thin_border
+        for col in range(1, 12):
+            ws.cell(row=fila_actual, column=col).border = thin_border
 
-    # Preparar respuesta Excel
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = 'attachment; filename="reporte_semilleros.xlsx"'
+        fila_actual += 1
 
-    # --- GRAFICO: Miembros por Semillero ---
-    categorias = Reference(ws, min_col=3, min_row=2, max_row=ws.max_row)  # Nombre Semillero
-    valores = Reference(ws, min_col=7, min_row=1, max_row=ws.max_row)     # Cantidad Miembros
-    chart_miembros = BarChart()
-    chart_miembros.title = "Miembros por Semillero"
-    chart_miembros.y_axis.title = "Cantidad"
-    chart_miembros.x_axis.title = "Semilleros"
-    chart_miembros.add_data(valores, titles_from_data=True)
-    chart_miembros.set_categories(categorias)
-    ws.add_chart(chart_miembros, "L2")
+    fila_fin_datos = fila_actual - 1
 
-    # --- GRAFICO: Proyectos por Semillero ---
-    valores = Reference(ws, min_col=8, min_row=1, max_row=ws.max_row)  # Número de proyectos
-    chart_proyectos = BarChart()
-    chart_proyectos.title = "Proyectos por Semillero"
-    chart_proyectos.y_axis.title = "Cantidad"
-    chart_proyectos.x_axis.title = "Semilleros"
-    chart_proyectos.add_data(valores, titles_from_data=True)
-    chart_proyectos.set_categories(categorias)
-    ws.add_chart(chart_proyectos, "L20")
+    # ===== ANCHO DE COLUMNAS =====
+    widths = [20, 12, 30, 35, 30, 15, 20, 20, 14, 18, 25]
+    for i, w in enumerate(widths, start=1):
+        ws.column_dimensions[chr(64 + i)].width = w
 
-    # --- GRAFICO: Progreso por Semillero ---
-    valores = Reference(ws, min_col=10, min_row=1, max_row=ws.max_row)  # Progreso
-    chart_progreso = BarChart()
-    chart_progreso.title = "Progreso de Semilleros"
-    chart_progreso.y_axis.title = "Progreso (%)"
-    chart_progreso.x_axis.title = "Semilleros"
-    chart_progreso.add_data(valores, titles_from_data=True)
-    chart_progreso.set_categories(categorias)
-    ws.add_chart(chart_progreso, "L38")
+    # ===== GRÁFICOS =====
+    chart1 = BarChart()
+    chart1.title = "Miembros por Semillero"
+    data1 = Reference(ws, min_col=7, min_row=fila_encabezado, max_row=fila_fin_datos)
+    cats = Reference(ws, min_col=3, min_row=fila_encabezado + 1, max_row=fila_fin_datos)
+    chart1.add_data(data1, titles_from_data=True)
+    chart1.set_categories(cats)
+    ws.add_chart(chart1, "M9")
 
-    # --- GRAFICO: Estados (Pastel) ---
+    chart2 = BarChart()
+    chart2.title = "Proyectos por Semillero"
+    data2 = Reference(ws, min_col=8, min_row=fila_encabezado, max_row=fila_fin_datos)
+    chart2.add_data(data2, titles_from_data=True)
+    chart2.set_categories(cats)
+    ws.add_chart(chart2, "M26")
+
+    chart3 = BarChart()
+    chart3.title = "Progreso General"
+    data3 = Reference(ws, min_col=10, min_row=fila_encabezado, max_row=fila_fin_datos)
+    chart3.add_data(data3, titles_from_data=True)
+    chart3.set_categories(cats)
+    ws.add_chart(chart3, "M43")
+
+    # ===== TABLA 2: RESUMEN DE ESTADO (SIN BORDE EN EL TÍTULO) =====
     estados_count = {}
     for s in semilleros:
         if s.estado:
             estados_count[s.estado] = estados_count.get(s.estado, 0) + 1
 
     if estados_count:
-        fila_tabla = ws.max_row + 2
+        fila_titulo = ws.max_row + 3
+
+        ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=2)
+        titulo_estado = ws.cell(row=fila_titulo, column=1)
+        titulo_estado.value = "RESUMEN DE ESTADO DE LOS SEMILLEROS"
+        titulo_estado.font = Font(bold=True, size=13)
+        titulo_estado.alignment = Alignment(horizontal="center")
+
+        # ⛔ SIN borde en el título
+
+        fila_tabla = fila_titulo + 1
+
         ws.cell(row=fila_tabla, column=1, value="Estado").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
 
         fila = fila_tabla
         for estado, cantidad in estados_count.items():
             fila += 1
-            ws.append([estado, cantidad])
+            ws.cell(row=fila, column=1, value=estado)
+            ws.cell(row=fila, column=2, value=cantidad)
 
-        for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+        # BORDE COMPLETO SOLO A LA TABLA
+        for row in ws.iter_rows(
+            min_row=fila_tabla,
+            max_row=fila,
+            min_col=1,
+            max_col=2
+        ):
             for cell in row:
                 cell.border = thin_border
 
-        data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
-        labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
+        # ===== GRÁFICO ESTADO =====
+        data_estado = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
+        labels_estado = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
+
         chart_estado = PieChart()
         chart_estado.title = "Estados de los Semilleros"
-        chart_estado.add_data(data, titles_from_data=True)
-        chart_estado.set_categories(labels)
-        ws.add_chart(chart_estado, "N55")
+        chart_estado.add_data(data_estado, titles_from_data=True)
+        chart_estado.set_categories(labels_estado)
+        ws.add_chart(chart_estado, "M60")
 
+    # ===== RESPUESTA =====
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="reporte_general_semilleros.xlsx"'
     wb.save(response)
+
     return response
 
 def reporte_general_proyectos(request):
-    # Crear archivo Excel
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Proyectos"
 
+    crear_encabezado_reporte(ws, request)
+    
+    # ===== Borde estándar =====
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
 
-    # --- Encabezados ---
-    ws.append([
-        "Nombre Proyecto",
-        "Tipo",
-        "Descripción",
-        "Líneas Tecnologicas",
-        "Líneas de Investigación",
-        "Líneas de Semillero",
-        "Notas Adicionales",
-        "Cantidad de Miembros",
-        "Cantidad de Entregables",
-        "Fecha Creación",
-        "Estado Actual",
-        "Progreso",
-        "Lider de Proyecto"
-    ])
+    # ===== TÍTULO GENERAL (SIN BORDE) =====
+    ws.merge_cells("A7:M7")
+    titulo = ws["A7"]
+    titulo.value = "REPORTE GENERAL DE PROYECTOS"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = Alignment(horizontal="center")
 
+    # ===== ENCABEZADOS TABLA PRINCIPAL =====
+    fila_encabezado = 8
+    encabezados = [
+        "Nombre Proyecto", "Tipo", "Descripción",
+        "Líneas Tecnológicas", "Líneas de Investigación",
+        "Líneas de Semillero", "Notas Adicionales",
+        "Cantidad de Miembros", "Cantidad de Entregables",
+        "Fecha Creación", "Estado Actual",
+        "Progreso", "Líder de Proyecto"
+    ]
+
+    for col, texto in enumerate(encabezados, start=1):
+        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = thin_border
+
+    fila_actual = fila_encabezado + 1
     proyectos = Proyecto.objects.all()
 
-    # --- Llenado de datos ---
+    # ===== DATOS =====
     for p in proyectos:
         cantidad_miembros = (
             UsuarioProyecto.objects.filter(cod_pro=p).count() +
@@ -4136,186 +4176,99 @@ def reporte_general_proyectos(request):
         cantidad_entregables = Entregable.objects.filter(cod_pro=p).count()
 
         lider_pro = UsuarioProyecto.objects.filter(cod_pro=p, es_lider_pro=True).first()
-        nombre_lider = lider_pro.cedula.nom_usu if lider_pro else "Sin líder"
+        nombre_lider = lider_pro.cedula.nom_usu + " " + lider_pro.cedula.ape_usu if lider_pro else "Sin líder"
 
-        lineas_tec = ", ".join([l.strip() for l in p.linea_tec.split("\n") if l.strip()]) if p.linea_tec else ""
-        lineas_inv = ", ".join([l.strip() for l in p.linea_inv.split("\n") if l.strip()]) if p.linea_inv else ""
-        lineas_sem = ", ".join([l.strip() for l in p.linea_sem.split("\n") if l.strip()]) if p.linea_sem else ""
-        notas = ", ".join([l.strip() for l in p.notas.split("\n") if l.strip()]) if p.notas else ""
+        lineas_tec = ", ".join(l.strip() for l in p.linea_tec.split("\n") if l.strip()) if p.linea_tec else ""
+        lineas_inv = ", ".join(l.strip() for l in p.linea_inv.split("\n") if l.strip()) if p.linea_inv else ""
+        lineas_sem = ", ".join(l.strip() for l in p.linea_sem.split("\n") if l.strip()) if p.linea_sem else ""
+        notas = ", ".join(l.strip() for l in p.notas.split("\n") if l.strip()) if p.notas else ""
 
         ws.append([
-            p.nom_pro,
-            p.tipo,
-            p.desc_pro,
-            lineas_tec,
-            lineas_inv,
-            lineas_sem,
-            notas,
-            cantidad_miembros,
+            p.nom_pro, p.tipo, p.desc_pro,
+            lineas_tec, lineas_inv, lineas_sem,
+            notas, cantidad_miembros,
             cantidad_entregables,
             p.fecha_creacion.strftime("%Y-%m-%d %H:%M"),
-            p.estado_pro,
-            p.progreso,
+            p.estado_pro, p.progreso,
             nombre_lider
         ])
 
-    # Aplicar bordes
-    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=13):
-        for cell in row:
-            cell.border = thin_border
+        for col in range(1, 14):
+            ws.cell(row=fila_actual, column=col).border = thin_border
 
-    # Preparar respuesta
+        fila_actual += 1
+
+    fila_fin = fila_actual - 1
+
+    # ===== GRÁFICOS PRINCIPALES =====
+    categorias = Reference(ws, min_col=1, min_row=fila_encabezado + 1, max_row=fila_fin)
+
+    chart_progreso = BarChart()
+    chart_progreso.title = "Progreso por Proyecto"
+    valores = Reference(ws, min_col=12, min_row=fila_encabezado, max_row=fila_fin)
+    chart_progreso.add_data(valores, titles_from_data=True)
+    chart_progreso.set_categories(categorias)
+    ws.add_chart(chart_progreso, "O3")
+
+    chart_miembros = BarChart()
+    chart_miembros.title = "Miembros por Proyecto"
+    valores = Reference(ws, min_col=8, min_row=fila_encabezado, max_row=fila_fin)
+    chart_miembros.add_data(valores, titles_from_data=True)
+    chart_miembros.set_categories(categorias)
+    ws.add_chart(chart_miembros, "O20")
+
+    chart_entregables = BarChart()
+    chart_entregables.title = "Entregables por Proyecto"
+    valores = Reference(ws, min_col=9, min_row=fila_encabezado, max_row=fila_fin)
+    chart_entregables.add_data(valores, titles_from_data=True)
+    chart_entregables.set_categories(categorias)
+    ws.add_chart(chart_entregables, "O37")
+
+    # ===== TABLAS RESUMEN (TÍTULO SIN BORDE, TABLA BORDEADA) =====
+    def crear_tabla_resumen(titulo_txt, data_dict, chart, pos):
+        fila_titulo = ws.max_row + 3
+        ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=2)
+        t = ws.cell(row=fila_titulo, column=1)
+        t.value = titulo_txt
+        t.font = Font(bold=True)
+        t.alignment = Alignment(horizontal="center")
+
+        fila_tabla = fila_titulo + 1
+        ws.cell(row=fila_tabla, column=1, value="Categoría").font = Font(bold=True)
+        ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
+
+        fila = fila_tabla
+        for k, v in data_dict.items():
+            fila += 1
+            ws.cell(row=fila, column=1, value=k)
+            ws.cell(row=fila, column=2, value=v)
+
+        for r in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+            for c in r:
+                c.border = thin_border
+
+        data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
+        labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
+        chart.add_data(data, titles_from_data=True)
+        chart.set_categories(labels)
+        ws.add_chart(chart, pos)
+
+    # Estados
+    estados = {}
+    for p in proyectos:
+        if p.estado_pro:
+            estados[p.estado_pro] = estados.get(p.estado_pro, 0) + 1
+
+    if estados:
+        chart = PieChart()
+        chart.title = "Estados de los Proyectos"
+        crear_tabla_resumen("RESUMEN DE ESTADOS", estados, chart, "N55")
+
+    # ===== RESPUESTA =====
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = 'attachment; filename="reporte_proyectos.xlsx"'
-
-    # --- GRAFICO: Progreso por proyecto (barras) ---
-    categorias = Reference(ws, min_col=1, min_row=2, max_row=ws.max_row)
-    valores = Reference(ws, min_col=12, min_row=1, max_row=ws.max_row)
-    chart_progreso = BarChart()
-    chart_progreso.title = "Progreso por Proyecto"
-    chart_progreso.y_axis.title = "Progreso (%)"
-    chart_progreso.x_axis.title = "Proyectos"
-    chart_progreso.add_data(valores, titles_from_data=True)
-    chart_progreso.set_categories(categorias)
-    ws.add_chart(chart_progreso, "N2")
-
-    # --- GRAFICO: Miembros por proyecto ---
-    valores = Reference(ws, min_col=8, min_row=1, max_row=ws.max_row)
-    chart_miembros = BarChart()
-    chart_miembros.title = "Miembros por Proyecto"
-    chart_miembros.y_axis.title = "Cantidad"
-    chart_miembros.x_axis.title = "Proyectos"
-    chart_miembros.add_data(valores, titles_from_data=True)
-    chart_miembros.set_categories(categorias)
-    ws.add_chart(chart_miembros, "N20")
-
-    # --- GRAFICO: Entregables por proyecto ---
-    valores = Reference(ws, min_col=9, min_row=1, max_row=ws.max_row)
-    chart_entregables = BarChart()
-    chart_entregables.title = "Entregables por Proyecto"
-    chart_entregables.y_axis.title = "Cantidad"
-    chart_entregables.x_axis.title = "Proyectos"
-    chart_entregables.add_data(valores, titles_from_data=True)
-    chart_entregables.set_categories(categorias)
-    ws.add_chart(chart_entregables, "N38")
-
-    # --- GRAFICO: Estados de los proyectos (pastel) ---
-    estados_count = {}
-    for p in proyectos:
-        if p.estado_pro:
-            estados_count[p.estado_pro] = estados_count.get(p.estado_pro, 0) + 1
-
-    if estados_count:
-        fila_tabla = ws.max_row + 2
-        ws.cell(row=fila_tabla, column=1, value="Estado").font = Font(bold=True)
-        ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
-
-        fila = fila_tabla
-        for estado, cantidad in estados_count.items():
-            fila += 1
-            ws.append([estado, cantidad])
-
-        for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
-            for cell in row:
-                cell.border = thin_border
-
-        data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
-        labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
-        chart_estado = PieChart()
-        chart_estado.title = "Estados de los Proyectos"
-        chart_estado.add_data(data, titles_from_data=True)
-        chart_estado.set_categories(labels)
-        ws.add_chart(chart_estado, "N55")
-
-    # --- GRAFICO: Líneas Tecnológicas (barras) ---
-    lineas_tec_count = {}
-    for p in proyectos:
-        if p.linea_tec:
-            for linea in [l.strip() for l in p.linea_tec.split("\n") if l.strip()]:
-                lineas_tec_count[linea] = lineas_tec_count.get(linea, 0) + 1
-
-    if lineas_tec_count:
-        fila_tabla = ws.max_row + 2
-        ws.cell(row=fila_tabla, column=1, value="Línea Tecnológica").font = Font(bold=True)
-        ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
-
-        fila = fila_tabla
-        for linea, cantidad in lineas_tec_count.items():
-            fila += 1
-            ws.append([linea, cantidad])
-
-        for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
-            for cell in row:
-                cell.border = thin_border
-
-        data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
-        labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
-        chart_lineas_tec = BarChart()
-        chart_lineas_tec.title = "Proyectos por Línea Tecnológica"
-        chart_lineas_tec.add_data(data, titles_from_data=True)
-        chart_lineas_tec.set_categories(labels)
-        ws.add_chart(chart_lineas_tec, "N72")
-
-    # --- GRAFICO: Líneas de Investigación (pastel) ---
-    lineas_inv_count = {}
-    for p in proyectos:
-        if p.linea_inv:
-            for linea in [l.strip() for l in p.linea_inv.split("\n") if l.strip()]:
-                lineas_inv_count[linea] = lineas_inv_count.get(linea, 0) + 1
-
-    if lineas_inv_count:
-        fila_tabla = ws.max_row + 2
-        ws.cell(row=fila_tabla, column=1, value="Línea Investigación").font = Font(bold=True)
-        ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
-
-        fila = fila_tabla
-        for linea, cantidad in lineas_inv_count.items():
-            fila += 1
-            ws.append([linea, cantidad])
-
-        for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
-            for cell in row:
-                cell.border = thin_border
-
-        data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
-        labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
-        chart_lineas_inv = PieChart()
-        chart_lineas_inv.title = "Proyectos por Línea de Investigación"
-        chart_lineas_inv.add_data(data, titles_from_data=True)
-        chart_lineas_inv.set_categories(labels)
-        ws.add_chart(chart_lineas_inv, "N90")
-
-    # --- GRAFICO: Líneas de Semillero (barras) ---
-    lineas_sem_count = {}
-    for p in proyectos:
-        if p.linea_sem:
-            for linea in [l.strip() for l in p.linea_sem.split("\n") if l.strip()]:
-                lineas_sem_count[linea] = lineas_sem_count.get(linea, 0) + 1
-
-    if lineas_sem_count:
-        fila_tabla = ws.max_row + 2
-        ws.cell(row=fila_tabla, column=1, value="Línea Semillero").font = Font(bold=True)
-        ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
-
-        fila = fila_tabla
-        for linea, cantidad in lineas_sem_count.items():
-            fila += 1
-            ws.append([linea, cantidad])
-
-        for row in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
-            for cell in row:
-                cell.border = thin_border
-
-        data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
-        labels = Reference(ws, min_col=1, min_row=fila_tabla+1, max_row=fila)
-        chart_lineas_sem = BarChart()
-        chart_lineas_sem.title = "Proyectos por Línea de Semillero"
-        chart_lineas_sem.add_data(data, titles_from_data=True)
-        chart_lineas_sem.set_categories(labels)
-        ws.add_chart(chart_lineas_sem, "N108")
-
     wb.save(response)
     return response
 
@@ -4324,14 +4277,25 @@ def reporte_entregables(request):
     ws = wb.active
     ws.title = "Entregables"
 
+    crear_encabezado_reporte(ws, request)
+
+    # ===== BORDE ESTÁNDAR =====
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
 
-    # --- Encabezados base ---
+    # ===== TÍTULO GENERAL (SIN BORDE) =====
+    ws.merge_cells("A7:L7")
+    titulo = ws["A7"]
+    titulo.value = "REPORTE GENERAL DE ENTREGABLES"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = Alignment(horizontal="center")
+
+    # ===== ENCABEZADOS TABLA PRINCIPAL =====
+    fila_encabezado = 8
     encabezados = [
         "Proyecto",
         "Nombre Entregable",
@@ -4341,56 +4305,79 @@ def reporte_entregables(request):
         "Estado",
         "Fechas de Subida"
     ]
-    ws.append(encabezados)
+
+    for col, texto in enumerate(encabezados, start=1):
+        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = thin_border
 
     entregables = Entregable.objects.all()
+    fila_actual = fila_encabezado + 1
+    max_archivos = 0
 
-    # --- Llenado de datos ---
+    # ===== DATOS =====
     for e in entregables:
         archivos = Archivo.objects.filter(entregable=e)
-        fechas_subida = ", ".join([a.fecha_subida.strftime("%Y-%m-%d %H:%M") for a in archivos]) if archivos else ""
+        max_archivos = max(max_archivos, archivos.count())
 
-        fila = [
+        fechas_subida = ", ".join(
+            a.fecha_subida.strftime("%Y-%m-%d %H:%M") for a in archivos
+        ) if archivos else ""
+
+        ws.append([
             e.cod_pro.nom_pro,
             e.nom_entre,
             e.fecha_inicio.strftime("%Y-%m-%d") if e.fecha_inicio else "",
             e.fecha_fin.strftime("%Y-%m-%d") if e.fecha_fin else "",
             e.desc_entre,
             e.estado,
-            fechas_subida,
-        ]
-        ws.append(fila)
-        row = ws.max_row
+            fechas_subida
+        ])
 
-        # Agregar archivos como hipervínculos en columnas adicionales
+        # Bordes fila principal
+        for col in range(1, len(encabezados) + 1):
+            ws.cell(row=fila_actual, column=col).border = thin_border
+
+        # Archivos como hipervínculos
         col_base = len(encabezados) + 1
         for i, archivo in enumerate(archivos, start=1):
             col = col_base + i - 1
-            cell = ws.cell(row=row, column=col)
+            cell = ws.cell(row=fila_actual, column=col)
             cell.value = f"Descargar archivo {i}"
             cell.hyperlink = request.build_absolute_uri(archivo.archivo.url)
             cell.style = "Hyperlink"
-            ws.cell(row=1, column=col).value = f"Archivo {i}"
-
-    # Aplicar bordes
-    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
-        for cell in row:
             cell.border = thin_border
 
-    # Preparar respuesta
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = 'attachment; filename="reporte_entregables.xlsx"'
+        fila_actual += 1
 
-    # --- GRAFICO: Entregables por estado (pastel) ---
+    fila_fin = fila_actual - 1
+
+    # ===== ENCABEZADOS DE ARCHIVOS (SI EXISTEN) =====
+    for i in range(1, max_archivos + 1):
+        col = len(encabezados) + i
+        cell = ws.cell(row=fila_encabezado, column=col, value=f"Archivo {i}")
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = thin_border
+
+    # ===== TABLA 2: ESTADOS DE ENTREGABLES =====
     estados_count = {}
     for e in entregables:
         if e.estado:
             estados_count[e.estado] = estados_count.get(e.estado, 0) + 1
 
     if estados_count:
-        fila_tabla = ws.max_row + 2
+        # TÍTULO TABLA 2 (SIN BORDE)
+        fila_titulo = ws.max_row + 3
+        ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=2)
+        t = ws.cell(row=fila_titulo, column=1)
+        t.value = "RESUMEN DE ESTADOS"
+        t.font = Font(bold=True)
+        t.alignment = Alignment(horizontal="center")
+
+        # TABLA
+        fila_tabla = fila_titulo + 1
         ws.cell(row=fila_tabla, column=1, value="Estado").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
 
@@ -4399,26 +4386,36 @@ def reporte_entregables(request):
             fila += 1
             ws.append([estado, cantidad])
 
-        for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
-            for cell in row_cells:
-                cell.border = thin_border
+        for r in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+            for c in r:
+                c.border = thin_border
 
+        # Gráfico de pastel
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
         chart_estado = PieChart()
         chart_estado.title = "Estados de los Entregables"
         chart_estado.add_data(data, titles_from_data=True)
         chart_estado.set_categories(labels)
-        ws.add_chart(chart_estado, "L2")
+        ws.add_chart(chart_estado, "L9")
 
-    # --- GRAFICO: Entregables por proyecto (barras) ---
+    # ===== TABLA 3: ENTREGABLES POR PROYECTO =====
     proyectos_count = {}
     for e in entregables:
         nom = e.cod_pro.nom_pro
         proyectos_count[nom] = proyectos_count.get(nom, 0) + 1
 
     if proyectos_count:
-        fila_tabla = ws.max_row + 2
+        # TÍTULO TABLA 3 (SIN BORDE)
+        fila_titulo = ws.max_row + 3
+        ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=2)
+        t = ws.cell(row=fila_titulo, column=1)
+        t.value = "RESUMEN DE ENTREGABLES POR PROYECTO"
+        t.font = Font(bold=True)
+        t.alignment = Alignment(horizontal="center")
+
+        # TABLA
+        fila_tabla = fila_titulo + 1
         ws.cell(row=fila_tabla, column=1, value="Proyecto").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
 
@@ -4427,10 +4424,11 @@ def reporte_entregables(request):
             fila += 1
             ws.append([proyecto, cantidad])
 
-        for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
-            for cell in row_cells:
-                cell.border = thin_border
+        for r in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
+            for c in r:
+                c.border = thin_border
 
+        # Gráfico de barras
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
         chart_proyectos = BarChart()
@@ -4439,8 +4437,13 @@ def reporte_entregables(request):
         chart_proyectos.x_axis.title = "Proyectos"
         chart_proyectos.add_data(data, titles_from_data=True)
         chart_proyectos.set_categories(labels)
-        ws.add_chart(chart_proyectos, "L20")
+        ws.add_chart(chart_proyectos, "L25")
 
+    # ===== RESPUESTA =====
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="reporte_entregables.xlsx"'
     wb.save(response)
     return response
 
@@ -4449,14 +4452,25 @@ def reporte_participantes(request):
     ws = wb.active
     ws.title = "Participantes"
 
+    crear_encabezado_reporte(ws, request)
+    
+    # ===== BORDE ESTÁNDAR =====
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
 
-    # --- Encabezados ---
+    # ===== TÍTULO GENERAL (SIN BORDE) =====
+    ws.merge_cells("A7:G7")
+    titulo = ws["A7"]
+    titulo.value = "REPORTE GENERAL DE PARTICIPANTES"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = Alignment(horizontal="center")
+
+    # ===== ENCABEZADOS TABLA PRINCIPAL =====
+    fila_encabezado = 8
     encabezados = [
         "Nombre",
         "Rol",
@@ -4466,7 +4480,13 @@ def reporte_participantes(request):
         "Correo Institucional",
         "Estado"
     ]
-    ws.append(encabezados)
+    for col, texto in enumerate(encabezados, start=1):
+        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = thin_border
+
+    fila_actual = fila_encabezado + 1
 
     # -------------------------------
     # APRENDICES
@@ -4475,7 +4495,6 @@ def reporte_participantes(request):
     for a in aprendices:
         semillero_nombre = a.id_sem.nombre if a.id_sem else "Sin semillero"
         proyectos_apre = ProyectoAprendiz.objects.filter(cedula_apre=a)
-
         if not proyectos_apre.exists():
             fila = [
                 f"{a.nombre} {a.apellido}",
@@ -4534,26 +4553,29 @@ def reporte_participantes(request):
                 ws.append(fila)
 
     # --- Aplicar bordes a tabla principal ---
-    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=len(encabezados)):
+    for row in ws.iter_rows(min_row=fila_encabezado, max_row=ws.max_row, min_col=1, max_col=len(encabezados)):
         for cell in row:
             cell.border = thin_border
 
-    # --- Preparar respuesta ---
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = 'attachment; filename="reporte_participantes.xlsx"'
-
     # -------------------------------
-    # GRAFICO: Participantes por rol
+    # TABLA 2: PARTICIPANTES POR ROL
     # -------------------------------
     roles_count = {}
-    for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=2, max_col=2, values_only=True):
+    for row in ws.iter_rows(min_row=fila_encabezado + 1, max_row=ws.max_row, min_col=2, max_col=2, values_only=True):
         rol = row[0]
         roles_count[rol] = roles_count.get(rol, 0) + 1
 
     if roles_count:
-        fila_tabla = ws.max_row + 2
+        # TÍTULO TABLA 2 (sin borde)
+        fila_titulo = ws.max_row + 2
+        ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=2)
+        t = ws.cell(row=fila_titulo, column=1)
+        t.value = "RESUMEN DE PARTICIPANTES POR ROL"
+        t.font = Font(bold=True)
+        t.alignment = Alignment(horizontal="center")
+
+        # Tabla
+        fila_tabla = fila_titulo + 1
         ws.cell(row=fila_tabla, column=1, value="Rol").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
 
@@ -4562,29 +4584,38 @@ def reporte_participantes(request):
             fila += 1
             ws.append([rol, cantidad])
 
-        # Aplicar bordes
         for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
             for cell in row_cells:
                 cell.border = thin_border
 
+        # Gráfico Pie
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
         chart_roles = PieChart()
         chart_roles.title = "Participantes por Rol"
         chart_roles.add_data(data, titles_from_data=True)
         chart_roles.set_categories(labels)
-        ws.add_chart(chart_roles, "H2")
+        ws.add_chart(chart_roles, "I2")
 
     # -------------------------------
-    # GRAFICO: Participantes por proyecto
+    # TABLA 3: PARTICIPANTES POR PROYECTO
     # -------------------------------
     proyectos_count = {}
-    for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=3, max_col=3, values_only=True):
+    for row in ws.iter_rows(min_row=fila_encabezado + 1, max_row=ws.max_row, min_col=3, max_col=3, values_only=True):
         proyecto = row[0] or "Sin proyecto"
         proyectos_count[proyecto] = proyectos_count.get(proyecto, 0) + 1
 
     if proyectos_count:
-        fila_tabla = ws.max_row + 2
+        # TÍTULO TABLA 3 (sin borde)
+        fila_titulo = ws.max_row + 2
+        ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=2)
+        t = ws.cell(row=fila_titulo, column=1)
+        t.value = "RESUMEN DE PARTICIPANTES POR PROYECTO"
+        t.font = Font(bold=True)
+        t.alignment = Alignment(horizontal="center")
+
+        # Tabla
+        fila_tabla = fila_titulo + 1
         ws.cell(row=fila_tabla, column=1, value="Proyecto").font = Font(bold=True)
         ws.cell(row=fila_tabla, column=2, value="Cantidad").font = Font(bold=True)
 
@@ -4593,11 +4624,11 @@ def reporte_participantes(request):
             fila += 1
             ws.append([proyecto, cantidad])
 
-        # Aplicar bordes
         for row_cells in ws.iter_rows(min_row=fila_tabla, max_row=fila, min_col=1, max_col=2):
             for cell in row_cells:
                 cell.border = thin_border
 
+        # Gráfico barras
         data = Reference(ws, min_col=2, min_row=fila_tabla, max_row=fila)
         labels = Reference(ws, min_col=1, min_row=fila_tabla + 1, max_row=fila)
         chart_proyectos = BarChart()
@@ -4606,10 +4637,95 @@ def reporte_participantes(request):
         chart_proyectos.x_axis.title = "Proyectos"
         chart_proyectos.add_data(data, titles_from_data=True)
         chart_proyectos.set_categories(labels)
-        ws.add_chart(chart_proyectos, "H20")
+        ws.add_chart(chart_proyectos, "I20")
 
+    # --- Preparar respuesta ---
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="reporte_participantes.xlsx"'
     wb.save(response)
     return response
+
+def crear_encabezado_reporte(ws, request):
+    # ===== Borde estándar =====
+    thin_border = Border(
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
+    )
+
+    # ===== LOGO (A1:A4) =====
+    try:
+        posibles_rutas = [
+            os.path.join(settings.BASE_DIR, 'static', 'img', 'logo_gc.png'),
+            os.path.join(settings.STATIC_ROOT, 'img', 'logo_gc.png') if getattr(settings, 'STATIC_ROOT', None) else None,
+            os.path.join(settings.BASE_DIR, 'staticfiles', 'img', 'logo_gc.png'),
+        ]
+
+        logo_path = next((r for r in posibles_rutas if r and os.path.exists(r)), None)
+
+        ws.merge_cells("A1:A4")
+
+        # Borde logo
+        for row in ws.iter_rows(min_row=1, max_row=4, min_col=1, max_col=1):
+            for cell in row:
+                cell.border = thin_border
+
+        if logo_path:
+            logo = XLImage(logo_path)
+            logo.width = 120
+            logo.height = 100
+            ws.add_image(logo, "A1")
+
+            # Texto debajo del logo
+            ws["A1"] = "Powered by InnHub"
+            ws["A1"].alignment = Alignment(horizontal="center", vertical="bottom")
+            ws["A1"].font = Font(size=9, italic=True, color="777777")
+
+    except:
+        pass
+
+    # ===== CUADRO DE INFORMACIÓN (B:E) =====
+    info = [
+        ("Creado por:", f"{request.user.nom_usu} {request.user.ape_usu}"),
+        ("Fecha y hora de generación:", timezone.now().strftime('%Y-%m-%d %H:%M')),
+    ]
+
+    fila = 1
+    for titulo, valor in info:
+
+        # TÍTULO
+        ws.merge_cells(start_row=fila, start_column=2, end_row=fila, end_column=5)
+        c = ws.cell(row=fila, column=2, value=titulo)
+        c.font = Font(bold=True, size=11, name="Calibri")
+        c.alignment = Alignment(vertical="center", horizontal="left", indent=1)
+        c.fill = PatternFill(start_color="D9E9F7", end_color="D9E9F7", fill_type="solid")
+
+        for row in ws.iter_rows(min_row=fila, max_row=fila, min_col=2, max_col=5):
+            for cell in row:
+                cell.border = thin_border
+
+        # VALOR
+        ws.merge_cells(start_row=fila + 1, start_column=2, end_row=fila + 1, end_column=5)
+        c = ws.cell(row=fila + 1, column=2, value=valor)
+        c.font = Font(size=11, name="Calibri")
+        c.alignment = Alignment(vertical="center", horizontal="left", indent=1)
+
+        for row in ws.iter_rows(min_row=fila + 1, max_row=fila + 1, min_col=2, max_col=5):
+            for cell in row:
+                cell.border = thin_border
+
+        fila += 2
+
+    # ===== Ajustes visuales =====
+    ws.column_dimensions['A'].width = 20
+    for col in ['B', 'C', 'D', 'E']:
+        ws.column_dimensions[col].width = 12
+
+    for i in range(1, 5):
+        ws.row_dimensions[i].height = 22
 
 def generar_reporte_excel(request):
     if request.method != "POST":
@@ -4648,58 +4764,30 @@ def generar_reporte_excel(request):
     
     # Crear estilo de borde
     thin_border = Border(
-        left=Side(style='thin'),
-        right=Side(style='thin'),
-        top=Side(style='thin'),
-        bottom=Side(style='thin')
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
-
+    
     # ==================== SEMILLEROS ====================
     if "semilleros" in categorias:
         ws = wb.create_sheet("Semilleros")
-        # ====== RECUADRO SUPERIOR DERECHO ======
-        # LOGO
-        logo = Image("static/img/logo_gc.png")
-        logo.width = 120
-        logo.height = 120
-        ws.add_image(logo, "B1")
 
-        # CUADRO INFO
-        ws.merge_cells("D1:F2")
-        ws.merge_cells("D3:F4")
+        crear_encabezado_reporte(ws, request)
 
-        ws["D1"] = f"Creado por:\n{request.user.nom_usu} {request.user.ape_usu}"
-        ws["D3"] = f"Fecha y hora de generación:\n{timezone.now().strftime('%Y-%m-%d %H:%M')}"
-
-        for cell in ["D1", "D3"]:
-            ws[cell].alignment = Alignment(vertical="center", horizontal="left", wrap_text=True)
-            ws[cell].font = Font(bold=True)
-
-        # Bordes del cuadro
-        border = Border(
-            left=Side(style="thin"),
-            right=Side(style="thin"),
-            top=Side(style="thin"),
-            bottom=Side(style="thin"),
-        )
-
-        for row in ws["D1:F4"]:
-            for c in row:
-                c.border = border
-
-        
-
+        fila_titulo = 7
         # Título en negrita
-        ws.cell(row=1, column=1, value="SEMILLEROS").font = Font(bold=True)
+        ws.cell(row=fila_titulo, column=1, value="SEMILLEROS").font = Font(bold=True)
         
         # Encabezados en negrita
-        fila_encabezado = 2
+        fila_encabezado = 8
         for col_idx, campo in enumerate(campos["semilleros"], start=1):
             cell = ws.cell(row=fila_encabezado, column=col_idx, value=campo)
             cell.font = Font(bold=True)
         
         semilleros = Semillero.objects.all()
-        fila_inicio_datos = 3
+        fila_inicio_datos = 9
 
         for s in semilleros:
             fila = []
@@ -4955,19 +5043,21 @@ def generar_reporte_excel(request):
     # ==================== PROYECTOS ====================
     if "proyectos" in categorias:
         ws = wb.create_sheet("Proyectos")
+        crear_encabezado_reporte(ws, request)
 
+        fila_titulo = 7
         # Título en negrita
-        ws.cell(row=1, column=1, value="PROYECTOS").font = Font(bold=True)
-
+        ws.cell(row=fila_titulo, column=1, value="PROYECTOS").font = Font(bold=True)
+        
         # Encabezados en negrita (fila_encabezado = 2)
-        fila_encabezado = 2
+        fila_encabezado = 8
         num_cols = len(campos["proyectos"])
         for col_idx, campo in enumerate(campos["proyectos"], start=1):
             cell = ws.cell(row=fila_encabezado, column=col_idx, value=campo)
             cell.font = Font(bold=True)
 
         proyectos = list(Proyecto.objects.all())
-        fila_inicio_datos = 3
+        fila_inicio_datos = 9
 
         # --- Construir filas garantizando la longitud y posición correcta de cada columna ---
         for p_idx, p in enumerate(proyectos):
@@ -5394,6 +5484,12 @@ def generar_reporte_excel(request):
 
         ws = wb.create_sheet("Miembros")
 
+        crear_encabezado_reporte(ws, request)
+
+        fila_actual = 7
+        ws.cell(row=fila_actual, column=1, value="MIEMBROS").font = Font(bold=True, size=14)
+        fila_actual += 1
+
         campos_seleccionados = campos["miembros"]
 
         # === TABLA 1: USUARIOS (NO APRENDICES)
@@ -5401,8 +5497,6 @@ def generar_reporte_excel(request):
         # Filtrar campos para usuarios 
         campos_usuarios = [c for c in campos_seleccionados 
             if c not in ["Programa", "Ficha", "Modalidad", "Programa de Formación"]]
-        
-        fila_actual = 1
         
         # Solo crear tabla de usuarios si hay campos para mostrar
         if campos_usuarios:
@@ -5736,18 +5830,20 @@ def generar_reporte_excel(request):
     # ==================== ENTREGABLES ====================
     if "entregables" in categorias:
         ws = wb.create_sheet("Entregables")
-        
-        # Título en negrita
-        ws.cell(row=1, column=1, value="ENTREGABLES").font = Font(bold=True)
+        crear_encabezado_reporte(ws, request)
+
+        fila_actual = 7
+        ws.cell(row=fila_actual, column=1, value="ENTREGABLES").font = Font(bold=True, size=14)
+        fila_actual += 1
         
         # Encabezados en negrita
-        fila_encabezado = 2
+        fila_encabezado = 8
         for col_idx, campo in enumerate(campos["entregables"], start=1):
             cell = ws.cell(row=fila_encabezado, column=col_idx, value=campo)
             cell.font = Font(bold=True)
 
         entregables = Entregable.objects.all()
-        fila_inicio_datos = 3
+        fila_inicio_datos = 9
 
         for e in entregables:
             fila = []
@@ -6489,492 +6585,627 @@ def generar_reporte_pdf(request):
 
 def reporte_tendencias_crecimiento(request):
     from collections import defaultdict
-    
-    # WORKBOOK
+    from dateutil.relativedelta import relativedelta
+
+    # ==================== WORKBOOK ====================
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Tendencias de Crecimiento"
 
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
 
-    # TÍTULO
-    ws.merge_cells('A1:E1')
-    titulo = ws['A1']
+    # ==================== ENCABEZADO GENERAL ====================
+    crear_encabezado_reporte(ws, request)
+
+    # ==================== TÍTULO ====================
+    fila_titulo = 7
+    ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=5)
+    titulo = ws.cell(row=fila_titulo, column=1)
     titulo.value = "TENDENCIAS DE CRECIMIENTO"
     titulo.font = Font(bold=True, size=16)
-    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    titulo.alignment = Alignment(horizontal="center")
 
-    # ENCABEZADOS
-    ws.append([])
-    ws.append(["Período", "Semilleros Creados", "Proyectos Creados", "Participantes Activos", "Entregables Completados"])
+    # ==================== ENCABEZADOS TABLA ====================
+    fila_encabezado = fila_titulo + 1
+    encabezados = [
+        "Período",
+        "Semilleros Creados",
+        "Proyectos Creados",
+        "Participantes Activos",
+        "Entregables Completados"
+    ]
 
-    for cell in ws[3]:
+    for col, texto in enumerate(encabezados, 1):
+        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
         cell.font = Font(bold=True, color="FFFFFF")
         cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = thin_border
 
-    # FECHAS AWARE
+    # ==================== FECHAS ====================
     fecha_actual = timezone.now()
-    
-    fecha_inicio = (fecha_actual - relativedelta(months=11)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    fecha_inicio = (fecha_actual - relativedelta(months=11)).replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0
+    )
 
-    # Obtener TODOS los registros (no filtrar por fecha aquí)
-    semilleros = Semillero.objects.filter(
-        fecha_creacion__isnull=False
-    ).values_list('fecha_creacion', flat=True)
-    
-    proyectos = Proyecto.objects.filter(
-        fecha_creacion__isnull=False
-    ).values_list('fecha_creacion', flat=True)
-
-    # Organizar SEMILLEROS por mes (conteo por mes, no acumulado)
+    # ==================== DATOS BASE ====================
     sem_dict = defaultdict(int)
-    for fecha in semilleros:
-        if timezone.is_naive(fecha):
-            fecha = timezone.make_aware(fecha)
-        # Convertir a fecha local y luego crear clave como string YYYY-MM
-        fecha_local = timezone.localtime(fecha)
-        clave_mes = fecha_local.strftime("%Y-%m")
-        sem_dict[clave_mes] += 1
-
-    # Organizar PROYECTOS por mes (conteo por mes, no acumulado)
     proy_dict = defaultdict(int)
-    for fecha in proyectos:
-        if timezone.is_naive(fecha):
-            fecha = timezone.make_aware(fecha)
-        # Convertir a fecha local y luego crear clave como string YYYY-MM
-        fecha_local = timezone.localtime(fecha)
-        clave_mes = fecha_local.strftime("%Y-%m")
-        proy_dict[clave_mes] += 1
 
-    # GENERAR FILAS PARA 12 MESES (desde hace 11 meses hasta el mes actual = 12 meses)
+    for fecha in Semillero.objects.filter(fecha_creacion__isnull=False).values_list("fecha_creacion", flat=True):
+        fecha = timezone.make_aware(fecha) if timezone.is_naive(fecha) else fecha
+        sem_dict[timezone.localtime(fecha).strftime("%Y-%m")] += 1
+
+    for fecha in Proyecto.objects.filter(fecha_creacion__isnull=False).values_list("fecha_creacion", flat=True):
+        fecha = timezone.make_aware(fecha) if timezone.is_naive(fecha) else fecha
+        proy_dict[timezone.localtime(fecha).strftime("%Y-%m")] += 1
+
+    # ==================== FILAS (12 MESES) ====================
+    fila_datos = fila_encabezado + 1
+
     for i in range(12):
         mes_actual = fecha_inicio + relativedelta(months=i)
         mes_siguiente = mes_actual + relativedelta(months=1)
+
+        clave_mes = mes_actual.strftime("%Y-%m")
         periodo = mes_actual.strftime("%b %Y")
 
-        # Crear clave como string YYYY-MM para buscar en los diccionarios
-        clave_mes = mes_actual.strftime("%Y-%m")
-
-        # Semilleros CREADOS en este mes específico
         semilleros_mes = sem_dict.get(clave_mes, 0)
-        
-        # Proyectos CREADOS en este mes específico
         proyectos_mes = proy_dict.get(clave_mes, 0)
 
-        participantes = Usuario.objects.filter(
-            fecha_registro__lte=mes_siguiente
-        ).count() + Aprendiz.objects.filter(
-            fecha_registro__lte=mes_siguiente
-        ).count()
+        participantes = (
+            Usuario.objects.filter(fecha_registro__lte=mes_siguiente).count() +
+            Aprendiz.objects.filter(fecha_registro__lte=mes_siguiente).count()
+        )
 
-        # Entregables COMPLETADOS durante este mes específico
         entregables_mes = Entregable.objects.filter(
-            estado__in=['Completado', 'Entrega Tardía'],
+            estado__in=["Completado", "Entrega Tardía"],
             fecha_fin__gte=mes_actual,
             fecha_fin__lt=mes_siguiente
         ).count()
 
         ws.append([periodo, semilleros_mes, proyectos_mes, participantes, entregables_mes])
 
-    # BORDES
-    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=5):
-        for cell in row:
-            cell.border = thin_border
+        for col in range(1, 6):
+            ws.cell(row=fila_datos, column=col).border = thin_border
 
-    # GRÁFICO
+        fila_datos += 1
+
+    # ==================== GRÁFICO ====================
+
+def reporte_tendencias_crecimiento(request):
+    from collections import defaultdict
+    import openpyxl
+    from django.http import HttpResponse
+    from django.utils import timezone
+    from dateutil.relativedelta import relativedelta
+    from openpyxl.styles import Font, Border, Side, PatternFill, Alignment
+    from openpyxl.chart import LineChart, Reference
+
+    # ==================== WORKBOOK ====================
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Tendencias de Crecimiento"
+
+    thin_border = Border(
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
+    )
+
+    # ==================== ENCABEZADO GENERAL ====================
+    crear_encabezado_reporte(ws, request)
+
+    # ==================== TÍTULO ====================
+    fila_titulo = 7
+    ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=5)
+    titulo = ws.cell(row=fila_titulo, column=1)
+    titulo.value = "TENDENCIAS DE CRECIMIENTO"
+    titulo.font = Font(bold=True, size=16)
+    titulo.alignment = Alignment(horizontal="center")
+
+    # ==================== ENCABEZADOS TABLA ====================
+    fila_encabezado = fila_titulo + 1
+    encabezados = [
+        "Período",
+        "Semilleros Creados",
+        "Proyectos Creados",
+        "Participantes Activos",
+        "Entregables Completados"
+    ]
+
+    for col, texto in enumerate(encabezados, 1):
+        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = thin_border
+
+    # ==================== FECHAS ====================
+    fecha_actual = timezone.now()
+    fecha_inicio = (fecha_actual - relativedelta(months=11)).replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0
+    )
+
+    # ==================== DATOS BASE ====================
+    sem_dict = defaultdict(int)
+    proy_dict = defaultdict(int)
+
+    for fecha in Semillero.objects.filter(fecha_creacion__isnull=False).values_list("fecha_creacion", flat=True):
+        fecha = timezone.make_aware(fecha) if timezone.is_naive(fecha) else fecha
+        sem_dict[timezone.localtime(fecha).strftime("%Y-%m")] += 1
+
+    for fecha in Proyecto.objects.filter(fecha_creacion__isnull=False).values_list("fecha_creacion", flat=True):
+        fecha = timezone.make_aware(fecha) if timezone.is_naive(fecha) else fecha
+        proy_dict[timezone.localtime(fecha).strftime("%Y-%m")] += 1
+
+    # ==================== FILAS (12 MESES) ====================
+    fila_datos = fila_encabezado + 1
+
+    for i in range(12):
+        mes_actual = fecha_inicio + relativedelta(months=i)
+        mes_siguiente = mes_actual + relativedelta(months=1)
+
+        clave_mes = mes_actual.strftime("%Y-%m")
+        periodo = mes_actual.strftime("%b %Y")
+
+        semilleros_mes = sem_dict.get(clave_mes, 0)
+        proyectos_mes = proy_dict.get(clave_mes, 0)
+
+        participantes = (
+            Usuario.objects.filter(fecha_registro__lte=mes_siguiente).count() +
+            Aprendiz.objects.filter(fecha_registro__lte=mes_siguiente).count()
+        )
+
+        entregables_mes = Entregable.objects.filter(
+            estado__in=["Completado", "Entrega Tardía"],
+            fecha_fin__gte=mes_actual,
+            fecha_fin__lt=mes_siguiente
+        ).count()
+
+        ws.append([periodo, semilleros_mes, proyectos_mes, participantes, entregables_mes])
+
+        for col in range(1, 6):
+            ws.cell(row=fila_datos, column=col).border = thin_border
+
+        fila_datos += 1
+
+    # ==================== GRÁFICO ====================
     chart = LineChart()
     chart.title = "Evolución Temporal"
-    chart.style = 15
-    chart.y_axis.title = 'Cantidad'
-    chart.x_axis.title = 'Período'
+    chart.y_axis.title = "Cantidad"
+    chart.x_axis.title = "Período"
 
-    data = Reference(ws, min_col=2, min_row=3, max_col=5, max_row=ws.max_row)
-    cats = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    data = Reference(ws, min_col=2, min_row=fila_encabezado, max_col=5, max_row=ws.max_row)
+    cats = Reference(ws, min_col=1, min_row=fila_encabezado + 1, max_row=ws.max_row)
 
     chart.add_data(data, titles_from_data=True)
     chart.set_categories(cats)
-    
-    ws.add_chart(chart, "G3")
 
-    # RESUMEN ESTADÍSTICO
+    ws.add_chart(chart, "G7")
+
+    # ==================== RESUMEN ====================
     fila_resumen = ws.max_row + 3
     ws.cell(row=fila_resumen, column=1, value="RESUMEN ESTADÍSTICO").font = Font(bold=True, size=12)
-    fila_resumen += 1
-    ws.append([])
 
+    fila_resumen += 2
     ws.append(["Métrica", "Valor"])
-    ws.cell(row=fila_resumen + 1, column=1).font = Font(bold=True)
-    ws.cell(row=fila_resumen + 1, column=2).font = Font(bold=True)
+    ws.cell(row=ws.max_row, column=1).font = Font(bold=True)
+    ws.cell(row=ws.max_row, column=2).font = Font(bold=True)
 
-    # Calcular totales de semilleros y proyectos creados en los últimos 12 meses
-    total_sem_12m = sum(sem_dict.values())
-    total_proy_12m = sum(proy_dict.values())
+    fila_tabla_resumen = ws.max_row
+
+    ws.append(["Total Semilleros (12 meses)", sum(sem_dict.values())])
+    ws.append(["Total Proyectos (12 meses)", sum(proy_dict.values())])
+    ws.append(["Total Participantes", Usuario.objects.count() + Aprendiz.objects.count()])
+    ws.append([
+        "Total Entregables Completados",
+        Entregable.objects.filter(estado__in=["Completado", "Entrega Tardía"]).count()
+    ])
+
+    # BORDES
+    for row in ws.iter_rows(
+        min_row=fila_tabla_resumen,
+        max_row=ws.max_row,
+        min_col=1,
+        max_col=2
+    ):
+        for cell in row:
+            cell.border = thin_border
+
+    # ==================== GRÁFICO DEL RESUMEN ====================
+    fila_inicio_resumen = fila_tabla_resumen + 1
+    fila_fin_resumen = ws.max_row
+
+
+    # Crear gráfico de barras
+    chart_resumen = BarChart()
+    chart_resumen.title = "Resumen Estadístico"
+    chart_resumen.y_axis.title = "Cantidad"
+    chart_resumen.x_axis.title = "Métricas"
+
+
+    # Datos
+    data = Reference(ws, min_col=2, min_row=fila_inicio_resumen, max_row=fila_fin_resumen)
+    labels = Reference(ws, min_col=1, min_row=fila_inicio_resumen, max_row=fila_fin_resumen)
+    chart_resumen.add_data(data, titles_from_data=False)
+    chart_resumen.set_categories(labels)
+
+
+    # Agregar gráfico al worksheet
+    ws.add_chart(chart_resumen, f"G{fila_inicio_resumen}")
     
-    # Tasas de crecimiento (comparando primer mes vs último mes)
-    if ws.max_row > 4:
-        primer_mes_sem = ws.cell(row=4, column=2).value or 0
-        ultimo_mes_sem = ws.cell(row=ws.max_row, column=2).value or 0
-        
-        primer_mes_proy = ws.cell(row=4, column=3).value or 0
-        ultimo_mes_proy = ws.cell(row=ws.max_row, column=3).value or 0
-        
-        # Crecimiento basado en el cambio mensual
-        crec_sem = ((ultimo_mes_sem - primer_mes_sem) / primer_mes_sem * 100) if primer_mes_sem > 0 else 0
-        crec_proy = ((ultimo_mes_proy - primer_mes_proy) / primer_mes_proy * 100) if primer_mes_proy > 0 else 0
-    else:
-        crec_sem = crec_proy = 0
-
-    ws.append([f"Total Semilleros Creados (últimos 12 meses)", total_sem_12m])
-    ws.append([f"Total Proyectos Creados (últimos 12 meses)", total_proy_12m])
-    ws.append([f"Variación Mensual Semilleros", f"{crec_sem:.1f}%"])
-    ws.append([f"Variación Mensual Proyectos", f"{crec_proy:.1f}%"])
-    ws.append([f"Total Participantes Actuales", Usuario.objects.count() + Aprendiz.objects.count()])
-    ws.append([f"Total Entregables Completados (histórico)", Entregable.objects.filter(estado__in=['Completado', 'Entrega Tardía']).count()])
-
-    # RESPUESTA
+    # ==================== RESPUESTA ====================
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = 'attachment; filename="tendencias_crecimiento.xlsx"'
-
     wb.save(response)
     return response
 
 def reporte_productividad_semillero(request):
-    """
-    Genera reporte Excel con productividad por semillero
-    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Productividad"
 
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
 
-    # TÍTULO
-    ws.merge_cells('A1:F1')
-    titulo = ws['A1']
+    # ================= ENCABEZADO GENERAL =================
+    crear_encabezado_reporte(ws, request)
+
+    # ================= TÍTULO =================
+    fila_titulo = 7
+    ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=6)
+    titulo = ws.cell(row=fila_titulo, column=1)
     titulo.value = "PRODUCTIVIDAD POR SEMILLERO"
     titulo.font = Font(bold=True, size=16)
-    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
+    titulo.alignment = Alignment(horizontal="center")
 
-    # ENCABEZADOS
-    ws.append([])
-    ws.append([
+    # ================= ENCABEZADOS TABLA =================
+    fila_encabezado = fila_titulo + 1
+    encabezados = [
         "Semillero",
         "Proyectos Finalizados",
         "Entregables Completados",
         "Total Participantes",
         "Tasa de Finalización (%)",
         "Productividad Promedio"
-    ])
-    
-    # Aplicar estilo a encabezados
-    for cell in ws[3]:
-        cell.font = Font(bold=True)
-        cell.fill = openpyxl.styles.PatternFill(start_color="27AE60", end_color="27AE60", fill_type="solid")
-        cell.font = Font(bold=True, color="FFFFFF")
+    ]
 
-    # OBTENER DATOS
-    semilleros = Semillero.objects.all()
-    
-    for sem in semilleros:
-        # Proyectos del semillero
+    for col, texto in enumerate(encabezados, 1):
+        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+        cell.border = thin_border
+        cell.alignment = Alignment(horizontal="center")
+
+    # ================= DATOS TABLA =================
+    fila_datos = fila_encabezado + 1
+
+    for sem in Semillero.objects.all():
         proyectos = SemilleroProyecto.objects.filter(id_sem=sem)
         total_proyectos = proyectos.count()
-        
-        # Proyectos finalizados
+
         proyectos_finalizados = Proyecto.objects.filter(
             semilleroproyecto__id_sem=sem,
-            estado_pro='completado'
+            estado_pro="completado"
         ).count()
-        
-        # Entregables completados
+
         entregables_completados = Entregable.objects.filter(
-            cod_pro__in=proyectos.values('cod_pro'),
-            estado__in=['Completado', 'Entrega Tardía']
+            cod_pro__in=proyectos.values("cod_pro"),
+            estado__in=["Completado", "Entrega Tardía"]
         ).count()
-        
-        # Total entregables
-        total_entregables = Entregable.objects.filter(
-            cod_pro__in=proyectos.values('cod_pro')
-        ).count()
-        
-        # Participantes
+
         usuarios = SemilleroUsuario.objects.filter(id_sem=sem).count()
         aprendices = Aprendiz.objects.filter(id_sem=sem).count()
         total_participantes = usuarios + aprendices
-        
-        # Tasa de finalización
-        tasa_finalizacion = (proyectos_finalizados / total_proyectos * 100) if total_proyectos > 0 else 0
-        
-        # Productividad promedio (entregables completados / participantes)
-        productividad = (entregables_completados / total_participantes) if total_participantes > 0 else 0
-        
-        ws.append([
+
+        tasa = (proyectos_finalizados / total_proyectos * 100) if total_proyectos else 0
+        productividad = (entregables_completados / total_participantes) if total_participantes else 0
+
+        valores = [
             sem.nombre,
             proyectos_finalizados,
             entregables_completados,
             total_participantes,
-            round(tasa_finalizacion, 1),
+            round(tasa, 1),
             round(productividad, 2)
-        ])
+        ]
 
-    # APLICAR BORDES
-    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=6):
-        for cell in row:
+        for col, valor in enumerate(valores, 1):
+            cell = ws.cell(row=fila_datos, column=col, value=valor)
             cell.border = thin_border
+            cell.alignment = Alignment(horizontal="center")
 
-    # GRÁFICO DE BARRAS - ENTREGABLES COMPLETADOS
+        fila_datos += 1
+
+    fila_ultima_tabla = fila_datos - 1
+
+    # ================= GRÁFICOS =================
     chart1 = BarChart()
     chart1.title = "Entregables Completados por Semillero"
-    chart1.style = 10
-    chart1.y_axis.title = 'Cantidad'
-    chart1.x_axis.title = 'Semillero'
-    
-    data1 = Reference(ws, min_col=3, min_row=3, max_row=ws.max_row)
-    cats1 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
-    
-    chart1.add_data(data1, titles_from_data=True)
-    chart1.set_categories(cats1)
-    
+    chart1.y_axis.title = "Cantidad"
+    chart1.x_axis.title = "Semillero"
+
+    chart1.add_data(
+        Reference(ws, min_col=3, min_row=fila_encabezado, max_row=fila_ultima_tabla),
+        titles_from_data=True
+    )
+    chart1.set_categories(
+        Reference(ws, min_col=1, min_row=fila_encabezado + 1, max_row=fila_ultima_tabla)
+    )
     ws.add_chart(chart1, "H3")
 
-    # GRÁFICO DE BARRAS - PROYECTOS FINALIZADOS
     chart2 = BarChart()
     chart2.title = "Proyectos Finalizados por Semillero"
-    chart2.style = 11
-    chart2.y_axis.title = 'Cantidad'
-    chart2.x_axis.title = 'Semillero'
-    
-    data2 = Reference(ws, min_col=2, min_row=3, max_row=ws.max_row)
-    cats2 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
-    
-    chart2.add_data(data2, titles_from_data=True)
-    chart2.set_categories(cats2)
-    
+    chart2.y_axis.title = "Cantidad"
+
+    chart2.add_data(
+        Reference(ws, min_col=2, min_row=fila_encabezado, max_row=fila_ultima_tabla),
+        titles_from_data=True
+    )
+    chart2.set_categories(
+        Reference(ws, min_col=1, min_row=fila_encabezado + 1, max_row=fila_ultima_tabla)
+    )
     ws.add_chart(chart2, "H20")
 
-    # GRÁFICO DE DISPERSIÓN - PRODUCTIVIDAD
     chart3 = BarChart()
     chart3.title = "Productividad Promedio por Semillero"
-    chart3.style = 12
-    chart3.y_axis.title = 'Productividad'
-    chart3.x_axis.title = 'Semillero'
-    
-    data3 = Reference(ws, min_col=6, min_row=3, max_row=ws.max_row)
-    cats3 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
-    
-    chart3.add_data(data3, titles_from_data=True)
-    chart3.set_categories(cats3)
-    
+    chart3.y_axis.title = "Productividad"
+
+    chart3.add_data(
+        Reference(ws, min_col=6, min_row=fila_encabezado, max_row=fila_ultima_tabla),
+        titles_from_data=True
+    )
+    chart3.set_categories(
+        Reference(ws, min_col=1, min_row=fila_encabezado + 1, max_row=fila_ultima_tabla)
+    )
     ws.add_chart(chart3, "H37")
 
-    # RANKING DE SEMILLEROS
-    fila_ranking = ws.max_row + 3
-    
-    ws.cell(row=fila_ranking, column=1, value="TOP 5 SEMILLEROS MÁS PRODUCTIVOS").font = Font(bold=True, size=12)
-    fila_ranking += 1
-    
-    ws.append([])
-    ws.append(["Posición", "Semillero", "Productividad"])
-    
-    for cell in ws[fila_ranking + 1]:
-        cell.font = Font(bold=True)
-    
-    # Ordenar semilleros por productividad
-    datos_ranking = []
-    for row in range(4, ws.max_row + 1):
-        if ws.cell(row=row, column=1).value:  # Si hay nombre de semillero
-            datos_ranking.append({
-                'nombre': ws.cell(row=row, column=1).value,
-                'productividad': ws.cell(row=row, column=6).value or 0
-            })
-    
-    datos_ranking.sort(key=lambda x: x['productividad'], reverse=True)
-    
-    for i, dato in enumerate(datos_ranking[:5], 1):
-        ws.append([i, dato['nombre'], dato['productividad']])
+    # ================= RANKING TOP 5 =================
+    fila_ranking_titulo = fila_ultima_tabla + 3
+    ws.cell(row=fila_ranking_titulo, column=1,
+            value="TOP 5 SEMILLEROS MÁS PRODUCTIVOS").font = Font(bold=True, size=12)
 
-    # Preparar respuesta
+    fila_ranking_encabezado = fila_ranking_titulo + 1
+    ranking_headers = ["Posición", "Semillero", "Productividad"]
+
+    for col, texto in enumerate(ranking_headers, 1):
+        cell = ws.cell(row=fila_ranking_encabezado, column=col, value=texto)
+        cell.font = Font(bold=True)
+        cell.border = thin_border
+        cell.alignment = Alignment(horizontal="center")
+
+    datos_ranking = []
+    for row in range(fila_encabezado + 1, fila_ultima_tabla + 1):
+        datos_ranking.append({
+            "nombre": ws.cell(row=row, column=1).value,
+            "productividad": ws.cell(row=row, column=6).value or 0
+        })
+
+    datos_ranking.sort(key=lambda x: x["productividad"], reverse=True)
+
+    fila_ranking_datos = fila_ranking_encabezado + 1
+    for i, dato in enumerate(datos_ranking[:5], 1):
+        ws.cell(row=fila_ranking_datos, column=1, value=i)
+        ws.cell(row=fila_ranking_datos, column=2, value=dato["nombre"])
+        ws.cell(row=fila_ranking_datos, column=3, value=dato["productividad"])
+
+        for col in range(1, 4):
+            ws.cell(row=fila_ranking_datos, column=col).border = thin_border
+            ws.cell(row=fila_ranking_datos, column=col).alignment = Alignment(horizontal="center")
+
+        fila_ranking_datos += 1
+
+    # Gráfico de Total Participantes por Semillero
+    chart_participantes = BarChart()
+    chart_participantes.title = "Total Participantes por Semillero"
+    chart_participantes.y_axis.title = "Cantidad"
+    chart_participantes.x_axis.title = "Semillero"
+
+    chart_participantes.add_data(
+        Reference(ws, min_col=4, min_row=fila_encabezado, max_row=fila_ultima_tabla),
+        titles_from_data=True
+    )
+    chart_participantes.set_categories(
+        Reference(ws, min_col=1, min_row=fila_encabezado + 1, max_row=fila_ultima_tabla)
+    )
+    ws.add_chart(chart_participantes, "H54")  # Cambia la posición según necesites
+
+    # Gráfico del Top 5 Semilleros Más Productivos
+    fila_top5_inicio = fila_ranking_encabezado + 1
+    fila_top5_fin = fila_ranking_datos - 1
+
+    chart_top5 = BarChart()
+    chart_top5.title = "Top 5 Semilleros Más Productivos"
+    chart_top5.y_axis.title = "Productividad"
+    chart_top5.x_axis.title = "Semillero"
+
+    chart_top5.add_data(
+        Reference(ws, min_col=3, min_row=fila_top5_inicio, max_row=fila_top5_fin),
+        titles_from_data=False
+    )
+    chart_top5.set_categories(
+        Reference(ws, min_col=2, min_row=fila_top5_inicio, max_row=fila_top5_fin)
+    )
+    ws.add_chart(chart_top5, f"H70")
+    # ================= RESPUESTA =================
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = 'attachment; filename="productividad_semillero.xlsx"'
-    
     wb.save(response)
     return response
 
 def reporte_mensual_ejecutivo(request):
-    """
-    Genera reporte consolidado del mes actual: logros, avances y estadísticas clave
-    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Reporte Mensual"
-    
+
+    # ==================== ENCABEZADO GENERAL ====================
+    crear_encabezado_reporte(ws, request)
+
     # Obtener fecha actual y rango del mes
     fecha_actual = timezone.now()
     inicio_mes = fecha_actual.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    
+
     # Calcular fin de mes
     if fecha_actual.month == 12:
         fin_mes = fecha_actual.replace(year=fecha_actual.year + 1, month=1, day=1)
     else:
         fin_mes = fecha_actual.replace(month=fecha_actual.month + 1, day=1)
-    
+
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
-    
-    # TÍTULO
-    ws.merge_cells('A1:D1')
-    titulo = ws['A1']
+
+    # ==================== TÍTULO ====================
+    fila_titulo = 7
+    ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=4)
+    titulo = ws.cell(row=fila_titulo, column=1)
     titulo.value = f"REPORTE MENSUAL EJECUTIVO - {fecha_actual.strftime('%B %Y').upper()}"
     titulo.font = Font(bold=True, size=16)
-    titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
-    
-    # SECCIÓN 1: RESUMEN GENERAL
-    fila = 3
+    titulo.alignment = Alignment(horizontal="center")
+
+    # ==================== SECCIÓN 1: RESUMEN GENERAL ====================
+    fila = fila_titulo + 2
     ws.cell(row=fila, column=1, value="RESUMEN GENERAL").font = Font(bold=True, size=14)
-    fila += 2
-    
-    # Estadísticas del mes
+    fila += 1
+
     semilleros_activos = Semillero.objects.filter(estado='Activo').count()
-    proyectos_mes = Proyecto.objects.filter(fecha_creacion__gte=inicio_mes, fecha_creacion__lt=fin_mes).count()
+    proyectos_mes = Proyecto.objects.filter(
+        fecha_creacion__gte=inicio_mes,
+        fecha_creacion__lt=fin_mes
+    ).count()
     entregables_completados_mes = Entregable.objects.filter(
         estado__in=['Completado', 'Entrega Tardía'],
         fecha_fin__gte=inicio_mes,
         fecha_fin__lt=fin_mes
     ).count()
-    
-    # Escribir encabezados
+
     ws.cell(row=fila, column=1, value="Métrica").font = Font(bold=True)
     ws.cell(row=fila, column=2, value="Valor").font = Font(bold=True)
     fila += 1
-    
+
     datos_resumen = [
         ["Semilleros Activos", semilleros_activos],
         ["Proyectos Creados Este Mes", proyectos_mes],
         ["Entregables Completados", entregables_completados_mes],
         ["Total Participantes", Usuario.objects.count() + Aprendiz.objects.count()],
     ]
-    
+
+    inicio_resumen = fila
     for dato in datos_resumen:
         ws.cell(row=fila, column=1, value=dato[0])
         ws.cell(row=fila, column=2, value=dato[1])
         fila += 1
-    
-    inicio_resumen = 5
-    # Aplicar bordes
-    for row in ws.iter_rows(min_row=inicio_resumen, max_row=fila-1, min_col=1, max_col=2):
+
+    for row in ws.iter_rows(min_row=inicio_resumen-1, max_row=fila-1, min_col=1, max_col=2):
         for cell in row:
             cell.border = thin_border
-    
-    # SECCIÓN 2: LOGROS DEL MES
+
+    # ==================== SECCIÓN 2: LOGROS DEL MES ====================
     fila += 2
     ws.cell(row=fila, column=1, value="LOGROS DEL MES").font = Font(bold=True, size=14)
-    fila += 2
-    
+    fila += 1
+
     inicio_logros = fila
     ws.cell(row=fila, column=1, value="Proyecto").font = Font(bold=True)
     ws.cell(row=fila, column=2, value="Avance (%)").font = Font(bold=True)
     ws.cell(row=fila, column=3, value="Estado").font = Font(bold=True)
     fila += 1
-    
-    # Proyectos con mayor avance este mes
+
     proyectos_avance = Proyecto.objects.filter(
         fecha_creacion__lt=fin_mes
     ).order_by('-progreso')[:10]
-    
+
     for p in proyectos_avance:
         ws.cell(row=fila, column=1, value=p.nom_pro)
         ws.cell(row=fila, column=2, value=p.progreso)
         ws.cell(row=fila, column=3, value=p.estado_pro)
         fila += 1
-    
-    # Guardar la fila final de logros
+
     fila_final_logros = fila - 1
-    
-    # Bordes para logros
+
     for row in ws.iter_rows(min_row=inicio_logros, max_row=fila_final_logros, min_col=1, max_col=3):
         for cell in row:
             cell.border = thin_border
-    
-    # SECCIÓN 3: PARTICIPACIÓN POR SEMILLERO
+
+    # ==================== SECCIÓN 3: PARTICIPACIÓN POR SEMILLERO ====================
     fila += 2
     ws.cell(row=fila, column=1, value="PARTICIPACIÓN POR SEMILLERO").font = Font(bold=True, size=14)
-    fila += 2
-    
+    fila += 1
+
     inicio_participacion = fila
     ws.cell(row=fila, column=1, value="Semillero").font = Font(bold=True)
     ws.cell(row=fila, column=2, value="Integrantes").font = Font(bold=True)
     ws.cell(row=fila, column=3, value="Proyectos Activos").font = Font(bold=True)
     fila += 1
-    
-    semilleros = Semillero.objects.all()
-    for sem in semilleros:
-        integrantes = SemilleroUsuario.objects.filter(id_sem=sem).count() + Aprendiz.objects.filter(id_sem=sem).count()
+
+    for sem in Semillero.objects.all():
+        integrantes = (
+            SemilleroUsuario.objects.filter(id_sem=sem).count() +
+            Aprendiz.objects.filter(id_sem=sem).count()
+        )
         proyectos_activos = SemilleroProyecto.objects.filter(id_sem=sem).count()
+
         ws.cell(row=fila, column=1, value=sem.nombre)
         ws.cell(row=fila, column=2, value=integrantes)
         ws.cell(row=fila, column=3, value=proyectos_activos)
         fila += 1
-    
-    # Guardar la fila final de participación
+
     fila_final_participacion = fila - 1
-    
-    # Bordes para participación
-    for row in ws.iter_rows(min_row=inicio_participacion, max_row=fila_final_participacion, min_col=1, max_col=3):
+
+    for row in ws.iter_rows(
+        min_row=inicio_participacion,
+        max_row=fila_final_participacion,
+        min_col=1,
+        max_col=3
+    ):
         for cell in row:
             cell.border = thin_border
-    
-    # GRÁFICOS
-    # Gráfico 1: Avance de proyectos
+
+    # ==================== GRÁFICOS ====================
     chart1 = BarChart()
     chart1.title = "Top 10 Proyectos por Avance"
     chart1.y_axis.title = "Progreso (%)"
-    
-    # Datos: solo los valores numéricos (sin encabezado)
+
     data1 = Reference(ws, min_col=2, min_row=inicio_logros+1, max_row=fila_final_logros)
-    # Categorías: nombres de proyectos
     cats1 = Reference(ws, min_col=1, min_row=inicio_logros+1, max_row=fila_final_logros)
-    
     chart1.add_data(data1, titles_from_data=False)
     chart1.set_categories(cats1)
     ws.add_chart(chart1, "F5")
-    
-    # Gráfico 2: Participación por semillero
+
     chart2 = PieChart()
     chart2.title = "Distribución de Integrantes"
-    
-    # Datos: solo los valores numéricos
+
     data2 = Reference(ws, min_col=2, min_row=inicio_participacion+1, max_row=fila_final_participacion)
-    # Categorías: nombres de semilleros
     cats2 = Reference(ws, min_col=1, min_row=inicio_participacion+1, max_row=fila_final_participacion)
-    
     chart2.add_data(data2, titles_from_data=False)
     chart2.set_categories(cats2)
     ws.add_chart(chart2, "F25")
-    
-    # Respuesta
+
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f'attachment; filename="reporte_mensual_{fecha_actual.strftime("%Y_%m")}.xlsx"'
-    
+    response["Content-Disposition"] = (
+        f'attachment; filename="reporte_mensual_{fecha_actual.strftime("%Y_%m")}.xlsx"'
+    )
+
     wb.save(response)
     return response
 
@@ -6985,6 +7216,8 @@ def informe_trimestral(request):
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Informe Trimestral"
+
+    crear_encabezado_reporte(ws, request)
     
     fecha_actual = timezone.now()
     
@@ -7004,21 +7237,21 @@ def informe_trimestral(request):
         trimestre = "Q4"
     
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
     
     # TÍTULO
-    ws.merge_cells('A1:E1')
-    titulo = ws['A1']
+    ws.merge_cells('A7:E7')
+    titulo = ws['A7']
     titulo.value = f"INFORME TRIMESTRAL {trimestre} - {fecha_actual.year}"
     titulo.font = Font(bold=True, size=16)
     titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
     
     # SECCIÓN 1: CUMPLIMIENTO DE OBJETIVOS
-    fila = 3
+    fila = 8
     ws.cell(row=fila, column=1, value="CUMPLIMIENTO DE OBJETIVOS").font = Font(bold=True, size=14)
     fila += 2
     
@@ -7062,7 +7295,7 @@ def informe_trimestral(request):
     # SECCIÓN 2: ENTREGABLES POR MES
     fila += 2
     ws.cell(row=fila, column=1, value="ENTREGABLES COMPLETADOS POR MES").font = Font(bold=True, size=14)
-    fila += 2
+    fila += 1
     
     inicio_entregables = fila
     ws.cell(row=fila, column=1, value="Mes").font = Font(bold=True)
@@ -7099,9 +7332,11 @@ def informe_trimestral(request):
         ws.cell(row=fila, column=3, value=tardios)
         ws.cell(row=fila, column=4, value=pendientes)
         fila += 1
-    
+
+    fila_final_entregables = fila - 1
+
     # Bordes para entregables
-    for row in ws.iter_rows(min_row=inicio_entregables, max_row=fila-1, min_col=1, max_col=4):
+    for row in ws.iter_rows(min_row=inicio_entregables, max_row=fila_final_entregables, min_col=1, max_col=4):
         for cell in row:
             cell.border = thin_border
     
@@ -7110,31 +7345,30 @@ def informe_trimestral(request):
     chart1 = BarChart()
     chart1.title = "Tasa de Cumplimiento por Semillero"
     chart1.y_axis.title = "Porcentaje (%)"
-    
-    # Datos: solo porcentajes (sin encabezado)
-    data1 = Reference(ws, min_col=4, min_row=inicio_cumplimiento+1, max_row=fila_final_cumplimiento)
-    # Categorías: nombres de semilleros
+    chart1.x_axis.title = "Semilleros"
+
+    data1 = Reference(ws, min_col=4, min_row=inicio_cumplimiento, max_row=fila_final_cumplimiento)
     cats1 = Reference(ws, min_col=1, min_row=inicio_cumplimiento+1, max_row=fila_final_cumplimiento)
-    
-    chart1.add_data(data1, titles_from_data=False)
+
+    chart1.add_data(data1, titles_from_data=True)  
     chart1.set_categories(cats1)
+    chart1.height = 10
+    chart1.width = 15
     ws.add_chart(chart1, "G5")
-    
+
     # Gráfico 2: Entregables
     chart2 = LineChart()
     chart2.title = "Evolución de Entregables"
     chart2.y_axis.title = "Cantidad"
-    
-    # Guardar la fila final de entregables
-    fila_final_entregables = fila - 1
-    
-    # Datos: columnas 2-4 (Completados, Tardíos, Pendientes) sin encabezados
+    chart2.x_axis.title = "Mes"
+
     data2 = Reference(ws, min_col=2, min_row=inicio_entregables, max_col=4, max_row=fila_final_entregables)
-    # Categorías: nombres de meses
     cats2 = Reference(ws, min_col=1, min_row=inicio_entregables+1, max_row=fila_final_entregables)
-    
+
     chart2.add_data(data2, titles_from_data=True)
     chart2.set_categories(cats2)
+    chart2.height = 10
+    chart2.width = 15
     ws.add_chart(chart2, "G25")
     
     # Respuesta
@@ -7147,41 +7381,42 @@ def informe_trimestral(request):
     return response
 
 def balance_anual(request):
-    """
-    Resultados del año completo con análisis integral
-    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Balance Anual"
+
+    crear_encabezado_reporte(ws, request)
     
     fecha_actual = timezone.now()
     año_actual = fecha_actual.year
     inicio_año = fecha_actual.replace(month=1, day=1, hour=0, minute=0, second=0)
     
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
     
     # TÍTULO
-    ws.merge_cells('A1:F1')
-    titulo = ws['A1']
+    ws.merge_cells('A7:F7')
+    titulo = ws['A7']
     titulo.value = f"BALANCE ANUAL {año_actual}"
     titulo.font = Font(bold=True, size=18)
     titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
     
-    # SECCIÓN 1: RESUMEN EJECUTIVO
-    fila = 3
+    # ========== SECCIÓN 1: RESUMEN EJECUTIVO ==========
+    fila = 9
     ws.cell(row=fila, column=1, value="RESUMEN EJECUTIVO").font = Font(bold=True, size=14)
-    fila += 2
+    fila += 1
     
     inicio_resumen_anual = fila
     ws.cell(row=fila, column=1, value="Indicador").font = Font(bold=True)
     ws.cell(row=fila, column=2, value="Total Año").font = Font(bold=True)
     ws.cell(row=fila, column=3, value="Promedio Mensual").font = Font(bold=True)
     fila += 1
+    
+    inicio_datos_resumen = fila
     
     # Calcular indicadores
     proyectos_año = Proyecto.objects.filter(fecha_creacion__year=año_actual).count()
@@ -7206,15 +7441,17 @@ def balance_anual(request):
         ws.cell(row=fila, column=3, value=ind[2])
         fila += 1
     
+    fin_resumen_anual = fila - 1
+    
     # Bordes para resumen anual
-    for row in ws.iter_rows(min_row=inicio_resumen_anual, max_row=fila-1, min_col=1, max_col=3):
+    for row in ws.iter_rows(min_row=inicio_resumen_anual, max_row=fin_resumen_anual, min_col=1, max_col=3):
         for cell in row:
             cell.border = thin_border
     
-    # SECCIÓN 2: EVOLUCIÓN MENSUAL
+    # ========== SECCIÓN 2: EVOLUCIÓN MENSUAL ==========
     fila += 2
     ws.cell(row=fila, column=1, value="EVOLUCIÓN MENSUAL").font = Font(bold=True, size=14)
-    fila += 2
+    fila += 1
     
     inicio_evolucion = fila
     ws.cell(row=fila, column=1, value="Mes").font = Font(bold=True)
@@ -7222,6 +7459,8 @@ def balance_anual(request):
     ws.cell(row=fila, column=3, value="Entregables").font = Font(bold=True)
     ws.cell(row=fila, column=4, value="Progreso Promedio (%)").font = Font(bold=True)
     fila += 1
+    
+    inicio_datos_evolucion = fila
     
     # Datos por mes
     for mes in range(1, meses_transcurridos + 1):
@@ -7249,7 +7488,6 @@ def balance_anual(request):
         ws.cell(row=fila, column=4, value=round(progreso_promedio, 1))
         fila += 1
     
-    # Guardar la fila final de evolución
     fila_final_evolucion = fila - 1
     
     # Bordes para evolución
@@ -7257,10 +7495,10 @@ def balance_anual(request):
         for cell in row:
             cell.border = thin_border
     
-    # SECCIÓN 3: RANKING DE SEMILLEROS
+    # ========== SECCIÓN 3: RANKING DE SEMILLEROS ==========
     fila += 2
     ws.cell(row=fila, column=1, value="RANKING DE SEMILLEROS").font = Font(bold=True, size=14)
-    fila += 2
+    fila += 1
     
     inicio_ranking = fila
     ws.cell(row=fila, column=1, value="Posición").font = Font(bold=True)
@@ -7268,6 +7506,9 @@ def balance_anual(request):
     ws.cell(row=fila, column=3, value="Proyectos Completados").font = Font(bold=True)
     ws.cell(row=fila, column=4, value="Progreso General (%)").font = Font(bold=True)
     fila += 1
+    
+    # GUARDAR FILA DE INICIO DE DATOS
+    inicio_datos_ranking = fila
     
     # Calcular ranking
     semilleros_ranking = []
@@ -7293,7 +7534,6 @@ def balance_anual(request):
         ws.cell(row=fila, column=4, value=sem['progreso'])
         fila += 1
     
-    # Guardar la fila final de ranking
     fila_final_ranking = fila - 1
     
     # Bordes para ranking
@@ -7301,38 +7541,83 @@ def balance_anual(request):
         for cell in row:
             cell.border = thin_border
     
-    # GRÁFICOS
-    # Gráfico 1: Evolución mensual
-    chart1 = LineChart()
+    # ========== GRÁFICOS ==========
+    
+    # GRÁFICO 1: RESUMEN EJECUTIVO
+    chart_resumen = BarChart()
+    chart_resumen.title = "Resumen Ejecutivo del Año"
+    chart_resumen.y_axis.title = "Cantidad"
+    chart_resumen.x_axis.title = "Indicadores"
+    
+    data_resumen = Reference(ws, min_col=2, min_row=inicio_resumen_anual, max_row=fin_resumen_anual)
+    cats_resumen = Reference(ws, min_col=1, min_row=inicio_datos_resumen, max_row=fin_resumen_anual)
+    
+    chart_resumen.add_data(data_resumen, titles_from_data=True)
+    chart_resumen.set_categories(cats_resumen)
+    chart_resumen.height = 8
+    chart_resumen.width = 12
+    
+    ws.add_chart(chart_resumen, "H2")
+
+    # GRÁFICO 2: EVOLUCIÓN MENSUAL
+    chart1 = BarChart()
     chart1.title = "Evolución Anual"
     chart1.y_axis.title = "Cantidad"
-    
-    # Datos: columnas 2-3 (Proyectos, Entregables)
-    data1 = Reference(ws, min_col=2, min_row=inicio_evolucion, max_col=3, max_row=fila_final_evolucion)
-    # Categorías: nombres de meses
-    cats1 = Reference(ws, min_col=1, min_row=inicio_evolucion+1, max_row=fila_final_evolucion)
-    
-    chart1.add_data(data1, titles_from_data=True)
+    chart1.x_axis.title = "Mes"
+
+    # Referencias que incluyen el encabezado
+    proyectos_data = Reference(
+        ws,
+        min_col=2,
+        min_row=inicio_evolucion,  
+        max_row=fila_final_evolucion
+    )
+
+    entregables_data = Reference(
+        ws,
+        min_col=3,
+        min_row=inicio_evolucion,  
+        max_row=fila_final_evolucion
+    )
+
+    # add_data con titles_from_data=True
+    chart1.add_data(proyectos_data, titles_from_data=True)
+    chart1.add_data(entregables_data, titles_from_data=True)
+
+    # Categorías (meses)
+    cats1 = Reference(
+        ws,
+        min_col=1,
+        min_row=inicio_datos_evolucion,
+        max_row=fila_final_evolucion
+    )
+
     chart1.set_categories(cats1)
-    ws.add_chart(chart1, "H5")
-    
-    # Gráfico 2: Ranking Top 5
+
+    chart1.height = 8
+    chart1.width = 12
+
+    ws.add_chart(chart1, "H20")
+        
+    # GRÁFICO 2: RANKING TOP 5 
     chart2 = BarChart()
     chart2.title = "Top 5 Semilleros"
     chart2.y_axis.title = "Proyectos Completados"
+    chart2.x_axis.title = "Semilleros"
     
     # Calcular cuántos semilleros mostrar (máximo 5)
     num_semilleros_grafico = min(5, len(semilleros_ranking))
-    max_fila_ranking_grafico = inicio_ranking + num_semilleros_grafico
+    max_fila_ranking_grafico = inicio_datos_ranking + num_semilleros_grafico - 1
     
-    # Datos: solo proyectos completados (columna 3)
-    data2 = Reference(ws, min_col=3, min_row=inicio_ranking+1, max_row=max_fila_ranking_grafico)
-    # Categorías: nombres de semilleros
-    cats2 = Reference(ws, min_col=2, min_row=inicio_ranking+1, max_row=max_fila_ranking_grafico)
+    data2 = Reference(ws, min_col=3, min_row=inicio_ranking, max_row=max_fila_ranking_grafico + 1)
+    cats2 = Reference(ws, min_col=2, min_row=inicio_datos_ranking, max_row=max_fila_ranking_grafico)
     
-    chart2.add_data(data2, titles_from_data=False)
+    chart2.add_data(data2, titles_from_data=True)
     chart2.set_categories(cats2)
-    ws.add_chart(chart2, "H25")
+    chart2.height = 8
+    chart2.width = 12
+    
+    ws.add_chart(chart2, "H38")
     
     # Respuesta
     response = HttpResponse(
@@ -7344,35 +7629,35 @@ def balance_anual(request):
     return response
 
 def comparativo_anual(request):
-    """
-    Evolución interanual de indicadores clave de desempeño
-    """
+ 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Comparativo Anual"
     
+    crear_encabezado_reporte(ws, request)
+
     fecha_actual = timezone.now()
     año_actual = fecha_actual.year
     año_anterior = año_actual - 1
     
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
     
     # TÍTULO
-    ws.merge_cells('A1:E1')
-    titulo = ws['A1']
+    ws.merge_cells('A7:E7')
+    titulo = ws['A7']
     titulo.value = f"COMPARATIVO {año_anterior} vs {año_actual}"
     titulo.font = Font(bold=True, size=16)
     titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
     
     # SECCIÓN 1: INDICADORES GENERALES
-    fila = 3
+    fila = 8
     ws.cell(row=fila, column=1, value="INDICADORES GENERALES").font = Font(bold=True, size=14)
-    fila += 2
+    fila += 1
 
     inicio_indicadores = fila
     ws.cell(row=fila, column=1, value="Indicador").font = Font(bold=True)
@@ -7444,7 +7729,7 @@ def comparativo_anual(request):
     # SECCIÓN 2: COMPARATIVO POR SEMILLERO
     fila += 2
     ws.cell(row=fila, column=1, value="COMPARATIVO POR SEMILLERO").font = Font(bold=True, size=14)
-    fila += 2
+    fila += 1
     
     inicio_semilleros = fila
     ws.cell(row=fila, column=1, value="Semillero").font = Font(bold=True)
@@ -7489,7 +7774,7 @@ def comparativo_anual(request):
     # SECCIÓN 3: EVOLUCIÓN MENSUAL COMPARADA
     fila += 2
     ws.cell(row=fila, column=1, value="EVOLUCIÓN MENSUAL COMPARADA").font = Font(bold=True, size=14)
-    fila += 2
+    fila += 1
     
     inicio_mensual = fila
     ws.cell(row=fila, column=1, value="Mes").font = Font(bold=True)
@@ -7523,9 +7808,7 @@ def comparativo_anual(request):
         for cell in row:
             cell.border = thin_border
 
-    # GRÁFICOS CON LEYENDAS 
-    from openpyxl.chart import Series
-    
+    # ==================== GRÁFICOS ====================
     # Gráfico 1: Comparativo general
     chart1 = BarChart()
     chart1.title = "Comparativo General"
@@ -7594,30 +7877,29 @@ def comparativo_anual(request):
     return response
 
 def reporte_programa(request):
-    """
-    Agrupación de proyectos formativos según programa de formación
-    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Proyectos por Programa"
+
+    crear_encabezado_reporte(ws, request)
     
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
-    
-    # TÍTULO
-    ws.merge_cells('A1:F1')
-    titulo = ws['A1']
+
+    # ========== TÍTULO ==========
+    ws.merge_cells('A7:F7')
+    titulo = ws['A7']
     titulo.value = "PROYECTOS FORMATIVOS POR PROGRAMA"
     titulo.font = Font(bold=True, size=16)
     titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
     
-    # ENCABEZADOS
-    ws.append([])
-    ws.append([
+    # ========== ENCABEZADOS DE TABLA ==========
+    fila_encabezado = 8
+    ws.append([      
         "Programa de Formación",
         "Cantidad de Proyectos",
         "Proyectos Activos",
@@ -7626,76 +7908,67 @@ def reporte_programa(request):
         "Progreso Promedio (%)"
     ])
     
-    for cell in ws[3]:
+    for cell in ws[fila_encabezado]:
         cell.font = Font(bold=True, color="FFFFFF")
         cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+        cell.border = thin_border
     
-    # OBTENER DATOS - Versión mejorada
-    # Primero verificamos todos los proyectos formativos
+    # ========== OBTENER Y PROCESAR DATOS ==========
     proyectos_formativos = Proyecto.objects.filter(tipo__iexact="formativo")
     
-    # Si no hay programa_formacion definido, agrupamos por el campo 'programa' de los aprendices
+    # Determinar fuente de datos de programa
     if proyectos_formativos.filter(programa_formacion__isnull=False).exclude(programa_formacion="").exists():
-        # Opción 1: Agrupar por programa_formacion del proyecto
         programas = proyectos_formativos.filter(
             programa_formacion__isnull=False
         ).exclude(programa_formacion="").values('programa_formacion').distinct()
-        
         usar_programa_proyecto = True
     else:
-        # Opción 2: Agrupar por programa del aprendiz
         programas = Aprendiz.objects.filter(
             proyectoaprendiz__cod_pro__tipo__iexact="formativo"
         ).values('programa').distinct()
-        
         usar_programa_proyecto = False
     
-    fila_inicio = 4
+    fila_inicio_datos = fila_encabezado + 1
     hay_datos = False
     
+    # Procesar cada programa
     for programa_dict in programas:
         if usar_programa_proyecto:
             programa = programa_dict['programa_formacion']
-            # Proyectos de este programa
             proyectos = Proyecto.objects.filter(
                 tipo__iexact="formativo",
                 programa_formacion=programa
             )
         else:
             programa = programa_dict['programa']
-            # Obtener aprendices de este programa
             aprendices_programa = Aprendiz.objects.filter(programa=programa)
-            # Proyectos donde participan estos aprendices
             proyectos = Proyecto.objects.filter(
                 tipo__iexact="formativo",
                 proyectoaprendiz__cedula_apre__in=aprendices_programa.values_list('cedula_apre', flat=True)
             ).distinct()
         
         total_proyectos = proyectos.count()
-        
         if total_proyectos == 0:
             continue
         
         hay_datos = True
         
-        # Proyectos activos (en curso)
+        # Calcular métricas
         proyectos_activos = proyectos.filter(
             estado_pro__in=['planeacion', 'ejecucion', 'activo', 'en curso']
         ).count()
         
-        # Proyectos completados
         proyectos_completados = proyectos.filter(
             estado_pro__in=['completado', 'finalizado', 'terminado']
         ).count()
         
-        # Total aprendices en estos proyectos
         total_aprendices = ProyectoAprendiz.objects.filter(
             cod_pro__in=proyectos.values_list('cod_pro', flat=True)
         ).values('cedula_apre').distinct().count()
         
-        # Progreso promedio
         progreso_promedio = proyectos.aggregate(Avg('progreso'))['progreso__avg'] or 0
         
+        # Agregar fila de datos
         ws.append([
             programa or "Sin Programa",
             total_proyectos,
@@ -7705,81 +7978,132 @@ def reporte_programa(request):
             round(progreso_promedio, 1)
         ])
     
-    # Si no hay datos, agregar una fila informativa
+    # Si no hay datos
     if not hay_datos:
         ws.append([
             "No hay proyectos formativos registrados",
-            0,
-            0,
-            0,
-            0,
-            0
+            0, 0, 0, 0, 0
         ])
     
-    # BORDES
-    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=6):
+    fila_fin_datos = ws.max_row
+    
+    # ========== APLICAR BORDES A TODA LA TABLA ==========
+    for row in ws.iter_rows(min_row=fila_encabezado, max_row=fila_fin_datos, min_col=1, max_col=6):
         for cell in row:
             cell.border = thin_border
     
-    # Solo crear gráficos si hay datos reales
-    if hay_datos and ws.max_row > 3:
-        # GRÁFICO 1: Proyectos por Programa
+    # ========== AJUSTAR ANCHOS DE COLUMNA ==========
+    ws.column_dimensions['A'].width = 35
+    ws.column_dimensions['B'].width = 18
+    ws.column_dimensions['C'].width = 18
+    ws.column_dimensions['D'].width = 20
+    ws.column_dimensions['E'].width = 18
+    ws.column_dimensions['F'].width = 22
+    
+    # ========== CREAR GRÁFICOS (solo si hay datos) ==========
+    if hay_datos and fila_fin_datos >= fila_inicio_datos:
+        
+        # --- GRÁFICO 1: Proyectos por Programa (Barras) ---
         chart1 = BarChart()
         chart1.title = "Cantidad de Proyectos por Programa"
         chart1.y_axis.title = "Número de Proyectos"
         chart1.x_axis.title = "Programa de Formación"
+        chart1.style = 10
         
-        data1 = Reference(ws, min_col=2, min_row=3, max_row=ws.max_row)
-        cats1 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+        data1 = Reference(ws, min_col=2, min_row=fila_encabezado, max_row=fila_fin_datos)
+        cats1 = Reference(ws, min_col=1, min_row=fila_inicio_datos, max_row=fila_fin_datos)
         
         chart1.add_data(data1, titles_from_data=True)
         chart1.set_categories(cats1)
-        chart1.height = 15
-        chart1.width = 20
+        chart1.height = 8
+        chart1.width = 12
         
-        ws.add_chart(chart1, "H3")
+        ws.add_chart(chart1, "H9")
         
-        # GRÁFICO 2: Progreso Promedio
+        # --- GRÁFICO 2: Progreso Promedio (Líneas) ---
         chart2 = LineChart()
         chart2.title = "Progreso Promedio por Programa"
         chart2.y_axis.title = "Progreso (%)"
         chart2.x_axis.title = "Programa de Formación"
+        chart2.style = 12
         
-        data2 = Reference(ws, min_col=6, min_row=3, max_row=ws.max_row)
-        cats2 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+        data2 = Reference(ws, min_col=6, min_row=fila_encabezado, max_row=fila_fin_datos)
+        cats2 = Reference(ws, min_col=1, min_row=fila_inicio_datos, max_row=fila_fin_datos)
         
         chart2.add_data(data2, titles_from_data=True)
         chart2.set_categories(cats2)
-        chart2.height = 15
-        chart2.width = 20
+        chart2.height = 8
+        chart2.width = 12
         
-        ws.add_chart(chart2, "H21")
+        ws.add_chart(chart2, "H27")
         
-        # GRÁFICO 3: Estado de Proyectos
+        # --- GRÁFICO 3: Estado de Proyectos (Pastel) ---
         chart3 = PieChart()
-        chart3.title = "Distribución de Estados"
-        
-        # Calcular totales para el gráfico
-        fila_totales = ws.max_row + 3
+        chart3.title = "Distribución de Estados de Proyectos"
+        chart3.style = 10
+
+        # ========= TÍTULO TABLA =========
+        fila_titulo_estado = fila_fin_datos + 3
+
+        ws.merge_cells(
+            start_row=fila_titulo_estado,
+            start_column=1,
+            end_row=fila_titulo_estado,
+            end_column=2
+        )
+
+        titulo_estado = ws.cell(row=fila_titulo_estado, column=1)
+        titulo_estado.value = "RESUMEN DE ESTADO DE PROYECTOS"
+        titulo_estado.font = Font(bold=True, size=13)
+        titulo_estado.alignment = Alignment(horizontal="center", vertical="center")
+
+        # ========= ENCABEZADOS TABLA =========
+        fila_totales = fila_titulo_estado + 1
+
         ws.cell(row=fila_totales, column=1, value="Estado").font = Font(bold=True)
         ws.cell(row=fila_totales, column=2, value="Cantidad").font = Font(bold=True)
-        
-        # CORRECCIÓN: Manejar valores None en las celdas
-        total_activos = sum([ws.cell(row=i, column=3).value or 0 for i in range(4, ws.max_row + 1)])
-        total_completados = sum([ws.cell(row=i, column=4).value or 0 for i in range(4, ws.max_row + 1)])
-        
-        ws.append(["Activos", total_activos])
-        ws.append(["Completados", total_completados])
-        
-        data3 = Reference(ws, min_col=2, min_row=fila_totales, max_row=ws.max_row)
-        labels3 = Reference(ws, min_col=1, min_row=fila_totales + 1, max_row=ws.max_row)
-        
+
+        total_activos = 0
+        total_completados = 0
+
+        for i in range(fila_inicio_datos, fila_fin_datos + 1):
+            val_activos = ws.cell(row=i, column=3).value
+            val_completados = ws.cell(row=i, column=4).value
+
+            if isinstance(val_activos, (int, float)):
+                total_activos += int(val_activos)
+
+            if isinstance(val_completados, (int, float)):
+                total_completados += int(val_completados)
+
+        ws.cell(row=fila_totales + 1, column=1, value="Activos")
+        ws.cell(row=fila_totales + 1, column=2, value=total_activos)
+
+        ws.cell(row=fila_totales + 2, column=1, value="Completados")
+        ws.cell(row=fila_totales + 2, column=2, value=total_completados)
+
+        # Bordes
+        for row in ws.iter_rows(
+            min_row=fila_totales,
+            max_row=fila_totales + 2,
+            min_col=1,
+            max_col=2
+        ):
+            for cell in row:
+                cell.border = thin_border
+
+        # ========= GRÁFICO =========
+        data3 = Reference(ws, min_col=2, min_row=fila_totales, max_row=fila_totales + 2)
+        labels3 = Reference(ws, min_col=1, min_row=fila_totales + 1, max_row=fila_totales + 2)
+
         chart3.add_data(data3, titles_from_data=True)
         chart3.set_categories(labels3)
-        
-        ws.add_chart(chart3, "H39")
+        chart3.height = 8
+        chart3.width = 12
+
+        ws.add_chart(chart3, "H45")
     
-    # RESPUESTA
+    # ========== RESPUESTA HTTP ==========
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
@@ -7789,30 +8113,29 @@ def reporte_programa(request):
     return response
 
 def reporte_fichas(request):
-    """
-    Fichas participantes y sus proyectos de investigación asociados
-    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Vinculación Fichas"
     
+    crear_encabezado_reporte(ws, request)
+
     thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
+        left=Side(style="thin", color="090979"),
+        right=Side(style="thin", color="090979"),
+        top=Side(style="thin", color="090979"),
+        bottom=Side(style="thin", color="090979")
     )
     
-    # TÍTULO
-    ws.merge_cells('A1:G1')
-    titulo = ws['A1']
+    # ========== TÍTULO ==========
+    ws.merge_cells('A7:G7')
+    titulo = ws['A7']
     titulo.value = "VINCULACIÓN DE FICHAS A PROYECTOS"
     titulo.font = Font(bold=True, size=16)
     titulo.alignment = openpyxl.styles.Alignment(horizontal='center')
     
-    # ENCABEZADOS
-    ws.append([])
-    ws.append([
+    # ========== ENCABEZADOS DE TABLA PRINCIPAL ==========
+    fila_encabezado = 8
+    ws.append([    
         "Ficha",
         "Programa",
         "Total Aprendices",
@@ -7822,13 +8145,15 @@ def reporte_fichas(request):
         "Tasa de Participación (%)"
     ])
     
-    for cell in ws[3]:
+    for cell in ws[fila_encabezado]:
         cell.font = Font(bold=True, color="FFFFFF")
-        cell.fill = PatternFill(start_color="27AE60", end_color="27AE60", fill_type="solid")
+        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+        cell.border = thin_border
     
-    # OBTENER DATOS
-    # Agrupar aprendices por ficha
+    # ========== OBTENER Y PROCESAR DATOS ==========
     fichas = Aprendiz.objects.values('ficha', 'programa').distinct().order_by('ficha')
+    
+    fila_inicio_datos = 8
     
     for ficha_dict in fichas:
         ficha = ficha_dict['ficha']
@@ -7857,8 +8182,8 @@ def reporte_fichas(request):
         tasa_participacion = (aprendices_en_proyectos / total_aprendices * 100) if total_aprendices > 0 else 0
         
         ws.append([
-            ficha,
-            programa,
+            ficha or "Sin Ficha",
+            programa or "Sin Programa",
             total_aprendices,
             aprendices_en_proyectos,
             proyectos_asociados,
@@ -7866,57 +8191,83 @@ def reporte_fichas(request):
             round(tasa_participacion, 1)
         ])
     
-    # BORDES
-    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=7):
+    fila_fin_tabla = ws.max_row
+    
+    # ========== APLICAR BORDES Y FORMATO ==========
+    for row in ws.iter_rows(min_row=fila_encabezado, max_row=fila_fin_tabla, min_col=1, max_col=7):
         for cell in row:
             cell.border = thin_border
     
-    # GRÁFICO 1: Aprendices por Ficha
+    # Ajustar anchos de columna
+    ws.column_dimensions['A'].width = 20
+    ws.column_dimensions['B'].width = 35
+    ws.column_dimensions['C'].width = 18
+    ws.column_dimensions['D'].width = 22
+    ws.column_dimensions['E'].width = 20
+    ws.column_dimensions['F'].width = 20
+    ws.column_dimensions['G'].width = 25
+    
+    # ========== GRÁFICO 1: Aprendices por Ficha (Barras) ==========
     chart1 = BarChart()
     chart1.title = "Aprendices por Ficha"
     chart1.y_axis.title = "Cantidad de Aprendices"
     chart1.x_axis.title = "Ficha"
+    chart1.style = 10
     
-    data1 = Reference(ws, min_col=3, min_row=3, max_row=ws.max_row)
-    cats1 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    data1 = Reference(ws, min_col=3, min_row=fila_encabezado, max_row=fila_fin_tabla)
+    cats1 = Reference(ws, min_col=1, min_row=fila_inicio_datos, max_row=fila_fin_tabla)
     
     chart1.add_data(data1, titles_from_data=True)
     chart1.set_categories(cats1)
-    chart1.height = 15
-    chart1.width = 20
+    chart1.height = 8
+    chart1.width = 12
     
-    ws.add_chart(chart1, "I3")
+    ws.add_chart(chart1, "I9")
     
-    # GRÁFICO 2: Tasa de Participación
+    # ========== GRÁFICO 2: Tasa de Participación (Líneas) ==========
     chart2 = LineChart()
     chart2.title = "Tasa de Participación por Ficha"
     chart2.y_axis.title = "Porcentaje (%)"
     chart2.x_axis.title = "Ficha"
+    chart2.style = 12
     
-    data2 = Reference(ws, min_col=7, min_row=3, max_row=ws.max_row)
-    cats2 = Reference(ws, min_col=1, min_row=4, max_row=ws.max_row)
+    data2 = Reference(ws, min_col=7, min_row=fila_encabezado, max_row=fila_fin_tabla)
+    cats2 = Reference(ws, min_col=1, min_row=fila_inicio_datos, max_row=fila_fin_tabla)
     
     chart2.add_data(data2, titles_from_data=True)
     chart2.set_categories(cats2)
-    chart2.height = 15
-    chart2.width = 20
+    chart2.height = 8
+    chart2.width = 12
     
-    ws.add_chart(chart2, "I21")
+    ws.add_chart(chart2, "I27")
     
-    # SECCIÓN DETALLADA: Proyectos por Ficha
-    fila_detalle = ws.max_row + 3
-    ws.cell(row=fila_detalle, column=1, value="DETALLE DE PROYECTOS POR FICHA").font = Font(bold=True, size=14)
-    fila_detalle += 2
+    # ========== SECCIÓN DETALLADA: Proyectos por Ficha ==========
+    fila_titulo_detalle = fila_fin_tabla + 3
+    ws.merge_cells(f'A{fila_titulo_detalle}:E{fila_titulo_detalle}')
+    titulo_detalle = ws[f'A{fila_titulo_detalle}']
+    titulo_detalle.value = "DETALLE DE PROYECTOS POR FICHA"
+    titulo_detalle.font = Font(bold=True, size=14)
+    titulo_detalle.alignment = openpyxl.styles.Alignment(horizontal='center')
     
-    ws.cell(row=fila_detalle, column=1, value="Ficha").font = Font(bold=True)
-    ws.cell(row=fila_detalle, column=2, value="Proyecto").font = Font(bold=True)
-    ws.cell(row=fila_detalle, column=3, value="Tipo").font = Font(bold=True)
-    ws.cell(row=fila_detalle, column=4, value="Estado").font = Font(bold=True)
-    ws.cell(row=fila_detalle, column=5, value="Aprendices Participantes").font = Font(bold=True)
-    fila_detalle += 1
+    fila_encabezado_detalle = fila_titulo_detalle + 1
     
-    inicio_detalle = fila_detalle
+    ws.cell(row=fila_encabezado_detalle, column=1, value="Ficha").font = Font(bold=True)
+    ws.cell(row=fila_encabezado_detalle, column=2, value="Proyecto").font = Font(bold=True)
+    ws.cell(row=fila_encabezado_detalle, column=3, value="Tipo").font = Font(bold=True)
+    ws.cell(row=fila_encabezado_detalle, column=4, value="Estado").font = Font(bold=True)
+    ws.cell(row=fila_encabezado_detalle, column=5, value="Aprendices Participantes").font = Font(bold=True)
     
+    # Formato encabezado detalle
+    for col in range(1, 6):
+        cell = ws.cell(row=fila_encabezado_detalle, column=col)
+        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.border = thin_border
+    
+    fila_detalle = fila_encabezado_detalle + 1
+    inicio_datos_detalle = fila_detalle
+    
+    # Llenar datos de detalle
     for ficha_dict in fichas:
         ficha = ficha_dict['ficha']
         
@@ -7936,20 +8287,87 @@ def reporte_fichas(request):
             ).count()
             
             ws.append([
-                ficha,
+                ficha or "Sin Ficha",
                 proyecto.nom_pro,
-                proyecto.tipo,
-                proyecto.estado_pro,
+                proyecto.tipo or "N/A",
+                proyecto.estado_pro or "N/A",
                 aprendices_proyecto
             ])
             fila_detalle += 1
     
-    # Bordes para detalle
-    for row in ws.iter_rows(min_row=inicio_detalle-1, max_row=fila_detalle-1, min_col=1, max_col=5):
+    fila_fin_detalle = fila_detalle - 1
+    
+    # Bordes para tabla detalle
+    for row in ws.iter_rows(min_row=fila_encabezado_detalle, max_row=fila_fin_detalle, min_col=1, max_col=5):
         for cell in row:
             cell.border = thin_border
     
-    # RESPUESTA
+    # Ajustar anchos de columna para detalle
+    ws.column_dimensions['B'].width = 40
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 15
+    ws.column_dimensions['E'].width = 25
+    
+    # ========== GRÁFICO 3: Distribución de Proyectos por Tipo (Pastel) ==========
+    # ========== TÍTULO TABLA: PROYECTOS POR TIPO ==========
+    fila_titulo_tipo = fila_fin_detalle + 3
+
+    ws.merge_cells(start_row=fila_titulo_tipo, start_column=1,
+    end_row=fila_titulo_tipo, end_column=2)
+
+    titulo_tipo = ws.cell(row=fila_titulo_tipo, column=1)
+    titulo_tipo.value = "RESUMEN DE PROYECTOS POR TIPO"
+    titulo_tipo.font = Font(bold=True, size=13)
+    titulo_tipo.alignment = Alignment(horizontal="center", vertical="center")
+
+    # ========== TABLA: PROYECTOS POR TIPO ==========
+    fila_totales_tipo = fila_titulo_tipo + 1
+
+    ws.cell(row=fila_totales_tipo, column=1, value="Tipo de Proyecto").font = Font(bold=True)
+    ws.cell(row=fila_totales_tipo, column=2, value="Cantidad").font = Font(bold=True)
+
+    # Contar proyectos por tipo
+    tipos_count = {}
+    for i in range(inicio_datos_detalle, fila_fin_detalle + 1):
+        tipo = ws.cell(row=i, column=3).value
+        if tipo and tipo != "N/A":
+            tipos_count[tipo] = tipos_count.get(tipo, 0) + 1
+
+    fila_actual = fila_totales_tipo + 1
+    for tipo, cantidad in tipos_count.items():
+        ws.cell(row=fila_actual, column=1, value=tipo)
+        ws.cell(row=fila_actual, column=2, value=cantidad)
+        fila_actual += 1
+
+    # ========== GRÁFICO DE PASTEL ==========
+    if tipos_count:
+        for row in ws.iter_rows(min_row=fila_totales_tipo,
+            max_row=fila_actual - 1,
+            min_col=1, max_col=2):
+                for cell in row:
+                    cell.border = thin_border
+
+    chart3 = PieChart()
+    chart3.title = "Distribución de Proyectos por Tipo"
+    chart3.style = 10
+
+    data3 = Reference(ws,
+        min_col=2,
+        min_row=fila_totales_tipo,
+        max_row=fila_actual - 1)
+    labels3 = Reference(ws,
+        min_col=1,
+        min_row=fila_totales_tipo + 1,
+        max_row=fila_actual - 1)
+    chart3.add_data(data3, titles_from_data=True)
+    chart3.set_categories(labels3)
+
+    chart3.height = 8
+    chart3.width = 12
+
+    ws.add_chart(chart3, "I45")
+    
+    # ========== RESPUESTA HTTP ==========
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )

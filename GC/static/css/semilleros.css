@@ -69,7 +69,7 @@
     border-radius: clamp(8px, 1.5vw, 10px);
 }
 
-.input-group .btn {
+.input-group .buscar {
     position: absolute;
     right: clamp(0.8rem, 2vw, 1.2rem);
     top: 50%;
@@ -86,13 +86,15 @@
     transition: color 0.3s ease;
 }
 
-.input-group .btn:hover {
+
+.input-group .buscar:hover {
     color: #4CAF50;
 }
 
 .fa-search {
     font-size: clamp(14px, 1.5vw, 18px);
     color: var(--color-text-primary);
+   
 }
 
 /* Fechas */

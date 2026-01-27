@@ -26,8 +26,16 @@
             <h3>Búsqueda y Filtrados</h3>
             <form method="GET" action="">
                 <div class="filtros">
-                    <input type="text" name="buscar" placeholder="Buscar recurso..." class="buscador" value="{{ request.GET.buscar }}">
-                    <img class="fa fa-search" src="{% static 'img/Search.png' %}" alt="Icono Buscar">
+                    <!-- Buscador -->
+                    <div class="input-group">
+                        <input type="text"
+                            name="buscar" 
+                            placeholder="Buscar recurso..." 
+                            class="form-control" value="{{ request.GET.buscar }}">
+                        <button class=" buscar" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                     <select name="estado" class="filtro">
                         <option value="">Todos los estados</option>
                         <option value="diagnostico" {% if request.GET.estado == 'diagnostico' %}selected{% endif %}>En diagnóstico</option>

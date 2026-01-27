@@ -273,18 +273,22 @@
                                                         <!-- Caso: hay archivos -->
                                                         <div class="entregable-documentos">
                                                             <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
-                                                            <div class="botones">
-                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                            {% if proyecto.estado_pro != "desactivado" and perms.GC2.add_archivo %}
+                                                                <!-- Tiene permisos: mostrar ambos botones -->
+                                                                <div class="botones">
+                                                                    <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                                        <i class="fas fa-eye"></i> Ver Archivos
+                                                                    </a>
+                                                                    <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                        <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                    </a>
+                                                                </div>
+                                                            {% else %}
+                                                                <!-- NO tiene permisos: mostrar solo Ver Archivos grande -->
+                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos full-width">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
-                                                                {% if proyecto.estado_pro != "desactivado" %}
-                                                                    {% if perms.GC2.add_archivo %}
-                                                                        <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
-                                                                            <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endif %}
-                                                            </div>
+                                                            {% endif %}
                                                         </div>
 
                                                         <!-- Modal de archivos -->
@@ -588,18 +592,22 @@
                                                         <!-- Caso: hay archivos -->
                                                         <div class="entregable-documentos">
                                                             <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
-                                                            <div class="botones">
-                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                            {% if proyecto.estado_pro != "desactivado" and perms.GC2.add_archivo %}
+                                                                <!-- Tiene permisos: mostrar ambos botones -->
+                                                                <div class="botones">
+                                                                    <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                                        <i class="fas fa-eye"></i> Ver Archivos
+                                                                    </a>
+                                                                    <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                        <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                    </a>
+                                                                </div>
+                                                            {% else %}
+                                                                <!-- NO tiene permisos: mostrar solo Ver Archivos grande -->
+                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos full-width">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
-                                                                {% if perms.GC2.add_archivo %}
-                                                                    {% if proyecto.estado_pro != "desactivado" %}
-                                                                        <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
-                                                                            <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endif %}
-                                                            </div>
+                                                            {% endif %}
                                                         </div>
 
                                                         <!-- Modal de archivos -->
@@ -902,18 +910,22 @@
                                                         <!-- Caso: hay archivos -->
                                                         <div class="entregable-documentos">
                                                             <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
-                                                            <div class="botones">
-                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                            {% if proyecto.estado_pro != "desactivado" and perms.GC2.add_archivo %}
+                                                                <!-- Tiene permisos: mostrar ambos botones -->
+                                                                <div class="botones">
+                                                                    <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
+                                                                        <i class="fas fa-eye"></i> Ver Archivos
+                                                                    </a>
+                                                                    <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
+                                                                        <i class="fas fa-cloud-upload-alt"></i> Subir documento
+                                                                    </a>
+                                                                </div>
+                                                            {% else %}
+                                                                <!-- NO tiene permisos: mostrar solo Ver Archivos grande -->
+                                                                <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos full-width">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
-                                                                {% if perms.GC2.add_archivo %}
-                                                                    {% if proyecto.estado_pro != 'desactivado' %}
-                                                                        <a href="#modal-subir-{{ entregable.cod_entre }}" class="btn-subir">
-                                                                            <i class="fas fa-cloud-upload-alt"></i> Subir documento
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endif %}
-                                                            </div>
+                                                            {% endif %}
                                                         </div>
 
                                                         <!-- Modal de archivos -->
