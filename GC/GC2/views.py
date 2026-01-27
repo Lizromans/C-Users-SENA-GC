@@ -76,7 +76,6 @@ from reportlab.lib.units import cm
 from reportlab.lib.utils import ImageReader
 from django.utils import timezone
 
-
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
     if not numero:
@@ -4597,9 +4596,8 @@ def reporte_participantes(request):
         chart_roles.set_categories(labels)
         ws.add_chart(chart_roles, "I2")
 
-    # -------------------------------
     # TABLA 3: PARTICIPANTES POR PROYECTO
-    # -------------------------------
+
     proyectos_count = {}
     for row in ws.iter_rows(min_row=fila_encabezado + 1, max_row=ws.max_row, min_col=3, max_col=3, values_only=True):
         proyecto = row[0] or "Sin proyecto"
@@ -6033,11 +6031,31 @@ def generar_reporte_pdf(request):
         canvas.setFillColor(colors.HexColor('#2C3E50'))
         canvas.drawString(40, height - 32, "Powered by InnHub")
         
-        # Información de fecha (derecha)
+        # ===== Información de generación (derecha) =====
         canvas.setFont('Helvetica', 9)
         canvas.setFillColor(colors.HexColor('#7F8C8D'))
+
+        # Fecha y hora
         fecha_actual = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
-        canvas.drawRightString(width - 40, height - 32, f"Generado: {fecha_actual}")
+        canvas.drawRightString(
+            width - 20,
+            height - 22,
+            f"Generado el: {fecha_actual}"
+        )
+
+        # Usuario que generó el reporte (Custom User)
+        usuario = request.user
+
+        nombre = f"{usuario.nom_usu} {usuario.ape_usu}".strip()
+
+        # Fallback de seguridad (por si algún campo está vacío)
+        nombre_final = nombre if nombre else usuario.correo_ins
+
+        canvas.drawRightString(
+            width - 30,
+            height - 34,
+            f"por: {nombre_final}"
+        )
         
         # Línea decorativa debajo del encabezado
         canvas.setStrokeColor(colors.HexColor('#3498DB'))
