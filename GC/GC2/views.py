@@ -248,10 +248,11 @@ def bienvenido(request):
 
     return render(request, 'paginas/bienvenido.html', context)
 
-# VISTAS DE LOGIN
+# VISTAS DE LOGIN Y REGISTRO
 def registro(request):
     if request.method == 'POST':
         form = UsuarioRegistroForm(request.POST)
+        
         if form.is_valid():
             try:
                 usuario = form.save(commit=False)
@@ -279,29 +280,163 @@ def registro(request):
                         "Usuario registrado, pero hubo un problema al enviar el correo de verificación. "
                         "Por favor contacta al administrador."
                     )
-                    print(f"Error al enviar email: {email_error}")  # Para debugging
+                    print(f"Error al enviar email: {email_error}")
                 
                 return redirect('iniciarsesion')
                 
             except Exception as e:
                 messages.error(request, f"Error al registrar usuario: {str(e)}")
-                print(f"Error en registro: {e}")  # Para debugging
+                print(f"Error en registro: {e}")
         else:
-            # Mostrar errores específicos del formulario
+            # Convertir errores del formulario a variables individuales
+            errores_contexto = {}
+            
+            # Mapeo de campos del formulario a variables de error en el template
+            mapeo_errores = {
+                'cedula': 'error_cedula_reg',
+                'nom_usu': 'error_nom_usu',
+                'ape_usu': 'error_ape_usu',
+                'correo_ins': 'error_correo_ins',
+                'rol': 'error_rol_reg',
+                'contraseña': 'error_contrasena',
+                'conf_contraseña': 'error_conf_contrasena',
+            }
+            
+            # Convertir errores del formulario a variables individuales
             for field, errors in form.errors.items():
-                for error in errors:
-                    if field == '__all__':
-                        messages.error(request, error)
-                    else:
-                        field_name = form.fields[field].label or field
-                        messages.error(request, f"{field_name}: {error}")
+                if field in mapeo_errores:
+                    # Tomar solo el primer error de cada campo
+                    errores_contexto[mapeo_errores[field]] = errors[0]
+                elif field == '__all__':
+                    messages.error(request, errors[0])
+            
+            # Preservar los valores ingresados
+            valores_preservados = {
+                'cedula_reg': form.data.get('cedula', ''),
+                'nom_usu': form.data.get('nom_usu', ''),
+                'ape_usu': form.data.get('ape_usu', ''),
+                'correo_ins': form.data.get('correo_ins', ''),
+                'rol_reg': form.data.get('rol', ''),
+            }
     else:
         form = UsuarioRegistroForm()
+        errores_contexto = {}
+        valores_preservados = {}
+
+    context = {
+        'form': form,
+        'current_page_name': 'Registro',
+        'mostrar_registro': False,  
+        **errores_contexto,  
+        **valores_preservados,  
+    }
+    
+    return render(request, 'paginas/registro.html', context)
+
+
+def iniciarsesion(request):
+    
+    if request.method == 'POST':
+        cedula = request.POST.get('cedula', '').strip()
+        password = request.POST.get('password', '')
+        rol = request.POST.get('rol', '').strip()
+
+        errores = {}
+
+        # Validaciones básicas
+        if not rol:
+            errores['error_rol'] = "Debe seleccionar un rol."
+        if not cedula:
+            errores['error_user'] = "La cédula es obligatoria."
+        if not password:
+            errores['error_password'] = "La contraseña es obligatoria."
+
+        # Si hay errores básicos, mostrar formulario de login con errores
+        if errores:
+            return render(request, 'paginas/registro.html', {
+                **errores,
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': True, 
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar si el usuario existe
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+        except Usuario.DoesNotExist:
+            return render(request, 'paginas/registro.html', {
+                'error_user': 'Usuario no registrado.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': True,  # CRÍTICO
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar contraseña
+        if not usuario.check_password(password):
+            return render(request, 'paginas/registro.html', {
+                'error_password': 'Contraseña incorrecta.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': True,  # CRÍTICO
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar rol
+        if usuario.rol != rol:
+            return render(request, 'paginas/registro.html', {
+                'error_rol': 'El rol seleccionado no coincide con tu usuario.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': True,  # CRÍTICO
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar email verificado
+        if not usuario.email_verificado:
+            return render(request, 'paginas/registro.html', {
+                'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': True,  
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Login exitoso
+        request.session['cedula'] = usuario.cedula
+        request.session['nom_usu'] = usuario.nom_usu
+        request.session['ape_usu'] = usuario.ape_usu
+        request.session['rol'] = usuario.rol
+        request.session['correo_ins'] = usuario.correo_ins
+        
+        login(request, usuario)
+
+        request.session.set_expiry(3600) 
+
+        usuario.last_login = timezone.now()
+        usuario.save(update_fields=['last_login'])
+
+        messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
+
+        # Verificar perfil incompleto
+        perfil_incompleto = (
+            not usuario.correo_per or
+            not usuario.telefono or
+            not usuario.fecha_nacimiento or
+            not usuario.vinculacion_laboral or
+            not usuario.dependencia
+        )
+        
+        if perfil_incompleto:
+            messages.info(request, "Por favor completa tu perfil con la información faltante.")
+            return redirect('perfil')
+        
+        return redirect('home')
 
     return render(request, 'paginas/registro.html', {
-        'form': form,
-        'current_page_name': 'registro',
-        'show_register': True  
+        'mostrar_registro': True,  
+        'current_page_name': 'Iniciar Sesión'
     })
 
 # Vista para verificar el correo electrónico
@@ -328,97 +463,7 @@ def verificar_email(request, token):
         messages.error(request, "El enlace de verificación no es válido.")
         return redirect('iniciarsesion') 
 
-# VISTA DE INICIAR SESION
-def iniciarsesion(request):
-    if request.method == 'POST':
-        cedula = request.POST.get('cedula')
-        password = request.POST.get('password')
-        rol = request.POST.get('rol')
-
-        errores = {}
-
-        if not rol:
-            errores['error_rol'] = "Debe seleccionar un rol."
-        if not cedula:
-            errores['error_user'] = "La cédula es obligatoria."
-        if not password:
-            errores['error_password'] = "La contraseña es obligatoria."
-
-        if errores:
-            return render(request, 'paginas/registro.html', {
-                **errores,
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        try:
-            usuario = Usuario.objects.get(cedula=cedula)
-        except Usuario.DoesNotExist:
-            return render(request, 'paginas/registro.html', {
-                'error_user': 'Usuario no registrado.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        if not usuario.check_password(password):
-            return render(request, 'paginas/registro.html', {
-                'error_password': 'Contraseña incorrecta.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        if usuario.rol != rol:
-            return render(request, 'paginas/registro.html', {
-                'error_rol': 'El rol seleccionado no coincide con tu usuario.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        if not usuario.email_verificado:
-            return render(request, 'paginas/registro.html', {
-                'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        request.session['cedula'] = usuario.cedula
-        request.session['nom_usu'] = usuario.nom_usu
-        request.session['ape_usu'] = usuario.ape_usu
-        request.session['rol'] = usuario.rol
-        request.session['correo_ins'] = usuario.correo_ins
-        
-        login(request, usuario)
-
-        request.session.set_expiry(3600)  # 1 hora
-
-        usuario.last_login = timezone.now()
-        usuario.save(update_fields=['last_login'])
-
-        messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
-
-        perfil_incompleto = (
-            not usuario.correo_per or
-            not usuario.telefono or
-            not usuario.fecha_nacimiento or
-            not usuario.vinculacion_laboral or
-            not usuario.dependencia
-        )
-        
-        if perfil_incompleto:
-            messages.info(request, "Por favor completa tu perfil con la información faltante.")
-            return redirect('perfil')
-        
-        return redirect('home')
-
-    return render(request, 'paginas/registro.html', {
-        'current_page_name': 'Iniciar Sesión'
-    })
-
+# Vistas recuperar contraseña
 def mostrar_recuperar_contrasena(request):
 
     return render(request, 'paginas/registro.html', {

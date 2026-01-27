@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login y Registro</title>
   <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mensajes-posicionamiento.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -31,7 +32,8 @@
       <div class="particle"></div>
   </div>
 
-    <div class="container active" id="container">
+    <!-- Clase 'active' para LOGIN (izquierda), sin 'active' para REGISTRO (derecha) -->
+    <div class="container {% if mostrar_registro %}{% else %}active{% endif %}" id="container">
       
       <!-- Panel Azul -->
       <div class="blue-panel" id="bluePanel">
@@ -40,64 +42,146 @@
           <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back">
         </a>  
         <img src="{% static 'img/logo1.png' %}" alt="Logo SENA" class="logo-sena">
-        <h2 id="blueTitle">¿Eres un usuario nuevo?</h2>
-        <p id="blueText">Regístrate para acceder al sistema de gestión del conocimiento</p>
-        <button id="toggleBtn">Registrarse</button>
+        <h2 id="blueTitle">{% if mostrar_registro %}¿Ya tienes cuenta?{% else %}¿Eres un usuario nuevo?{% endif %}</h2>
+        <p id="blueText">{% if mostrar_registro %}Inicia sesión para acceder a todas las funcionalidades del sistema{% else %}Regístrate para acceder al sistema de gestión del conocimiento{% endif %}</p>
+        <button id="toggleBtn">{% if mostrar_registro %}Iniciar sesión{% else %}Registrarse{% endif %}</button>
       </div>
 
       <!-- Formulario -->
       <div class="form-container" id="formContainer">
-        <div class="header-content">
-          <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
-        </div>
-        <h2 id="formTitle">INICIAR SESIÓN</h2>
-
-        <form class="datos" method="POST" action="{% url 'iniciarsesion' %}" id="mainForm" novalidate>
-          {% csrf_token %}
-
-          <!-- Rol -->
-          <div class="select_container">
-            <select name="rol" class="select" required>
-              <option value="">Selecciona tu rol</option>
-              <option value="Dinamizador" {% if rol == 'Dinamizador' %}selected{% endif %}>Dinamizador</option>
-              <option value="Coordinador" {% if rol == 'Coordinador semillero' %}selected{% endif %}>Coordinador Semillero</option>
-              <option value="Líder de Semillero" {% if rol == 'Líder de Semillero' %}selected{% endif %}>Líder de Semillero</option>
-              <option value="Líder de Proyecto" {% if rol == 'Líder de Proyecto' %}selected{% endif %}>Líder de Proyecto</option>
-              <option value="Investigador" {% if rol == 'Investigador' %}selected{% endif %}>Investigador</option>
-              <option value="Instructor" {% if rol == 'Instructor' %}selected{% endif %}>Instructor</option>
-            </select>
-            {% if error_rol %}
-              <div class="error-rol">{{ error_rol }}</div>
-            {% endif %}
+        {% if mostrar_registro %}
+          <!-- FORMULARIO DE REGISTRO (DERECHA - sin clase active) -->
+          <div class="header-content">
+            <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
           </div>
-          
-          <!-- Cedula -->
-          <div class="form-group m-1">
-            <input type="text" name="cedula" class="input" placeholder="Cédula" value="{% if cedula %}{{ cedula }}{% endif %}" required>
-            {% if error_user %}
-              <div class="error-cedula">{{ error_user }}</div>
-            {% endif %}
-          </div>
+          <h2>REGISTRO</h2>
+          <form class="datos" method="POST" action="{% url 'registro' %}" novalidate>
+            {% csrf_token %}
 
-          <!-- Contraseña -->
-          <div class="form-group m-1">
-            <div class="password-field-container">
-              <input type="password" name="password" id="loginPassword" class="input" placeholder="Contraseña" required>
-              <span class="password-toggle-icon" onclick="togglePasswordLogin()">
-                <i class="fas fa-eye" id="toggleIcon_loginPassword"></i>
-              </span>
+            <div class="form-group m-1">
+              <input type="text" name="cedula" class="input" placeholder="Cédula" value="{% if cedula_reg %}{{ cedula_reg }}{% endif %}" required>
+              {% if error_cedula_reg %}
+                <div class="error-cedula">{{ error_cedula_reg }}</div>
+              {% endif %}
             </div>
-            {% if error_password %}
-              <div class="error-contrase">{{ error_password }}</div>
-            {% endif %}
-          </div>
 
-          <a id="olvido" href="{% url 'mostrar_recuperar_contrasena' %}">¿Olvidó su contraseña?</a>
+            <div class="form-group m-1">
+              <input type="text" name="nom_usu" class="input" placeholder="Nombre" value="{% if nom_usu %}{{ nom_usu }}{% endif %}" required>
+              {% if error_nom_usu %}
+                <div class="error-cedula">{{ error_nom_usu }}</div>
+              {% endif %}
+            </div>
 
-          <div class="form-group m-1">
-            <button type="submit" class="btn">Iniciar Sesión</button>
+            <div class="form-group m-1">
+              <input type="text" name="ape_usu" class="input" placeholder="Apellido" value="{% if ape_usu %}{{ ape_usu }}{% endif %}" required>
+              {% if error_ape_usu %}
+                <div class="error-cedula">{{ error_ape_usu }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group m-1">
+              <input type="email" name="correo_ins" class="input" placeholder="Correo Institucional" value="{% if correo_ins %}{{ correo_ins }}{% endif %}" required>
+              <small class="form-text text-muted">
+                Se enviará un enlace de verificación a este correo.
+              </small>
+              {% if error_correo_ins %}
+                <div class="error-cedula">{{ error_correo_ins }}</div>
+              {% endif %}
+            </div>
+
+            <div class="select_container">
+              <select name="rol" class="select" required>
+                <option value="">Selecciona tu rol</option>
+                <option value="Investigador" {% if rol_reg == 'Investigador' %}selected{% endif %}>Investigador</option>
+                <option value="Instructor" {% if rol_reg == 'Instructor' %}selected{% endif %}>Instructor</option>
+              </select>
+              {% if error_rol_reg %}
+                <div class="error-rol">{{ error_rol_reg }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group m-1">
+              <div class="password-field-container">
+                <input type="password" name="contraseña" id="password" class="input" placeholder="Contraseña" required>
+                <span class="password-toggle-icon" onclick="togglePassword('password')">
+                  <i class="fas fa-eye" id="toggleIcon_password"></i>
+                </span>
+              </div>
+              {% if error_contrasena %}
+                <div class="error-contrase">{{ error_contrasena }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group m-1">
+              <div class="password-field-container">
+                <input type="password" name="conf_contraseña" id="confpassword" class="input" placeholder="Confirmar Contraseña" required>
+                <span class="password-toggle-icon" onclick="togglePassword('confpassword')">
+                  <i class="fas fa-eye" id="toggleIcon_confpassword"></i>
+                </span>
+              </div>
+              {% if error_conf_contrasena %}
+                <div class="error-contrase">{{ error_conf_contrasena }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group m-1">
+              <button type="submit" class="btn">Registrarse</button>
+            </div>
+          </form>
+        {% else %}
+          <!-- FORMULARIO DE LOGIN (IZQUIERDA - con clase active) -->
+          <div class="header-content">
+            <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
           </div>
-        </form>
+          <h2 id="formTitle">INICIAR SESIÓN</h2>
+
+          <form class="datos" method="POST" action="{% url 'iniciarsesion' %}" id="mainForm" novalidate>
+            {% csrf_token %}
+
+            <!-- Rol -->
+            <div class="select_container">
+              <select name="rol" class="select" required>
+                <option value="">Selecciona tu rol</option>
+                <option value="Dinamizador" {% if rol == 'Dinamizador' %}selected{% endif %}>Dinamizador</option>
+                <option value="Coordinador" {% if rol == 'Coordinador semillero' %}selected{% endif %}>Coordinador Semillero</option>
+                <option value="Líder de Semillero" {% if rol == 'Líder de Semillero' %}selected{% endif %}>Líder de Semillero</option>
+                <option value="Líder de Proyecto" {% if rol == 'Líder de Proyecto' %}selected{% endif %}>Líder de Proyecto</option>
+                <option value="Investigador" {% if rol == 'Investigador' %}selected{% endif %}>Investigador</option>
+                <option value="Instructor" {% if rol == 'Instructor' %}selected{% endif %}>Instructor</option>
+              </select>
+              {% if error_rol %}
+                <div class="error-rol">{{ error_rol }}</div>
+              {% endif %}
+            </div>
+            
+            <!-- Cedula -->
+            <div class="form-group m-1">
+              <input type="text" name="cedula" class="input" placeholder="Cédula" value="{% if cedula %}{{ cedula }}{% endif %}" required>
+              {% if error_user %}
+                <div class="error-cedula">{{ error_user }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Contraseña -->
+            <div class="form-group m-1">
+              <div class="password-field-container">
+                <input type="password" name="password" id="loginPassword" class="input" placeholder="Contraseña" required>
+                <span class="password-toggle-icon" onclick="togglePasswordLogin()">
+                  <i class="fas fa-eye" id="toggleIcon_loginPassword"></i>
+                </span>
+              </div>
+              {% if error_password %}
+                <div class="error-contrase">{{ error_password }}</div>
+              {% endif %}
+            </div>
+
+            <a id="olvido" href="{% url 'mostrar_recuperar_contrasena' %}">¿Olvidó su contraseña?</a>
+
+            <div class="form-group m-1">
+              <button type="submit" class="btn">Iniciar Sesión</button>
+            </div>
+          </form>
+        {% endif %}
       </div>
     </div>
 
@@ -135,9 +219,8 @@
   const formContainer = document.getElementById("formContainer");
   const blueTitle = document.getElementById("blueTitle");
   const blueText = document.getElementById("blueText");
-  const formTitle = document.getElementById("formTitle");
 
-  let isLogin = true;
+  let isLogin = {% if mostrar_registro %}false{% else %}true{% endif %};
 
   function togglePassword(fieldId) {
     const field = document.getElementById(fieldId);
@@ -157,7 +240,6 @@
   }
 
   function showLoginForm() {
-    // Añadir clase de fade out
     formContainer.style.opacity = '0';
     
     setTimeout(() => {
@@ -206,7 +288,6 @@
         </form>
       `;
       
-      // Fade in
       setTimeout(() => {
         formContainer.style.opacity = '1';
       }, 50);
@@ -214,7 +295,6 @@
   }
 
   function showRegisterForm() {
-    // Añadir clase de fade out
     formContainer.style.opacity = '0';
     
     setTimeout(() => {
@@ -281,7 +361,6 @@
         </form>
       `;
       
-      // Fade in
       setTimeout(() => {
         formContainer.style.opacity = '1';
       }, 50);
@@ -318,8 +397,5 @@
 </script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/mensaje.js' %}"></script>
-
-  <script src="{% static 'js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'js/mensaje.js' %}"></script>
 </body>
 </html>
