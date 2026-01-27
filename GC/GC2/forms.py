@@ -375,9 +375,7 @@ class FormularioSoporte(forms.Form):
    
 import json
 
-# =====================================================
 # 1. MAPEOS GENERALES
-# =====================================================
 
 CATEGORIAS_MAP = {
     'tipo1': 'Tipo 1: Generación de Nuevo Conocimiento',
@@ -387,9 +385,7 @@ CATEGORIAS_MAP = {
     'tipo5': 'Tipo 5: Formación de Recurso Humano en CTeI'
 }
 
-# =====================================================
 # 2. PRODUCTOS POR TIPO
-# =====================================================
 
 PRODUCTOS_MAP = {
     # ---------- TIPO 1 ----------
@@ -427,9 +423,7 @@ PRODUCTOS_MAP = {
     'proyectos': 'Proyectos'
 }
 
-# =====================================================
 # 3. CAMPOS LEGIBLES
-# =====================================================
 
 CAMPOS_LEGIBLES = {
     'tipo_libro': 'Tipo de libro',
@@ -454,17 +448,10 @@ CAMPOS_LEGIBLES = {
     'rol_participacion': 'Rol de participación'
 }
 
-# =====================================================
 # 4. CONSTRUIR DESCRIPCIÓN
-# =====================================================
-
-# En GC2/forms.py
 
 def construir_descripcion_entregable(categoria_principal, subcategorias_json):
-    """
-    Construye una descripción en formato texto para guardar en desc_entre
-    ✅ SIN EMOJIS para compatibilidad con MySQL utf8
-    """
+ 
     try:
         import json
         
@@ -510,9 +497,7 @@ def construir_descripcion_entregable(categoria_principal, subcategorias_json):
     except Exception as e:
         return f"Error inesperado: {e}"
     
-# =====================================================
 # 5. LIMPIAR DESCRIPCIÓN ANTERIOR
-# =====================================================
 
 def limpiar_descripcion_anterior(descripcion):
     """
@@ -534,9 +519,8 @@ def limpiar_descripcion_anterior(descripcion):
             return descripcion.split(marcador)[0].strip()
     
     return descripcion.strip()
-# =====================================================
+
 # 6. VALIDACIONES POR CATEGORÍA
-# =====================================================
 
 def validar_datos_categoria(categoria, datos):
     errores = []
@@ -592,9 +576,7 @@ def validar_datos_categoria(categoria, datos):
 
     return len(errores) == 0, errores
 
-# =====================================================
 # 7. OPCIONES DE PRODUCTO POR CATEGORÍA
-# =====================================================
 
 def obtener_opciones_producto(categoria):
     opciones = {

@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         entregables: [
             'Nombre del Entregable',
             'Estado',
+            'Descripción',
             'Fecha de Entrega',
             'Proyecto Asociado',
             'Responsable'
