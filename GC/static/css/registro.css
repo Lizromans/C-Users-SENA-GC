@@ -165,23 +165,95 @@ body {
     position: relative;
 }
 
+/* ===== MENSAJES EN LOGIN (DERECHA - con clase active) ===== */
+.container.active .error-container,
+.container.active .error-correo,
+.container.active .error-contra {
+    left: 102%; /* Posición a la derecha */
+    right: auto;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.container.active .error-contrase,
+.container.active .error-cedula,
+.container.active .error-rol {
+    right: auto;
+    left: 102%; /* Posición a la derecha */
+    font-family: 'Work Sans', sans-serif;
+}
+
+/* Flecha apuntando a la izquierda para mensajes de login */
+.container.active .error-container::after,
+.container.active .error-correo::after,
+.container.active .error-contra::after,
+.container.active .error-contrase::after,
+.container.active .error-cedula::after,
+.container.active .error-rol::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    right: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 5px 10px 5px 0px;
+    border-style: solid;
+    border-color: transparent #f8d7da transparent transparent;
+}
+
+/* ===== MENSAJES EN REGISTRO (IZQUIERDA - sin clase active) ===== */
+.container:not(.active) .error-container,
+.container:not(.active) .error-correo,
+.container:not(.active) .error-contra {
+    right: 102%; /* Posición a la izquierda */
+    left: auto;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.container:not(.active) .error-contrase,
+.container:not(.active) .error-cedula,
+.container:not(.active) .error-rol {
+    right: 102%; /* Posición a la izquierda */
+    left: auto;
+    font-family: 'Work Sans', sans-serif;
+}
+
+/* Flecha apuntando a la derecha para mensajes de registro */
+.container:not(.active) .error-container::after,
+.container:not(.active) .error-correo::after,
+.container:not(.active) .error-contra::after,
+.container:not(.active) .error-contrase::after,
+.container:not(.active) .error-cedula::after,
+.container:not(.active) .error-rol::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    left: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 5px 0 5px 10px;
+    border-style: solid;
+    border-color: transparent transparent transparent #f8d7da;
+}
+
+/* Estilos base de los mensajes de error */
 .error-container {
     color: #721c24;
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     border-radius: 5px;
-    font-size: 10px;
+    font-size: 12px;
     padding: 4px 8px;
     position: absolute;
     top: 50%;
-    right: 100%;
     transform: translateY(-50%);
     width: 150px;
-    z-index: 10;
+    z-index: 1000;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
 }
 
 .error-correo, .error-contra {
@@ -189,29 +261,19 @@ body {
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     border-radius: 5px;
-    font-size: 10px;
+    font-size: 12px;
     padding: 4px 8px;
     position: absolute;
     top: 37%;
     transform: translateY(-50%);
     width: 150px;
-    z-index: 10;
+    z-index: 1000;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    right: 102%;
-}
-
-.error-container:after, .error-correo::after, .error-contra::after {
-    content: '';
-    position: absolute;
-    right: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 5px 0 5px 10px;
-    border-style: solid;
-    border-color: transparent transparent transparent #f8d7da;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 50;
 }
 
 .error-container ul, .error-correo ul, .error-contra ul {
@@ -230,18 +292,19 @@ body {
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     border-radius: 5px;
-    font-size: 10px;
+    font-size: 12px;
     padding: 4px 8px;
     position: absolute;
     top: 37%;
     transform: translateY(-50%);
     width: 150px;
-    z-index: 10;
+    z-index: 1000;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    left: 102%;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
 }
 
 .error-cedula {
@@ -249,18 +312,19 @@ body {
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     border-radius: 5px;
-    font-size: 10px;
+    font-size: 12px;
     padding: 4px 8px;
     position: absolute;
     top: 48%;
     transform: translateY(-50%);
     width: 150px;
-    z-index: 10;
+    z-index: 1000;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    left: 102%;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
 }
 
 .error-rol {
@@ -268,29 +332,19 @@ body {
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     border-radius: 5px;
-    font-size: 10px;
+    font-size: 12px;
     padding: 4px 8px;
     position: absolute;
     top: 48%;
     transform: translateY(-50%);
     width: 150px;
-    z-index: 10;
+    z-index: 1000;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    left: 102%;
-}
-
-.error-contrase::after, .error-cedula::after, .error-rol::after {
-    content: '';
-    position: absolute;
-    left: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 5px 10px 5px 0px;
-    border-style: solid;
-    border-color: transparent #f8d7da;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
 }
 
 .container:hover {
@@ -309,6 +363,7 @@ body {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
                 0 0 40px rgba(0, 212, 255, 0.15);
     position: relative;
+    z-index: 1;
      transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 180ms ease, border-radius 180ms ease;
 }
 
@@ -352,7 +407,7 @@ body {
 /* ====== PANEL AZUL MEJORADO CON DINAMISMO ====== */
 .blue-panel {
     width: 50%;
-    background: linear-gradient(135deg, #00304D 0%, #004A7C 50%, #0070B3 100%);
+    background: linear-gradient(135deg, #00304D 0%, #0070B3 60%, #50E5F9 100%);
     color: #fff;
     display: flex;
     justify-content: center;
@@ -382,8 +437,8 @@ body {
 .blue-panel::after {
     content: '';
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 20%;
+    height: 20%;
     background-image: 
         radial-gradient(circle at 20% 30%, rgba(80, 229, 249, 0.15) 0%, transparent 50%),
         radial-gradient(circle at 80% 70%, rgba(61, 177, 3, 0.12) 0%, transparent 50%),
@@ -415,8 +470,9 @@ body {
             drop-shadow(0 0 40px rgba(80, 229, 249, 0.4))
             brightness(1.2);
     transition: all 0.4s ease;
-    animation: float-logo 3s ease-in-out infinite;
     z-index: 2;
+    animation: fadeContent 0.6s ease-in-out 0s backwards, 
+               float-logo 3s ease-in-out 0.6s infinite; /* Combinadas */
 }
 
 @keyframes float-logo {
@@ -441,10 +497,9 @@ body {
     font-family: 'Work Sans', sans-serif;
     font-weight: 700;
     font-size: 1.7rem;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
-                 0 0 40px rgba(80, 229, 249, 0.2);
     z-index: 2;
-    animation: pulse-text 2s ease-in-out infinite;
+    animation: fadeContent 0.6s ease-in-out 0.3s backwards,
+               pulse-text 2s ease-in-out 0.9s infinite; /* Combinadas */
 }
 
 @keyframes pulse-text {
@@ -465,6 +520,7 @@ body {
     font-family: 'Work Sans', sans-serif;
     opacity: 0.95;
     z-index: 2;
+    animation: fadeContent 0.6s ease-in-out 0.5s backwards;
 }
 
 /* Botón con glassmorphism */
@@ -484,6 +540,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2),
                 0 0 20px rgba(255, 255, 255, 0.1);
     z-index: 2;
+    animation: fadeContent 0.6s ease-in-out 0.7s backwards;
 }
 
 .blue-panel button:hover {
@@ -498,8 +555,11 @@ body {
 /* ====== HEADER DEL FORMULARIO ====== */
 .header-content {
     display: flex;
+    flex-direction: column; /* Apilar verticalmente */
     justify-content: center;
     align-items: center;
+    gap: 15px; /* Espacio entre logo y título */
+    margin-bottom: 5px; /* Espacio debajo del header */
 }
 
 .header-content:hover{
@@ -511,6 +571,7 @@ body {
             drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
     transform: scale(1.12) translateY(-3px);
 }
+
 /* Logo InnHub */
 .header-gc-logo {
     width: clamp(185px, 15%, 195px);
@@ -526,9 +587,26 @@ body {
     image-rendering: crisp-edges;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    margin-left: -2.5%;
+    margin: 0; /* Sin margen lateral */
+    animation: fadeContent 0.6s ease-in-out 0s backwards;
 }
 
+/* Título dentro del header-content */
+.header-content h2 {
+    color: #00304D;
+    text-align: center;
+    font-weight: 900;
+    font-size: clamp(0.95rem, 5vw, 1.3rem);
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 10px rgba(0, 48, 77, 0.15),
+                 0 0 25px rgba(0, 112, 179, 0.1);
+    background: linear-gradient(135deg, #00304D 0%, #0070B3 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0; /* Sin márgenes */
+    animation: fadeContent 0.6s ease-in-out 0.4s backwards;
+}
 /* ====== FORMULARIOS ====== */
 .form-container {
     width: 45%;
@@ -554,10 +632,10 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: fadeContent 0.6s ease-in-out;
+    animation: fadeContent 0.6s ease-in-out 0.4s backwards;
 }
 
-/* Inputs y selects mejorados */
+/* Inputs y selects */
 .input,
 .select {
     width: 100%;
@@ -575,6 +653,7 @@ body {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    animation: fadeContent 0.6s ease-in-out 0.6s backwards;
 }
 
 .input::placeholder {
@@ -597,6 +676,7 @@ body {
     text-align: center;
     font-size: 14px;
     font-family: 'Work Sans', sans-serif;
+    animation: fadeContent 0.6s ease-in-out 0.7s backwards;
 }
 
 /* Select con flecha personalizada */
@@ -604,6 +684,7 @@ body {
 .select-container {
     position: relative;
     width: 100%;
+    animation: fadeContent 0.6s ease-in-out 0.6s backwards;
 }
 
 .select_container::after,
@@ -625,7 +706,13 @@ body {
     color: #00304D;
 }
 
-/* Botón mejorado con efectos modernos */
+/* Form groups */
+.form-group {
+    position: relative;
+    animation: fadeContent 0.6s ease-in-out 0.6s backwards;
+}
+
+/* Botón */
 .form-container .btn {
     margin-top: 3%;
     background: linear-gradient(135deg, #00304D 0%, #0070B3 100%);
@@ -644,6 +731,7 @@ body {
     letter-spacing: 0.5px;
     position: relative;
     overflow: hidden;
+    animation: fadeContent 0.6s ease-in-out 0.8s backwards;
 }
 
 .form-container .btn::before {
@@ -679,6 +767,7 @@ body {
 .password-field-container {
     position: relative;
     width: 100%;
+    animation: fadeContent 0.6s ease-in-out 0.6s backwards;
 }
 
 #olvido {
@@ -692,6 +781,7 @@ body {
     font-family: 'Work Sans', sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
+    animation: fadeContent 0.6s ease-in-out 0.7s backwards;
 }
 
 #olvido:hover {
@@ -743,66 +833,4 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-
-/* ====== MODAL ====== */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.modal-visible {
-    display: block !important;
-}
-
-.modal-content {
-    background-color: #fff;
-    margin: 10% auto;
-    width: 80%;
-    max-width: 450px;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
-                0 0 40px rgba(0, 212, 255, 0.2);
-    animation: slideDown 0.4s ease-out;
-    overflow: hidden;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-50px) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.modal-perfil-cerrar {
-    position: absolute;
-    top: 10px; 
-    right: 10px; 
-    background: rgba(255, 255, 255, 0.95);
-    border: 1.5px solid #ccc;
-    border-radius: 50%;
-    width: 28px; 
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 1rem; 
-    color: #555;
-    transition: all 0.3s ease;
-    z-index: 10;
-    text-decoration: none
 }

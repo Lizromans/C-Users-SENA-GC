@@ -248,10 +248,11 @@ def bienvenido(request):
 
     return render(request, 'paginas/bienvenido.html', context)
 
-# VISTAS DE LOGIN
+# VISTAS DE LOGIN Y REGISTRO
 def registro(request):
     if request.method == 'POST':
         form = UsuarioRegistroForm(request.POST)
+        
         if form.is_valid():
             try:
                 usuario = form.save(commit=False)
@@ -279,29 +280,162 @@ def registro(request):
                         "Usuario registrado, pero hubo un problema al enviar el correo de verificación. "
                         "Por favor contacta al administrador."
                     )
-                    print(f"Error al enviar email: {email_error}")  # Para debugging
+                    print(f"Error al enviar email: {email_error}")
                 
                 return redirect('iniciarsesion')
                 
             except Exception as e:
                 messages.error(request, f"Error al registrar usuario: {str(e)}")
-                print(f"Error en registro: {e}")  # Para debugging
+                print(f"Error en registro: {e}")
         else:
-            # Mostrar errores específicos del formulario
+            # Convertir errores del formulario a variables individuales
+            errores_contexto = {}
+            
+            # Mapeo de campos del formulario a variables de error en el template
+            mapeo_errores = {
+                'cedula': 'error_cedula_reg',
+                'nom_usu': 'error_nom_usu',
+                'ape_usu': 'error_ape_usu',
+                'correo_ins': 'error_correo_ins',
+                'rol': 'error_rol_reg',
+                'contraseña': 'error_contrasena',
+                'conf_contraseña': 'error_conf_contrasena',
+            }
+            
+            # Convertir errores del formulario a variables individuales
             for field, errors in form.errors.items():
-                for error in errors:
-                    if field == '__all__':
-                        messages.error(request, error)
-                    else:
-                        field_name = form.fields[field].label or field
-                        messages.error(request, f"{field_name}: {error}")
+                if field in mapeo_errores:
+                    # Tomar solo el primer error de cada campo
+                    errores_contexto[mapeo_errores[field]] = errors[0]
+                elif field == '__all__':
+                    messages.error(request, errors[0])
+            
+            # Preservar los valores ingresados
+            valores_preservados = {
+                'cedula_reg': form.data.get('cedula', ''),
+                'nom_usu': form.data.get('nom_usu', ''),
+                'ape_usu': form.data.get('ape_usu', ''),
+                'correo_ins': form.data.get('correo_ins', ''),
+                'rol_reg': form.data.get('rol', ''),
+            }
     else:
         form = UsuarioRegistroForm()
+        errores_contexto = {}
+        valores_preservados = {}
+
+    context = {
+        'form': form,
+        'current_page_name': 'Registro',
+        'mostrar_registro': True,  # CRÍTICO
+        **errores_contexto,  
+        **valores_preservados,  
+    }
+    
+    return render(request, 'paginas/registro.html', context)
+
+def iniciarsesion(request):
+    
+    if request.method == 'POST':
+        cedula = request.POST.get('cedula', '').strip()
+        password = request.POST.get('password', '')
+        rol = request.POST.get('rol', '').strip()
+
+        errores = {}
+
+        # Validaciones básicas
+        if not rol:
+            errores['error_rol'] = "Debe seleccionar un rol."
+        if not cedula:
+            errores['error_user'] = "La cédula es obligatoria."
+        if not password:
+            errores['error_password'] = "La contraseña es obligatoria."
+
+        # Si hay errores básicos, mostrar formulario de login con errores
+        if errores:
+            return render(request, 'paginas/registro.html', {
+                **errores,
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': False,  # CRÍTICO
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar si el usuario existe
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+        except Usuario.DoesNotExist:
+            return render(request, 'paginas/registro.html', {
+                'error_user': 'Usuario no registrado.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': False,  # CRÍTICO
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar contraseña
+        if not usuario.check_password(password):
+            return render(request, 'paginas/registro.html', {
+                'error_password': 'Contraseña incorrecta.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': False,  # CRÍTICO
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar rol
+        if usuario.rol != rol:
+            return render(request, 'paginas/registro.html', {
+                'error_rol': 'El rol seleccionado no coincide con tu usuario.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': False,  # CRÍTICO
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Verificar email verificado
+        if not usuario.email_verificado:
+            return render(request, 'paginas/registro.html', {
+                'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': False,  
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # Login exitoso
+        request.session['cedula'] = usuario.cedula
+        request.session['nom_usu'] = usuario.nom_usu
+        request.session['ape_usu'] = usuario.ape_usu
+        request.session['rol'] = usuario.rol
+        request.session['correo_ins'] = usuario.correo_ins
+        
+        login(request, usuario)
+
+        request.session.set_expiry(3600) 
+
+        usuario.last_login = timezone.now()
+        usuario.save(update_fields=['last_login'])
+
+        messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
+
+        # Verificar perfil incompleto
+        perfil_incompleto = (
+            not usuario.correo_per or
+            not usuario.telefono or
+            not usuario.fecha_nacimiento or
+            not usuario.vinculacion_laboral or
+            not usuario.dependencia
+        )
+        
+        if perfil_incompleto:
+            messages.info(request, "Por favor completa tu perfil con la información faltante.")
+            return redirect('perfil')
+        
+        return redirect('home')
 
     return render(request, 'paginas/registro.html', {
-        'form': form,
-        'current_page_name': 'registro',
-        'show_register': True  
+        'mostrar_registro': False,  
+        'current_page_name': 'Iniciar Sesión'
     })
 
 # Vista para verificar el correo electrónico
@@ -328,97 +462,7 @@ def verificar_email(request, token):
         messages.error(request, "El enlace de verificación no es válido.")
         return redirect('iniciarsesion') 
 
-# VISTA DE INICIAR SESION
-def iniciarsesion(request):
-    if request.method == 'POST':
-        cedula = request.POST.get('cedula')
-        password = request.POST.get('password')
-        rol = request.POST.get('rol')
-
-        errores = {}
-
-        if not rol:
-            errores['error_rol'] = "Debe seleccionar un rol."
-        if not cedula:
-            errores['error_user'] = "La cédula es obligatoria."
-        if not password:
-            errores['error_password'] = "La contraseña es obligatoria."
-
-        if errores:
-            return render(request, 'paginas/registro.html', {
-                **errores,
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        try:
-            usuario = Usuario.objects.get(cedula=cedula)
-        except Usuario.DoesNotExist:
-            return render(request, 'paginas/registro.html', {
-                'error_user': 'Usuario no registrado.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        if not usuario.check_password(password):
-            return render(request, 'paginas/registro.html', {
-                'error_password': 'Contraseña incorrecta.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        if usuario.rol != rol:
-            return render(request, 'paginas/registro.html', {
-                'error_rol': 'El rol seleccionado no coincide con tu usuario.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        if not usuario.email_verificado:
-            return render(request, 'paginas/registro.html', {
-                'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
-                'cedula': cedula,
-                'rol': rol,
-                'current_page_name': 'Iniciar Sesión'
-            })
-
-        request.session['cedula'] = usuario.cedula
-        request.session['nom_usu'] = usuario.nom_usu
-        request.session['ape_usu'] = usuario.ape_usu
-        request.session['rol'] = usuario.rol
-        request.session['correo_ins'] = usuario.correo_ins
-        
-        login(request, usuario)
-
-        request.session.set_expiry(3600)  # 1 hora
-
-        usuario.last_login = timezone.now()
-        usuario.save(update_fields=['last_login'])
-
-        messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
-
-        perfil_incompleto = (
-            not usuario.correo_per or
-            not usuario.telefono or
-            not usuario.fecha_nacimiento or
-            not usuario.vinculacion_laboral or
-            not usuario.dependencia
-        )
-        
-        if perfil_incompleto:
-            messages.info(request, "Por favor completa tu perfil con la información faltante.")
-            return redirect('perfil')
-        
-        return redirect('home')
-
-    return render(request, 'paginas/registro.html', {
-        'current_page_name': 'Iniciar Sesión'
-    })
-
+# Vistas recuperar contraseña
 def mostrar_recuperar_contrasena(request):
 
     return render(request, 'paginas/registro.html', {
@@ -2217,12 +2261,12 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         return redirect('resu-proyectos', id_sem=id_sem)
 
     if request.method == 'POST':
-        # ✅ PROCESAR CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada)
+        # PROCESAR CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada)
         if proyecto.tipo.lower() in ['sennova', 'capacidadinstalada', 'capacidad instalada']:
             categoria_principal = request.POST.get('categoria_principal', '')
             subcategorias_json = request.POST.get('subcategorias_json', '')
             
-            # ✅ VALIDAR que ambos campos existan antes de procesar
+            # VALIDAR que ambos campos existan antes de procesar
             if categoria_principal and subcategorias_json and subcategorias_json.strip():
                 try:
                     from .forms import construir_descripcion_entregable, limpiar_descripcion_anterior
@@ -2237,7 +2281,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
                     # Normalizar el texto
                     desc_categorizacion = unicodedata.normalize('NFC', desc_categorizacion)
                     
-                    # 🆕 CAMBIO CRÍTICO: Reemplazar completamente la descripción genérica
+                    # Reemplazar completamente la descripción genérica
                     descripcion_generica = "Resultados y productos de investigación conforme a los parámetros de Minciencias."
                     
                     if entregable.desc_entre and descripcion_generica in entregable.desc_entre:
@@ -2249,7 +2293,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
                         entregable.desc_entre = limpiar_descripcion_anterior(entregable.desc_entre)
                         entregable.desc_entre = unicodedata.normalize('NFC', entregable.desc_entre)
                     
-                    # ✅ Agregar SOLO la nueva categorización
+                    # Agregar SOLO la nueva categorización
                     if entregable.desc_entre and entregable.desc_entre.strip():
                         # Si queda algo después de limpiar, agregamos separador
                         entregable.desc_entre += f"\n\n--- Categorización Minciencias ---\n{desc_categorizacion}"
@@ -2257,10 +2301,10 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
                         # Si no queda nada (o está vacío), solo ponemos la categorización
                         entregable.desc_entre = f"--- Categorización Minciencias ---\n{desc_categorizacion}"
                     
-                    # ✅ GUARDAR INMEDIATAMENTE la descripción (ANTES de procesar archivos)
+                    # GUARDAR INMEDIATAMENTE la descripción (ANTES de procesar archivos)
                     entregable.save(update_fields=['desc_entre'])
                     
-                    # ✅ VERIFICAR QUE SE GUARDÓ
+                    # VERIFICAR QUE SE GUARDÓ
                     entregable.refresh_from_db()
                     
                 except json.JSONDecodeError:
@@ -2268,7 +2312,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
                 except Exception as e:
                     messages.warning(request, f'⚠️ Error al guardar categorización: {str(e)}')
 
-        # ✅ PROCESAR ARCHIVOS (después de guardar la categorización)
+        # PROCESAR ARCHIVOS (después de guardar la categorización)
         archivos = request.FILES.getlist('archivo')
 
         if not archivos:
@@ -2291,7 +2335,7 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
             except Exception:
                 messages.error(request, f'Error al guardar {archivo.name}')
 
-        # ✅ ACTUALIZAR ESTADO (después de guardar archivos)
+        # ACTUALIZAR ESTADO (después de guardar archivos)
         from datetime import date
         fecha_actual = date.today()
 
@@ -2303,10 +2347,10 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
         else:
             entregable.estado = 'Completado'
 
-        # ✅ GUARDAR NUEVAMENTE (solo el estado, sin tocar desc_entre)
+        # GUARDAR NUEVAMENTE (solo el estado, sin tocar desc_entre)
         entregable.save(update_fields=['estado'])
 
-        # ✅ ACTUALIZAR PROGRESO
+        # ACTUALIZAR PROGRESO
         actualizar_progreso_proyecto(entregable.cod_pro)
 
         if archivos_guardados > 0:
@@ -2321,10 +2365,6 @@ def subir_archivo_entregable(request, id_sem, cod_pro, cod_entre):
     return redirect('resu-proyectos', id_sem=id_sem)
 
 def construir_descripcion_entregable(categoria_principal, subcategorias_json):
-    """
-    Construye una descripción en formato lista para guardar en desc_entre
-    Similar al formato de líneas en proyectos
-    """
     try:
         datos = json.loads(subcategorias_json)
         lineas = []
@@ -5851,6 +5891,8 @@ def generar_reporte_excel(request):
                         fila.append(e.nom_entre)
                     case "Estado":
                         fila.append(e.estado)
+                    case "Descripción":
+                        fila.append(e.desc_entre) if e.desc_entre else None
                     case "Fecha de Entrega":
                         fila.append(e.fecha_fin.strftime("%Y-%m-%d") if e.fecha_fin else "")
                     case "Proyecto Asociado":
@@ -6345,7 +6387,7 @@ def generar_reporte_pdf(request):
         elements.append(t)
         elements.append(PageBreak())
 
-    # ==================== MIEMBROS (CORRECCIÓN) ====================
+    # ==================== MIEMBROS ====================
     if "miembros" in categorias:
         elements.append(Paragraph("REPORTE DE MIEMBROS", title_style))
         elements.append(Spacer(1, 12))
@@ -6402,7 +6444,7 @@ def generar_reporte_pdf(request):
                 elif campo == "Email":
                     col_widths.append(150)
                 else:
-                    col_widths.append(100)  # ✅ Ancho por defecto
+                    col_widths.append(100)  
             
             total_width = sum(col_widths)
             if total_width > ancho_disponible:
@@ -6484,7 +6526,7 @@ def generar_reporte_pdf(request):
                 elif campo in ["Programa", "Programa de Formación"]:
                     col_widths.append(130)
                 else:
-                    col_widths.append(100)  # ✅ Ancho por defecto
+                    col_widths.append(100)  
             
             total_width = sum(col_widths)
             if total_width > ancho_disponible:
@@ -6510,14 +6552,14 @@ def generar_reporte_pdf(request):
         
         elements.append(PageBreak())
 
-    # ==================== ENTREGABLES (CORRECCIÓN) ====================
+    # ==================== ENTREGABLES  ====================
     if "entregables" in categorias:
         elements.append(Paragraph("REPORTE DE ENTREGABLES", title_style))
         elements.append(Spacer(1, 12))
         
         entregables = Entregable.objects.all()
         
-        if campos["entregables"] and entregables.exists():  # ✅ Verificar que hay datos
+        if campos["entregables"] and entregables.exists():  # Verificar que hay datos
             data = [campos["entregables"]]
             
             for e in entregables:
@@ -6529,6 +6571,8 @@ def generar_reporte_pdf(request):
                         valor = str(e.nom_entre) if e.nom_entre else ""
                     elif campo == "Estado":
                         valor = str(e.estado) if e.estado else ""
+                    elif campo == "Descripción":
+                        valor = e.desc_entre.replace('\n', ', ') if e.desc_entre else ""
                     elif campo == "Fecha de Entrega":
                         valor = e.fecha_fin.strftime("%Y-%m-%d") if e.fecha_fin else ""
                     elif campo == "Proyecto Asociado":
@@ -6569,7 +6613,7 @@ def generar_reporte_pdf(request):
                 elif campo in ["Nombre del Entregable", "Proyecto Asociado", "Responsable"]:
                     col_widths.append(150)
                 else:
-                    col_widths.append(100)  # Ancho por defecto
+                    col_widths.append(100)  
             
             total_width = sum(col_widths)
             if total_width > ancho_disponible:
