@@ -1678,12 +1678,13 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     background-color: #f8f9fa;
 }
 
-#backupModal .modal-footer .btn {
+#backupModal .modal-footer .btns1 {
     padding: clamp(8px, 1.2vh, 12px) clamp(16px, 2vw, 24px);
     font-size: clamp(0.85rem, 1.2vw, 0.95rem);
     font-weight: 600;
     border-radius: clamp(6px, 1vw, 8px);
     transition: all 0.3s ease;
+
 }
 
 /* ===== EFECTOS HOVER ===== */
