@@ -238,6 +238,12 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         self.intentos_codigo_fallidos = 0
         self.bloqueado_hasta = None
         self.save()
+    
+    def clean_nombre(self):
+        return self.cleaned_data['nombre'].title()
+
+    def clean_apellido(self):
+        return self.cleaned_data['apellido'].title()
         
 class UsuarioGrupos(models.Model):
     id = models.AutoField(primary_key=True)
@@ -328,6 +334,12 @@ class Aprendiz(models.Model):
         related_name='aprendices'
     )
     
+    def clean_nombre(self):
+        return self.cleaned_data['nombre'].title()
+
+    def clean_apellido(self):
+        return self.cleaned_data['apellido'].title()
+
 class Proyecto(models.Model):
     cod_pro = models.IntegerField(primary_key=True)
     nom_pro = models.CharField(max_length=250)
