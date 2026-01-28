@@ -148,7 +148,23 @@
                                     <span>Entregables</span>
                                 </span>
                             </div>
-                            <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
+                            <div class="card-acciones">
+                                <a href="{% url 'cambiar_estado_semillero' semillero.id_sem %}"
+                                    class="btn-activar {% if semillero.estado == 'desactivado' %}success{% else %}danger{% endif %} btn-cambiar-estado"
+                                    data-nombre="{{ semillero.nombre }}"
+                                    data-estado="{{ semillero.estado }}"
+                                    data-url="{% url 'cambiar_estado_semillero' semillero.id_sem %}">
+                                    
+                                    {% if semillero.estado == 'desactivado' %}
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Activar</span>
+                                    {% else %}
+                                        <i class="fas fa-ban"></i>
+                                        <span>Desactivar</span>
+                                    {% endif %}
+                                </a>
+                                <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
+                            </div>
                         </div>
                     </div>
                     {% empty %}

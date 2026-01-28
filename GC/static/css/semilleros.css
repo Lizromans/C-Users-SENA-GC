@@ -421,33 +421,85 @@
 .card-semillero:nth-of-type(5n+1) .badge.bg-secondary { color: #ff9747 !important; }
 .card-semillero:nth-of-type(5n+2) .badge.bg-secondary { color: #4797ff !important; }
 
-/* Botones "Ver más" dentro de las tarjetas */
-.card-body .btn-primary {
+.card-acciones {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1.5vw, 12px);
+    margin-top: clamp(15px, 2.5vw, 20px);
+    justify-content: flex-end;
+}
+
+.card-acciones .btn-primary {
     background-color: transparent;
     border: 2px solid var(--color-nav-active);
     color: var(--color-text-primary);
     font-weight: 600;
-    padding: 8px 12px;
+    padding: clamp(6px, 1.2vw, 8px) clamp(10px, 1.8vw, 12px);
     font-size: clamp(12px, 1.5vw, 16px);
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: auto;
-    margin-left: auto;
-    display: block;
     width: fit-content;
     text-decoration: none;
 }
 
-.card-body .btn-primary:hover {
+.card-acciones .btn-primary:hover {
     background-color: var(--color-nav-active);
     color: white;
     border-color: var(--color-nav-active);
 }
 
-.card-body .btn-primary:focus {
+.card-acciones .btn-primary:focus {
     outline: none;
     box-shadow: 0 0 0 4px rgba(56, 169, 0, 0.39);
+}
+
+.card-acciones .btn-activar {
+    align-items: center;
+    gap: clamp(6px, 1vw, 8px);
+    padding: clamp(6px, 1.2vw, 8px) clamp(10px, 1.8vw, 12px);
+    border: 2px solid var(--color-nav-active);
+    border-radius: 5px;
+    background-color: transparent;
+    font-size: clamp(12px, 1.5vw, 16px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    width: fit-content;
+}
+
+.card-acciones .btn-activar:hover {
+    background-color: #4CAF50;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.card-acciones .btn-activar i {
+    font-size: clamp(14px, 2vw, 16px);
+}
+
+/* === Botón Activar cuando está desactivado === */
+.card-acciones .btn-activar.success {
+    border-color: #4CAF50;
+    color: #0a0a0a;
+}
+
+.card-acciones .btn-activar.success:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* === Botón Desactivar cuando está activo === */
+.card-acciones .btn-activar.danger {
+    border-color: #f44336;
+    color: #f44336;
+}
+
+.card-acciones .btn-activar.danger:hover {
+    background-color: #f44336;
+    color: white;
 }
 
 /* Mensaje cuando no hay semilleros - Responsive con clamp */

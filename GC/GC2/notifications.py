@@ -651,7 +651,7 @@ class NotificationManager:
                     clase_icono='info',
                     titulo='Nuevo Documento',
                     mensaje=f'{doc_relacion.cod_doc.nom_doc} en {doc_relacion.id_sem.nombre}',
-                    tiempo=doc_relacion.cod_doc.fecha_doc.strftime('%d/%m/%Y'),
+                    tiempo=str(doc_relacion.cod_doc.fecha_doc),
                     url=url,
                     prioridad=5,
                     fecha=fecha_notif

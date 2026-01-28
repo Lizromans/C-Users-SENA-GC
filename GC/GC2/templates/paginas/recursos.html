@@ -17,15 +17,17 @@
     {% endif %}
 
     <div class="resumen">
-        <div class="cont-1">
-            {% if perms.GC2.add_documento %}
-                <div class="boton-agregar">
-                    <button class="btn btn-anadir" data-bs-toggle="modal" data-bs-target="#modal-crear">
-                        <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Recurso"> Añadir Recurso
-                    </button>
-                </div>
-            {% endif %}
-        </div>
+        {% if semillero.estado != 'desactivado' %}
+            <div class="cont-1">
+                {% if perms.GC2.add_documento %}
+                    <div class="boton-agregar">
+                        <button class="btn btn-anadir" data-bs-toggle="modal" data-bs-target="#modal-crear">
+                            <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Recurso"> Añadir Recurso
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
         <div class="cont-2">
             <div class="grupo">
                 <div class="card">
@@ -56,13 +58,14 @@
                                     target="_blank">
                                 </a>
                                 <!-- Botón eliminar con modal -->
-                                 {% if perms.GC2.delete_documento %}
-                                    <a
-                                        class="fa fa-trash-alt eliminar-recurso"
-                                        data-nombre="{{ documento.nom_doc }}"
-                                        data-url="{% url 'eliminar_recurso' semillero.id_sem documento.cod_doc %}"
-                                        title="Eliminar {{ documento.nom_doc }}">
-                                    </a>
+                                {% if perms.GC2.delete_documento %}
+                                    {% if semillero.estado != 'desactivado' %}
+                                        <a  class="fa fa-trash-alt eliminar-recurso"
+                                            data-nombre="{{ documento.nom_doc }}"
+                                            data-url="{% url 'eliminar_recurso' semillero.id_sem documento.cod_doc %}"
+                                            title="Eliminar {{ documento.nom_doc }}">
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                             {% endif %}
@@ -106,13 +109,14 @@
                                     target="_blank">
                                 </a>
                                 <!-- Botón eliminar con modal -->
-                                 {% if perms.GC2.delete_documento %}
-                                    <a
-                                        class="fa fa-trash-alt eliminar-recurso"
-                                        data-nombre="{{ ficha.nom_doc }}"
-                                        data-url="{% url 'eliminar_recurso' semillero.id_sem ficha.cod_doc %}"
-                                        title="Eliminar {{ ficha.nom_doc }}">
-                                    </a>
+                                {% if perms.GC2.delete_documento %}
+                                    {% if semillero.estado != 'desactivado' %}
+                                        <a class="fa fa-trash-alt eliminar-recurso"
+                                            data-nombre="{{ ficha.nom_doc }}"
+                                            data-url="{% url 'eliminar_recurso' semillero.id_sem ficha.cod_doc %}"
+                                            title="Eliminar {{ ficha.nom_doc }}">
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                             {% endif %}

@@ -15,18 +15,20 @@
     </script>
     {% endif %}
     <div class="resumen">
-        <div class="cont-1">
-            <button class="btn btn-anadir" data-bs-toggle="modal" data-bs-target="#modal-crear">
-                <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
-                Añadir Miembro
-            </button>
-            {% if perms.GC2.change_usuario %}
-                <button class="btn btn-asignar" data-bs-toggle="modal" data-bs-target="#modal-semillero">
-                    <img src="{% static 'img/Medal.png' %}" alt="Icono de Asignar Lider De Semillero">
-                    Asignar Lider De Semillero
+        {% if semillero.estado != 'desactivado' %}
+            <div class="cont-1">
+                <button class="btn btn-anadir" data-bs-toggle="modal" data-bs-target="#modal-crear">
+                    <img src="{% static 'img/+.png' %}" alt="Icono de Añadir Miembro">
+                    Añadir Miembro
                 </button>
-            {% endif %}
-        </div>
+                {% if perms.GC2.change_usuario %}
+                    <button class="btn btn-asignar" data-bs-toggle="modal" data-bs-target="#modal-semillero">
+                        <img src="{% static 'img/Medal.png' %}" alt="Icono de Asignar Lider De Semillero">
+                        Asignar Lider De Semillero
+                    </button>
+                {% endif %}
+            </div>
+        {% endif %}
         
         <div class="contenedor-miembros">
             <div class="header-miembros">

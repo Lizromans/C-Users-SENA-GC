@@ -1154,6 +1154,65 @@ def eliminar_semilleros(request):
     # Si no es POST, redirigir
     return redirect('semilleros')
 
+@login_required
+def cambiar_estado_semillero(request, id_sem):
+    cedula = request.session.get('cedula')  
+    
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('iniciarsesion') 
+    
+    semillero = get_object_or_404(Semillero, id_sem=id_sem)
+
+    if semillero.estado == 'desactivado':
+        # ACTIVAR
+        semillero.estado = 'activo'
+        semillero.activo = True
+
+        messages.success(
+            request,
+            f'El semillero "{semillero.nombre}" fue ACTIVADO'
+        )
+    else:
+        # DESACTIVAR
+        semillero.estado = 'desactivado'
+        semillero.activo = False
+
+        messages.warning(
+            request,
+            f'El semillero "{semillero.nombre}" fue DESACTIVADO'
+        )
+
+    semillero.save()
+    
+    return redirect('semilleros')
+
+def semillero_activo_requerido(view_func):
+    @wraps(view_func)
+    def wrapper(request, id_sem, *args, **kwargs):
+        try:
+            semillero = get_object_or_404(Semillero, id_sem=id_sem)
+            
+            if semillero.estado == 'desactivado' or not semillero.estado == 'activo':
+                messages.error(
+                    request,
+                    f'⚠️ El semillero "{semillero.nombre}" está desactivado. '
+                    f'Debes activarlo primero para realizar esta acción.'
+                )
+                # Redirigir a la página anterior o a semilleros
+                return redirect('semilleros')
+            
+            # Si está activo, continuar con la vista
+            return view_func(request, id_sem, *args, **kwargs)
+            
+        except Semillero.DoesNotExist:
+            messages.error(request, "❌ Semillero no encontrado.")
+            return redirect('semilleros')
+    
+    return wrapper
+
 def actualizar_progreso_semillero(semillero):
     # Obtener proyectos del semillero
     proyectos = Proyecto.objects.filter(semilleroproyecto__id_sem=semillero)
@@ -1329,6 +1388,7 @@ def resu_miembros(request, id_sem):
     return render(request, 'paginas/resu-miembros.html', context)
 
 @login_required
+@semillero_activo_requerido
 @permission_required('GC2.add_usuario')
 def agregar_miembros(request, id_sem):
     if request.method == 'POST':
@@ -1374,6 +1434,7 @@ def agregar_miembros(request, id_sem):
     return redirect('resu-miembros', id_sem=id_sem)
 
 @login_required
+@semillero_activo_requerido
 @permission_required('GC2.change_usuario')
 def asignar_lider_semillero(request, id_sem):
     if request.method == "POST":
@@ -1536,6 +1597,13 @@ def resu_proyectos(request, id_sem, cod_pro=None):
 
     # GUARDAR CAMBIOS DEL PROYECTO
     if request.method == 'POST' and cod_pro:
+        if semillero.estado == 'desactivado' or not semillero.activo:
+            messages.error(
+                request, 
+                f'⚠️ El semillero "{semillero.nombre}" está desactivado. '
+                f'No puedes gestionar el equipo. Actívalo primero.'
+            )
+            return redirect('resu-proyectos', id_sem=id_sem)
         proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
 
         try:
@@ -1609,6 +1677,13 @@ def resu_proyectos(request, id_sem, cod_pro=None):
 
     # MODAL GESTIONAR EQUIPO
     if mostrar_gestionar and cod_pro and request.method == 'GET':
+        if semillero.estado == 'desactivado' or not semillero.activo:
+            messages.error(
+                request, 
+                f'⚠️ El semillero "{semillero.nombre}" está desactivado. '
+                f'No puedes gestionar el equipo. Actívalo primero.'
+            )
+            return redirect('resu-proyectos', id_sem=id_sem)
         proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
         mostrar_modal_gestionar = True
 
@@ -1679,6 +1754,13 @@ def resu_proyectos(request, id_sem, cod_pro=None):
 
     # MODAL EDITAR
     elif cod_pro and request.method == 'GET' and not mostrar_gestionar:
+        if semillero.estado == 'desactivado' or not semillero.activo:
+            messages.error(
+                request, 
+                f'⚠️ El semillero "{semillero.nombre}" está desactivado. '
+                f'No puedes gestionar el equipo. Actívalo primero.'
+            )
+            return redirect('resu-proyectos', id_sem=id_sem)
         proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
         mostrar_modal_editar = True
 
@@ -1860,6 +1942,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
 
 @login_required
 @permission_required('GC2.change_usuario')
+@semillero_activo_requerido
 def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
     """
     Asigna o quita el rol de líder de proyecto mediante AJAX
@@ -2014,6 +2097,7 @@ def alternar_estado_miembro(request, id_sem, cod_pro):
         return JsonResponse({'success': False, 'error': str(e)})
 
 @login_required
+@semillero_activo_requerido
 def crear_proyecto(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
 
@@ -2472,6 +2556,7 @@ def verificar_y_actualizar_estados_entregables(proyecto):
 
 @login_required
 @permission_required('GC2.delete_archivo')
+@semillero_activo_requerido
 def eliminar_archivo(request, id_sem, cod_pro, cod_entre, id_archivo):
     """
     Elimina un archivo de un entregable y actualiza el estado del entregable/proyecto
@@ -2744,7 +2829,6 @@ def eliminar_relaciones_proyecto(proyecto, semillero):
     
 @login_required
 def cambiar_estado_proyecto(request, id_sem, cod_pro):
-    # OBTENER USUARIO DESDE LA SESIÓN
     cedula = request.session.get('cedula')  
     
     try:
@@ -2846,6 +2930,7 @@ def recursos(request, id_sem):
     })
 
 @login_required
+@semillero_activo_requerido
 def agregar_recurso(request, id_sem):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     
@@ -2902,6 +2987,7 @@ def agregar_recurso(request, id_sem):
     return redirect('recursos', id_sem=id_sem)
 
 @login_required
+@semillero_activo_requerido
 def eliminar_recurso(request, id_sem, cod_doc):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     documento = get_object_or_404(Documento, cod_doc=cod_doc)
