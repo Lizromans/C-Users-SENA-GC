@@ -282,6 +282,412 @@
             </button>
         </div>
     </div>
+
+<!-- MODAL DE BACKUP -->
+<div class="modal fade" id="backupModal" tabindex="-1" aria-labelledby="backupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <!-- Encabezado -->
+            <div class="modal-header bg-gradient-primary ">
+                <h5 class="modal-title" id="backupModalLabel">
+                    <i class="fas fa-cloud-arrow-down me-2"></i>
+                    Respaldo de Datos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Cuerpo del modal -->
+            <div class="modal-body">
+                <!-- Mensaje de estado -->
+                <div id="backup-status-message" class="alert" style="display: none;"></div>
+
+                <!-- Información del usuario -->
+                <div class="user-backup-info mb-4">
+                    <div class="tarj border-0 bg-light">
+                        <div class="tarj-body">
+                            <h6 class="tarj-subtitle mb-2 text-muted">
+                                <i class="fas fa-user-circle me-1"></i> Usuario actual
+                            </h6>
+                            <p class="mb-1"><strong>{{ request.session.nom_usu }} {{ request.session.ape_usu }}</strong></p>
+                            <p class="mb-0 text-muted small">Rol: {{ request.session.rol }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opciones de backup -->
+                <div class="backup-options">
+                    
+                    <!-- Backup Personal -->
+                    <div class="backup-option-card mb-3">
+                        <div class="tarj h-100 shadow-sm hover-card">
+                            <div class="tarj-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="backup-icon me-3">
+                                        <i class="fas fa-user-shield fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="tarj-title mb-2">
+                                            <i class="fas fa-circle-user me-1"></i>
+                                            Backup Personal
+                                        </h6>
+                                        <p class="tarj-text text-muted small mb-3">
+                                            Descarga un respaldo de toda tu información personal:
+                                        </p>
+                                        <ul class="list-unstyled small mb-3" id="personal-backup-stats">
+                                            <li><i class="fas fa-check text-success me-1"></i> Tus datos de perfil</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> <span id="stat-semilleros">Semilleros: -</span></li>
+                                            <li><i class="fas fa-check text-success me-1"></i> <span id="stat-proyectos">Proyectos: -</span></li>
+                                            <li><i class="fas fa-check text-success me-1"></i> <span id="stat-archivos">Archivos: -</span></li>
+                                        </ul>
+                                        <button class="btn btn-primary btn-sm" onclick="generarBackupPersonal()">
+                                            <i class="fas fa-download me-1"></i>
+                                            Descargar Mi Backup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backup Completo (solo para Coordinadores/Dinamizadores) -->
+                    {% if request.session.rol == 'Coordinador' or request.session.rol == 'Dinamizador' or request.session.rol == 'Administrador' %}
+                    <div class="backup-option-card">
+                        <div class="tarj h-100 shadow-sm hover-card border-warning">
+                            <div class="tarj-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="backup-icon me-3">
+                                        <i class="fas fa-database fa-2x text-warning"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="tarj-title mb-2">
+                                            <i class="fas fa-server me-1"></i>
+                                            Backup Completo del Sistema
+                                            <span class="badge bg-warning text-dark ms-1">Admin</span>
+                                        </h6>
+                                        <p class="tarj-text text-muted small mb-3">
+                                            Descarga un respaldo completo de toda la base de datos:
+                                        </p>
+                                        <ul class="list-unstyled small mb-3" id="complete-backup-stats">
+                                            <li><i class="fas fa-check text-warning me-1"></i> Estructura completa de datos</li>
+                                            <li><i class="fas fa-check text-warning me-1"></i> <span id="stat-modelos">Modelos: -</span></li>
+                                            <li><i class="fas fa-check text-warning me-1"></i> <span id="stat-registros">Registros: -</span></li>
+                                            <li><i class="fas fa-check text-warning me-1"></i> Todas las relaciones (PK/FK)</li>
+                                        </ul>
+                                        <div class="alert alert-warning py-2 small mb-3">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            <strong>Importante:</strong> Este backup puede tardar varios minutos según el tamaño de la base de datos.
+                                        </div>
+                                        <button class="btn btn-warning" onclick="generarBackupCompleto()">
+                                            <i class="fas fa-database me-1"></i>
+                                            Descargar Backup Completo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                <!-- Información adicional -->
+                <div class="mt-4">
+                    <div class="tarj border-0 bg-light">
+                        <div class="tarj-body py-3">
+                            <h6 class="text-muted small mb-2">
+                                <i class="fas fa-info-circle me-1"></i> Información sobre los backups
+                            </h6>
+                            <ul class="list-unstyled small mb-0 text-muted">
+                                <li>✓ Los backups se descargan en formato ZIP</li>
+                                <li>✓ Incluyen toda la información en formato JSON</li>
+                                <li>✓ Son completamente reconstruibles</li>
+                                <li>✓ Guarda los archivos en un lugar seguro</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spinner de carga -->
+                <div id="backup-loading" class="text-center py-4" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Generando backup...</span>
+                    </div>
+                    <p class="mt-3 text-muted">
+                        <strong>Generando backup...</strong><br>
+                        Por favor espera, esto puede tardar unos momentos
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pie del modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTÓN FLOTANTE DE BACKUP -->
+<div class="option-card">         
+    <div class="fab">
+        <i class="fas fa-cloud-arrow-down"></i>
+        <div class="pulse-ring"></div>
+        <div class="fab-tooltip">💾 Respaldar Datos</div>
+    </div>
+</div>
+
+<!-- JavaScript para el modal de backup -->
+<script>
+// Función para obtener el CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Abrir modal al hacer clic en el botón flotante
+document.querySelector('.fab').addEventListener('click', function() {
+    const modal = new bootstrap.Modal(document.getElementById('backupModal'));
+    modal.show();
+    cargarEstadisticasBackup();
+});
+
+// Cargar estadísticas al abrir el modal
+function cargarEstadisticasBackup() {
+    fetch('/backup/info/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Actualizar estadísticas personales
+            if (data.info.backup_personal) {
+                document.getElementById('stat-semilleros').textContent = 
+                    `Semilleros: ${data.info.backup_personal.semilleros}`;
+                document.getElementById('stat-proyectos').textContent = 
+                    `Proyectos: ${data.info.backup_personal.proyectos}`;
+                document.getElementById('stat-archivos').textContent = 
+                    `Archivos: ${data.info.backup_personal.archivos}`;
+            }
+            
+            // Actualizar estadísticas completas (si aplica)
+            if (data.info.backup_completo) {
+                document.getElementById('stat-modelos').textContent = 
+                    `Modelos: ${data.info.backup_completo.total_modelos}`;
+                document.getElementById('stat-registros').textContent = 
+                    `Registros: ${data.info.backup_completo.total_registros.toLocaleString('es-CO')}`;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar estadísticas:', error);
+    });
+}
+
+// Función para mostrar mensajes
+function mostrarMensajeExito(mensaje, tipo) {
+    const estilos = {
+        success: {
+            background: "#dff0d8",
+            border: "1px solid #d6e9c6",
+            color: "#3c763d"
+        },
+        error: {
+            background: "#f2dede",
+            border: "1px solid #ebccd1",
+            color: "#a94442"
+        },
+        danger: {
+            background: "#f2dede",
+            border: "1px solid #ebccd1",
+            color: "#a94442"
+        },
+        warning: {
+            background: "#fcf8e3",
+            border: "1px solid #faebcc",
+            color: "#8a6d3b"
+        },
+        info: {
+            background: "#d9edf7",
+            border: "1px solid #bce8f1",
+            color: "black"
+        }
+    };
+
+    const estiloSeleccionado = estilos[tipo] || estilos.info;
+
+    const mensajeDiv = document.createElement('div');
+    mensajeDiv.textContent = mensaje;
+    mensajeDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${estiloSeleccionado.background};
+        color: ${estiloSeleccionado.color};
+        border: ${estiloSeleccionado.border};
+        padding: 15px 30px 15px 20px;
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        font-weight: 500;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: opacity .3s ease, transform .3s ease;
+        max-width: 400px;
+    `;
+
+    // Botón de cerrar
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+        position: absolute;
+        top: 2px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: inherit;
+        line-height: 1;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    `;
+    
+    closeBtn.onmouseover = function() {
+        closeBtn.style.opacity = "1";
+    };
+    
+    closeBtn.onmouseout = function() {
+        closeBtn.style.opacity = "0.7";
+    };
+    
+    closeBtn.onclick = function() {
+        mensajeDiv.style.opacity = "0";
+        mensajeDiv.style.transform = "translateY(-20px)";
+        setTimeout(() => mensajeDiv.remove(), 300);
+    };
+
+    mensajeDiv.appendChild(closeBtn);
+    document.body.appendChild(mensajeDiv);
+
+    // Animación de entrada
+    setTimeout(() => {
+        mensajeDiv.style.opacity = "1";
+        mensajeDiv.style.transform = "translateY(0)";
+    }, 50);
+
+    // Auto-cierre después de 4 segundos
+    setTimeout(() => {
+        mensajeDiv.style.opacity = "0";
+        mensajeDiv.style.transform = "translateY(-20px)";
+        setTimeout(() => mensajeDiv.remove(), 300);
+    }, 4000);
+}
+
+// Función para generar backup personal
+async function generarBackupPersonal() {
+    const loadingDiv = document.getElementById('backup-loading');
+    const button = event.target;
+    
+    button.disabled = true;
+    loadingDiv.style.display = 'block';
+    
+    try {
+        const response = await fetch('/backup/personal/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('Content-Disposition')
+                .split('filename=')[1].replace(/"/g, '');
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            mostrarMensajeExito('✅ Tu backup personal se ha generado y descargado correctamente', 'success');
+        } else {
+            const errorData = await response.json();
+            mostrarMensajeExito('Error: ' + errorData.error, 'danger');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarMensajeExito('Error al generar el backup: ' + error.message, 'danger');
+    } finally {
+        button.disabled = false;
+        loadingDiv.style.display = 'none';
+    }
+}
+
+// Función para generar backup completo
+async function generarBackupCompleto() {
+    const loadingDiv = document.getElementById('backup-loading');
+    const button = event.target;
+    
+    // Confirmar acción
+    if (!confirm('¿Estás seguro de generar el backup completo de toda la base de datos?\n\nEsto puede tardar varios minutos.')) {
+        return;
+    }
+    
+    button.disabled = true;
+    loadingDiv.style.display = 'block';
+    
+    try {
+        const response = await fetch('/backup/completo/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('Content-Disposition')
+                .split('filename=')[1].replace(/"/g, '');
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            mostrarMensajeExito('✅ El backup completo se ha generado y descargado correctamente', 'success');
+        } else {
+            const errorData = await response.json();
+            mostrarMensajeExito('Error: ' + errorData.error, 'danger');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarMensajeExito('Error al generar el backup: ' + error.message, 'danger');
+    } finally {
+        button.disabled = false;
+        loadingDiv.style.display = 'none';
+    }
+}
+</script>
     <!-- JS de Bootstrap y dependencias -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>

@@ -75,6 +75,13 @@ from .forms import (
 from reportlab.lib.units import cm
 from reportlab.lib.utils import ImageReader
 from django.utils import timezone
+import os
+import json
+import zipfile
+from io import BytesIO
+from django.core import serializers
+from django.apps import apps
+
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -6647,101 +6654,6 @@ def generar_reporte_pdf(request):
 
 def reporte_tendencias_crecimiento(request):
     from collections import defaultdict
-    from dateutil.relativedelta import relativedelta
-
-    # ==================== WORKBOOK ====================
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Tendencias de Crecimiento"
-
-    thin_border = Border(
-        left=Side(style="thin", color="090979"),
-        right=Side(style="thin", color="090979"),
-        top=Side(style="thin", color="090979"),
-        bottom=Side(style="thin", color="090979")
-    )
-
-    # ==================== ENCABEZADO GENERAL ====================
-    crear_encabezado_reporte(ws, request)
-
-    # ==================== TÍTULO ====================
-    fila_titulo = 7
-    ws.merge_cells(start_row=fila_titulo, start_column=1, end_row=fila_titulo, end_column=5)
-    titulo = ws.cell(row=fila_titulo, column=1)
-    titulo.value = "TENDENCIAS DE CRECIMIENTO"
-    titulo.font = Font(bold=True, size=16)
-    titulo.alignment = Alignment(horizontal="center")
-
-    # ==================== ENCABEZADOS TABLA ====================
-    fila_encabezado = fila_titulo + 1
-    encabezados = [
-        "Período",
-        "Semilleros Creados",
-        "Proyectos Creados",
-        "Participantes Activos",
-        "Entregables Completados"
-    ]
-
-    for col, texto in enumerate(encabezados, 1):
-        cell = ws.cell(row=fila_encabezado, column=col, value=texto)
-        cell.font = Font(bold=True, color="FFFFFF")
-        cell.fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
-        cell.alignment = Alignment(horizontal="center")
-        cell.border = thin_border
-
-    # ==================== FECHAS ====================
-    fecha_actual = timezone.now()
-    fecha_inicio = (fecha_actual - relativedelta(months=11)).replace(
-        day=1, hour=0, minute=0, second=0, microsecond=0
-    )
-
-    # ==================== DATOS BASE ====================
-    sem_dict = defaultdict(int)
-    proy_dict = defaultdict(int)
-
-    for fecha in Semillero.objects.filter(fecha_creacion__isnull=False).values_list("fecha_creacion", flat=True):
-        fecha = timezone.make_aware(fecha) if timezone.is_naive(fecha) else fecha
-        sem_dict[timezone.localtime(fecha).strftime("%Y-%m")] += 1
-
-    for fecha in Proyecto.objects.filter(fecha_creacion__isnull=False).values_list("fecha_creacion", flat=True):
-        fecha = timezone.make_aware(fecha) if timezone.is_naive(fecha) else fecha
-        proy_dict[timezone.localtime(fecha).strftime("%Y-%m")] += 1
-
-    # ==================== FILAS (12 MESES) ====================
-    fila_datos = fila_encabezado + 1
-
-    for i in range(12):
-        mes_actual = fecha_inicio + relativedelta(months=i)
-        mes_siguiente = mes_actual + relativedelta(months=1)
-
-        clave_mes = mes_actual.strftime("%Y-%m")
-        periodo = mes_actual.strftime("%b %Y")
-
-        semilleros_mes = sem_dict.get(clave_mes, 0)
-        proyectos_mes = proy_dict.get(clave_mes, 0)
-
-        participantes = (
-            Usuario.objects.filter(fecha_registro__lte=mes_siguiente).count() +
-            Aprendiz.objects.filter(fecha_registro__lte=mes_siguiente).count()
-        )
-
-        entregables_mes = Entregable.objects.filter(
-            estado__in=["Completado", "Entrega Tardía"],
-            fecha_fin__gte=mes_actual,
-            fecha_fin__lt=mes_siguiente
-        ).count()
-
-        ws.append([periodo, semilleros_mes, proyectos_mes, participantes, entregables_mes])
-
-        for col in range(1, 6):
-            ws.cell(row=fila_datos, column=col).border = thin_border
-
-        fila_datos += 1
-
-    # ==================== GRÁFICO ====================
-
-def reporte_tendencias_crecimiento(request):
-    from collections import defaultdict
     import openpyxl
     from django.http import HttpResponse
     from django.utils import timezone
@@ -8438,6 +8350,423 @@ def reporte_fichas(request):
     wb.save(response)
     return response
 
+# VISTAS BACKUP
+@require_http_methods(["POST"])
+def backup_personal(request):
+    try:
+        # Verificar sesión
+        if not request.session.get('cedula'):
+            return JsonResponse({
+                'success': False,
+                'error': 'No hay sesión activa'
+            }, status=401)
+        
+        cedula = request.session.get('cedula')
+        
+        # Obtener el usuario
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+        except Usuario.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuario no encontrado'
+            }, status=404)
+        
+        # Fecha y hora del backup
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_name = f'backup_personal_{usuario.nom_usu}_{usuario.ape_usu}_{timestamp}'
+                
+        # Crear buffer de memoria para el archivo ZIP
+        zip_buffer = BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            
+            # Recopilar datos personales del usuario
+            datos_usuario = {}
+            total_registros = 0
+            
+            # 1. INFORMACIÓN DEL USUARIO
+            usuario_data = serializers.serialize('json', [usuario], indent=2)
+            zip_file.writestr(f'{backup_name}/usuario.json', usuario_data)
+            datos_usuario['usuario'] = 1
+            total_registros += 1
+            
+            # 3. SEMILLEROS DONDE PARTICIPA
+            semilleros_usuario = SemilleroUsuario.objects.filter(cedula=usuario)
+            if semilleros_usuario.exists():
+                count = semilleros_usuario.count()
+                data = serializers.serialize('json', semilleros_usuario, indent=2)
+                zip_file.writestr(f'{backup_name}/semilleros_participacion.json', data)
+                
+                # Obtener los semilleros completos
+                semilleros_ids = semilleros_usuario.values_list('id_sem', flat=True)
+                semilleros = Semillero.objects.filter(id_sem__in=semilleros_ids)
+                semilleros_data = serializers.serialize('json', semilleros, indent=2)
+                zip_file.writestr(f'{backup_name}/semilleros.json', semilleros_data)
+                
+                datos_usuario['semilleros'] = semilleros.count()
+                total_registros += count + semilleros.count()
+            
+            # 4. PROYECTOS DONDE PARTICIPA
+            proyectos_usuario = UsuarioProyecto.objects.filter(cedula=usuario)
+            if proyectos_usuario.exists():
+                count = proyectos_usuario.count()
+                data = serializers.serialize('json', proyectos_usuario, indent=2)
+                zip_file.writestr(f'{backup_name}/proyectos_participacion.json', data)
+                
+                # Obtener los proyectos completos
+                proyectos_ids = proyectos_usuario.values_list('cod_pro', flat=True)
+                proyectos = Proyecto.objects.filter(cod_pro__in=proyectos_ids)
+                proyectos_data = serializers.serialize('json', proyectos, indent=2)
+                zip_file.writestr(f'{backup_name}/proyectos.json', proyectos_data)
+                
+                datos_usuario['proyectos'] = proyectos.count()
+                total_registros += count + proyectos.count()
+            
+            # 6. ENTREGABLES DE SUS PROYECTOS
+            if proyectos_usuario.exists():
+                entregables = Entregable.objects.filter(cod_pro__in=proyectos_ids)
+                if entregables.exists():
+                    count = entregables.count()
+                    data = serializers.serialize('json', entregables, indent=2)
+                    zip_file.writestr(f'{backup_name}/entregables.json', data)
+                    datos_usuario['entregables'] = count
+                    total_registros += count
+            
+            # 7. DOCUMENTOS DE SEMILLEROS
+            if semilleros_usuario.exists():
+                documentos_sem = SemilleroDocumento.objects.filter(id_sem__in=semilleros_ids)
+                if documentos_sem.exists():
+                    count = documentos_sem.count()
+                    data = serializers.serialize('json', documentos_sem, indent=2)
+                    zip_file.writestr(f'{backup_name}/documentos_semilleros.json', data)
+                    datos_usuario['documentos_semilleros'] = count
+                    total_registros += count
+            
+            # 8. ARCHIVOS RELACIONADOS (vinculados a entregables de los proyectos)
+            if proyectos_usuario.exists():
+                # Obtener entregables de los proyectos del usuario
+                entregables_ids = Entregable.objects.filter(
+                    cod_pro__in=proyectos_ids
+                ).values_list('cod_entre', flat=True)
+                
+                # Obtener archivos de esos entregables
+                archivos = Archivo.objects.filter(entregable__in=entregables_ids)
+                if archivos.exists():
+                    count = archivos.count()
+                    data = serializers.serialize('json', archivos, indent=2)
+                    zip_file.writestr(f'{backup_name}/archivos.json', data)
+                    datos_usuario['archivos'] = count
+                    total_registros += count
+            
+            # METADATOS
+            metadata = {
+                'backup_info': {
+                    'tipo': 'Personal',
+                    'usuario': usuario.nom_usu,
+                    'cedula': cedula,
+                    'rol': usuario.rol,
+                    'fecha_creacion': datetime.now().isoformat(),
+                    'timestamp': timestamp,
+                    'total_registros': total_registros,
+                },
+                'contenido': datos_usuario,
+                'descripcion': 'Backup personal con toda la información relacionada al usuario'
+            }
+            
+            zip_file.writestr(
+                f'{backup_name}/METADATA.json',
+                json.dumps(metadata, indent=2, ensure_ascii=False)
+            )
+            
+            # README
+            readme_content = f"""
+╔═══════════════════════════════════════════════════════════════╗
+║           BACKUP PERSONAL - {usuario.nom_usu}                  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📦 INFORMACIÓN DEL BACKUP
+─────────────────────────────────────────────────────────────────
+  Usuario: {usuario.nom_usu}
+  Cédula: {cedula}
+  Rol: {usuario.rol}
+  Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+  Total de registros: {total_registros}
+
+📄 CONTENIDO
+─────────────────────────────────────────────────────────────────
+"""
+            for item, cantidad in datos_usuario.items():
+                readme_content += f"  • {item}: {cantidad} registro(s)\n"
+            
+            readme_content += f"""
+─────────────────────────────────────────────────────────────────
+
+🔄 INFORMACIÓN IMPORTANTE
+─────────────────────────────────────────────────────────────────
+  Este backup contiene únicamente TU información personal:
+  - Tus datos de usuario
+  - Semilleros donde participas
+  - Proyectos en los que estás involucrado
+  - Entregables relacionados
+  - Archivos y documentos
+  
+  Para restaurar información específica, contacta al administrador
+  del sistema.
+
+═══════════════════════════════════════════════════════════════════
+"""
+            zip_file.writestr(f'{backup_name}/README.txt', readme_content)
+        
+        # Preparar respuesta
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{backup_name}.zip"'
+        
+        return response
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        
+        return JsonResponse({
+            'success': False,
+            'error': f'Error al generar el backup: {str(e)}'
+        }, status=500)
+
+@require_http_methods(["POST"])
+def backup_completo(request):
+    try:
+        # Verificar sesión
+        if not request.session.get('cedula'):
+            return JsonResponse({
+                'success': False,
+                'error': 'No hay sesión activa'
+            }, status=401)
+        
+        cedula = request.session.get('cedula')
+        
+        # Obtener el usuario y verificar permisos
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+            if usuario.rol not in ['Coordinador', 'Dinamizador', 'Administrador']:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No tienes permisos para realizar backups completos'
+                }, status=403)
+        except Usuario.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuario no encontrado'
+            }, status=404)
+        
+        # Fecha y hora del backup
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_name = f'backup_completo_{timestamp}'
+                
+        # Apps a excluir
+        apps_excluidas = ['contenttypes', 'auth', 'admin', 'sessions', 'messages', 'staticfiles']
+        
+        # Obtener todos los modelos
+        modelos_app = []
+        for model in apps.get_models():
+            app_label = model._meta.app_label
+            if app_label not in apps_excluidas:
+                modelos_app.append(model)
+        
+        # Crear buffer de memoria para el archivo ZIP
+        zip_buffer = BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                        
+            # 1. BACKUP COMPLETO DE TODOS LOS DATOS
+            data = serializers.serialize(
+                'json',
+                [obj for model in modelos_app for obj in model.objects.all()],
+                indent=2,
+                use_natural_foreign_keys=True
+            )
+            
+            zip_file.writestr(f'{backup_name}/data_completa.json', data)
+            
+            # 2. BACKUP POR MODELO INDIVIDUAL
+            total_registros = 0
+            estadisticas = {}
+            
+            for model in modelos_app:
+                model_name = f"{model._meta.app_label}_{model._meta.model_name}"
+                queryset = model.objects.all()
+                count = queryset.count()
+                
+                if count > 0:
+                    model_data = serializers.serialize('json', queryset, indent=2, use_natural_foreign_keys=True)
+                    zip_file.writestr(f'{backup_name}/modelos/{model_name}.json', model_data)
+                    estadisticas[model_name] = count
+                    total_registros += count
+                    print(f"   ✓ {model_name}: {count} registros")
+            
+            # 3. METADATOS
+            metadata = {
+                'backup_info': {
+                    'tipo': 'Completo',
+                    'generado_por': usuario.nom_usu,
+                    'rol': usuario.rol,
+                    'fecha_creacion': datetime.now().isoformat(),
+                    'timestamp': timestamp,
+                    'total_modelos': len(modelos_app),
+                    'total_registros': total_registros,
+                },
+                'estadisticas_por_modelo': estadisticas,
+                'formato': 'JSON (Django dumpdata)',
+                'tipo_backup': 'Lógico Completo',
+                'reconstruible': True
+            }
+            
+            zip_file.writestr(
+                f'{backup_name}/METADATA.json',
+                json.dumps(metadata, indent=2, ensure_ascii=False)
+            )
+            
+            # 4. README
+            readme_content = f"""
+╔═══════════════════════════════════════════════════════════════╗
+║              BACKUP COMPLETO DE BASE DE DATOS                 ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📦 INFORMACIÓN DEL BACKUP
+─────────────────────────────────────────────────────────────────
+  Generado por: {usuario.nom_usu} ({usuario.rol})
+  Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+  Total de modelos: {len(modelos_app)}
+  Total de registros: {total_registros:,}
+
+✅ TIPO DE BACKUP
+─────────────────────────────────────────────────────────────────
+  • Backup lógico completo
+  • Formato: JSON (Django dumpdata)
+  • Compresión: ZIP
+  • Totalmente reconstruible
+
+📄 CONTENIDO
+─────────────────────────────────────────────────────────────────
+  ✓ Estructura de datos (modelos)
+  ✓ Registros de todas las tablas
+  ✓ Relaciones (Primary Keys / Foreign Keys)
+
+🔄 RESTAURACIÓN COMPLETA
+─────────────────────────────────────────────────────────────────
+  python manage.py loaddata {backup_name}/data_completa.json
+
+📊 ESTADÍSTICAS POR MODELO
+─────────────────────────────────────────────────────────────────
+"""
+            for modelo, cantidad in sorted(estadisticas.items()):
+                readme_content += f"  {modelo}: {cantidad:,} registros\n"
+            
+            readme_content += """
+═══════════════════════════════════════════════════════════════════
+"""
+            zip_file.writestr(f'{backup_name}/README.txt', readme_content)
+        
+        # Preparar respuesta
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{backup_name}.zip"'
+
+        return response
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        
+        return JsonResponse({
+            'success': False,
+            'error': f'Error al generar el backup: {str(e)}'
+        }, status=500)
+
+@require_http_methods(["GET"])
+def backup_info(request):
+    try:
+        if not request.session.get('cedula'):
+            return JsonResponse({
+                'success': False,
+                'error': 'No hay sesión activa'
+            }, status=401)
+        
+        cedula = request.session.get('cedula')
+        
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+        except Usuario.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuario no encontrado'
+            }, status=404)
+        
+        # Determinar tipo de backup disponible
+        puede_backup_completo = usuario.rol in ['Coordinador', 'Dinamizador', 'Administrador']
+        
+        # Información básica
+        info = {
+            'usuario': usuario.nom_usu,
+            'rol': usuario.rol,
+            'puede_backup_completo': puede_backup_completo,
+            'backup_personal_disponible': True
+        }
+        
+        # Si puede hacer backup completo, calcular estadísticas
+        if puede_backup_completo:
+            apps_excluidas = ['contenttypes', 'auth', 'admin', 'sessions', 'messages', 'staticfiles']
+            total_modelos = 0
+            total_registros = 0
+            
+            for model in apps.get_models():
+                if model._meta.app_label not in apps_excluidas:
+                    total_modelos += 1
+                    total_registros += model.objects.count()
+            
+            info['backup_completo'] = {
+                'total_modelos': total_modelos,
+                'total_registros': total_registros
+            }
+        
+        # Estadísticas personales
+        estadisticas_personales = {}
+        
+        # Contar datos personales
+        try:
+            aprendiz = Aprendiz.objects.filter(cedula_usu=usuario).first()
+            estadisticas_personales['aprendiz'] = 1 if aprendiz else 0
+        except:
+            estadisticas_personales['aprendiz'] = 0
+        
+        estadisticas_personales['semilleros'] = SemilleroUsuario.objects.filter(cedula=usuario).count()
+        estadisticas_personales['proyectos'] = UsuarioProyecto.objects.filter(cedula=usuario).count()
+        
+        # Archivos (contar desde entregables de proyectos)
+        proyectos_usuario = UsuarioProyecto.objects.filter(cedula=usuario)
+        if proyectos_usuario.exists():
+            proyectos_ids = proyectos_usuario.values_list('cod_pro', flat=True)
+            entregables_ids = Entregable.objects.filter(
+                cod_pro__in=proyectos_ids
+            ).values_list('cod_entre', flat=True)
+            estadisticas_personales['archivos'] = Archivo.objects.filter(entregable__in=entregables_ids).count()
+        else:
+            estadisticas_personales['archivos'] = 0
+        
+        info['backup_personal'] = estadisticas_personales
+        
+        return JsonResponse({
+            'success': True,
+            'info': info
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+    
 # VISTA DE LOGOUT
 def logout(request):
     # Limpiar toda la sesión

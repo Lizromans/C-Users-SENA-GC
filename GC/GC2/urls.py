@@ -89,6 +89,11 @@ urlpatterns = [
     #CONFIGURACIONES ADICIONES 
     path('privacidad/', views.privacidad, name='privacidad'),
     path('logout/', views.logout, name='logout'),
+
+    #BACKUP
+    path('backup/personal/', views.backup_personal, name='backup_personal'),
+    path('backup/completo/', views.backup_completo, name='backup_completo'),
+    path('backup/info/', views.backup_info, name='backup_info'),
 ]
 
 if settings.DEBUG:
