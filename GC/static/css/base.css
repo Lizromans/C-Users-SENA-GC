@@ -1432,7 +1432,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ===== HEADER DEL MODAL ===== */
-#backupModal .modal-header {
+#backupModal .modal-header1 {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-bottom: none;
@@ -1448,13 +1448,13 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin: 0;
 }
 
-#backupModal .modal-header .btn-close {
+#backupModal .modal-header1 .btn-close {
     filter: brightness(0) invert(1);
     opacity: 0.9;
     transition: all 0.3s ease;
 }
 
-#backupModal .modal-header .btn-close:hover {
+#backupModal .modal-header1 .btn-close:hover {
     opacity: 1;
     transform: scale(1.1);
 }
@@ -1583,7 +1583,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ===== BADGES Y ALERTAS ===== */
-#backupModal .badge.bg-warning {
+#backupModal .badg.bg-warning {
     background-color: #f59e0b !important;
     color: #000;
     font-weight: 700;
@@ -1599,7 +1599,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ===== BOTONES ===== */
-#backupModal .backup-option-card .btn {
+#backupModal .backup-option-card .btn1 {
     padding: clamp(10px, 1.5vh, 14px) clamp(16px, 2vw, 24px);
     font-size: clamp(0.85rem, 1.2vw, 0.95rem);
     font-weight: 600;
@@ -1609,12 +1609,12 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     cursor: pointer;
 }
 
-#backupModal .backup-option-card .btn:hover {
+#backupModal .backup-option-card .btn1:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-#backupModal .backup-option-card .btn:active {
+#backupModal .backup-option-card .btn1:active {
     transform: translateY(0);
 }
 

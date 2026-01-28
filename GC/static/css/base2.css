@@ -1680,7 +1680,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ===== HEADER DEL MODAL ===== */
-#backupModal .modal-header {
+#backupModal .modal-header1 {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-bottom: none;
@@ -1696,13 +1696,13 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin: 0;
 }
 
-#backupModal .modal-header .btn-close {
+#backupModal .modal-header1 .btn-close {
     filter: brightness(0) invert(1);
     opacity: 0.9;
     transition: all 0.3s ease;
 }
 
-#backupModal .modal-header .btn-close:hover {
+#backupModal .modal-header1 .btn-close:hover {
     opacity: 1;
     transform: scale(1.1);
 }
@@ -1831,7 +1831,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ===== BADGES Y ALERTAS ===== */
-#backupModal .badge.bg-warning {
+#backupModal .badg.bg-warning {
     background-color: #f59e0b !important;
     color: #000;
     font-weight: 700;
@@ -1864,14 +1864,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 
 #backupModal .backup-option-card .btn:active {
     transform: translateY(0);
-}
-
-/* ===== MENSAJES DE ESTADO ===== */
-#backupModal #backup-status-message {
-    border-radius: clamp(8px, 1.5vw, 12px);
-    padding: clamp(12px, 1.8vh, 16px) clamp(16px, 2.2vw, 20px);
-    margin-bottom: clamp(16px, 2vh, 20px);
-    font-size: clamp(0.85rem, 1.2vw, 0.95rem);
 }
 
 /* ===== LOADING SPINNER ===== */
@@ -1909,7 +1901,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 #backupModal .modal-body > .mt-4 h6 {
     font-size: clamp(0.85rem, 1.2vw, 0.95rem);
     font-weight: 700;
-    color: #6b7280;
+    color: #000000;
     margin-bottom: clamp(8px, 1vh, 12px);
 }
 
