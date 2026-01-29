@@ -1687,6 +1687,8 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     padding: clamp(16px, 2.5vh, 24px) clamp(20px, 3vw, 30px);
     border-radius: clamp(12px, 2.5vw, 18px) clamp(12px, 2.5vw, 18px) 0 0;
     position: relative;
+    display: flex;
+    flex-direction: row-reverse;
 }
 
 #backupModal .modal-title {
