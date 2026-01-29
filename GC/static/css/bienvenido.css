@@ -78,7 +78,7 @@ body {
 }
 
 .header-gc-logo {
-    width: clamp(98px, 15vw, 148px);
+    width: clamp(92px, 15vw, 142px);
     height: auto;
     filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5))
             drop-shadow(0 0 18px rgba(79, 195, 247, 0.3));

@@ -355,7 +355,7 @@ body {
 /* ====== CONTENEDOR PRINCIPAL ====== */
 .container {
     width: 65vw;
-    height: 80vh;
+    height: 90vh;
     background: #fff;
     border-radius: 20px;
     display: flex;
@@ -375,7 +375,7 @@ body {
 /* ====== BOTÓN DE RETROCESO FIJO - SIEMPRE VISIBLE ====== */
 .back-arrow {
     position: fixed; /* Cambiado de absolute a fixed */
-    top: 10%; /* Posición fija desde el top */
+    top: 6%; /* Posición fija desde el top */
     left: calc((100vw - 65vw) / 2 + 20px); /* Centrado respecto al container */
     width: 50px;
     height: 50px;
@@ -614,7 +614,6 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    
     opacity: 1;
     transition: opacity 0.2s ease-in-out; /* Transición de opacidad */
 }
