@@ -1747,8 +1747,8 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 
 #backupModal .user-backup-info .mb-1{
     color: #000000;
-
 }
+
 #backupModal .user-backup-info .tarj-body {
     padding: clamp(12px, 2vh, 18px);
 }

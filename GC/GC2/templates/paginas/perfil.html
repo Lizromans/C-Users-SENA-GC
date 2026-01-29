@@ -9,73 +9,108 @@
 {% block main %}
 
 <!-- Mensajes de alerta -->
-    {% if messages %}
-    <script>
-        {% for message in messages %}
-            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
-        {% endfor %}
-    </script>
-    {% endif %}
-    <div class="perfil">
-        <div class="cont-1">
-            <div class="foto">
-                <form action="{% url 'actualizar_foto' %}" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    
-                    {% if usuario.imagen_perfil %}
-                        <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
-                    {% else %}
-                        <div class="foto-placeholder">
-                            <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
-                        </div>
-                    {% endif %}
+{% if messages %}
+<script>
+    {% for message in messages %}
+        mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+    {% endfor %}
+</script>
+{% endif %}
 
-                    <label for="foto-input" class="icon-edit">
-                        <img src="{% static 'img/edit.png' %}" alt="Editar foto">
-                    </label>
-                    <input type="file" name="imagen_perfil" id="foto-input" accept="image/*" onchange="this.form.submit()" hidden>
-                </form>
+<form method="POST" action="{% url 'perfil' %}">
+    {% csrf_token %}
+    <div class="perfil">
+        
+        <!-- ========== SECCIÓN SUPERIOR ========== -->
+        <div class="top-section">
+            
+            <!-- Tarjeta de Perfil con Foto -->
+            <div class="cont-1">
+                <div class="foto-container">
+                    <div class="foto">
+                        <form action="{% url 'actualizar_foto' %}" method="POST" enctype="multipart/form-data" style="width: 100%; height: 100%;">
+                            {% csrf_token %}
+                            
+                            {% if usuario.imagen_perfil %}
+                                <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
+                            {% else %}
+                                <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
+                            {% endif %}
+
+                            <label for="foto-input" class="icon-edit">
+                                <img src="{% static 'img/edit.png' %}" alt="Editar foto">
+                            </label>
+                            <input type="file" name="imagen_perfil" id="foto-input" accept="image/*" onchange="this.form.submit()" hidden>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="perfil-info">
+                    <h2 class="perfil-nombre">{{ usuario.nom_usu }} {{ usuario.ape_usu }}</h2>
+                    <p class="perfil-rol">{{ usuario.rol }}</p>
+                    <div class="estado-badge">
+                        <span class="estado-dot"></span>
+                        {{ usuario.estado }}
+                    </div>
+                    <div class="perfil-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">🌱</div>
+                            <div class="stat-content">
+                                <span class="stat-value">{{ total_semilleros }}</span>
+                                <span class="stat-label">Semilleros</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <span class="stat-value">{{ total_proyectos }}</span>
+                                <span class="stat-label">Proyectos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            <!-- Tarjeta de Última Sesión -->
             <div class="card">
-                <h5 class="card-title">Resumen</h5>
-                <div class="card-body">
-                    <div class="card-row">
-                        <p class="card-text">Estado:</p>
-                        <p class="text">{{ usuario.estado }}</p>
+                <div class="card-header">
+                    <div class="card-icon">⏰</div>
+                    <h3 class="card-title">Última Sesión</h3>
+                </div>
+                <div class="session-time">
+                    {% if usuario.last_login %}
+                        {{ ultimo_acceso }}
+                    {% else %}
+                        Nunca
+                    {% endif %}
+                </div>
+                <div class="card-details">
+                    <div class="card-detail">
+                        <div class="detail-label">Departamento</div>
+                        <div class="detail-value">{{ usuario.dependencia|default:"N/A" }}</div>
                     </div>
-                    <div class="card-row">
-                        <p class="card-text">Última sesión:</p>
-                        <p class="text">
-                            {% if usuario.last_login %}
-                                {{ ultimo_acceso }}
-                            {% else %}
-                                Nunca ha iniciado sesión
-                            {% endif %}
-                        </p>
+                    <div class="card-detail">
+                        <div class="detail-label">Contrato</div>
+                        <div class="detail-value">{{ usuario.vinculacion_laboral|default:"N/A" }}</div>
                     </div>
-
-                    <!-- Estadísticas numéricas -->
-                    <div class="card-row">
-                        <p class="card-text">Semilleros:</p>
-                        <p class="card-num">{{ total_semilleros }}</p>
-                    </div>
-
-                    <div class="card-row">
-                        <p class="card-text">Proyectos:</p>
-                        <p class="card-num">{{ total_proyectos }}</p>
+                    <div class="card-detail">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">{{ usuario.correo_ins|truncatechars:15 }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <form method="POST" action="{% url 'perfil' %}">
-            {% csrf_token %}
-            <div class="informacion">
+        <!-- ========== SECCIÓN INFERIOR - DOS COLUMNAS ========== -->
+        <div class="bottom-section">
+            
+            <!-- COLUMNA IZQUIERDA -->
+            <div class="columna">
+                
                 <!-- Información Personal -->
-                <div class="seccion">
+                <div class="seccion scrollable">
                     <div class="titulo">
-                        <img src="{% static 'img/User.png' %}" alt="Informacion Personal">
+                        <img src="{% static 'img/User.png' %}" alt="Información Personal">
                         <h6>Información Personal</h6>
                     </div>
                     <hr>
@@ -106,10 +141,36 @@
                         </div>
                     </div>
                 </div>
-                <!-- Información Profesional -->
+
+                <!-- Información de Semilleros -->
                 <div class="seccion">
                     <div class="titulo">
-                        <img src="{% static 'img/briefcase.png' %}" alt="Informacion Personal">
+                        <img src="{% static 'img/microscopio.png' %}" alt="Información de Semilleros">
+                        <h6>Semilleros</h6>
+                    </div>
+                    <hr>
+                    <div class="info-group2">
+                        {% for semillero in semilleros %}
+                        <a href="{% url 'resumen' semillero.id_sem %}" class="input-fake">
+                            {{ semillero.sigla }}
+                        </a>
+                        {% empty %}
+                        <p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">
+                            No estás asociado a ningún semillero.
+                        </p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- COLUMNA DERECHA -->
+            <div class="columna">
+                
+                <!-- Información Profesional -->
+                <div class="seccion scrollable">
+                    <div class="titulo">
+                        <img src="{% static 'img/briefcase.png' %}" alt="Información Profesional">
                         <h6>Información Profesional</h6>
                     </div>
                     <hr>
@@ -132,54 +193,43 @@
                         </div>
                         <div class="info">
                             <label for="rol">Rol:</label>
-                            <input type="text" id="rol" name="rol" value="{{ usuario.rol}}">
+                            <input type="text" id="rol" name="rol" value="{{ usuario.rol }}">
                         </div>
                     </div>
                 </div>
-                <!-- Información de Semilleros -->
-                <div class="seccion">
-                    <div class="titulo">
-                        <img src="{% static 'img/microscopio.png' %}" alt="Informacion Personal">
-                        <h6>Información de Semilleros</h6>
-                    </div>
-                    <hr>
-                    <div class="info-group2">
-                        {% for semillero in semilleros %}
-                        <div class="info">
-                            <a href="{% url 'resumen' semillero.id_sem %}" class="input-fake">
-                                {{ semillero.sigla }}
-                            </a>
-                        </div>
-                        {% empty %}
-                        <p>No estás asociado a ningún semillero.</p>
-                        {% endfor %}
-                    </div>
-                </div>
+
                 <!-- Información de Proyectos -->
                 <div class="seccion">
                     <div class="titulo">
-                        <img src="{% static 'img/project.png' %}" alt="Informacion Personal">
-                        <h6>Información de Proyectos</h6>
+                        <img src="{% static 'img/project.png' %}" alt="Información de Proyectos">
+                        <h6>Proyectos</h6>
                     </div>
                     <hr>
                     <div class="info-group2">
                         {% for proyecto in proyectos %}
-                        <div class="info">
-                            <a href="{% url 'detalle-proyecto' proyecto.id_sem.id_sem proyecto.cod_pro.cod_pro %}"
-                                class="textarea-fake">
-                                {{ proyecto.cod_pro.nom_pro }}
-                            </a>
-                        </div>
+                        <a href="{% url 'detalle-proyecto' proyecto.id_sem.id_sem proyecto.cod_pro.cod_pro %}"
+                           class="textarea-fake">
+                            {{ proyecto.cod_pro.nom_pro }}
+                        </a>
                         {% empty %}
-                        <p>No estás asociado a ningún proyecto.</p>
+                        <p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">
+                            No estás asociado a ningún proyecto.
+                        </p>
                         {% endfor %}
                     </div>
                 </div>
-                <hr>
-                <button type="submit" class="guardar">Guardar Cambios</button>
+
             </div>
-        </form>
+        </div>
+
+        <!-- Botón Guardar - Solo visible cuando hay cambios -->
+        <div class="guardar-container visible">
+            <button type="submit" class="guardar">Guardar Cambios</button>
+        </div>
+
     </div>
+</form>
+
 <script src="{% static 'js/notificaciones.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/mensaje.js' %}"></script>

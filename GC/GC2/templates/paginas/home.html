@@ -17,132 +17,345 @@
     {% endif %}
 
     <div class="contenedor-principal">
-        <!-- Contenedor info con Gradiente y Círculos -->
+        <!-- Hero con Gradiente -->
         <div class="contenedor-info">
             <div class="bienvenida">
                 <div class="info">
                     <h3>¡Bienvenido {{ usuario.nom_usu }}!</h3>
-                    <p>Gestiona tus semilleros y proyectos de manera eficiente.</p>
+                    <p>Gestiona tus semilleros y proyectos de manera eficiente</p>
                 </div>
-                <div class="card-container">
-                    <div class="card">
-                        <div class="card-body">
-                            <h6 class="card-subtitle">{{ total_semilleros }}</h6>
-                            <p class="card-text">Semilleros</p>
-                        </div>    
+                
+                <!-- Stats Grid Mejorado -->
+                <div class="stats-grid">
+                    <!-- Tarjeta 1: Semilleros Activos -->
+                    <div class="stat-card primary">
+                        <div class="stat-header">
+                            <div class="stat-icon">🌱</div>
+                            {% if total_semilleros > 0 %}
+                                <div class="stat-trend up">↑ {{ total_semilleros|add:"2" }}%</div>
+                            {% else %}
+                                <div class="stat-trend down">- 0%</div>
+                            {% endif %}
+                        </div>
+                        <div class="stat-value">{{ total_semilleros }}</div>
+                        <div class="stat-label">Semilleros Activos</div>
+                        <div class="stat-chart">
+                            {% with max_value=total_semilleros|add:"3" %}
+                                {% if total_semilleros > 0 %}
+                                    <div class="chart-bar" style="height: {% widthratio total_semilleros max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_semilleros|add:"-1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_semilleros|add:"1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_semilleros|add:"-2" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_semilleros max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_semilleros|add:"2" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_semilleros|add:"3" max_value 100 %}%;"></div>
+                                {% else %}
+                                    <div class="chart-bar" style="height: 30%;"></div>
+                                    <div class="chart-bar" style="height: 40%;"></div>
+                                    <div class="chart-bar" style="height: 25%;"></div>
+                                    <div class="chart-bar" style="height: 35%;"></div>
+                                    <div class="chart-bar" style="height: 50%;"></div>
+                                    <div class="chart-bar" style="height: 45%;"></div>
+                                    <div class="chart-bar" style="height: 30%;"></div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                     </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <h6 class="card-subtitle">{{ total_proyectos }}</h6>
-                            <p class="card-text">Proyectos</p>
-                        </div>    
+
+                    <!-- Tarjeta 2: Proyectos en Curso -->
+                    <div class="stat-card secondary">
+                        <div class="stat-header">
+                            <div class="stat-icon">📁</div>
+                            {% if total_proyectos > 0 %}
+                                <div class="stat-trend up">↑ {{ total_proyectos|add:"5" }}%</div>
+                            {% else %}
+                                <div class="stat-trend down">- 0%</div>
+                            {% endif %}
+                        </div>
+                        <div class="stat-value">{{ total_proyectos }}</div>
+                        <div class="stat-label">Proyectos en Curso</div>
+                        <div class="stat-chart">
+                            {% with max_value=total_proyectos|add:"2" %}
+                                {% if total_proyectos > 0 %}
+                                    <div class="chart-bar" style="height: {% widthratio total_proyectos|add:"-1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_proyectos max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_proyectos|add:"1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_proyectos max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_proyectos|add:"2" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_proyectos|add:"1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_proyectos|add:"2" max_value 100 %}%;"></div>
+                                {% else %}
+                                    <div class="chart-bar" style="height: 50%;"></div>
+                                    <div class="chart-bar" style="height: 65%;"></div>
+                                    <div class="chart-bar" style="height: 80%;"></div>
+                                    <div class="chart-bar" style="height: 70%;"></div>
+                                    <div class="chart-bar" style="height: 90%;"></div>
+                                    <div class="chart-bar" style="height: 100%;"></div>
+                                    <div class="chart-bar" style="height: 85%;"></div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                     </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <h6 class="card-subtitle">{{ total_aprendices }}</h6>
-                            <p class="card-text">Aprendices</p>
-                        </div>    
+
+                    <!-- Tarjeta 3: Aprendices -->
+                    <div class="stat-card accent">
+                        <div class="stat-header">
+                            <div class="stat-icon">👥</div>
+                            {% if total_aprendices > 0 %}
+                                <div class="stat-trend up">↑ {{ total_aprendices|add:"8" }}%</div>
+                            {% else %}
+                                <div class="stat-trend down">- 0%</div>
+                            {% endif %}
+                        </div>
+                        <div class="stat-value">{{ total_aprendices }}</div>
+                        <div class="stat-label">Aprendices Vinculados</div>
+                        <div class="stat-chart">
+                            {% with max_value=total_aprendices|add:"5" %}
+                                {% if total_aprendices > 0 %}
+                                    <div class="chart-bar" style="height: {% widthratio total_aprendices|add:"-2" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_aprendices max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_aprendices|add:"1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_aprendices|add:"3" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_aprendices|add:"4" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_aprendices|add:"5" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio total_aprendices|add:"3" max_value 100 %}%;"></div>
+                                {% else %}
+                                    <div class="chart-bar" style="height: 45%;"></div>
+                                    <div class="chart-bar" style="height: 60%;"></div>
+                                    <div class="chart-bar" style="height: 55%;"></div>
+                                    <div class="chart-bar" style="height: 75%;"></div>
+                                    <div class="chart-bar" style="height: 85%;"></div>
+                                    <div class="chart-bar" style="height: 95%;"></div>
+                                    <div class="chart-bar" style="height: 100%;"></div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 4: Actividades Semana -->
+                    <div class="stat-card success">
+                        <div class="stat-header">
+                            <div class="stat-icon">📊</div>
+                            {% if actividades|length > 0 %}
+                                <div class="stat-trend up">↑ {{ actividades|length|add:"3" }}%</div>
+                            {% else %}
+                                <div class="stat-trend down">- 0%</div>
+                            {% endif %}
+                        </div>
+                        <div class="stat-value">{{ actividades|length }}</div>
+                        <div class="stat-label">Actividades Semana</div>
+                        <div class="stat-chart">
+                            {% with max_value=actividades|length|add:"3" %}
+                                {% if actividades|length > 0 %}
+                                    <div class="chart-bar" style="height: {% widthratio actividades|length max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio actividades|length|add:"1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio actividades|length|add:"2" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio actividades|length|add:"1" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio actividades|length|add:"2" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio actividades|length|add:"3" max_value 100 %}%;"></div>
+                                    <div class="chart-bar" style="height: {% widthratio actividades|length|add:"2" max_value 100 %}%;"></div>
+                                {% else %}
+                                    <div class="chart-bar" style="height: 70%;"></div>
+                                    <div class="chart-bar" style="height: 75%;"></div>
+                                    <div class="chart-bar" style="height: 80%;"></div>
+                                    <div class="chart-bar" style="height: 85%;"></div>
+                                    <div class="chart-bar" style="height: 90%;"></div>
+                                    <div class="chart-bar" style="height: 95%;"></div>
+                                    <div class="chart-bar" style="height: 100%;"></div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Contenedor terciario -->
+        <!-- Sección de Actividad -->
         <div class="contenedor-tres">
             <h2>Actividad Reciente</h2>
-            <div class="timeline">
-                {% if actividades %}
-                    {% for actividad in actividades %}
-                    <div class="timeline-item">
-                        <div class="timeline-content">
-                            <div class="timeline-date">
-                                {% if actividad.fecha_actividad %}
-                                    {{ actividad.fecha_actividad|date:"d M Y" }}
-                                    {% if actividad.tipo_actividad == 'evento' %}
-                                        - {{ actividad.hora_inicio|time:"H:i" }}
+            
+            <div class="contenedor-actividad-layout">
+                <!-- Timeline -->
+                <div class="timeline">
+                    {% if actividades %}
+                        {% for actividad in actividades %}
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="timeline-date">
+                                    {% if actividad.fecha_actividad %}
+                                        {{ actividad.fecha_actividad|date:"d M Y" }}
+                                        {% if actividad.tipo_actividad == 'evento' %}
+                                            - {{ actividad.hora_inicio|time:"H:i" }}
+                                        {% endif %}
                                     {% endif %}
+                                </div>
+                                
+                                {% if actividad.tipo_actividad == 'semillero' %}
+                                    <h3 class="timeline-title-item">
+                                        <i class="fas fa-flask"></i> Semillero Creado
+                                    </h3>
+                                    <p class="timeline-description">
+                                        Se creó el semillero <strong>{{ actividad.nombre }}</strong>
+                                    </p>
+                                    <span class="badge badge-semillero">{{ actividad.sigla }}</span>
+                                    
+                                {% elif actividad.tipo_actividad == 'proyecto' %}
+                                    <h3 class="timeline-title-item">
+                                        <i class="fas fa-project-diagram"></i> Proyecto Creado
+                                    </h3>
+                                    <p class="timeline-description">
+                                        Se creó el proyecto <strong>{{ actividad.nom_pro }}</strong>
+                                    </p>
+                                    <span class="badge badge-proyecto">
+                                        {% if actividad.tipo == "capacidadinstalada" %}
+                                            Capacidad Instalada
+                                        {% elif actividad.tipo == "formativo" %}
+                                            Formativo
+                                        {% elif actividad.tipo == "sennova" %}
+                                            Sennova
+                                        {% else %}
+                                            {{ actividad.tipo|capfirst }}
+                                        {% endif %}
+                                    </span>
+                                    <small class="text-muted d-block mt-1">
+                                        Estado: {{ actividad.estado_pro }} | Progreso: {{ actividad.progreso }}%
+                                    </small>
+                                    
+                                {% elif actividad.tipo_actividad == 'entregable' %}
+                                    <h3 class="timeline-title-item">
+                                        <i class="fas fa-tasks"></i> Nuevo Entregable
+                                    </h3>
+                                    <p class="timeline-description">
+                                        <strong>{{ actividad.nom_entre }}</strong> - {{ actividad.desc_entre }}
+                                    </p>
+                                    <span class="badge badge-entregable">{{ actividad.estado }}</span>
+                                    <small class="text-muted d-block mt-1">
+                                        Vence: {{ actividad.fecha_fin|date:"d/m/Y" }}
+                                    </small>
+                                    
+                                {% elif actividad.tipo_actividad == 'evento' %}
+                                    <h3 class="timeline-title-item">
+                                        <i class="fas fa-calendar-alt"></i> {{ actividad.nom_eve }}
+                                    </h3>
+                                    <p class="timeline-description">
+                                        {{ actividad.desc_eve }}
+                                    </p>
+                                    <span class="badge badge-evento">{{ actividad.modalidad_eve }}</span>
+                                    <span class="badge badge-estado-{{ actividad.estado_eve|lower }}">{{ actividad.estado_eve }}</span>
+                                    <small class="text-muted d-block mt-1">
+                                        {{ actividad.hora_inicio|time:"H:i" }} - {{ actividad.hora_fin|time:"H:i" }}
+                                        {% if actividad.direccion_eve %}
+                                            | 📍 {{ actividad.direccion_eve }}
+                                        {% endif %}
+                                    </small>
                                 {% endif %}
                             </div>
-                            
-                            {% if actividad.tipo_actividad == 'semillero' %}
-                                <h3 class="timeline-title-item">
-                                    <i class="fas fa-flask"></i> Semillero Creado
-                                </h3>
-                                <p class="timeline-description">
-                                    Se creó el semillero <strong>{{ actividad.nombre }}</strong>
-                                </p>
-                                <span class="badge badge-semillero">{{ actividad.sigla }}</span>
-                                
-                            {% elif actividad.tipo_actividad == 'proyecto' %}
-                                <h3 class="timeline-title-item">
-                                    <i class="fas fa-project-diagram"></i> Proyecto Creado
-                                </h3>
-                                <p class="timeline-description">
-                                    Se creó el proyecto <strong>{{ actividad.nom_pro }}</strong>
-                                </p>
-                                <span class="badge badge-proyecto">
-                                    {% if actividad.tipo == "capacidadinstalada" %}
-                                        Capacidad Instalada
-                                    {% elif actividad.tipo == "formativo" %}
-                                        Formativo
-                                    {% elif actividad.tipo == "sennova" %}
-                                        Sennova
-                                    {% else %}
-                                        {{ actividad.tipo|capfirst }}
-                                    {% endif %}
-                                </span>
-                                <small class="text-muted d-block mt-1">
-                                    Estado: {{ actividad.estado_pro }} | Progreso: {{ actividad.progreso }}%
-                                </small>
-                                
-                            {% elif actividad.tipo_actividad == 'entregable' %}
-                                <h3 class="timeline-title-item">
-                                    <i class="fas fa-tasks"></i> Nuevo Entregable
-                                </h3>
-                                <p class="timeline-description">
-                                    <strong>{{ actividad.nom_entre }}</strong> - {{ actividad.desc_entre }}
-                                </p>
-                                <span class="badge badge-entregable">{{ actividad.estado }}</span>
-                                <small class="text-muted d-block mt-1">
-                                    Vence: {{ actividad.fecha_fin|date:"d/m/Y" }}
-                                </small>
-                                
-                            {% elif actividad.tipo_actividad == 'evento' %}
-                                <h3 class="timeline-title-item">
-                                    <i class="fas fa-calendar-alt"></i> {{ actividad.nom_eve }}
-                                </h3>
-                                <p class="timeline-description">
-                                    {{ actividad.desc_eve }}
-                                </p>
-                                <span class="badge badge-evento">{{ actividad.modalidad_eve }}</span>-
-                                <span class="badge badge-estado-{{ actividad.estado_eve|lower }}">{{ actividad.estado_eve }}</span>
-                                <small class="text-muted d-block mt-1">
-                                    {{ actividad.hora_inicio|time:"H:i" }} - {{ actividad.hora_fin|time:"H:i" }}
-                                    {% if actividad.direccion_eve %}
-                                        |  📍 {{ actividad.direccion_eve }}
-                                    {% endif %}
-                                </small>
-                            {% endif %}
+                            <div class="timeline-marker"></div>
                         </div>
-                        <div class="timeline-marker"></div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="timeline-item">
-                        <div class="timeline-content">
-                            <p class="timeline-description">
-                                <i class="fas fa-info-circle"></i> No hay actividades recientes en la última semana
-                            </p>
+                        {% endfor %}
+                    {% else %}
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <p class="timeline-description">
+                                    <i class="fas fa-info-circle"></i> No hay actividades recientes en la última semana
+                                </p>
+                            </div>
+                            <div class="timeline-marker"></div>
                         </div>
-                        <div class="timeline-marker"></div>
+                    {% endif %}
+                </div>
+
+                <!-- Sidebar Derecho -->
+                <aside>
+                    <!-- Acciones Rápidas -->
+                    <div class="quick-actions-widget">
+                        <div class="widget-header">
+                            <h3 class="widget-title">Acciones Rápidas</h3>
+                        </div>
+                        
+                        <a href="{% url 'miembros' %}" class="action-btn">
+                            <div class="action-icon">👥</div>
+                            <div class="action-text">
+                                <div class="action-title">Ver Miembros</div>
+                                <div class="action-desc">Ver todos los miembros </div>
+                            </div>
+                        </a>
+
+                        <a href="{% url 'semilleros' %}" class="action-btn">
+                            <div class="action-icon">🌱</div>
+                            <div class="action-text">
+                                <div class="action-title">Nuevo Semillero</div>
+                                <div class="action-desc">Registrar un semillero</div>
+                            </div>
+                        </a>
+
+                        <a href="{% url 'eventos' %}" class="action-btn">
+                            <div class="action-icon">📅</div>
+                            <div class="action-text">
+                                <div class="action-title">Programar Evento</div>
+                                <div class="action-desc">Crear evento o reunión</div>
+                            </div>
+                        </a>
+
+                        <a href="{% url 'proyectos' %}" class="action-btn">
+                            <div class="action-icon">📊</div>
+                            <div class="action-text">
+                                <div class="action-title">Ver Proyectos</div>
+                                <div class="action-desc">Estadísticas y análisis</div>
+                            </div>
+                        </a>
                     </div>
-                {% endif %}
+
+                    <!-- Progreso General -->
+                    <div class="progress-widget">
+                        <div class="widget-header">
+                            <h3 class="widget-title">Progreso General</h3>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Proyectos Activos</span>
+                                <span class="progress-percentage">{{ total_proyectos }}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: {% if total_proyectos > 0 %}{% widthratio total_proyectos 20 100 %}{% else %}10{% endif %}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Semilleros Registrados</span>
+                                <span class="progress-percentage">{{ total_semilleros }}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: {% if total_semilleros > 0 %}{% widthratio total_semilleros 15 100 %}{% else %}10{% endif %}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Aprendices Vinculados</span>
+                                <span class="progress-percentage">{{ total_aprendices }}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: {% if total_aprendices > 0 %}{% widthratio total_aprendices 25 100 %}{% else %}10{% endif %}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Actividades esta semana</span>
+                                <span class="progress-percentage">{{ actividades|length }}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: {% if actividades %}{% widthratio actividades|length 15 100 %}{% else %}10{% endif %}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
-
     </div>
-
-</div>
 
 <script src="{% static 'js/mensaje.js' %}"></script>
 <script src="{% static 'js/notificaciones.js' %}"></script>

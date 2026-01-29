@@ -329,7 +329,7 @@
     align-items: center;
 }
 
-.fa-download{
+.fa-download1{
     color: #252525;
     background-color: #38a90063;
     padding: clamp(6px, 2%, 8px);
@@ -338,7 +338,7 @@
     cursor: pointer;
 }
 
-.fas,
+.fas1,
 .fa-envelope {
     background-color: #0070B363;
     padding: clamp(5px, 2%, 6px);
@@ -350,8 +350,8 @@
     text-decoration: none;
 }
 
-.fa-download:hover,
-.fas:hover,
+.fa-download1:hover,
+.fas1:hover,
 .fa-envelope:hover {
     color: #ffffff;
     transform: translateY(-5px);
