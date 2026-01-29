@@ -527,16 +527,18 @@
                 </div>
 
                 <!-- FOOTER -->
-                <div class="modal-perfil-footer">
-                    <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
-                        class="btn-modal btn-secondary-modal">
-                        Cancelar
-                    </a>
-                    <button type="submit" class="btn-modal btn-primary-modal">
-                        <span>💾</span>
-                        Guardar Cambios
-                    </button>
-                </div>
+                {% if perms.GC2.change_usuario %}
+                    <div class="modal-perfil-footer">
+                        <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
+                            class="btn-modal btn-secondary-modal">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-modal btn-primary-modal">
+                            <span>💾</span>
+                            Guardar Cambios
+                        </button>
+                    </div>
+                {% endif %}
             </form>
         </div>
     </div>
