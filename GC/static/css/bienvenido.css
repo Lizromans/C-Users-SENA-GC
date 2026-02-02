@@ -65,9 +65,7 @@ body {
     top: 0;
 }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
+/* ====== HEADER========== */
 .header-container {
     background: var(--gradient);
     height: 10vh;
@@ -98,7 +96,7 @@ body {
 }
 
 .header-logo {
-    width: clamp(40px, 4vw, 63px);
+    width: clamp(55px, 4vw, 65px);
 }
 
 .header-gc-logo {
