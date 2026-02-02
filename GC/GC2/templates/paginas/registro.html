@@ -10,14 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  {% if messages %}
-    <script>
-        {% for message in messages %}
-            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
-        {% endfor %}
-    </script>
-  {% endif %}
-
   <!-- Partículas de fondo animadas -->
   <div class="bg-particles">
       <div class="particle"></div>
@@ -428,5 +420,15 @@ function showLoginForm() {
 </script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/mensaje.js' %}"></script>
+<!-- Mensajes de alerta -->
+{% if messages %}
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          {% for message in messages %}
+              mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+          {% endfor %}
+      });
+  </script>
+{% endif %}
 </body>
 </html>

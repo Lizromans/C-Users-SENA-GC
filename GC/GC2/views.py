@@ -1,5 +1,6 @@
 from ctypes import alignment
 import os
+import random
 from tkinter import Image
 from urllib import request
 from django.shortcuts import render,redirect, get_object_or_404
@@ -81,6 +82,7 @@ import zipfile
 from io import BytesIO
 from django.core import serializers
 from django.apps import apps
+from django.template.loader import render_to_string
 
 
 # Funciones de cifrado/descifrado
@@ -260,6 +262,7 @@ def registro(request):
             try:
                 usuario = form.save(commit=False)
                 
+                # Configurar estado inicial
                 usuario.email_verificado = False
                 usuario.is_active = True       
                 usuario.estado = 'Activo'
@@ -267,24 +270,38 @@ def registro(request):
                 usuario.save()
 
                 try:
-                    if hasattr(usuario, 'generar_token_verificacion'):
-                        usuario.generar_token_verificacion()
-                    if hasattr(usuario, 'enviar_email_verificacion'):
-                        usuario.enviar_email_verificacion(request)
+                    # Generar token (esto guarda automáticamente)
+                    usuario.generar_token_verificacion()
                     
-                    messages.success(request, "¡Registro exitoso! Verifica tu correo electrónico.")
+                    # Enviar email de verificación
+                    usuario.enviar_email_verificacion(request)
+                    
+                    messages.success(
+                        request, 
+                        "¡Registro exitoso! Por favor, revisa tu correo y verifica tu email para poder iniciar sesión."
+                    )
+                    
                 except Exception as email_error:
+                    print(f"❌ Error al enviar email de verificación: {email_error}")
+                    import traceback
+                    traceback.print_exc()
+                    
                     messages.warning(
                         request, 
-                        "Usuario registrado, pero hubo un problema al enviar el correo de verificación. "
-                        "Por favor contacta al administrador."
+                        "Usuario registrado correctamente, pero hubo un problema al enviar el correo de verificación. "
+                        "Por favor contacta al administrador para que reenvíe el correo."
                     )
                 
-                return redirect('iniciarsesion')
+                return redirect('iniciarsesion') 
                 
             except Exception as e:
                 messages.error(request, f"Error al registrar usuario: {str(e)}")
+                print(f"❌ Error en registro: {e}")
+                import traceback
+                traceback.print_exc()
+                
         else:
+            # Manejo de errores del formulario
             errores_contexto = {}
             
             mapeo_errores = {
@@ -436,13 +453,16 @@ def verificar_email(request, token):
         usuario.token_expira = None
         usuario.save()
         
-        messages.success(request, "¡Tu correo electrónico ha sido verificado correctamente! Ahora puedes iniciar sesión.")
+        messages.success(
+            request, 
+            "¡Correo verificado exitosamente! Ahora puedes iniciar sesión con tus credenciales."
+        )
         return redirect('iniciarsesion')
         
     except Usuario.DoesNotExist:
         messages.error(request, "El enlace de verificación no es válido.")
-        return redirect('iniciarsesion') 
-
+        return redirect('iniciarsesion')
+    
 # Vistas recuperar contraseña
 def mostrar_recuperar_contrasena(request):
 
@@ -473,16 +493,16 @@ def recuperar_contrasena(request):
                 reset_link = f"{request.scheme}://{request.get_host()}/reset-password/{uid}/{token}/"
                 
                 try:
-                    subject = "Restablecimiento de contraseña"
+                    subject = "Restablecimiento de contraseña - InnHub"
                     message = render_to_string('paginas/reset_password_email.html', {
                         'user': admin,
                         'reset_link': reset_link,
-                        'site_name': 'GC'
+                        'site_name': 'InnHub'
                     })
                     
                     send_mail(
                         subject,
-                        message,
+                        '',  # Mensaje de texto plano vacío
                         settings.DEFAULT_FROM_EMAIL,
                         [admin.correo_ins],
                         html_message=message,
@@ -3216,37 +3236,25 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
 
         intentos_restantes = max(0, 7 - usuario.intentos_codigo_fallidos)
         
-        asunto = "Código de Verificación - GC"
-        mensaje = f"""
-        <html>
-            <body style="font-family: Arial, sans-serif; padding: 20px;">
-                <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 30px; border-radius: 10px;">
-                    <h2 style="color: #2C3E50; text-align: center;">🔐 Código de Verificación</h2>
-                    <p style="color: #555; font-size: 16px;">Hola <strong>{usuario.nom_usu}</strong>,</p>
-                    <p style="color: #555; font-size: 14px;">
-                        Has solicitado ver información sensible. Por seguridad, utiliza el siguiente código:
-                    </p>
-                    <div style="background-color: #fff; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;">
-                        <h1 style="color: #27AE60; font-size: 48px; margin: 0; letter-spacing: 10px;">{codigo}</h1>
-                    </div>
-                    <p style="color: #E74C3C; font-size: 12px; text-align: center;">
-                        ⚠️ Este código expirará en 60 segundos
-                    </p>
-                    <p style="color: #555; font-size: 12px; text-align: center;">
-                        Intentos restantes: <strong>{intentos_restantes}</strong>
-                    </p>
-                    <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">
-                        Si no solicitaste este código, ignora este mensaje.
-                    </p>
-                </div>
-            </body>
-        </html>
-        """
+        # Generar código de verificación
+        codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        request.session['codigo_verificacion'] = codigo
+        request.session['codigo_timestamp'] = timezone.now().timestamp()
+
+        # Renderizar plantilla HTML profesional
+        asunto = "Código de Verificación - InnHub"
+        correo_destino = usuario.correo_ins
+        
+        mensaje = render_to_string('paginas/verification_code_email.html', {
+            'nombre_usuario': usuario.nom_usu,
+            'codigo': codigo,
+            'intentos_restantes': intentos_restantes
+        })
 
         try:
             send_mail(
                 asunto,
-                '',
+                '',  # Mensaje de texto plano vacío
                 settings.DEFAULT_FROM_EMAIL,
                 [correo_destino],
                 html_message=mensaje,
@@ -3639,27 +3647,38 @@ def formulario_soporte(request):
             descripcion = form.cleaned_data['descripcion']
             urgencia = form.cleaned_data['urgencia']
             
-            cuerpo_mensaje = f"""
-            Se ha recibido una nueva solicitud de soporte:
+            # Determinar color según nivel de urgencia
+            urgencia_colors = {
+                'baja': '#28a745',
+                'media': '#ffc107', 
+                'alta': '#dc3545',
+                'critica': '#6f42c1'
+            }
+            urgencia_color = urgencia_colors.get(urgencia.lower(), '#6c757d')
             
-            Nombre: {nombre}
-            Email: {email_remitente}
-            Asunto: {asunto}
-            Urgencia: {urgencia}
+            # Renderizar plantilla HTML profesional
+            mensaje_html = render_to_string('paginas/support_request_email.html', {
+                'nombre': nombre,
+                'email': email_remitente,
+                'asunto': asunto,
+                'urgencia': urgencia,
+                'urgencia_color': urgencia_color,
+                'descripcion': descripcion
+            })
             
-            Descripción:
-            {descripcion}
-            """
-            
-            # Crear email
+            # Crear email con HTML
             email = EmailMessage(
-                f'Solicitud de Soporte: {asunto}',
-                cuerpo_mensaje,
-                'tu_sitio@ejemplo.com', 
+                f'Solicitud de Soporte - InnHub: {asunto}',
+                mensaje_html,
+                settings.DEFAULT_FROM_EMAIL,
                 ['mundobovinoapp@gmail.com'], 
                 reply_to=[email_remitente]
             )
             
+            # Configurar como HTML
+            email.content_subtype = "html"
+            
+            # Adjuntar archivos si existen
             files = request.FILES.getlist('adjuntos')
             if files:
                 for i, adjunto in enumerate(files[:3]):

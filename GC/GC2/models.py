@@ -2,7 +2,9 @@ from django.db import models
 from django.utils import timezone
 import secrets, datetime
 from django.urls import reverse
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
 from django.conf import settings
 import datetime
@@ -109,28 +111,45 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         self.save()
 
     def enviar_email_verificacion(self, request):
-        verificacion_url = request.build_absolute_uri(
-            reverse('verificar_email', kwargs={'token': self.token_verificacion})
-        )
-        asunto = 'Verifica tu dirección de correo electrónico'
-        mensaje = f'''
-        Hola {self.nom_usu},
-
-        Gracias por registrarte. Por favor, haz clic en el siguiente enlace para verificar tu correo electrónico:
-
-        {verificacion_url}
-
-        Este enlace expirará en 24 horas.
-
-        Si no solicitaste este registro, puedes ignorar este mensaje.
-        '''
-        send_mail(
-            asunto,
-            mensaje,
-            settings.DEFAULT_FROM_EMAIL,
-            [self.correo_ins],
-            fail_silently=False,
-        )
+        """Envía el correo de verificación con HTML"""
+        try:
+            # Construir URL de verificación
+            verificacion_url = request.build_absolute_uri(
+                reverse('verificar_email', kwargs={'token': self.token_verificacion})
+            )
+            
+            # Contexto para el template
+            context = {
+                'usuario': self,
+                'verification_link': verificacion_url,
+            }
+            
+            # Renderizar HTML
+            html_content = render_to_string('paginas/email_verification.html', context)
+            text_content = strip_tags(html_content)
+            
+            # Configurar email
+            subject = '✅ Verifica tu correo electrónico - InnHub'
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = self.correo_ins
+            
+            # Crear y enviar email con HTML
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=from_email,
+                to=[to_email]
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send(fail_silently=False)
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error al enviar email: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise
 
     @property
     def get_iniciales(self):

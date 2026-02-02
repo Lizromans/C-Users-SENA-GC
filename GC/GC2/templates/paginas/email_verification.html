@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Email</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+                    
+                    <!-- Header con logo -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 40px 30px; text-align: center;">
+                           <img src="{% static 'img/logo_gc.png' %}" alt="Logo InnHub" style="max-width: 150px; height: auto; margin-bottom: 20px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">¡Bienvenido a InnHub!</h1>
+                            <p style="color: #e3f2fd; margin: 10px 0 0 0; font-size: 16px;">Verifica tu correo electrónico</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Contenido principal -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px 0;">
+                                Hola <strong>{{ usuario.nom_usu }}</strong>,
+                            </p>
+                            
+                            <p style="color: #555555; font-size: 15px; line-height: 22px; margin: 0 0 15px 0;">
+                                ¡Gracias por registrarte en <strong>InnHub</strong>! Estamos emocionados de tenerte con nosotros.
+                            </p>
+                            
+                            <p style="color: #555555; font-size: 15px; line-height: 22px; margin: 0 0 25px 0;">
+                                Para completar tu registro y acceder a todas las funcionalidades de la plataforma, necesitamos que verifiques tu dirección de correo electrónico.
+                            </p>
+                            
+                            <!-- Icono de email -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td align="center" style="padding: 0 0 35px 0;">
+                                        <div style="background-color: #e3f2fd; width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                            <span style="font-size: 40px;">📧</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="color: #555555; font-size: 15px; line-height: 22px; margin: 0 0 30px 0; text-align: center;">
+                                Haz clic en el botón de abajo para verificar tu cuenta:
+                            </p>
+                            
+                            <!-- Botón CTA -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td align="center" style="padding: 0 0 30px 0;">
+                                        <a href="{{ verification_link }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);">
+                                            ✓ Verificar mi correo
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="color: #555555; font-size: 14px; line-height: 20px; margin: 0 0 15px 0;">
+                                Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:
+                            </p>
+                            
+                            <p style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #4facfe; word-break: break-all; font-size: 13px; color: #666666; margin: 0 0 25px 0; border-radius: 4px;">
+                                {{ verification_link }}
+                            </p>
+                            
+                            <!-- Nota de seguridad -->
+                            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 25px 0; border-radius: 4px;">
+                                <p style="color: #856404; font-size: 14px; margin: 0 0 8px 0; line-height: 20px;">
+                                    <strong>⏰ Importante:</strong> Este enlace expirará en <strong>24 horas</strong>.
+                                </p>
+                                <p style="color: #856404; font-size: 14px; margin: 0; line-height: 20px;">
+                                    Si no completaste tu registro en InnHub, puedes ignorar este correo de forma segura.
+                                </p>
+                            </div>
+                            
+                            <!-- Información adicional -->
+                            <div style="background-color: #e7f3ff; border-left: 4px solid #2196F3; padding: 15px; margin: 0 0 25px 0; border-radius: 4px;">
+                                <p style="color: #0d47a1; font-size: 14px; margin: 0 0 8px 0; line-height: 20px; font-weight: 600;">
+                                    🎉 ¿Qué puedes hacer en InnHub?
+                                </p>
+                                <ul style="color: #0d47a1; font-size: 13px; margin: 0; padding-left: 20px; line-height: 20px;">
+                                    <li style="margin-bottom: 5px;">Gestionar tus proyectos de investigación</li>
+                                    <li style="margin-bottom: 5px;">Colaborar con semilleros y equipos</li>
+                                    <li style="margin-bottom: 5px;">Hacer seguimiento de entregables</li>
+                                    <li>¡Y mucho más!</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Mensaje adicional sobre cuenta no solicitada -->
+                            <div style="background-color: #f8f9fa; padding: 15px; margin: 0 0 25px 0; border-radius: 4px; border: 1px solid #dee2e6;">
+                                <p style="color: #6c757d; font-size: 14px; margin: 0 0 8px 0; line-height: 20px;">
+                                    <strong>¿No solicitaste crear esta cuenta?</strong>
+                                </p>
+                                <p style="color: #6c757d; font-size: 14px; margin: 0; line-height: 20px;">
+                                    Si no fuiste tú quien se registró, puedes ignorar este correo de forma segura. 
+                                    Tu información no será almacenada y la cuenta no se activará sin verificación.
+                                </p>
+                            </div>
+                            
+                            <p style="color: #777777; font-size: 14px; line-height: 20px; margin: 0;">
+                                Si tienes alguna pregunta o necesitas ayuda, nuestro equipo de soporte está disponible para asistirte.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="color: #495057; font-size: 13px; margin: 0 0 10px 0; line-height: 18px; font-weight: 600;">
+                                Este es un correo automático, por favor no respondas a este mensaje.
+                            </p>
+                            <p style="color: #6c757d; font-size: 12px; margin: 0 0 20px 0; line-height: 18px;">
+                                Si tienes alguna pregunta o necesitas ayuda, contacta a nuestro equipo de soporte.
+                            </p>
+                            
+                            <!-- Divisor -->
+                            <div style="border-top: 1px solid #dee2e6; margin: 20px 50px;"></div>
+                            
+                            <p style="color: #6c757d; font-size: 13px; margin: 0 0 5px 0; line-height: 18px;">
+                                Email generado by <strong>InnHub</strong> © 2025
+                            </p>
+                            <p style="color: #999999; font-size: 12px; margin: 0; line-height: 18px;">
+                                &copy; 2025 InnHub - Sistema de Gestión del Conocimiento SENA<br>
+                                Todos los derechos reservados
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restablecimiento de Contraseña</title>
+    <title>Código de Verificación</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
     <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -14,9 +14,9 @@
                     
                     <!-- Header con logo -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                        <td style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 40px 30px; text-align: center;">
                             <img src="{% static 'img/logo_gc.png' %}" alt="Logo InnHub" style="max-width: 150px; height: auto; margin-bottom: 20px;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Restablecimiento de Contraseña</h1>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Código de Verificación</h1>
                         </td>
                     </tr>
                     
@@ -24,56 +24,58 @@
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px 0;">
-                                Hola <strong>{{ user.nom_usu }}</strong>,
+                                Hola <strong>{{ nombre_usuario }}</strong>,
                             </p>
                             
                             <p style="color: #555555; font-size: 15px; line-height: 22px; margin: 0 0 25px 0;">
-                                Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>InnHub</strong>. 
+                                Se ha solicitado la verificación de tu cuenta para ver contenido protegido. Utiliza el siguiente código para completar el proceso:
                             </p>
                             
-                            <p style="color: #555555; font-size: 15px; line-height: 22px; margin: 0 0 30px 0;">
-                                Para continuar con el proceso, haz clic en el siguiente botón:
-                            </p>
-                            
-                            <!-- Botón CTA -->
+                            <!-- Código de verificación -->
                             <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td align="center" style="padding: 0 0 30px 0;">
-                                        <a href="{{ reset_link }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
-                                            Restablecer Contraseña
-                                        </a>
+                                        <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                            <p style="color: #666666; font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">
+                                                Tu Código
+                                            </p>
+                                            <h1 style="color: #27AE60; font-size: 52px; margin: 0; letter-spacing: 12px; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+                                                {{ codigo }}
+                                            </h1>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
                             
-                            <p style="color: #555555; font-size: 14px; line-height: 20px; margin: 0 0 15px 0;">
-                                O copia y pega el siguiente enlace en tu navegador:
-                            </p>
-                            
-                            <p style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #667eea; word-break: break-all; font-size: 13px; color: #666666; margin: 0 0 25px 0; border-radius: 4px;">
-                                {{ reset_link }}
-                            </p>
-                            
-                            <!-- Nota de seguridad -->
-                            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 25px 0; border-radius: 4px;">
+                            <!-- Alertas importantes -->
+                            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 20px 0; border-radius: 4px;">
+                                <p style="color: #856404; font-size: 14px; margin: 0 0 8px 0; line-height: 20px;">
+                                    <strong>⏱️ Tiempo limitado:</strong> Este código expirará en <strong>60 segundos</strong>
+                                </p>
                                 <p style="color: #856404; font-size: 14px; margin: 0; line-height: 20px;">
-                                    <strong>⚠️ Importante:</strong> Este enlace expirará en 24 horas por motivos de seguridad. Si no solicitaste este cambio, ignora este correo y tu contraseña permanecerá sin cambios.
+                                    <strong>🔄 Intentos restantes:</strong> {{ intentos_restantes }}
                                 </p>
                             </div>
                             
-                            <!-- Mensaje adicional sobre solicitud no realizada -->
+                            <div style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 0 0 25px 0; border-radius: 4px;">
+                                <p style="color: #0c5460; font-size: 14px; margin: 0; line-height: 20px;">
+                                    <strong>💡 Consejo:</strong> Si no solicitaste este código, ignora este mensaje y asegúrate de que tu cuenta esté segura.
+                                </p>
+                            </div>
+                            
+                            <!-- Mensaje adicional sobre código no solicitado -->
                             <div style="background-color: #f8f9fa; padding: 15px; margin: 0 0 25px 0; border-radius: 4px; border: 1px solid #dee2e6;">
                                 <p style="color: #6c757d; font-size: 14px; margin: 0 0 8px 0; line-height: 20px;">
-                                    <strong>¿No solicitaste restablecer tu contraseña?</strong>
+                                    <strong>¿No solicitaste este código?</strong>
                                 </p>
                                 <p style="color: #6c757d; font-size: 14px; margin: 0; line-height: 20px;">
-                                    Si no fuiste tú quien realizó esta solicitud, puedes ignorar este correo de forma segura. 
-                                    Tu contraseña permanecerá sin cambios y te recomendamos revisar la seguridad de tu cuenta.
+                                    Si no fuiste tú quien solicitó este código de verificación, puedes ignorar este correo de forma segura. 
+                                    Sin embargo, te recomendamos cambiar tu contraseña si consideras que tu cuenta puede estar comprometida.
                                 </p>
                             </div>
                             
                             <p style="color: #777777; font-size: 14px; line-height: 20px; margin: 0;">
-                                Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.
+                                Para cualquier consulta, nuestro equipo de soporte está disponible para ayudarte.
                             </p>
                         </td>
                     </tr>

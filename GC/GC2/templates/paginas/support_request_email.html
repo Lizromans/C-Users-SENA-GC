@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Soporte</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+                    
+                    <!-- Header con logo -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 40px 30px; text-align: center;">
+                            <img src="{% static 'img/logo_gc.png' %}" alt="Logo InnHub" style="max-width: 150px; height: auto; margin-bottom: 20px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Nueva Solicitud de Soporte</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Contenido principal -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 25px 0;">
+                                Se ha recibido una nueva solicitud de soporte con los siguientes detalles:
+                            </p>
+                            
+                            <!-- Información del remitente -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                                <tr>
+                                    <td style="padding: 12px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                                        <strong style="color: #495057; font-size: 14px;">Nombre:</strong>
+                                    </td>
+                                    <td style="padding: 12px; background-color: #ffffff; border-bottom: 1px solid #dee2e6;">
+                                        <span style="color: #212529; font-size: 14px;">{{ nombre }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                                        <strong style="color: #495057; font-size: 14px;">Email:</strong>
+                                    </td>
+                                    <td style="padding: 12px; background-color: #ffffff; border-bottom: 1px solid #dee2e6;">
+                                        <a href="mailto:{{ email }}" style="color: #007bff; font-size: 14px; text-decoration: none;">{{ email }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                                        <strong style="color: #495057; font-size: 14px;">Asunto:</strong>
+                                    </td>
+                                    <td style="padding: 12px; background-color: #ffffff; border-bottom: 1px solid #dee2e6;">
+                                        <span style="color: #212529; font-size: 14px;">{{ asunto }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px; background-color: #f8f9fa;">
+                                        <strong style="color: #495057; font-size: 14px;">Urgencia:</strong>
+                                    </td>
+                                    <td style="padding: 12px; background-color: #ffffff;">
+                                        <span style="display: inline-block; padding: 4px 12px; background-color: {{ urgencia_color }}; color: #ffffff; border-radius: 4px; font-size: 13px; font-weight: 600;">
+                                            {{ urgencia }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Descripción del problema -->
+                            <div style="margin-bottom: 25px;">
+                                <p style="color: #495057; font-size: 15px; font-weight: 600; margin: 0 0 10px 0;">
+                                    Descripción del problema:
+                                </p>
+                                <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #f5576c; border-radius: 4px;">
+                                    <p style="color: #212529; font-size: 14px; line-height: 22px; margin: 0; white-space: pre-wrap;">{{ descripcion }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Botón para responder -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td align="center" style="padding: 20px 0 0 0;">
+                                        <a href="mailto:{{ email }}?subject=Re: {{ asunto }}" style="display: inline-block; padding: 14px 35px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);">
+                                            Responder al Usuario
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="color: #6c757d; font-size: 13px; margin: 0 0 10px 0; line-height: 18px;">
+                                Email generado by <strong>InnHub</strong> © 2025
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
