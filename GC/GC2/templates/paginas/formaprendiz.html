@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="{% static 'css/formaprendiz.css' %}">
 </head>
 <body>
-    <!-- Partículas de fondo -->
     <div class="bg-particles" aria-hidden="true">
         <div class="particle"></div>
         <div class="particle"></div>
@@ -25,14 +24,12 @@
         <div class="particle"></div>
     </div>
 
-    <!-- Indicador de guardado automático -->
     <div class="autosave-indicator" id="autosaveIndicator" role="status" aria-live="polite">
         <span class="spinner"></span>
         <span class="message">Guardando...</span>
     </div>
 
     <div class="form-wrapper">
-        <!-- SIDEBAR DE PROGRESO -->
         <div class="progress-sidebar">
             <div class="logo-section">
                 <h2>SENA</h2>
@@ -71,12 +68,10 @@
             </ul>
         </div>
 
-        <!-- CONTENIDO PRINCIPAL -->
         <div class="form-content">
             <form id="aprendizForm" method="POST" novalidate>
                 {% csrf_token %}
                 
-                <!-- SECCIÓN 1: Datos Personales -->
                 <div class="form-section active" data-section="1">
                     <div class="form-header">
                         <h3><i class="bi bi-person-fill me-2"></i>Datos Personales</h3>
@@ -184,7 +179,6 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 2: Información Académica -->
                 <div class="form-section" data-section="2">
                     <div class="form-header">
                         <h3><i class="bi bi-book-fill me-2"></i>Información Académica</h3>
@@ -271,7 +265,6 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 3: Datos Bancarios -->
                 <div class="form-section" data-section="3">
                     <div class="form-header">
                         <h3><i class="bi bi-credit-card-fill me-2"></i>Datos Bancarios</h3>
@@ -332,7 +325,6 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 4: Consentimiento -->
                 <div class="form-section" data-section="4">
                     <div class="form-header">
                         <h3><i class="bi bi-shield-check-fill me-2"></i>Autorización de Tratamiento de Datos</h3>
@@ -386,7 +378,6 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmación -->
     <div class="modal fade" id="confirmModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -412,7 +403,6 @@
         </div>
     </div>
 
-    <!-- Script para pasar errores a JavaScript -->
     <script>
         window.djangoFormErrors = {{ errores_info|safe|default:'{}' }};
     </script>

@@ -10,26 +10,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <!-- Partículas de fondo animadas -->
-  <div class="bg-particles">
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-  </div>
+    <div class="bg-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
 
-    <!-- Clase 'active' para LOGIN (izquierda), sin 'active' para REGISTRO (derecha) -->
     <div class="container {% if mostrar_registro %}{% else %}active{% endif %}" id="container">
       
-      <!-- Panel Azul -->
       <div class="blue-panel" id="bluePanel">
-        <!-- Botón de regresar -->
         <a class="back-arrow" href="{% url 'bienvenido' %}">
           <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back">
         </a>  
@@ -39,10 +35,8 @@
         <button id="toggleBtn">{% if mostrar_registro %}Iniciar sesión{% else %}Registrarse{% endif %}</button>
       </div>
 
-      <!-- Formulario -->
       <div class="form-container" id="formContainer">
         {% if mostrar_registro %}
-          <!-- FORMULARIO DE REGISTRO (DERECHA - sin clase active) -->
           <div class="header-content">
             <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
           </div>
@@ -121,7 +115,6 @@
             </div>
           </form>
         {% else %}
-          <!-- FORMULARIO DE LOGIN (IZQUIERDA - con clase active) -->
           <div class="header-content">
             <img src="{% static 'img/logo_gc.png' %}" alt="Logo" class="header-gc-logo">
           </div>
@@ -146,7 +139,6 @@
               {% endif %}
             </div>
             
-            <!-- Cedula -->
             <div class="form-group m-1">
               <input type="text" name="cedula" class="input" placeholder="Cédula" value="{% if cedula %}{{ cedula }}{% endif %}" required>
               {% if error_user %}
@@ -154,7 +146,6 @@
               {% endif %}
             </div>
 
-            <!-- Contraseña -->
             <div class="form-group m-1">
               <div class="password-field-container">
                 <input type="password" name="password" id="loginPassword" class="input" placeholder="Contraseña" required>
@@ -238,18 +229,16 @@ function showLoginForm() {
       blueText.textContent = "Regístrate para acceder al sistema de gestión del conocimiento";
       toggleBtn.textContent = "Registrarse";
       
-      // REINICIAR ANIMACIONES DEL PANEL AZUL
       const bluePanel = document.getElementById("bluePanel");
       const logo = bluePanel.querySelector('.logo-sena');
       const h2 = bluePanel.querySelector('h2');
       const p = bluePanel.querySelector('p');
       const button = bluePanel.querySelector('button');
       
-      // Remover y volver a agregar la animación
       [logo, h2, p, button].forEach(el => {
         if (el) {
           el.style.animation = 'none';
-          el.offsetHeight; // Trigger reflow
+          el.offsetHeight;
           el.style.animation = null;
         }
       });
@@ -309,18 +298,16 @@ function showLoginForm() {
       blueText.textContent = "Inicia sesión para acceder a todas las funcionalidades del sistema";
       toggleBtn.textContent = "Iniciar sesión";
       
-      // REINICIAR ANIMACIONES DEL PANEL AZUL
       const bluePanel = document.getElementById("bluePanel");
       const logo = bluePanel.querySelector('.logo-sena');
       const h2 = bluePanel.querySelector('h2');
       const p = bluePanel.querySelector('p');
       const button = bluePanel.querySelector('button');
-      
-      // Remover y volver a agregar la animación
+    
       [logo, h2, p, button].forEach(el => {
         if (el) {
           el.style.animation = 'none';
-          el.offsetHeight; // Trigger reflow
+          el.offsetHeight; 
           el.style.animation = null;
         }
       });
@@ -420,7 +407,6 @@ function showLoginForm() {
 </script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/mensaje.js' %}"></script>
-<!-- Mensajes de alerta -->
 {% if messages %}
   <script>
       document.addEventListener('DOMContentLoaded', function() {

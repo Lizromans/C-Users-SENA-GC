@@ -5,18 +5,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}{% endblock %}</title>
-
-  <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <!-- CSS personalizado -->
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
 
   {% block css %}{% endblock %}
 </head>
 <body>
     <div>
-        <!-- Header fijo -->
         <div class="header-container">
             <header class="header-content">
                 <div class="header-left">
@@ -41,7 +37,6 @@
                             <span class="notification-badge" id="notification-count" style="display: none;">0</span>
                         </a>
                         
-                        <!-- Dropdown de notificaciones -->
                         <div class="notification-dropdown" id="notification-dropdown">
                             <div class="notification-header">
                                 <h6>Notificaciones</h6>
@@ -81,11 +76,9 @@
             </header>
         </div>
 
-        <!-- Sidebar -->
         <div class="sidebar-container">
             <aside class="sidebar">
                 <div class="sidebar-header">
-                    <!-- Botón único que abre y cierra -->
                     <button class="btn-open" aria-label="Abrir/Cerrar menú">☰</button>
                     <h5 class="sidebar-title">Menú de Navegación</h5>
                 </div>
@@ -182,12 +175,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 
-                <!-- Encabezado -->
                 <div class="modal-header">
                     <h5 class="modal-title" id="cambiarContraseñaLabel">Cambiar Contraseña</h5>
                 </div>
 
-                <!-- Cuerpo del modal -->
                 <div class="modal-body">
                     <form method="POST" action="{% url 'privacidad' %}" id="cambio-contraseña-form">
                         {% csrf_token %}
@@ -218,7 +209,6 @@
                     </form>
                 </div>
 
-                <!-- Pie del modal -->
                 <div class="modal-footer">
                     <button type="button" class="boton" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="boton" onclick="document.getElementById('cambio-contraseña-form').submit();">
@@ -253,7 +243,6 @@
             </button>
         </div>
 
-        <!-- Filtros -->
         <div class="drawer-filters">
             <button class="filter-btn active" data-filter="all">Todas</button>
             <button class="filter-btn" data-filter="unread">No leídas</button>
@@ -262,16 +251,13 @@
             <button class="filter-btn" data-filter="entregables">Entregables</button>
         </div>
 
-        <!-- Cuerpo -->
         <div class="drawer-body" id="drawer-body">
-            <!-- Las notificaciones se cargarán aquí con JavaScript -->
             <div class="drawer-empty-state">
                 <i class="fa fa-spinner fa-spin"></i>
                 <h4>Cargando notificaciones...</h4>
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="drawer-footer">
             <button class="drawer-action-btn secondary" id="mark-all-read">
                 <i class="fa fa-check-double"></i> Marcar todas como leídas
@@ -287,7 +273,6 @@
 <div class="modal fade" id="backupModal" tabindex="-1" aria-labelledby="backupModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <!-- Encabezado -->
             <div class="modal-header1 bg-gradient-primary ">
                 <h5 class="modal-title" id="backupModalLabel">
                     <i class="fas fa-cloud-arrow-down me-2"></i>
@@ -296,10 +281,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Cuerpo del modal -->
             <div class="modal-body">
 
-                <!-- Información del usuario -->
                 <div class="user-backup-info mb-4">
                     <div class="tarj border-0 bg-light">
                         <div class="tarj-body">
@@ -312,10 +295,8 @@
                     </div>
                 </div>
 
-                <!-- Opciones de backup -->
                 <div class="backup-options">
                     
-                    <!-- Backup Personal -->
                     <div class="backup-option-card mb-3">
                         <div class="tarj h-100 shadow-sm hover-card">
                             <div class="tarj-body">
@@ -347,8 +328,7 @@
                         </div>
                     </div>
 
-                    <!-- Backup Completo (solo para Coordinadores/Dinamizadores) -->
-                    {% if request.session.rol == 'Coordinador' or request.session.rol == 'Dinamizador' or request.session.rol == 'Administrador' %}
+                    {% if request.session.rol == 'Coordinador' or request.session.rol == 'Dinamizador' %}
                     <div class="backup-option-card">
                         <div class="tarj h-100 shadow-sm hover-card border-warning">
                             <div class="tarj-body">
@@ -388,7 +368,6 @@
 
                 </div>
 
-                <!-- Información adicional -->
                 <div class="mt-4">
                     <div class="tarj border-0 bg-light">
                         <div class="tarj-body py-3">
@@ -405,7 +384,6 @@
                     </div>
                 </div>
 
-                <!-- Spinner de carga -->
                 <div id="backup-loading" class="text-center py-4" style="display: none;">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Generando backup...</span>
@@ -417,7 +395,6 @@
                 </div>
             </div>
 
-            <!-- Pie del modal -->
             <div class="modal-footer">
                 <button type="button" class="btns1 btn-secondary1" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>
@@ -428,7 +405,6 @@
     </div>
 </div>
 
-<!-- BOTÓN FLOTANTE DE BACKUP -->
 <div class="option-card">         
     <div class="fab">
         <i class="fas fa-cloud-arrow-down"></i>
@@ -437,9 +413,7 @@
     </div>
 </div>
 
-<!-- JavaScript para el modal de backup -->
 <script>
-// Función para obtener el CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -455,14 +429,12 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Abrir modal al hacer clic en el botón flotante
 document.querySelector('.fab').addEventListener('click', function() {
     const modal = new bootstrap.Modal(document.getElementById('backupModal'));
     modal.show();
     cargarEstadisticasBackup();
 });
 
-// Cargar estadísticas al abrir el modal
 function cargarEstadisticasBackup() {
     fetch('/backup/info/', {
         method: 'GET',
@@ -473,7 +445,6 @@ function cargarEstadisticasBackup() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Actualizar estadísticas personales
             if (data.info.backup_personal) {
                 document.getElementById('stat-semilleros').textContent = 
                     `Semilleros: ${data.info.backup_personal.semilleros}`;
@@ -483,7 +454,6 @@ function cargarEstadisticasBackup() {
                     `Archivos: ${data.info.backup_personal.archivos}`;
             }
             
-            // Actualizar estadísticas completas (si aplica)
             if (data.info.backup_completo) {
                 document.getElementById('stat-modelos').textContent = 
                     `Modelos: ${data.info.backup_completo.total_modelos}`;
@@ -497,7 +467,6 @@ function cargarEstadisticasBackup() {
     });
 }
 
-// Función para mostrar mensajes
 function mostrarMensajeExito(mensaje, tipo) {
     const estilos = {
         success: {
@@ -549,7 +518,6 @@ function mostrarMensajeExito(mensaje, tipo) {
         max-width: 400px;
     `;
 
-    // Botón de cerrar
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
     closeBtn.style.cssText = `
@@ -589,7 +557,6 @@ function mostrarMensajeExito(mensaje, tipo) {
         mensajeDiv.style.transform = "translateY(0)";
     }, 50);
 
-    // Auto-cierre después de 4 segundos
     setTimeout(() => {
         mensajeDiv.style.opacity = "0";
         mensajeDiv.style.transform = "translateY(-20px)";
@@ -597,7 +564,6 @@ function mostrarMensajeExito(mensaje, tipo) {
     }, 4000);
 }
 
-// Función para generar backup personal
 async function generarBackupPersonal() {
     const loadingDiv = document.getElementById('backup-loading');
     const button = event.target;
@@ -639,12 +605,10 @@ async function generarBackupPersonal() {
     }
 }
 
-// Función para generar backup completo
 async function generarBackupCompleto() {
     const loadingDiv = document.getElementById('backup-loading');
     const button = event.target;
     
-    // Confirmar acción
     if (!confirm('¿Estás seguro de generar el backup completo de toda la base de datos?\n\nEsto puede tardar varios minutos.')) {
         return;
     }

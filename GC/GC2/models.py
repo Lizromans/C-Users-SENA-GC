@@ -80,7 +80,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         blank=True
     )
 
-    # Relación ManyToMany a través de tabla intermedia
     semilleros = models.ManyToManyField(
         'Semillero',
         through='SemilleroUsuario',
@@ -113,27 +112,22 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     def enviar_email_verificacion(self, request):
         """Envía el correo de verificación con HTML"""
         try:
-            # Construir URL de verificación
             verificacion_url = request.build_absolute_uri(
                 reverse('verificar_email', kwargs={'token': self.token_verificacion})
             )
             
-            # Contexto para el template
             context = {
                 'usuario': self,
                 'verification_link': verificacion_url,
             }
             
-            # Renderizar HTML
             html_content = render_to_string('paginas/email_verification.html', context)
             text_content = strip_tags(html_content)
             
-            # Configurar email
             subject = '✅ Verifica tu correo electrónico - InnHub'
             from_email = settings.DEFAULT_FROM_EMAIL
             to_email = self.correo_ins
             
-            # Crear y enviar email con HTML
             email = EmailMultiAlternatives(
                 subject=subject,
                 body=text_content,
@@ -156,7 +150,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return f"{self.nom_usu[0]}{self.ape_usu[0]}".upper()
     
     def generar_codigo_verificacion(self):
-        """Genera un código aleatorio de 6 dígitos"""
         import random
         codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
         self.codigo_verificacion = codigo
@@ -165,7 +158,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return codigo
     
     def verificar_codigo(self, codigo):
-        """Verifica si el código es válido y no ha expirado"""
         if not self.codigo_verificacion or not self.codigo_expiracion:
             return False
         
@@ -175,24 +167,18 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return self.codigo_verificacion == codigo
     
     def limpiar_codigo(self):
-        """Limpia el código después de usarlo"""
         self.codigo_verificacion = None
         self.codigo_expiracion = None
         self.save()
     
     def incrementar_intentos_fallidos(self):
-        """Incrementa intentos fallidos y aplica bloqueo progresivo"""
         self.intentos_codigo_fallidos += 1
         
-        # Bloqueo progresivo
         if self.intentos_codigo_fallidos >= 7:
-            # 3er bloqueo: 24 horas
             self.bloqueado_hasta = timezone.now() + datetime.timedelta(hours=24)
         elif self.intentos_codigo_fallidos >= 5:
-            # 2do bloqueo: 1 hora
             self.bloqueado_hasta = timezone.now() + datetime.timedelta(hours=1)
         elif self.intentos_codigo_fallidos >= 3:
-            # 1er bloqueo: 15 minutos
             self.bloqueado_hasta = timezone.now() + datetime.timedelta(minutes=15)
         
         self.save()
@@ -201,7 +187,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         """Verifica si puede solicitar un nuevo código"""
         ahora = timezone.now()
         
-        # Verificar si está bloqueado
         if self.bloqueado_hasta and ahora < self.bloqueado_hasta:
             tiempo_restante = self.bloqueado_hasta - ahora
             minutos = int(tiempo_restante.total_seconds() / 60)
@@ -215,23 +200,19 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
             
             return False, mensaje
         
-        # Limpiar bloqueo si ya pasó el tiempo
         if self.bloqueado_hasta and ahora >= self.bloqueado_hasta:
             self.intentos_codigo_fallidos = 0
             self.bloqueado_hasta = None
             self.save()
         
-        # Resetear contador diario
         if self.fecha_ultimo_reset_codigos != ahora.date():
             self.codigos_enviados_hoy = 0
             self.fecha_ultimo_reset_codigos = ahora.date()
             self.save()
         
-        # Verificar límite por hora (5 códigos por hora)
         if self.codigos_enviados_hoy >= 5:
             return False, "Has alcanzado el límite de códigos por hora. Intenta más tarde."
         
-        # Verificar cooldown (30 segundos entre códigos)
         if self.ultimo_codigo_enviado:
             tiempo_desde_ultimo = (ahora - self.ultimo_codigo_enviado).total_seconds()
             if tiempo_desde_ultimo < 30:
@@ -243,7 +224,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         """Registra que se envió un código"""
         ahora = timezone.now()
         
-        # Resetear contador diario si es necesario
         if self.fecha_ultimo_reset_codigos != ahora.date():
             self.codigos_enviados_hoy = 0
             self.fecha_ultimo_reset_codigos = ahora.date()
@@ -253,7 +233,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         self.save()
 
     def resetear_intentos_codigo(self):
-        """Resetea intentos cuando verifica correctamente"""
         self.intentos_codigo_fallidos = 0
         self.bloqueado_hasta = None
         self.save()
@@ -444,7 +423,6 @@ class Evento(models.Model):
         managed = True
         db_table = 'evento'
 
-# Tablas intermedias (relaciones ManyToMany)
 class SemilleroDocumento(models.Model):
     id_doc = models.AutoField(primary_key=True)
     id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
@@ -453,8 +431,7 @@ class SemilleroDocumento(models.Model):
     class Meta:
         managed = False
         db_table = 'semillero_documento'
-        unique_together = ('id_sem', 'cod_doc')  # evita duplicados
-
+        unique_together = ('id_sem', 'cod_doc') 
 class SemilleroProyecto(models.Model):
     sempro_id = models.AutoField(primary_key=True)
     id_sem = models.ForeignKey(Semillero, on_delete=models.CASCADE, db_column='id_sem')
@@ -499,7 +476,7 @@ class UsuarioProyecto(models.Model):
     class Meta:
         managed = False
         db_table = 'usuario_proyecto'
-        unique_together = (('cedula', 'cod_pro'),)  # evita duplicados
+        unique_together = (('cedula', 'cod_pro'),)  
 
 class ProyectoAprendiz(models.Model):
     proapre_id = models.AutoField(primary_key=True)
@@ -510,5 +487,5 @@ class ProyectoAprendiz(models.Model):
     class Meta:
         managed = False
         db_table = 'proyecto_aprendiz'
-        unique_together = ('cedula_apre', 'cod_pro')  # evita duplicados
+        unique_together = ('cedula_apre', 'cod_pro') 
 

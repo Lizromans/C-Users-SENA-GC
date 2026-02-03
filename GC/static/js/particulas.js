@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Animación de las partículas en tiempo real
     const particles = document.querySelectorAll('.particle');
     
-    // Función para animar las partículas
     function animateParticles() {
         particles.forEach((particle, index) => {
             const randomX = Math.random() * 40 - 20;
@@ -11,10 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Ejecutar la animación cada 3 segundos
     setInterval(animateParticles, 3000);
-    
-    // Opcional: Efecto de interacción con el mouse
     document.addEventListener('mousemove', (e) => {
         const mouseX = e.clientX / window.innerWidth;
         const mouseY = e.clientY / window.innerHeight;

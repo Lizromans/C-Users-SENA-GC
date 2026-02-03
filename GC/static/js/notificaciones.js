@@ -1,4 +1,3 @@
-// ==================== CLASE PRINCIPAL ====================
 class NotificationSystem {
     constructor() {
         this.storageKey = 'notifications_state';
@@ -12,18 +11,15 @@ class NotificationSystem {
         console.log('✅ NotificationSystem inicializado');
     }
 
-    // ==================== INICIALIZACIÓN ====================
     init() {
         this.setupEventListeners();
         this.loadNotifications();
         
-        // Actualizar cada 2 minutos
         setInterval(() => this.loadNotifications(), 120000);
         console.log('✅ Sistema de notificaciones activo');
     }
 
     setupEventListeners() {
-        // ===== DROPDOWN DE NOTIFICACIONES =====
         const bell = document.getElementById('notification-bell');
         if (bell) {
             bell.addEventListener('click', (e) => {
@@ -53,7 +49,6 @@ class NotificationSystem {
             });
         }
 
-        // ===== DRAWER DE NOTIFICACIONES =====
         const drawerCloseBtn = document.getElementById('drawer-close-btn');
         const drawerOverlay = document.getElementById('notifications-drawer-overlay');
         
@@ -68,7 +63,6 @@ class NotificationSystem {
             drawerOverlay.addEventListener('click', () => this.closeDrawer());
         }
 
-        // ===== FILTROS =====
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -77,8 +71,6 @@ class NotificationSystem {
                 this.applyFilter(btn.dataset.filter);
             });
         });
-
-        // ===== BOTONES DE ACCIÓN =====
         const markAllRead = document.getElementById('mark-all-read');
         if (markAllRead) {
             markAllRead.addEventListener('click', () => this.markAllAsRead());
@@ -89,7 +81,6 @@ class NotificationSystem {
             clearAll.addEventListener('click', () => this.clearAllNotifications());
         }
 
-        // ===== CERRAR AL HACER CLIC FUERA =====
         document.addEventListener('click', (e) => {
             const dropdown = document.getElementById('notification-dropdown');
             const bell = document.getElementById('notification-bell');
@@ -102,7 +93,6 @@ class NotificationSystem {
             }
         }, false);
 
-        // ===== CERRAR CON ESC =====
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const drawer = document.getElementById('notifications-drawer');
@@ -115,7 +105,6 @@ class NotificationSystem {
         console.log('✅ Event listeners configurados');
     }
 
-    // ==================== GESTIÓN DE ESTADO (LOCALSTORAGE) ====================
     loadState() {
         try {
             const saved = localStorage.getItem(this.storageKey);
@@ -153,7 +142,6 @@ class NotificationSystem {
     }
 
     getNotificationId(notification) {
-        // Crear un ID único basado en el contenido
         return `${notification.tipo}_${notification.titulo}_${notification.fecha}`.replace(/\s+/g, '_');
     }
 
@@ -178,7 +166,6 @@ class NotificationSystem {
         }
     }
 
-    // ==================== CARGA DE NOTIFICACIONES ====================
     async loadNotifications() {
         try {
             console.log('📡 Cargando notificaciones...');
@@ -214,7 +201,6 @@ class NotificationSystem {
         }
     }
 
-    // ==================== ACTUALIZACIÓN DE UI ====================
     updateUI() {
         this.updateBadge();
         this.updateDropdown();
@@ -257,7 +243,6 @@ class NotificationSystem {
             return;
         }
 
-        // Mostrar solo las primeras 5 notificaciones
         const recentNotifications = this.notifications.slice(0, 5);
 
         recentNotifications.forEach(notif => {
@@ -267,7 +252,6 @@ class NotificationSystem {
             const item = document.createElement('div');
             item.className = `notification-item ${!isRead ? 'unread' : ''}`;
             
-            // ✅ ESTRUCTURA CORREGIDA - Igual que el JS que funciona
             item.innerHTML = `
                 <div class="notification-icon-type ${notif.clase_icono}">
                     <i class="fa ${notif.icono}"></i>
@@ -294,7 +278,6 @@ class NotificationSystem {
 
         console.log('🎨 Actualizando drawer...');
 
-        // Aplicar filtro actual
         this.applyCurrentFilter();
 
         drawerBody.innerHTML = '';
@@ -304,7 +287,6 @@ class NotificationSystem {
             return;
         }
 
-        // Agrupar por fecha
         const grouped = this.groupByDate(this.filteredNotifications);
         console.log('📦 Notificaciones agrupadas:', grouped);
 
@@ -329,7 +311,6 @@ class NotificationSystem {
                 const item = document.createElement('div');
                 item.className = `drawer-notification-item ${!isRead ? 'unread' : ''}`;
                 
-                // ✅ ESTRUCTURA CORREGIDA - Igual que el JS que funciona
                 item.innerHTML = `
                     <div class="notification-icon-type ${notif.clase_icono}">
                         <i class="fa ${notif.icono}"></i>
@@ -355,7 +336,6 @@ class NotificationSystem {
         console.log('✅ Drawer actualizado');
     }
 
-    // ==================== FILTROS ====================
     applyCurrentFilter() {
         switch(this.currentFilter) {
             case 'unread':
@@ -391,7 +371,6 @@ class NotificationSystem {
         this.updateDrawer();
     }
 
-    // ==================== AGRUPACIÓN POR FECHA ====================
     groupByDate(notifications) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -437,19 +416,14 @@ class NotificationSystem {
 
         return grouped;
     }
-
-    // ==================== ACCIONES ====================
     handleNotificationClick(notificationId, url) {
         console.log('👆 Click en notificación:', notificationId);
         
-        // Marcar como leída
         this.markAsRead(notificationId);
         
-        // Cerrar dropdown y drawer
         this.closeDropdown();
         this.closeDrawer();
         
-        // Redirigir si hay URL
         if (url && url !== '#') {
             window.location.href = url;
         }
@@ -476,7 +450,6 @@ class NotificationSystem {
 
         console.log('🗑️ Limpiando TODAS las notificaciones...');
 
-        // Guardar TODOS los IDs como descartados
         this.notifications.forEach(notif => {
             const id = this.getNotificationId(notif);
             if (!this.dismissedNotifications.includes(id)) {
@@ -486,18 +459,15 @@ class NotificationSystem {
 
         this.saveDismissed();
 
-        // Limpiar estados
         this.state = {};
         localStorage.removeItem(this.storageKey);
 
-        // Vaciar memoria
         this.notifications = [];
         this.filteredNotifications = [];
 
         this.updateUI();
         this.closeDrawer();
 
-        // Resetear total
         const countSpan = document.getElementById('notification-count');
         if (countSpan) {
             countSpan.textContent = '0';
@@ -506,8 +476,6 @@ class NotificationSystem {
         this.showToast('Todas las notificaciones fueron eliminadas', 'success');
     }
 
-
-    // ==================== UI HELPERS ====================
     toggleDropdown() {
         const dropdown = document.getElementById('notification-dropdown');
         if (dropdown) {
@@ -531,7 +499,7 @@ class NotificationSystem {
             drawer.classList.add('show');
             overlay.classList.add('show');
             document.body.style.overflow = 'hidden';
-            this.updateDrawer(); // Cargar notificaciones en el drawer
+            this.updateDrawer(); 
         }
     }
 
@@ -585,7 +553,6 @@ class NotificationSystem {
     }
 
     showToast(message, type = 'info') {
-        // Crear toast
         const toast = document.createElement('div');
         toast.className = `notification-toast ${type}`;
         toast.innerHTML = `
@@ -593,7 +560,6 @@ class NotificationSystem {
             <span>${message}</span>
         `;
         
-        // Estilos inline
         Object.assign(toast.style, {
             position: 'fixed',
             bottom: '20px',
@@ -615,7 +581,6 @@ class NotificationSystem {
         
         document.body.appendChild(toast);
         
-        // Remover después de 3 segundos
         setTimeout(() => {
             toast.style.animation = 'slideOutDown 0.3s ease';
             setTimeout(() => toast.remove(), 300);
@@ -629,7 +594,6 @@ class NotificationSystem {
     }
 }
 
-// ==================== ANIMACIONES CSS ====================
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInUp {
@@ -664,10 +628,7 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
-// ==================== INICIALIZACIÓN ====================
 document.addEventListener('DOMContentLoaded', function() {
-    // Pequeño delay para asegurar que todos los elementos existen
     setTimeout(() => {
         console.log('🚀 Inicializando sistema de notificaciones...');
         window.notificationSystem = new NotificationSystem();
@@ -675,7 +636,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
 });
 
-// ==================== EXPORT ====================
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = NotificationSystem;
 }

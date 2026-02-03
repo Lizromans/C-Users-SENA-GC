@@ -7,7 +7,6 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
-    <!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -17,7 +16,6 @@
     {% endif %}
 
     <div class="contenedor-principal">
-        <!-- Hero con Gradiente -->
         <div class="contenedor-info">
             <div class="bienvenida">
                 <div class="info">
@@ -25,9 +23,7 @@
                     <p>Gestiona tus semilleros y proyectos de manera eficiente</p>
                 </div>
                 
-                <!-- Stats Grid Mejorado -->
                 <div class="stats-grid">
-                    <!-- Tarjeta 1: Semilleros Activos -->
                     <div class="stat-card primary">
                         <div class="stat-header">
                             <div class="stat-icon">🌱</div>
@@ -62,7 +58,6 @@
                         </div>
                     </div>
 
-                    <!-- Tarjeta 2: Proyectos en Curso -->
                     <div class="stat-card secondary">
                         <div class="stat-header">
                             <div class="stat-icon">📁</div>
@@ -97,7 +92,6 @@
                         </div>
                     </div>
 
-                    <!-- Tarjeta 3: Aprendices -->
                     <div class="stat-card accent">
                         <div class="stat-header">
                             <div class="stat-icon">👥</div>
@@ -132,7 +126,6 @@
                         </div>
                     </div>
 
-                    <!-- Tarjeta 4: Actividades Semana -->
                     <div class="stat-card success">
                         <div class="stat-header">
                             <div class="stat-icon">📊</div>
@@ -170,12 +163,10 @@
             </div>
         </div>
         
-        <!-- Sección de Actividad -->
         <div class="contenedor-tres">
             <h2>Actividad Reciente</h2>
             
             <div class="contenedor-actividad-layout">
-                <!-- Timeline -->
                 <div class="timeline">
                     {% if actividades %}
                         {% for actividad in actividades %}
@@ -265,9 +256,7 @@
                     {% endif %}
                 </div>
 
-                <!-- Sidebar Derecho -->
                 <aside>
-                    <!-- Acciones Rápidas -->
                     <div class="quick-actions-widget">
                         <div class="widget-header">
                             <h3 class="widget-title">Acciones Rápidas</h3>
@@ -306,7 +295,6 @@
                         </a>
                     </div>
 
-                    <!-- Progreso General -->
                     <div class="progress-widget">
                         <div class="widget-header">
                             <h3 class="widget-title">Progreso General</h3>

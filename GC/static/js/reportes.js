@@ -1,4 +1,3 @@
-// Script para campos dinámicos del constructor de reportes
 document.addEventListener('DOMContentLoaded', function() {
     const checkboxes = document.querySelectorAll('input[name="categoria"]');
     const camposDinamicos = document.getElementById('campos-dinamicos');
@@ -51,8 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
             'Responsable'
         ]
     };
-    
-    // Event listener para actualizar campos dinámicos
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', actualizarCampos);
     });
@@ -94,18 +91,14 @@ document.addEventListener('DOMContentLoaded', function() {
         html += '</div>';
         camposDinamicos.innerHTML = html;
     }
-
-    // VALIDACIÓN Y ENVÍO DEL FORMULARIO
     document.getElementById('btn-generar').addEventListener('click', function(e) {
         e.preventDefault();
         
-        // 1. Validar categorías
         const categoriasSeleccionadas = document.querySelectorAll('input[name="categoria"]:checked');
         
         if (categoriasSeleccionadas.length === 0) {
             mostrarMensajeExito('⚠️ Debe seleccionar al menos una categoría para crear el reporte', 'warning');
             
-            // Hacer scroll hacia las categorías
             document.querySelector('.contenedor-categorias').scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'center' 
@@ -114,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // 2. Validar formato
         const formatoSeleccionado = document.querySelector('input[name="formato"]:checked');
         
         if (!formatoSeleccionado) {
@@ -128,7 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // 3. Log para debug (opcional)
         const categoriasTexto = Array.from(categoriasSeleccionadas)
             .map(c => c.value)
             .join(', ');
@@ -136,23 +127,18 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`Generando reporte con categorías: ${categoriasTexto}`);
         console.log(`Formato seleccionado: ${formatoSeleccionado.value}`);
         
-        // 4. Mostrar mensaje de éxito y enviar formulario
         mostrarMensajeExito('✓ Generando reporte personalizado...', 'info');
         
-        // Pequeño delay para que el usuario vea el mensaje
         setTimeout(() => {
             document.getElementById('form-reportes').submit();
         }, 500);
     });
 
-    // BOTÓN LIMPIAR
     document.getElementById('btn-limpiar').addEventListener('click', function() {
-        // Desmarcar todas las categorías
         document.querySelectorAll('input[name="categoria"]:checked').forEach(checkbox => {
             checkbox.checked = false;
         });
         
-        // Resetear campos dinámicos
         camposDinamicos.innerHTML = `
             <p class="info-texto">
                 <i class="fas fa-info-circle"></i> 
@@ -160,13 +146,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </p>
         `;
         
-        // Limpiar nombre de plantilla
         const nombrePlantilla = document.getElementById('nombre-plantilla');
         if (nombrePlantilla) {
             nombrePlantilla.value = '';
         }
         
-        // Marcar Excel como formato por defecto
         const excelRadio = document.querySelector('input[name="formato"][value="excel"]');
         if (excelRadio) {
             excelRadio.checked = true;
@@ -176,7 +160,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// FUNCIÓN PARA MOSTRAR MENSAJES
 function mostrarMensajeExito(mensaje, tipo) {
     const estilos = {
         success: {
@@ -227,7 +210,6 @@ function mostrarMensajeExito(mensaje, tipo) {
         transition: opacity .3s ease, transform .3s ease;
     `;
 
-    // Botón de cerrar
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
     closeBtn.style.cssText = `
@@ -250,13 +232,11 @@ function mostrarMensajeExito(mensaje, tipo) {
     mensajeDiv.appendChild(closeBtn);
     document.body.appendChild(mensajeDiv);
 
-    // Animación de entrada
     setTimeout(() => {
         mensajeDiv.style.opacity = "1";
         mensajeDiv.style.transform = "translateY(0)";
     }, 50);
 
-    // Auto-cierre después de 4 segundos
     setTimeout(() => {
         mensajeDiv.style.opacity = "0";
         mensajeDiv.style.transform = "translateY(-20px)";

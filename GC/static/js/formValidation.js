@@ -1,52 +1,39 @@
-// FORMULARIO DE REGISTRO APRENDIZ SENA - VALIDACIÓN COMPLETA
-
 document.addEventListener('DOMContentLoaded', function() {
     
-    // ===== ELEMENTOS DEL DOM =====
     const form = document.getElementById('aprendizForm');
     const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     const autosaveIndicator = document.getElementById('autosaveIndicator');
     
-    // Variables de control
     let currentSection = 1;
     
-    // ===== DETECTAR ERRORES DEL BACKEND Y NAVEGAR =====
     function detectAndNavigateToErrors() {
-        // Buscar todos los campos con errores
         const invalidFields = document.querySelectorAll('.is-invalid');
         
         if (invalidFields.length > 0) {
-            // Encontrar la primera sección con error
             const firstInvalidField = invalidFields[0];
             const section = firstInvalidField.closest('.form-section');
             
             if (section) {
                 const sectionNumber = parseInt(section.getAttribute('data-section'));
                 
-                // Navegar a esa sección
                 goToSection(sectionNumber);
                 
-                // Scroll al primer campo con error
                 setTimeout(() => {
                     firstInvalidField.scrollIntoView({ 
                         behavior: 'smooth', 
                         block: 'center' 
                     });
                     
-                    // Resaltar el campo con error
                     firstInvalidField.focus();
-                    
-                    // Mostrar mensaje
+                
                     console.log(`⚠️ Error encontrado en Sección ${sectionNumber}`);
                 }, 400);
                 
-                // Marcar pasos con errores en el sidebar
                 markSectionsWithErrors();
             }
         }
     }
     
-    // Marcar visualmente las secciones con errores
     function markSectionsWithErrors() {
         const sections = document.querySelectorAll('.form-section[data-section]');
         
@@ -59,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const stepNumber = progressStep.querySelector('.step-number');
                 
                 if (hasErrors) {
-                    // Marcar con error
                     progressStep.classList.remove('completed');
                     progressStep.classList.add('has-error');
                     

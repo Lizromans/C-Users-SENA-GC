@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const objetivosContainer = document.getElementById('objetivos-container');
     const btnAgregar = document.getElementById('btn-agregar-objetivo');
 
-    // Función para actualizar la numeración de los objetivos
     function actualizarNumeracion() {
         const objetivos = objetivosContainer.querySelectorAll('.objetivo-item');
         objetivos.forEach((item, index) => {
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
             label.textContent = `Objetivo ${index + 1} *`;
         });
 
-        // Solo el primer objetivo no puede eliminarse
         const botonesEliminar = objetivosContainer.querySelectorAll('.btn-eliminar-objetivo');
         botonesEliminar.forEach((btn, index) => {
             btn.disabled = (index === 0);
@@ -18,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Función para crear un nuevo objetivo
     function crearObjetivo() {
         const numObjetivos = objetivosContainer.querySelectorAll('.objetivo-item').length;
         const nuevoItem = document.createElement('div');
@@ -39,11 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
         objetivosContainer.appendChild(nuevoItem);
         actualizarNumeracion();
     }
-
-    // Evento para agregar un nuevo objetivo
     btnAgregar.addEventListener('click', crearObjetivo);
 
-    // Delegación de eventos para eliminar un objetivo
     objetivosContainer.addEventListener('click', (e) => {
         if (e.target.closest('.btn-eliminar-objetivo')) {
             const objetivos = objetivosContainer.querySelectorAll('.objetivo-item');
@@ -54,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Inicializar numeración correcta
     actualizarNumeracion();
 });
 

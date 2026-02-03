@@ -7,7 +7,6 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
- <!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -100,7 +99,6 @@
                 </div>
             </form>
 
-            <!-- === FILTRO DE ESTADO (BOTONES) === -->
             <div class="filtros-estado">
                 <label>Estado:</label>
                 <div class="botones-estado">
@@ -118,7 +116,6 @@
                 </div>
             </div>
 
-            <!-- === FILTRO DE ROL (SELECT) === -->
             <div class="filtro-rol">
                 <form method="get">
                     <input type="hidden" name="vista" value="{{ vista }}">
@@ -138,7 +135,6 @@
                 </form>
             </div>
 
-            <!-- Botón para limpiar -->
             <div class="botones-item">
                 <button type="button" class="limpiar" onclick="window.location.href= '{% url 'miembros' %}'">
                     <i class="fas fa-sync-alt"></i> Limpiar filtros
@@ -146,8 +142,6 @@
             </div>
         </div>
 
-        
-        <!-- Vista de Lista -->
         <div class="lista-container" style="display: {% if request.GET.vista == 'lista' %}block{% else %}none{% endif %};">
             <div class="resumen">
                 <div class="header">
@@ -196,7 +190,6 @@
             </div>
         </div>
 
-        <!-- Vista de Tarjetas -->
         <div class="tabla-container" style="display: {% if request.GET.vista == 'lista' %}none{% else %}flex{% endif %};">
             <div class="resumen">
                 <div class="titulo-tarjeta">
@@ -262,7 +255,6 @@
             </div>
         </div>
 
-<!-- MODAL DE INFORMACIÓN DEL MIEMBRO -->
 <div id="modalPerfilMiembro" class="modal-perfil-overlay" 
     {% if miembro_seleccionado %}style="display: flex;"{% endif %}>
 
@@ -277,9 +269,7 @@
             <form method="post" action="">
                 {% csrf_token %}
 
-                <!-- HEADER DEL MODAL -->
                 <div class="modal-perfil-header">
-                    <!-- Foto de perfil -->
                     <div class="header-foto-contenedor">
                         {% if tipo_miembro == 'usuario' and miembro_seleccionado.imagen_perfil %}
                             <img src="{{ miembro_seleccionado.imagen_perfil.url }}" alt="foto de perfil" class="header-foto">
@@ -290,7 +280,6 @@
                         {% endif %}
                     </div>
 
-                    <!-- Info del header -->
                     <div class="header-info">
                         <h2>{{ miembro_seleccionado.nombres }} {{ miembro_seleccionado.apellidos }}</h2>
                         <p>{{ miembro_seleccionado.correo_personal }}</p>
@@ -301,7 +290,6 @@
                     </div>
                 </div>
 
-                <!-- TABS -->
                 <div class="modal-tabs">
                     <div class="tab-item active" onclick="switchModalTab(0)">
                         <img src="{% static 'img/User.png' %}" alt="Personal" class="tab-icon">
@@ -324,12 +312,8 @@
                         <span>Semilleros y Proyectos</span>
                     </div>
                 </div>
-
-                <!-- CONTENIDO DE LOS TABS -->
                 <div class="modal-perfil-body">
-                    <!-- TAB 1: INFORMACIÓN PERSONAL -->
                     <div class="tab-content-modal active">
-                        <!-- Stats Cards -->
                         <div class="stats-grid-modal">
                             <div class="stat-card-modal">
                                 <div class="stat-number">{{ miembro_seleccionado.semilleros.count|default:"0" }}</div>
@@ -351,7 +335,6 @@
                             </div>
                         </div>
 
-                        <!-- Form Grid -->
                         <div class="perfil-form-grid">
                             <div class="perfil-form-group">
                                 <label for="perfilNombres">Nombres</label>
@@ -392,8 +375,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- TAB 2: INFORMACIÓN PROFESIONAL (USUARIO) -->
                     {% if tipo_miembro == 'usuario' %}
                     <div class="tab-content-modal">
                         <div class="perfil-form-grid">
@@ -442,7 +423,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- TAB 2: INFORMACIÓN ACADÉMICA (APRENDIZ) -->
                     {% if tipo_miembro == 'aprendiz' %}
                     <div class="tab-content-modal">
                         <div class="perfil-form-grid">
@@ -489,8 +469,7 @@
                         </div>
                     </div>
                     {% endif %}
-
-                    <!-- TAB 3: SEMILLEROS Y PROYECTOS -->
+                
                     <div class="tab-content-modal">
                         <h3 class="section-title-modal">
                             <img src="{% static 'img/microscopio.png' %}" alt="Semilleros" style="width: 24px; height: 24px;">
@@ -526,7 +505,6 @@
                     </div>
                 </div>
 
-                <!-- FOOTER -->
                 {% if perms.GC2.change_usuario %}
                     <div class="modal-perfil-footer">
                         <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
@@ -543,8 +521,6 @@
         </div>
     </div>
 </div>
-    
-<!-- Modal de Enlace de Registro de Aprendiz -->
 
 <div class="modal fade" id="modalLinkAprendiz" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -562,7 +538,6 @@
 
                 <p class="mb-2">Comparte este enlace para que el aprendiz realice su registro:</p>
 
-                <!-- INPUT + BOTÓN COPIAR -->
                 <div class="input-group">
                     <input type="text" id="linkRegistroApre" 
                            class="form-control" readonly
@@ -582,7 +557,6 @@
     </div>
 </div>
 
-<!-- Modal de Verificación de Código -->
 <div id="modalVerificacionCodigo" class="modal-verificacion-overlay" 
      {% if mostrar_modal_codigo %}style="display: flex;"{% endif %}>
     <div class="modal-verificacion-contenedor">
@@ -599,7 +573,6 @@
             
             <h3 class="modal-verificacion-titulo">Verificación de Seguridad</h3>
             
-            <!-- MOSTRAR INTENTOS RESTANTES (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
             {% if request.session.intentos_restantes %}
             <div class="intentos-restantes">
                 <i class="fa fa-exclamation-triangle"></i>
@@ -636,7 +609,6 @@
                 </button>
             </form>
             
-            <!-- BOTÓN REENVIAR CÓDIGO (SOLO SI YA HUBO UN INTENTO FALLIDO) -->
             {% if request.session.intentos_restantes %}
             <div class="reenviar-codigo-container">
                 <button type="button" class="btn-reenviar-codigo" id="btnReenviarCodigo" onclick="reenviarCodigo('{{ aprendiz_verificacion.cedula_apre }}')">
@@ -665,7 +637,6 @@
         });
     }
 
-    // FUNCIÓN REENVIAR CÓDIGO CON COOLDOWN
     function reenviarCodigo(aprendizId) {
         const btn = document.getElementById('btnReenviarCodigo');
         const cooldownTexto = document.getElementById('cooldownTexto');
@@ -676,7 +647,6 @@
         btn.style.display = 'none';
         cooldownTexto.style.display = 'inline-block';
         
-        // Iniciar cooldown de 30 segundos
         let segundos = 30;
         cooldownSegundos.textContent = segundos;
         
@@ -692,11 +662,9 @@
             }
         }, 1000);
         
-        // Hacer petición para reenviar código
         window.location.href = `{% url 'solicitar_codigo_verificacion_form' 0 %}`.replace('/0/', `/${aprendizId}/`);
     }
 
-    // Auto-ocultar número de cuenta después de 30 segundos
     {% if miembro_seleccionado and tipo_miembro == 'aprendiz' %}
         {% if request.session.numeros_revelados %}
                 
@@ -814,11 +782,9 @@
 
 <script>
 function switchModalTab(index) {
-    // Remove active class from all tabs and contents
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content-modal').forEach(content => content.classList.remove('active'));
     
-    // Add active class to selected tab and content
     document.querySelectorAll('.tab-item')[index].classList.add('active');
     document.querySelectorAll('.tab-content-modal')[index].classList.add('active');
 }

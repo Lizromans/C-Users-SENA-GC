@@ -8,7 +8,6 @@
 {% block contenido %} {% endblock %}
 {% block main %}
 
-<!-- Mensajes de alerta -->
 {% if messages %}
 <script>
     {% for message in messages %}
@@ -21,10 +20,8 @@
     {% csrf_token %}
     <div class="perfil">
         
-        <!-- ========== SECCIÓN SUPERIOR ========== -->
         <div class="top-section">
             
-            <!-- Tarjeta de Perfil con Foto -->
             <div class="cont-1">
                 <div class="foto-container">
                     <div class="foto">
@@ -71,7 +68,6 @@
                 </div>
             </div>
 
-            <!-- Tarjeta de Última Sesión -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-icon">⏰</div>
@@ -101,13 +97,9 @@
             </div>
         </div>
 
-        <!-- ========== SECCIÓN INFERIOR - DOS COLUMNAS ========== -->
         <div class="bottom-section">
             
-            <!-- COLUMNA IZQUIERDA -->
             <div class="columna">
-                
-                <!-- Información Personal -->
                 <div class="seccion scrollable">
                     <div class="titulo">
                         <img src="{% static 'img/User.png' %}" alt="Información Personal">
@@ -142,7 +134,6 @@
                     </div>
                 </div>
 
-                <!-- Información de Semilleros -->
                 <div class="seccion">
                     <div class="titulo">
                         <img src="{% static 'img/microscopio.png' %}" alt="Información de Semilleros">
@@ -164,10 +155,8 @@
 
             </div>
 
-            <!-- COLUMNA DERECHA -->
             <div class="columna">
                 
-                <!-- Información Profesional -->
                 <div class="seccion scrollable">
                     <div class="titulo">
                         <img src="{% static 'img/briefcase.png' %}" alt="Información Profesional">
@@ -198,7 +187,6 @@
                     </div>
                 </div>
 
-                <!-- Información de Proyectos -->
                 <div class="seccion">
                     <div class="titulo">
                         <img src="{% static 'img/project.png' %}" alt="Información de Proyectos">
@@ -222,7 +210,6 @@
             </div>
         </div>
 
-        <!-- Botón Guardar - Solo visible cuando hay cambios -->
         <div class="guardar-container visible">
             <button type="submit" class="guardar">Guardar Cambios</button>
         </div>

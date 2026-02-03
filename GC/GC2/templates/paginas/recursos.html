@@ -7,7 +7,6 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
-    <!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -57,7 +56,6 @@
                                     aria-hidden="true" 
                                     target="_blank">
                                 </a>
-                                <!-- Botón eliminar con modal -->
                                 {% if perms.GC2.delete_documento %}
                                     {% if semillero.estado != 'desactivado' %}
                                         <a  class="fa fa-trash-alt eliminar-recurso"
@@ -108,7 +106,6 @@
                                     aria-hidden="true" 
                                     target="_blank">
                                 </a>
-                                <!-- Botón eliminar con modal -->
                                 {% if perms.GC2.delete_documento %}
                                     {% if semillero.estado != 'desactivado' %}
                                         <a class="fa fa-trash-alt eliminar-recurso"
@@ -133,7 +130,6 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIRMAR ELIMINACIÓN DE RECURSO -->
 <div id="modal-eliminar-recurso" class="modal-overlay">
     <div class="modal-contenedor">
         <h3>¿Confirmar eliminación?</h3>
@@ -149,21 +145,17 @@
 </div>
 
 
-<!-- Modal Crear Recurso -->
 <div id="modal-crear" class="modal-overlay">
     <div class="modal-contenedor">
-        <!-- Botón cerrar -->
         <a href="{% url 'recursos' semillero.id_sem %}" 
            class="modal-cerrar" 
            onclick="cerrarModal('modal-semillero'); return false;">&times;</a>
 
-        <!-- Encabezado -->
         <div class="modal-header">
             <img src="{% static 'img/folder.png' %}" alt="Icono de semilleros">
             <h2 class="modal-titulo">Añadir Recurso</h2>
         </div>
 
-        <!-- Formulario -->
         <form method="POST" action="{% url 'agregar_recurso' semillero.id_sem %}" enctype="multipart/form-data">
             {% csrf_token %}
             

@@ -42,18 +42,16 @@ class NotificationManager:
         self._notificar_cambios_liderazgo()
         self._notificar_semillero_inactivo()
         
-        # 5. Usuarios y Roles
         self._notificar_nuevos_lideres_proyecto()
         self._notificar_asignaciones_proyecto()
         self._notificar_remociones_proyecto()
         
-        # 6. Documentos
+       
         self._notificar_documentos_nuevos()
         self._notificar_archivos_entregables()
         
         return self.notificaciones
     
-    # ==================== EVENTOS ====================
     def _notificar_eventos_proximos(self):
         """Eventos en las próximas 24 horas"""
         eventos = Evento.objects.filter(
@@ -96,7 +94,6 @@ class NotificationManager:
             )
     
     def _notificar_eventos_hoy(self):
-        """Eventos que ocurren hoy"""
         eventos = Evento.objects.filter(
             fecha_eve=self.ahora.date(),
             estado_eve__in=['Próximo', 'Programado']
@@ -116,7 +113,6 @@ class NotificationManager:
             )
     
     def _notificar_eventos_nuevos(self):
-        """Eventos creados en las últimas 48 horas"""
         if not hasattr(Evento, 'fecha_creacion'):
             return
             
@@ -138,7 +134,6 @@ class NotificationManager:
                 fecha=evento.fecha_eve
             )
     
-    # ==================== PROYECTOS ===================
     def _notificar_proyectos_bajo_progreso(self):
         """Proyectos con progreso menor al 30%"""
         proyectos_usuario = UsuarioProyecto.objects.filter(
@@ -155,7 +150,6 @@ class NotificationManager:
             sempro = proyecto.semilleroproyecto_set.first()
             url = self._get_proyecto_url(proyecto, sempro)
             
-            # Usar fecha_creacion si existe, sino fecha actual
             fecha_notif = getattr(proyecto, 'fecha_creacion', self.ahora.date())
 
             self._agregar_notificacion(
@@ -281,7 +275,6 @@ class NotificationManager:
                 fecha=entregable.fecha_fin
             )
     
-    # ==================== ENTREGABLES ====================
     def _notificar_entregables_pendientes(self):
         """Entregables pendientes próximos a vencer (7 días)"""
         proyectos_usuario = UsuarioProyecto.objects.filter(
@@ -376,7 +369,6 @@ class NotificationManager:
             cedula=self.usuario
         ).values_list('cod_pro', flat=True)
 
-        # Asumiendo que los entregables recientes tienen cod_entre alto
         entregables = Entregable.objects.filter(
             cod_pro__in=proyectos_usuario,
             estado='Pendiente'
@@ -386,7 +378,6 @@ class NotificationManager:
             sempro = entregable.cod_pro.semilleroproyecto_set.first()
             url = self._get_entregable_url(entregable, sempro)
             
-            # Usar fecha de inicio o fecha actual
             fecha_notif = getattr(entregable, 'fecha_inicio', self.ahora.date())
 
             self._agregar_notificacion(
@@ -402,7 +393,6 @@ class NotificationManager:
             )
     
     def _notificar_entregables_completados(self):
-        """Entregables completados recientemente"""
         proyectos_usuario = UsuarioProyecto.objects.filter(
             cedula=self.usuario
         ).values_list('cod_pro', flat=True)
@@ -416,7 +406,6 @@ class NotificationManager:
             sempro = entregable.cod_pro.semilleroproyecto_set.first()
             url = self._get_entregable_url(entregable, sempro)
             
-            # Usar fecha de finalización o fecha actual
             fecha_notif = getattr(entregable, 'fecha_fin', self.ahora.date())
 
             self._agregar_notificacion(
@@ -431,7 +420,6 @@ class NotificationManager:
                 fecha=fecha_notif
             )
     
-    # ==================== SEMILLEROS ====================
     def _notificar_nuevos_miembros(self):
         """Nuevos miembros en semilleros donde el usuario es líder"""
         mis_semilleros = SemilleroUsuario.objects.filter(
@@ -449,7 +437,6 @@ class NotificationManager:
 
             url = reverse('resu-miembros', kwargs={'id_sem': miembro.id_sem.id_sem})
             
-            # Usar fecha de creación de la relación o fecha actual
             fecha_notif = getattr(miembro, 'fecha_union', self.ahora.date())
 
             self._agregar_notificacion(
@@ -494,8 +481,6 @@ class NotificationManager:
             )
     
     def _notificar_cambios_liderazgo(self):
-        """Cambios en liderazgo de semilleros"""
-        # Semilleros donde ahora eres líder
         nuevos_liderazgos = SemilleroUsuario.objects.filter(
             cedula=self.usuario,
             es_lider=True
@@ -519,13 +504,11 @@ class NotificationManager:
             )
     
     def _notificar_semillero_inactivo(self):
-        """Semilleros sin actividad reciente"""
         mis_semilleros = SemilleroUsuario.objects.filter(
             cedula=self.usuario,
             es_lider=True
         ).values_list('id_sem', flat=True)
 
-        # Semilleros sin proyectos activos
         semilleros_inactivos = Semillero.objects.filter(
             id_sem__in=mis_semilleros
         ).annotate(
@@ -552,9 +535,7 @@ class NotificationManager:
                 fecha=fecha_notif
             )
     
-    # ==================== USUARIOS Y ROLES ====================
     def _notificar_nuevos_lideres_proyecto(self):
-        """Notificar cuando se convierte en líder de proyecto"""
         liderazgos = UsuarioProyecto.objects.filter(
             cedula=self.usuario,
             es_lider_pro=True
@@ -579,7 +560,6 @@ class NotificationManager:
             )
     
     def _notificar_asignaciones_proyecto(self):
-        """Notificar asignaciones recientes a proyectos"""
         asignaciones = UsuarioProyecto.objects.filter(
             cedula=self.usuario,
             estado='activo'
@@ -604,7 +584,6 @@ class NotificationManager:
             )
     
     def _notificar_remociones_proyecto(self):
-        """Notificar cuando se remueve de un proyecto"""
         remociones = UsuarioProyecto.objects.filter(
             cedula=self.usuario,
             estado='inactivo'
@@ -625,7 +604,6 @@ class NotificationManager:
                 fecha=fecha_notif
             )
     
-    # ==================== DOCUMENTOS ====================
     def _notificar_documentos_nuevos(self):
         """Documentos nuevos en semilleros del usuario"""
         try:
@@ -657,11 +635,9 @@ class NotificationManager:
                     fecha=fecha_notif
                 )
         except ImportError:
-            # Si el modelo no existe, simplemente ignorar
             pass
 
     def _notificar_archivos_entregables(self):
-        """Archivos nuevos en entregables de proyectos del usuario"""
         try:
             mis_proyectos = UsuarioProyecto.objects.filter(
                 cedula=self.usuario
@@ -696,20 +672,16 @@ class NotificationManager:
         except Exception as e:
             print(f"Error en _notificar_archivos_entregables: {e}")
 
-    # ==================== MÉTODOS AUXILIARES ====================
     def _agregar_notificacion(self, tipo, icono, clase_icono, titulo, mensaje, tiempo, url, prioridad=5, fecha=None):
-        """Agrega una notificación a la lista con campo fecha obligatorio"""
-        # Si no hay fecha, usar fecha actual
+
         if fecha is None:
             fecha = self.ahora.date()
         
-        # Convertir fecha a ISO string para el frontend
         if isinstance(fecha, datetime):
             fecha_iso = fecha.date().isoformat()
         elif hasattr(fecha, 'isoformat'):
             fecha_iso = fecha.isoformat()
         else:
-            # Si es string u otro tipo, intentar convertir
             try:
                 fecha_iso = str(fecha)
             except:
@@ -725,11 +697,10 @@ class NotificationManager:
             'url': url,
             'leida': False,
             'prioridad': prioridad,
-            'fecha': fecha_iso  # Campo obligatorio para el agrupamiento
+            'fecha': fecha_iso 
         })
     
     def _get_proyecto_url(self, proyecto, sempro):
-        """Genera URL del proyecto"""
         if sempro:
             try:
                 return reverse('detalle-proyecto', kwargs={
@@ -741,7 +712,6 @@ class NotificationManager:
         return reverse('proyectos')
     
     def _get_entregable_url(self, entregable, sempro):
-        """Genera URL del entregable"""
         if sempro:
             try:
                 return reverse('detalle-proyecto', kwargs={
@@ -753,17 +723,14 @@ class NotificationManager:
         return reverse('proyectos')
     
     def ordenar_por_prioridad(self):
-        """Ordena las notificaciones por prioridad y fecha"""
         self.notificaciones.sort(key=lambda x: (x['prioridad'], x.get('fecha', '')), reverse=False)
         return self.notificaciones
     
     def limitar_notificaciones(self, limite=10):
-        """Limita el número de notificaciones"""
         self.notificaciones = self.notificaciones[:limite]
         return self.notificaciones
     
     def agrupar_por_tipo(self):
-        """Agrupa notificaciones por tipo"""
         agrupadas = {}
         for notif in self.notificaciones:
             tipo = notif['tipo']
@@ -773,7 +740,6 @@ class NotificationManager:
         return agrupadas
     
     def filtrar_por_prioridad(self, prioridad_minima=1):
-        """Filtra notificaciones por prioridad mínima"""
         self.notificaciones = [
             n for n in self.notificaciones 
             if n['prioridad'] <= prioridad_minima
@@ -781,14 +747,12 @@ class NotificationManager:
         return self.notificaciones
     
     def marcar_como_leidas(self, tipo=None):
-        """Marca notificaciones como leídas"""
         for notif in self.notificaciones:
             if tipo is None or notif['tipo'] == tipo:
                 notif['leida'] = True
         return self.notificaciones
     
     def obtener_resumen(self):
-        """Obtiene un resumen de notificaciones por categoría"""
         resumen = {
             'eventos': 0,
             'proyectos': 0,
@@ -824,16 +788,6 @@ class NotificationManager:
         return resumen
 
 def obtener_notificaciones_usuario(usuario, limite=20):
-    """
-    Función principal para obtener notificaciones de un usuario
-    
-    Args:
-        usuario: Instancia del modelo Usuario
-        limite: Número máximo de notificaciones a retornar
-    
-    Returns:
-        Lista de notificaciones ordenadas por prioridad
-    """
     manager = NotificationManager(usuario)
     notificaciones = manager.obtener_todas()
     manager.ordenar_por_prioridad()
@@ -846,18 +800,7 @@ def obtener_notificaciones_usuario(usuario, limite=20):
     }
 
 def obtener_notificaciones(request, limite=50):
-    """
-    Función de compatibilidad que obtiene notificaciones desde la sesión/request
-    
-    Args:
-        request: HttpRequest object
-        limite: Número máximo de notificaciones
-    
-    Returns:
-        Lista de notificaciones
-    """
     try:
-        # Verificar que hay sesión activa
         if not hasattr(request, 'session'):
             print("Error: request no tiene sesión")
             return []
@@ -867,34 +810,21 @@ def obtener_notificaciones(request, limite=50):
             print("Error: No hay cédula en sesión")
             return []
         
-        # Obtener usuario
         try:
             usuario = Usuario.objects.get(cedula=cedula)
         except Usuario.DoesNotExist:
             print(f"Error: Usuario con cédula {cedula} no existe")
             return []
         
-        # Obtener notificaciones
         resultado = obtener_notificaciones_usuario(usuario, limite)
         return resultado['notificaciones']
         
     except Exception as e:
-        print(f"Error crítico en obtener_notificaciones: {str(e)}")
         import traceback
         traceback.print_exc()
         return []
     
 def obtener_notificaciones_por_categoria(usuario, categoria):
-    """
-    Obtiene notificaciones filtradas por categoría
-    
-    Args:
-        usuario: Instancia del modelo Usuario
-        categoria: 'eventos', 'proyectos', 'entregables', 'semilleros', 'usuarios', 'documentos'
-    
-    Returns:
-        Lista de notificaciones de la categoría especificada
-    """
     manager = NotificationManager(usuario)
     notificaciones = manager.obtener_todas()
     
@@ -918,16 +848,6 @@ def obtener_notificaciones_por_categoria(usuario, categoria):
     return filtradas
 
 def obtener_notificaciones(request, limite=50):
-    """
-    Función de compatibilidad que obtiene notificaciones desde la sesión/request
-    
-    Args:
-        request: HttpRequest object
-        limite: Número máximo de notificaciones
-    
-    Returns:
-        Lista de notificaciones
-    """
     if not request.session.get('cedula'):
         return []
     
@@ -942,9 +862,6 @@ def obtener_notificaciones(request, limite=50):
         return []
 
 def obtener_notificaciones_con_resumen(request, limite=50):
-    """
-    Obtiene notificaciones con resumen completo
-    """
     resumen_vacio = {
         'eventos': 0,
         'proyectos': 0,

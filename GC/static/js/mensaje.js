@@ -49,7 +49,6 @@ function mostrarMensajeExito(mensaje, tipo) {
         max-width: 400px;
     `;
 
-    // Botón de cerrar
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
     closeBtn.style.cssText = `
@@ -83,13 +82,11 @@ function mostrarMensajeExito(mensaje, tipo) {
     mensajeDiv.appendChild(closeBtn);
     document.body.appendChild(mensajeDiv);
 
-    // Animación de entrada
     setTimeout(() => {
         mensajeDiv.style.opacity = "1";
         mensajeDiv.style.transform = "translateY(0)";
     }, 50);
 
-    // Auto-cierre después de 4 segundos
     setTimeout(() => {
         mensajeDiv.style.opacity = "0";
         mensajeDiv.style.transform = "translateY(-20px)";

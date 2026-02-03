@@ -7,7 +7,6 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
-<!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -22,7 +21,6 @@
             <p>Genera reportes detallados de los semilleros de investigación, incluyendo sus proyectos, entregables y miembros vinculados.</p>
         </div>
 
-        <!-- REPORTES RÁPIDOS -->
         <div class="reporte-rapido">
             <div class="title">
                 <img src="{% static 'img/rayo.png' %}" alt="Icono de rayo" />
@@ -67,13 +65,11 @@
         <form id="form-reportes" method="POST" action="{% url 'generar_reporte_dinamico' %}">
         {% csrf_token %}
 
-            <!-- GENERADOR DE REPORTES PERSONALIZADOS -->
             <div class="seccion-busqueda">
                 <div class="titulo2">
                     <h3>🎨 Constructor de Reportes Personalizados</h3>
                 </div>
                 
-                <!-- Selector de Categorías -->
                 <div class="contenedor-categorias">
                     <label class="categoria-selector">
                         <input type="checkbox" name="categoria" value="semilleros" class="check-categoria">
@@ -104,7 +100,6 @@
                     </label>
                 </div>
 
-                <!-- Campos Dinámicos -->
                 <div id="campos-dinamicos" class="campos-dinamicos">
                     <p class="info-texto">
                         <i class="fas fa-info-circle"></i> 
@@ -112,7 +107,6 @@
                     </p>
                 </div>
 
-                <!-- Opciones de Formato -->
                 <div class="formato-reporte">
                     <p>Formato de Exportación</p>
                     <div class="formato-opciones" id="formato">
@@ -129,7 +123,6 @@
                     </div>
                 </div>
 
-                <!-- Guardar Plantilla -->
                 <div class="guardar-plantilla">
                     <input type="text" name="nombre_plantilla" placeholder="Nombre de la plantilla (opcional)" class="input-plantilla" id="nombre-plantilla">
                 </div>
@@ -149,11 +142,8 @@
             </div>
         </form>
 
-
-        <!-- REPORTES POR CATEGORÍA -->
         <div class="resumen">
 
-            <!-- ANALÍTICA Y TENDENCIAS -->
             <div class="grupo">
                 <div class="card analitica">
                     <div class="icon-cont">
@@ -190,7 +180,6 @@
                 </div>
             </div>
 
-            <!-- REPORTES TEMPORALES -->
             <div class="grupo">
                 <div class="card temporales">
                     <div class="icon-cont">
@@ -248,7 +237,6 @@
                 </div>
             </div>
 
-            <!-- FORMACIÓN ACADÉMICA -->
             <div class="grupo">
                 <div class="card academico">
                     <div class="icon-cont">

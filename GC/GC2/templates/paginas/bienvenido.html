@@ -7,41 +7,34 @@
     <meta name="description" content="Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas del SENA. Plataforma colaborativa para gestión de proyectos de investigación, recursos educativos y herramientas innovadoras.">
     <meta name="keywords" content="SENA, tecnología, investigación, innovación, educación, repositorio">
     <meta name="author" content="SENA - Gestión del Conocimiento">
-    
-    <!-- Open Graph / Social Media -->
+
     <meta property="og:type" content="website">
     <meta property="og:title" content="Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas">
     <meta property="og:description" content="Explora nuestro catálogo de herramientas innovadoras diseñadas para transformar procesos y potenciar resultados.">
     <meta property="og:image" content="{% static 'img/og-image.jpg' %}">
     <meta property="og:url" content="https://innhub.sena.edu.co">
-    
-    <!-- Twitter Card -->
+  
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas">
     <meta name="twitter:description" content="Explora nuestro catálogo de herramientas innovadoras del SENA.">
     
     <title>{% block titulo %}Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas | SENA{% endblock %}</title>
 
-    <!-- Preload critical resources -->
     <link rel="preload" href="{% static 'css/bienvenido.css' %}" as="style">
     <link rel="preload" href="{% static 'img/logo1.png' %}" as="image">
-    
-    <!-- Bootstrap CSS -->
+
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <!-- CSS personalizado -->
+
     <link rel="stylesheet" href="{% static 'css/bienvenido.css' %}">
     
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
     {% block css %}{% endblock %}
 </head>
 <body>
 
-    <!-- Skip to main content for accessibility -->
     <a href="#main-content" class="skip-to-main">Saltar al contenido principal</a>
 
-    <!-- ===== HEADER ===== -->
     <header class="header-container" role="banner">
         <div class="header-content">
             <img src="{% static 'img/logo1.png' %}" 
@@ -57,7 +50,6 @@
                     width="75"
                     height="75">
 
-                <!-- Imagen debajo -->
                 <img src="{% static 'img/logo3.png' %}" 
                     alt="Imagen secundaria InnHub"
                     class="header-gc-sublogo">
@@ -67,7 +59,7 @@
             <a href="#main-content" class="nav-link">Inicio</a>
             <a href="#soluciones" class="nav-link">Soluciones Tecnológicas</a>
         </nav>
-        <!-- Mobile menu button -->
+
         <button class="mobile-menu-toggle" aria-label="Abrir menú de navegación" aria-expanded="false">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
@@ -75,14 +67,13 @@
         </button>
     </header>
 
-    <!-- Mobile Navigation Menu -->
+
     <nav class="mobile-menu" role="navigation" aria-label="Menú móvil">
         <a href="#main-content" class="mobile-nav-link">Inicio</a>
         <a href="#soluciones" class="mobile-nav-link">Soluciones Tecnológicas</a>
         <a href="{% url 'iniciarsesion' %}" class="mobile-nav-link">Iniciar Sesión</a>
     </nav>
 
-    <!-- ===== PARTÍCULAS DE FONDO ===== -->
     <div class="bg-particles" aria-hidden="true">
         <div class="particle"></div>
         <div class="particle"></div>
@@ -94,11 +85,9 @@
         <div class="particle"></div>
     </div>
 
-    <!-- ===== MAIN ===== -->
     <main id="main-content" role="main">
-        <!-- ===== SECCIÓN HERO / BIENVENIDA ===== -->
         <section class="container hero-section">
-            <!-- Texto principal -->
+
             <div class="main-text">
                 <h1>Repositorio de Soluciones Tecnológicas</h1>
                 <p class="subtitle">
@@ -108,8 +97,7 @@
                 <div class="cta-container">
                     <a href="#soluciones" class="cta-button cta-secondary">Explorar Soluciones</a>
                 </div>
-                
-                <!-- Trust signals -->
+
                 <div class="trust-signals">
                     <div class="trust-item">
                         <span class="trust-number" data-count="150">0</span>
@@ -126,24 +114,21 @@
                 </div>
             </div>
 
-            <!-- Hub de conocimiento animado -->
             <div class="knowledge-hub">
                 <div class="hub-container">
-                    <!-- Icono central -->
+
                     <div class="central-icon">⚛</div>
                     
-                    <!-- Órbitas -->
+
                     <div class="orbit orbit-1"></div>
                     <div class="orbit orbit-2"></div>
                     <div class="orbit orbit-3"></div>
-                    
-                    <!-- Líneas de conexión -->
+
                     <div class="connection-line line-1"></div>
                     <div class="connection-line line-2"></div>
                     <div class="connection-line line-3"></div>
                     <div class="connection-line line-4"></div>
-                    
-                    <!-- Nodos de conocimiento -->
+
                     <div class="knowledge-node node-1" title="Investigación Científica">🔬</div>
                     <div class="knowledge-node node-2" title="Análisis de Datos">📊</div>
                     <div class="knowledge-node node-3" title="Inteligencia Artificial">🧠</div>
@@ -156,7 +141,6 @@
             </div>
         </section>
 
-        <!-- ===== SECCIÓN SOLUCIONES TECNOLÓGICAS ===== -->
         <section class="secondary-container" id="soluciones">
             <h2 class="section-title">Soluciones Tecnológicas</h2>
             <p class="section-subtitle">
@@ -164,7 +148,6 @@
                 para transformar procesos y potenciar resultados.
             </p>
 
-            <!-- Search and Filter -->
             <div class="search-filter-container">
                 <div class="search-box">
                     <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -185,7 +168,6 @@
             </div>
 
             <div class="card-container">
-                <!-- Tarjeta 1: InnHub -->
                 <article class="info-card" data-category="investigacion" data-url="https://innhub.ejemplo.com">
                     <span class="card-badge badge-new">Nuevo</span>
                     <div class="card-icon">
@@ -210,7 +192,6 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 2: Gestión Académica -->
                 <article class="info-card" data-category="academico" data-url="https://academico.ejemplo.com">
                     <div class="card-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
@@ -232,7 +213,6 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 3: Portal Sennova -->
                 <article class="info-card" data-category="innovacion" data-url="https://sennova.ejemplo.com">
                     <span class="card-badge badge-popular">Popular</span>
                     <div class="card-icon">
@@ -255,7 +235,6 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 4: Analytics Hub -->
                 <article class="info-card" data-category="investigacion" data-url="https://analytics.ejemplo.com">
                     <div class="card-icon">
                         <img src="{% static 'img/labsys.png' %}" alt="Icono solución" class="card-icon-img">
@@ -273,7 +252,6 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 5: Biblioteca Digital -->
                 <article class="info-card" data-category="academico" data-url="https://biblioteca.ejemplo.com">
                     <div class="card-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
@@ -295,7 +273,6 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 6: Comunica+ -->
                 <article class="info-card" data-category="academico" data-url="https://comunica.ejemplo.com">
                     <div class="card-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
@@ -318,7 +295,6 @@
                 </article>
             </div>
 
-            <!-- No results message -->
             <div class="no-results" style="display: none;">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
@@ -329,14 +305,12 @@
         </section>
     </main>
 
-    <!-- Scroll to top button -->
     <button class="scroll-to-top" aria-label="Volver arriba" title="Volver arriba">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
     </button>
 
-    <!-- ===== FOOTER ===== -->
     <footer role="contentinfo">
         <div class="footer-content">
             <div class="footer-section">
@@ -362,19 +336,12 @@
         </div>
     </footer>
 
-    <!-- JS de Bootstrap y dependencias -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script>
-        // ============================================================
-        // BIENVENIDO MEJORADO - JavaScript
-        // ============================================================
 
         (function() {
             'use strict';
 
-            // ============================================================
-            // MOBILE MENU TOGGLE
-            // ============================================================
             const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
             const mobileMenu = document.querySelector('.mobile-menu');
             const hamburgerLines = document.querySelectorAll('.hamburger-line');
@@ -383,13 +350,10 @@
                 mobileMenuToggle.addEventListener('click', function() {
                     const isExpanded = this.getAttribute('aria-expanded') === 'true';
                     
-                    // Toggle aria-expanded
                     this.setAttribute('aria-expanded', !isExpanded);
                     
-                    // Toggle mobile menu
                     mobileMenu.classList.toggle('active');
                     
-                    // Animate hamburger to X
                     if (!isExpanded) {
                         hamburgerLines[0].style.transform = 'rotate(45deg) translateY(8px)';
                         hamburgerLines[1].style.opacity = '0';
@@ -401,7 +365,6 @@
                     }
                 });
 
-                // Close mobile menu when clicking on a link
                 const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
                 mobileNavLinks.forEach(link => {
                     link.addEventListener('click', function() {
@@ -413,17 +376,12 @@
                     });
                 });
             }
-
-            // ============================================================
-            // SMOOTH SCROLL FOR ANCHOR LINKS
-            // ============================================================
             const anchorLinks = document.querySelectorAll('a[href^="#"]');
             
             anchorLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
                     
-                    // Skip if it's just "#"
                     if (href === '#') return;
                     
                     e.preventDefault();
@@ -440,10 +398,6 @@
                     }
                 });
             });
-
-            // ============================================================
-            // SCROLL TO TOP BUTTON
-            // ============================================================
             const scrollToTopBtn = document.querySelector('.scroll-to-top');
             
             if (scrollToTopBtn) {
@@ -465,9 +419,6 @@
                 });
             }
 
-            // ============================================================
-            // SEARCH FUNCTIONALITY
-            // ============================================================
             const searchInput = document.getElementById('search-solutions');
             const cards = document.querySelectorAll('.info-card');
             const noResults = document.querySelector('.no-results');
@@ -489,24 +440,18 @@
                         }
                     });
 
-                    // Show/hide no results message
                     if (noResults) {
                         noResults.style.display = visibleCount === 0 ? 'block' : 'none';
                     }
                 });
             }
 
-            // ============================================================
-            // FILTER FUNCTIONALITY
-            // ============================================================
             const filterButtons = document.querySelectorAll('.filter-btn');
             
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    // Remove active class from all buttons
                     filterButtons.forEach(btn => btn.classList.remove('active'));
                     
-                    // Add active class to clicked button
                     this.classList.add('active');
                     
                     const filter = this.getAttribute('data-filter');
@@ -523,23 +468,17 @@
                         }
                     });
 
-                    // Show/hide no results message
                     if (noResults) {
                         noResults.style.display = visibleCount === 0 ? 'block' : 'none';
                     }
 
-                    // Clear search input when filtering
                     if (searchInput) {
                         searchInput.value = '';
                     }
                 });
             });
 
-            // ============================================================
-            // CARD CLICK NAVIGATION
-            // ============================================================
             cards.forEach(card => {
-                // Make entire card clickable
                 card.addEventListener('click', function() {
                     const url = this.getAttribute('data-url');
                     if (url) {
@@ -547,7 +486,6 @@
                     }
                 });
 
-                // Make card keyboard accessible
                 card.setAttribute('tabindex', '0');
                 card.setAttribute('role', 'link');
                 
@@ -562,16 +500,13 @@
                 });
             });
 
-            // ============================================================
-            // ANIMATED COUNTER FOR TRUST SIGNALS
-            // ============================================================
             const trustNumbers = document.querySelectorAll('.trust-number');
             let hasAnimated = false;
 
             function animateCounter(element) {
                 const target = parseInt(element.getAttribute('data-count'));
-                const duration = 2000; // 2 seconds
-                const increment = target / (duration / 16); // 60fps
+                const duration = 2000;
+                const increment = target / (duration / 16);
                 let current = 0;
 
                 const timer = setInterval(() => {
@@ -585,7 +520,6 @@
                 }, 16);
             }
 
-            // Intersection Observer for counter animation
             const observerOptions = {
                 threshold: 0.5,
                 rootMargin: '0px'
@@ -602,15 +536,11 @@
                 });
             }, observerOptions);
 
-            // Observe trust signals section
             const trustSignals = document.querySelector('.trust-signals');
             if (trustSignals) {
                 observer.observe(trustSignals);
             }
 
-            // ============================================================
-            // INTERSECTION OBSERVER FOR CARD ANIMATIONS
-            // ============================================================
             const cardObserver = new IntersectionObserver((entries) => {
                 entries.forEach((entry, index) => {
                     if (entry.isIntersecting) {
@@ -626,7 +556,6 @@
                 rootMargin: '0px 0px -50px 0px'
             });
 
-            // Initially hide cards and observe them
             cards.forEach(card => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(30px)';
@@ -634,9 +563,6 @@
                 cardObserver.observe(card);
             });
 
-            // ============================================================
-            // ACTIVE NAVIGATION LINK HIGHLIGHT
-            // ============================================================
             const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
             const sections = document.querySelectorAll('section[id]');
 
@@ -661,14 +587,10 @@
 
             window.addEventListener('scroll', highlightNavigation);
 
-            // ============================================================
-            // KNOWLEDGE NODE TOOLTIPS
-            // ============================================================
             const knowledgeNodes = document.querySelectorAll('.knowledge-node');
             
             knowledgeNodes.forEach(node => {
                 node.addEventListener('mouseenter', function() {
-                    // Could add custom tooltip functionality here
                     this.style.zIndex = '20';
                 });
 
@@ -677,9 +599,6 @@
                 });
             });
 
-            // ============================================================
-            // PERFORMANCE OPTIMIZATION: LAZY LOAD IMAGES
-            // ============================================================
             if ('IntersectionObserver' in window) {
                 const imageObserver = new IntersectionObserver((entries, observer) => {
                     entries.forEach(entry => {
@@ -696,11 +615,6 @@
                 lazyImages.forEach(img => imageObserver.observe(img));
             }
 
-            // ============================================================
-            // ACCESSIBILITY: KEYBOARD NAVIGATION IMPROVEMENTS
-            // ============================================================
-            
-            // Trap focus in mobile menu when open
             if (mobileMenu) {
                 const focusableElements = mobileMenu.querySelectorAll('a, button');
                 const firstFocusable = focusableElements[0];
@@ -729,11 +643,6 @@
                 });
             }
 
-            // ============================================================
-            // PREVENT LAYOUT SHIFT
-            // ============================================================
-            
-            // Add explicit dimensions to images after load
             window.addEventListener('load', function() {
                 const images = document.querySelectorAll('img:not([width]):not([height])');
                 images.forEach(img => {
@@ -744,9 +653,6 @@
                 });
             });
 
-            // ============================================================
-            // ANNOUNCEMENT FOR SCREEN READERS
-            // ============================================================
             function announceToScreenReader(message) {
                 const announcement = document.createElement('div');
                 announcement.setAttribute('role', 'status');
@@ -760,7 +666,6 @@
                 }, 1000);
             }
 
-            // Add screen reader class to CSS if not exists
             if (!document.querySelector('style[data-sr-only]')) {
                 const style = document.createElement('style');
                 style.setAttribute('data-sr-only', '');
@@ -784,7 +689,6 @@
                 document.head.appendChild(style);
             }
 
-            // Announce filter changes
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const filter = this.textContent;
@@ -792,9 +696,6 @@
                 });
             });
 
-            // ============================================================
-            // CONSOLE WELCOME MESSAGE
-            // ============================================================
             console.log('%c¡Bienvenido a InnHub!', 'color: #3db103; font-size: 24px; font-weight: bold;');
             console.log('%cRepositorio de Soluciones Tecnológicas del SENA', 'color: #50e5f9; font-size: 14px;');
             console.log('%c💡 ¿Interesado en contribuir? Contáctanos.', 'color: #666; font-size: 12px;');

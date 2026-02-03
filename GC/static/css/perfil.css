@@ -37,7 +37,6 @@
     --padding-seccion: clamp(16px, 2.5vw, 24px);
 }
 
-/* LAYOUT PRINCIPAL  */
 .perfil {
     display: flex;
     flex-direction: column;
@@ -47,7 +46,6 @@
     padding: clamp(8px, 1.5vw, 16px);
 }
 
-/* ===== SECCIÓN SUPERIOR ===== */
 .top-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
@@ -56,7 +54,6 @@
     flex-shrink: 0;
 }
 
-/* Contenedor de foto y card */
 .cont-1 {
     background-color: var(--color-primario);
     border-radius: var(--radius-lg);
@@ -75,14 +72,12 @@
     border-color: var(--azul-secundario);
 }
 
-/* En pantallas grandes, vuelve a horizontal */
 @container (min-width: 500px) {
     .cont-1 {
         flex-direction: row;
     }
 }
 
-/* Foto de perfil  */
 .foto-container {
     flex-shrink: 0;
 }
@@ -115,7 +110,6 @@
     border-radius: 50%;
 }
 
-/* Botón editar */
 .icon-edit {
     position: absolute;
     bottom: 5px;
@@ -143,7 +137,6 @@
     filter: brightness(0) invert(1);
 }
 
-/* Info del perfil */
 .perfil-info {
     flex: 1;
     display: flex;
@@ -200,7 +193,6 @@
     50% { opacity: 0.5; }
 }
 
-/* Stats */
 .perfil-stats {
     display: flex;
     flex-wrap: wrap;
@@ -264,7 +256,6 @@
     color: var(--color-text-secondary);
 }
 
-/* Card de última sesión - VERDE ESTRATÉGICO (información importante) */
 .card {
     background: linear-gradient(135deg, var(--verde-claro), var(--verde-primario));
     border-radius: var(--radius-lg);
@@ -364,7 +355,6 @@
     height: auto;     
 }
 
-/* Secciones de información */
 .seccion {
     background-color: var(--color-primario);
     border-radius: var(--radius-lg);
@@ -386,7 +376,6 @@
     overflow-y: auto;
 }
 
-/* Scrollbar personalizado - NEUTRO con acento azul */
 .seccion.scrollable::-webkit-scrollbar {
     width: clamp(4px, 0.8vw, 6px);
 }
@@ -423,7 +412,6 @@
     background-color: var(--gris-claro);
 }
 
-/* Hover en todos los íconos */
 .seccion:hover .titulo img {
     transform: rotate(5deg) scale(1.05);
 }
@@ -435,7 +423,6 @@
     color: var(--color-text-primary);
 }
 
-/* Líneas divisorias*/
 .seccion hr {
     background-color: var(--gris-medio);
     border: none;
@@ -444,7 +431,6 @@
     opacity: 0.5;
 }
 
-/* Formularios  */
 .info-group {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
@@ -512,20 +498,17 @@ select:hover {
     border-color: var(--azul-secundario);
 }
 
-/* Placeholders */
 input::placeholder {
     color: var(--gris-oscuro);
     opacity: 0.5;
 }
 
-/* Badges de proyectos y semilleros */
 .info-group2 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
     gap: clamp(8px, 1.5vw, 12px);
 }
 
-/* Enlaces a semilleros */
 .input-fake {
     border: none;
     border-radius: var(--radius-md);
@@ -543,7 +526,6 @@ input::placeholder {
     box-shadow: var(--shadow-sm);
 }
 
-/* Enlaces a proyectos */
 .textarea-fake {
     border: none;
     border-radius: var(--radius-md);
@@ -561,7 +543,6 @@ input::placeholder {
     box-shadow: var(--shadow-sm);
 }
 
-/*Alterno entre azul, turquesa y verde */
 .input-fake:nth-child(6n+1),
 .input-fake:nth-child(6n+2),
 .textarea-fake:nth-child(6n+1),
@@ -590,7 +571,6 @@ input::placeholder {
     color: white;
 }
 
-/* Mensajes de estado cuando no hay proyectos/semilleros */
 .info-group2 p {
     grid-column: 1 / -1;
     text-align: center;
@@ -599,7 +579,6 @@ input::placeholder {
     padding: clamp(16px, 2vw, 20px);
 }
 
-/* Botón guardar */
 .guardar-container {
     margin-top: auto;
     text-align: center;
@@ -635,7 +614,6 @@ input::placeholder {
     box-shadow: var(--shadow-sm);
 }
 
-/* ESTADOS ADICIONALES para elementos interactivos */
 .btn-secundario {
     background: linear-gradient(135deg, var(--azul-secundario), var(--azul-hover));
     border: none;
@@ -673,7 +651,6 @@ input::placeholder {
     background-color: var(--azul-suave);
 }
 
-/* Estilos para inputs con error  */
 input.error,
 select.error {
     border-color: #EF4444;
@@ -686,7 +663,6 @@ select.error:focus {
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-/* Estilos para inputs con éxito */
 input.success,
 select.success {
     border-color: var(--verde-primario);
@@ -699,7 +675,6 @@ select.success:focus {
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
 }
 
-/* Permitir que los estilos de base.css se apliquen al modal de backup */
 #backupModal,
 #backupModal .modal-dialog,
 #backupModal .modal-content,
@@ -709,7 +684,6 @@ select.success:focus {
     margin-top: 0 !important;
 }
 
-/* Animación específica para el pulse-ring del botón flotante */
 @keyframes backupPulse {
     0% {
         transform: scale(1);
@@ -721,7 +695,6 @@ select.success:focus {
     }
 }
 
-/* Aplicar la animación correcta al pulse-ring del botón de backup */
 .option-card .pulse-ring {
     animation: backupPulse 2s ease-in-out infinite !important;
 }

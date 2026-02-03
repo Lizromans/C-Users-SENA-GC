@@ -38,7 +38,6 @@
     --padding-card: clamp(20px, 3vw, 40px);
 }
 
-/* ===== CONTENEDOR PRINCIPAL ===== */
 .contenedor-principal {
     display: flex;
     flex-direction: column;
@@ -48,7 +47,6 @@
     container-type: inline-size;
 }
 
-/* ===== HERO CON GRADIENTE ===== */
 .contenedor-info {
     display: flex;
     justify-content: center;
@@ -71,7 +69,6 @@
     transform: translateY(-2px);
 }
 
-/* Círculos decorativos mejorados */
 .contenedor-info::before {
     content: '';
     position: absolute;
@@ -103,7 +100,6 @@
     50% { transform: translate(20px, 20px); }
 }
 
-/* Sección bienvenida */
 .bienvenida {
     background: none;
     width: 100%;
@@ -118,7 +114,6 @@
     z-index: 2;
 }
 
-/* Información dentro de bienvenida */
 .info {
     padding: 0;
     z-index: 2;
@@ -143,7 +138,6 @@
     line-height: 1.5;
 }
 
-/* ===== STATS GRID - TARJETAS MEJORADAS ===== */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
@@ -166,7 +160,6 @@
     overflow: hidden;
 }
 
-/* Shine glass */
 .stat-card::before {
     content: "";
     position: absolute;
@@ -183,7 +176,6 @@
     pointer-events: none;
 }
 
-/* Líneas laterales + top */
 .stat-card::after {
     content: "";
     position: absolute;
@@ -211,7 +203,6 @@
     opacity: 1;
 }
 
-/* Colores específicos para cada tarjeta */
 .stat-card.primary {
     --card-color-start: #9747ffe5;
     --card-color-end: #751de9e5;
@@ -303,7 +294,6 @@
     margin-bottom: clamp(1rem, 2vh, 1.2rem);
 }
 
-/* Mini Gráfico de Barras */
 .stat-chart {
     display: flex;
     align-items: flex-end;
@@ -372,7 +362,6 @@
     transition-delay: 0.35s;
 }
 
-/* ===== SECCIÓN DE ACTIVIDAD RECIENTE ===== */
 .contenedor-tres {
     width: 100%;
     background-color: var(--color-primario);
@@ -408,20 +397,16 @@
     border-radius: 2px;
 }
 
-/* ===== LAYOUT DE DOS COLUMNAS RESPONSIVO ===== */
 .contenedor-actividad-layout {
     display: grid;
-    /* Usa minmax con valores dinámicos - el sidebar se colapsa automáticamente */
     grid-template-columns: minmax(0, 1fr) minmax(min(100%, 380px), auto);
     gap: clamp(1rem, 3vw, 2rem);
     align-items: start;
 }
 
-/* En pantallas pequeñas (menos de ~1000px), el grid se convierte en una sola columna */
 @supports (width: 1cqw) {
     .contenedor-actividad-layout {
         grid-template-columns: 100%;
-        /* Cuando el contenedor es menor a 1000px, apila en una columna */
         grid-template-rows: auto auto;
     }
     
@@ -433,7 +418,6 @@
     }
 }
 
-/* Fallback para navegadores sin container queries */
 @supports not (width: 1cqw) {
     .contenedor-actividad-layout {
         display: flex;
@@ -452,7 +436,6 @@
     }
 }
 
-/* ===== TIMELINE MEJORADA ===== */
 .timeline {
     position: relative;
     padding: clamp(1rem, 2vh, 2rem) 0;
@@ -606,7 +589,6 @@
     font-weight: 600;
 }
 
-/* ===== BADGES MEJORADOS ===== */
 .badge {
     display: inline-block;
     font-size: clamp(0.7rem, 1.1vw, 0.8rem);
@@ -693,7 +675,6 @@
     margin-top: clamp(6px, 1vh, 10px);
 }
 
-/* ===== SIDEBAR (aside) ===== */
 aside {
     display: flex;
     flex-direction: column;
@@ -702,7 +683,6 @@ aside {
     min-width: 0;
 }
 
-/* ===== WIDGET DE ACCIONES RÁPIDAS ===== */
 .quick-actions-widget {
     background: white;
     border-radius: var(--radius-lg);
@@ -780,7 +760,6 @@ aside {
     color: var(--color-text-secondary);
 }
 
-/* ===== WIDGET DE PROGRESO ===== */
 .progress-widget {
     background: white;
     border-radius: var(--radius-lg);
@@ -864,7 +843,6 @@ aside {
 .progress-item:nth-child(3) { --bar-color: var(--azul-secundario); --bar-color-light: #039BE5; }
 .progress-item:nth-child(4) { --bar-color: var(--verde-primario); --bar-color-light: #43A047; }
 
-/* ===== MENSAJE SIN ACTIVIDADES ===== */
 .timeline-description .fas.fa-info-circle {
     margin-right: clamp(6px, 1vw, 10px);
     color: var(--azul-secundario);

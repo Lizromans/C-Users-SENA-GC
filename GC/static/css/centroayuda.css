@@ -10,10 +10,8 @@
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
-    /* Nuevas variables para colores de fondo */
     --color-fondo-principal: #f5f5f5;
     --color-fondo-secundario: #e9ecef;
-    /* Variables para gradiente */
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgb(112, 39, 122) 60%);
 }
 
@@ -21,7 +19,7 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    gap: clamp(25px, 4vw, 40px); /* Espacio entre columnas */
+    gap: clamp(25px, 4vw, 40px);
 }
 
 .contenedor-principal img{
@@ -44,7 +42,6 @@
     margin-bottom: 0;
 }
 
-/* ====== BUSQUEDA ====== */
 .busqueda {
     padding: clamp(1rem, 1.5vw, 1.5rem);
     background-color: var(--color-fondo-secundario);
@@ -60,13 +57,11 @@
 .filtros {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(0.75rem, 1.5vw, 1.5rem); /* Separación entre elementos */
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
     align-items: center;
     position: relative;
 }
 
-
-/* Input búsqueda */
 .input-group {
     position: relative;
     flex: 1;
@@ -134,7 +129,6 @@
     border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* ====== CONTENEDOR PRINCIPAL ====== */
 .recursos {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, clamp(300px, 60vw, 450px)), 1fr));
@@ -147,7 +141,6 @@
     box-sizing: border-box;
 }
 
-/* ====== GRUPO (CARD CONTAINER) ====== */
 .grupo {
     background-color: white;
     border-radius: clamp(8px, 1.5vw, 12px);
@@ -165,8 +158,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-
-/* ====== GRUPO (CARD CONTAINER) ====== */
 .grupo {
     background-color: white;
     border-radius: clamp(8px, 1.5vw, 12px);
@@ -184,7 +175,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* ====== CARD ====== */
 .card {
     display: flex;
     flex-direction: row;
@@ -219,7 +209,6 @@
     line-height: 1.5;
 }
 
-/* ====== ICON CONTAINER ====== */
 .icon-cont {
     flex: 0 0 clamp(60px, 12vw, 90px);
     width: clamp(60px, 12vw, 90px);
@@ -240,7 +229,6 @@
     object-fit: contain;
 }
 
-/* ====== BACKGROUNDS PARA ICON-CONT ====== */
 .icon-cont.documentos {
     background: linear-gradient(135deg, #c281ff 0%, #ae00ff 40%, #8000d5 100%);
 }
@@ -257,7 +245,6 @@
     background: linear-gradient(135deg, #ffd382 0%, #f3a127 40%, #d26c19 100%);
 }
 
-/* ====== LISTA ====== */
 .lista {
     width: 100%;
     padding: 0 clamp(10px, 2vw, 20px);
@@ -282,7 +269,6 @@
     transform: translateX(5px);
 }
 
-/* ====== ICONO LISTA ====== */
 .lista .icon-cont {
     flex: 0 0 clamp(40px, 8vw, 60px);
     width: clamp(40px, 8vw, 60px);
@@ -299,11 +285,10 @@
     object-fit: contain;
 }
 
-/* ====== TEXTO LISTA ====== */
 .texto-lista {
     display: flex;
     flex-direction: column;
-    gap: 2px; /* Controla el espacio entre título y subtítulo */
+    gap: 2px;
 }
 
 .texto-lista .titulo {
@@ -311,16 +296,16 @@
     font-weight: 799;
     color: #000000;
     word-wrap: break-word;
-    display: block; /* Fuerza que ocupe toda la línea */
-    line-height: 1.3; /* Mejora el espaciado interno */
+    display: block; 
+    line-height: 1.3;
 }
 
 .texto-lista .subtitulo {
     font-size: clamp(0.45rem, 1.2vw, 0.8rem);
     color: #555;
     word-wrap: break-word;
-    display: block; /* Fuerza que ocupe toda la línea */
-    line-height: 1.4; /* Mejora el espaciado interno */
+    display: block; 
+    line-height: 1.4;
 }
 .lista .acciones {
     margin-left: auto;
@@ -361,7 +346,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow-y: auto; /* activa scroll vertical */
+    overflow-y: auto; 
     max-height: clamp(300px, 35vh, 500px);
     align-items: center;
 }
@@ -385,7 +370,6 @@
     margin-bottom: 1rem;
 }
 
-/* ======= MODAL FORMULARIO SOPORTE ================ */
 .modal {
     display: none;
     position: fixed;
@@ -403,9 +387,6 @@
     max-width: 800px;
 }
 
-
-
-/* Animación fade de Bootstrap */
 .modal.fade .modal-dialog {
     transition: transform 0.3s ease-out;
 }
@@ -424,7 +405,6 @@
 
 }
 
-/* Botón cerrar */
 .modal-cerrar-form {
     position: absolute;
     top: clamp(10px, 1vh, 20px);
@@ -452,7 +432,6 @@
     transform: rotate(90deg);
 }
 
-/* ====== HEADER ====== */
 .modal-header {
     display: flex;
     align-items: center;
@@ -469,7 +448,6 @@
     color: #333;
 }
 
-/* ====== BODY ====== */
 .modal-body {
     padding: clamp(25px, 4vh, 40px) clamp(30px, 5vw, 50px);
 }
@@ -479,7 +457,6 @@
     flex-direction: column;
 }
 
-/* Espaciado entre campos */
 .mb-3 {
     margin-bottom: clamp(18px, 3vh, 25px);
 }
@@ -488,7 +465,6 @@
     margin-bottom: 0;
 }
 
-/* Labels */
 .form-label {
     font-size: clamp(0.85rem, 1.5vw, 0.95rem);
     font-weight: 700;
@@ -497,7 +473,6 @@
     display: block;
 }
 
-/* Inputs y selects */
 .form-control,
 .form-select {
     padding: clamp(10px, 2vh, 12px);
@@ -509,14 +484,12 @@
     width: 100%;
 }
 
-/* Textarea */
 textarea.form-control {
     min-height: clamp(80px, 15vh, 100px);
     resize: vertical;
     font-family: inherit;
 }
 
-/* Focus */
 .form-control:focus,
 .form-select:focus {
     outline: none;
@@ -524,7 +497,6 @@ textarea.form-control {
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
 }
 
-/* Texto ayuda */
 .form-text {
     font-size: clamp(0.75rem, 1.3vw, 0.85rem);
     color: #6c757d;
@@ -532,7 +504,6 @@ textarea.form-control {
     display: block;
 }
 
-/* Preview de imágenes */
 #image-preview {
     display: flex;
     flex-wrap: wrap;
@@ -540,7 +511,6 @@ textarea.form-control {
     margin-top: clamp(8px, 1.5vh, 10px);
 }
 
-/* ====== FOOTER ====== */
 .modal-footer {
     display: flex;
     background-color: transparent;
@@ -552,7 +522,6 @@ textarea.form-control {
     border-top: 1px solid #ddd;
 }
 
-/* Botón enviar */
 .modal-footer .btn {
     display: flex;
     align-items: center;
@@ -573,7 +542,6 @@ textarea.form-control {
     transform: translateY(-2px);
 }
 
-/* ====== ANIMACIONES ====== */
 @keyframes modalFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

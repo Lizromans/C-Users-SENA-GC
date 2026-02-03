@@ -3,26 +3,19 @@
     --color-sidebar-bg: #ffffff;
     --color-sidebar-border: #e8eaed;
     --color-sidebar-shadow: rgba(0, 0, 0, 0.08);
-    
-    /* Colores del nav */
     --color-nav-hover: #f1f8ec;
     --color-nav-active: #39A900;
     --color-nav-active-bg: rgba(57, 169, 0, 0.12);
     --color-nav-border-active: #39A900;
-    
-    /* Textos */
     --color-text-primary: #212529;
     --color-text-active: #007832;
     --color-text-secondary: #6c757d;
     --color-text-muted: #95a5a6;
-    
-    /* Dimensiones */
     --sidebar-width: clamp(230px, 15vw, 330px);
     --sidebar-collapsed-width: clamp(60px, 4vw, 80px);
     --header-height: clamp(70px, 10.5vh, 120px);
 }
 
-/* ======= RESET Y BASE ======= */
 * {
     margin: 0;
     padding: 0;
@@ -36,7 +29,6 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ======= HEADER ======= */
 .header-container {
     position: fixed;
     top: 0;
@@ -150,7 +142,6 @@ body {
   color: var(--color-text-primary); 
 }
 
-/* ======= BOTÓN VOLVER ======= */
 .volver {
     display: flex;
     align-items: center;
@@ -168,7 +159,6 @@ body {
     overflow: hidden;
 }
 
-/* Efecto de fondo al hover */
 .volver::before {
     content: '';
     position: absolute;
@@ -188,7 +178,6 @@ body {
     width: 100%;
 }
 
-/* Estado hover */
 .volver:hover {
     color: var(--color-nav-active);
     background-color: rgba(57, 169, 0, 0.08);
@@ -196,7 +185,6 @@ body {
     box-shadow: -2px 2px 8px rgba(57, 169, 0, 0.15);
 }
 
-/* Icono */
 .volver i {
     font-size: clamp(0.7rem, 1.5vw, 1rem);
     transition: all 0.3s ease;
@@ -209,7 +197,6 @@ body {
     transform: translateX(-2px) rotate(-5deg);
 }
 
-/* Texto */
 .volver span {
     font-size: clamp(0.8rem, 1.2vw, 1rem);
     white-space: nowrap;
@@ -217,19 +204,16 @@ body {
     letter-spacing: 0.3px;
 }
 
-/* Estado activo (al hacer click) */
 .volver:active {
     transform: translateX(-1px) scale(0.98);
     box-shadow: -1px 1px 4px rgba(57, 169, 0, 0.2);
 }
 
-/* Estado focus para accesibilidad */
 .volver:focus {
     outline: 2px solid var(--color-nav-active);
     outline-offset: 2px;
 }
 
-/* Animación de entrada */
 @keyframes slideInFromLeft {
     from {
         opacity: 0;
@@ -245,7 +229,6 @@ body {
     animation: slideInFromLeft 0.4s ease-out;
 }
 
-/* =====NOTIFICACIONES ======= */
 .notification-icon {
     position: relative;
     font-size: clamp(1.3rem, 2vw, 2.1rem);
@@ -289,7 +272,6 @@ body {
     20%, 40%, 60%, 80% { transform: rotate(10deg); }
 }
 
-/* =====BADGE======= */
 .notification-badge {
     position: absolute;
     top: clamp(-6px, -0.5vw, -4px);
@@ -332,7 +314,6 @@ body {
     justify-content: center;
 }
 
-/* =====DROPDOWN======= */
 .notification-dropdown {
     position: absolute;
     top: calc(100% + 10px);
@@ -359,7 +340,6 @@ body {
     transform: translateY(0);
 }
 
-/* =====HEADER======= */
 .notification-header {
     padding: clamp(12px, 1.8vh, 20px) clamp(15px, 2vw, 24px);
     border-bottom: 1px solid #e9ecef;
@@ -395,7 +375,6 @@ body {
     transform: rotate(90deg);
 }
 
-/* =====LISTA======= */
 .notification-body {
     flex: 1;
     overflow-y: auto;
@@ -415,7 +394,6 @@ body {
     background: #a8a8a8;
 }
 
-/* =====ITEM======= */
 .notification-item {
     padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.8vw, 20px);
     border-bottom: 1px solid #f1f1f1;
@@ -434,7 +412,6 @@ body {
     border-bottom: none;
 }
 
-/* NO LEÍDA */
 .notification-item.unread {
     background-color: rgba(57, 169, 0, 0.05);
     border-left: clamp(2px, 0.3vw, 3px) solid var(--color-nav-active);
@@ -457,7 +434,6 @@ body {
     box-shadow: 0 0 6px rgba(57, 169, 0, 0.5);
 }
 
-/* =====ICONOS DE TIPO======= */
 .notification-icon-type {
     flex-shrink: 0;
     width: clamp(32px, 4.5vw, 48px)!important;
@@ -489,7 +465,6 @@ body {
     color: #1976d2;
 }
 
-/* =====CONTENIDO INTERNO======= */
 .notification-title {
     font-size: clamp(0.8rem, 1.1vw, 0.95rem);
     font-weight: 600;
@@ -509,7 +484,6 @@ body {
     color: #95a5a6;
 }
 
-/* =====ESTADOS ESPECIALES======= */
 .notification-empty {
     padding: clamp(25px, 4vh, 50px);
     text-align: center;
@@ -544,13 +518,11 @@ body {
     background-color: transparent!important;
 }
 
-/* Ajuste header cuando el sidebar está colapsado */
 body.sidebar-collapsed .header-container {
     left: var(--sidebar-collapsed-width);
     width: calc(100% - var(--sidebar-collapsed-width));
 }
 
-/* ======= SIDEBAR ======= */
 .sidebar {
     position: fixed;
     top: 0;
@@ -596,7 +568,6 @@ body.sidebar-collapsed .header-container {
   flex-grow: 1;
 }
 
-/* ======= CABECERA DEL SIDEBAR ======= */
 .sidebar-header {
     display: flex;
     align-items: center;
@@ -649,14 +620,12 @@ body.sidebar-collapsed .header-container {
     margin-top: clamp(2%, 3.1%, 4%);
 }
 
-/* Ocultar título cuando colapsado */
 .sidebar.collapsed .sidebar-title {
     opacity: 0;
     transform: translateX(-10px);
     pointer-events: none;
 }
 
-/* ======= CENTRAR EL BOTÓN EN COLLAPSED ======= */
 .sidebar.collapsed .sidebar-header {
   justify-content: center;
 }
@@ -665,7 +634,6 @@ body.sidebar-collapsed .header-container {
   margin: 0;
 }
 
-/* ======= NAVEGACIÓN ======= */
 .sidebar-body {
     flex: 1;
     overflow-y: auto;
@@ -764,26 +732,6 @@ body.sidebar-collapsed .header-container {
         inset 12px 0 24px rgba(57, 169, 0, 0.1);
 }
 
-* Ajustes de colapso en enlaces e íconos */
-.sidebar.collapsed .nav-link {
-    padding: clamp(12px, 2%, 16px) clamp(15px, 3%, 20px);
-    justify-content: center;
-}
-
-.sidebar.collapsed .nav-link:hover {
-    padding-left: clamp(15px, 3%, 20px);
-}
-
-.sidebar.collapsed .nav-text {
-    opacity: 0;
-    transform: translateX(-10px);
-    position: absolute;
-    pointer-events: none;
-}
-
-.sidebar.collapsed .nav-icon {
-    margin: 0;
-}* Ajustes de colapso en enlaces e íconos */
 .sidebar.collapsed .nav-link {
     padding: clamp(12px, 2%, 16px) clamp(15px, 3%, 20px);
     justify-content: center;
@@ -804,7 +752,26 @@ body.sidebar-collapsed .header-container {
     margin: 0;
 }
 
-/* ======= CONTENIDO PRINCIPAL ======= */
+.sidebar.collapsed .nav-link {
+    padding: clamp(12px, 2%, 16px) clamp(15px, 3%, 20px);
+    justify-content: center;
+}
+
+.sidebar.collapsed .nav-link:hover {
+    padding-left: clamp(15px, 3%, 20px);
+}
+
+.sidebar.collapsed .nav-text {
+    opacity: 0;
+    transform: translateX(-10px);
+    position: absolute;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .nav-icon {
+    margin: 0;
+}
+
 .main-content {
     margin-top: var(--header-height);
     margin-left: var(--sidebar-width);
@@ -817,7 +784,6 @@ body.sidebar-collapsed .main-content {
     margin-left: var(--sidebar-collapsed-width);
 }
 
-/* ======= ANIMACIONES ======= */
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -837,7 +803,6 @@ body.sidebar-collapsed .main-content {
 .nav-item:nth-child(6) { animation-delay: 0.6s; }
 .nav-item:nth-child(7) { animation-delay: 0.7s; }
 
-/* ======= ACCESIBILIDAD ======= */
 .btn-open:focus{
     outline: 2px solid var(--color-nav-active);
     outline-offset: 2px;
@@ -863,7 +828,6 @@ body.sidebar-collapsed .main-content {
   color: var(--color-text-active);
 }
 
-/* ======= PIE DE PÁGINA DEL SIDEBAR ======= */
 .nav-footer {
     list-style: none;
     padding: clamp(15px, 3%, 25px) 0;
@@ -948,7 +912,6 @@ body.sidebar-collapsed .main-content {
     transform: translateX(-10px);
 }
 
-/* MAIN CONTENT */
 main {
   width: 100%;
   height: 100%;
@@ -956,7 +919,6 @@ main {
   flex-direction: column;
 }
 
-/* ======= MODAL CAMBIAR CONTRASEÑA ======= */
 .modal-content {
     background-color: var(--color-primario);
     border: 1px solid rgba(57, 169, 0, 0.2);
@@ -1072,7 +1034,6 @@ main {
     }
 }
 
-/* ======= PREVENIR FLASH AL CARGAR - ESTADO INICIAL ======= */
 html.sidebar-collapsed .sidebar {
     width: var(--sidebar-collapsed-width) !important;
 }
@@ -1116,8 +1077,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin-right: 0 !important;
 }
 
-/* ======= DRAWER ======= */
-/* Overlay oscuro de fondo */
 .notifications-drawer-overlay {
     position: fixed;
     top: 0;
@@ -1137,7 +1096,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     visibility: visible;
 }
 
-/* Drawer principal */
 .notifications-drawer {
     position: fixed;
     top: 0;
@@ -1157,7 +1115,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     right: 0;
 }
 
-/* Header del drawer */
 .drawer-header {
     padding: clamp(18px, 2.5vh, 24px) clamp(20px, 2.5vw, 28px);
     border-bottom: 2px solid #e9ecef;
@@ -1211,7 +1168,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transform: rotate(90deg);
 }
 
-/* Filtros de notificaciones */
 .drawer-filters {
     padding: clamp(12px, 1.8vh, 18px) clamp(20px, 2.5vw, 28px);
     border-bottom: 1px solid #e9ecef;
@@ -1245,7 +1201,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     border-color: var(--color-nav-active);
 }
 
-/* Cuerpo del drawer */
 .drawer-body {
     flex: 1;
     overflow-y: auto;
@@ -1269,7 +1224,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     background: #a8a8a8;
 }
 
-/* Secciones de notificaciones por fecha */
 .notification-section {
     margin-bottom: clamp(16px, 2vh, 24px);
 }
@@ -1285,7 +1239,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     border-left: 3px solid var(--color-nav-active);
 }
 
-/* Items de notificación en el drawer */
 .drawer-notification-item {
     padding: clamp(14px, 2vh, 18px) clamp(20px, 2.5vw, 28px);
     border-bottom: 1px solid #f1f1f1;
@@ -1311,7 +1264,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     background-color: rgba(57, 169, 0, 0.08);
 }
 
-/* Estado vacío */
 .drawer-empty-state {
     display: flex;
     flex-direction: column;
@@ -1341,7 +1293,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin: 0;
 }
 
-/* Footer del drawer */
 .drawer-footer {
     padding: clamp(14px, 2vh, 18px) clamp(20px, 2.5vw, 28px);
     border-top: 2px solid #e9ecef;
@@ -1387,7 +1338,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     color: var(--color-nav-active);
 }
 
-/* =======ESTILOS DEL MODAL DE RESPALDO DE DATOS===== */
 .modal {
     z-index: 1055 !important;
 }
@@ -1412,7 +1362,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     min-height: calc(100% - 1rem) !important;
 }
 
-/* ===== CONTENEDOR DEL MODAL ===== */
 #backupModal .modal-content {
     position: relative;
     display: flex;
@@ -1431,7 +1380,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     margin: 0 auto;
 }
 
-/* ===== HEADER DEL MODAL ===== */
 #backupModal .modal-header1 {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -1461,7 +1409,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transform: scale(1.1);
 }
 
-/* ===== BODY DEL MODAL ===== */
 #backupModal .modal-body {
     width: 100%;
     padding: clamp(20px, 3vh, 32px) clamp(20px, 3vw, 32px);
@@ -1489,7 +1436,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     background: #a8a8a8;
 }
 
-/* ===== SECCIÓN DE USUARIO ACTUAL ===== */
 #backupModal .user-backup-info .tarj {
     border: 1px solid #e5e7eb;
     border-radius: clamp(10px, 2vw, 14px);
@@ -1507,7 +1453,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     font-weight: 600;
 }
 
-/* ===== OPCIONES DE BACKUP ===== */
 #backupModal .backup-options {
     display: flex;
     flex-direction: column;
@@ -1536,7 +1481,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     padding: clamp(18px, 3vh, 26px);
 }
 
-/* ===== ICONOS DE BACKUP ===== */
 #backupModal .backup-icon {
     width: clamp(50px, 7vw, 66px);
     height: clamp(50px, 7vw, 66px);
@@ -1554,7 +1498,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 }
 
-/* ===== TÍTULOS Y TEXTO ===== */
 #backupModal .backup-option-card .tarj-title {
     font-size: clamp(1rem, 1.6vw, 1.2rem);
     font-weight: 700;
@@ -1568,7 +1511,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     color: #6b7280;
 }
 
-/* ===== LISTAS DE CARACTERÍSTICAS ===== */
 #backupModal .backup-option-card ul {
     margin: clamp(12px, 1.5vh, 16px) 0;
     padding-left: 0;
@@ -1584,7 +1526,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     color: #4b5563;
 }
 
-/* ===== BADGES Y ALERTAS ===== */
 #backupModal .badg.bg-warning {
     background-color: #f59e0b !important;
     color: #000;
@@ -1600,7 +1541,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     color: #92400e;
 }
 
-/* ===== BOTONES ===== */
 #backupModal .backup-option-card .btn1 {
     padding: clamp(10px, 1.5vh, 14px) clamp(16px, 2vw, 24px);
     font-size: clamp(0.85rem, 1.2vw, 0.95rem);
@@ -1620,7 +1560,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transform: translateY(0);
 }
 
-/* ===== MENSAJES DE ESTADO ===== */
 #backupModal #backup-status-message {
     border-radius: clamp(8px, 1.5vw, 12px);
     padding: clamp(12px, 1.8vh, 16px) clamp(16px, 2.2vw, 20px);
@@ -1628,7 +1567,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     font-size: clamp(0.85rem, 1.2vw, 0.95rem);
 }
 
-/* ===== LOADING SPINNER ===== */
 #backupModal #backup-loading {
     text-align: center;
     padding: clamp(20px, 3vh, 28px);
@@ -1649,7 +1587,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     color: #6b7280;
 }
 
-/* ===== INFORMACIÓN ADICIONAL ===== */
 #backupModal .modal-body > .mt-4 .tarj {
     border: none !important;
     background: #f8f9fa;
@@ -1673,7 +1610,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     color: #6b7280;
 }
 
-/* ===== FOOTER DEL MODAL ===== */
 #backupModal .modal-footer {
     padding: clamp(14px, 2vh, 20px) clamp(20px, 3vw, 30px);
     border-top: 1px solid #e9ecef;
@@ -1689,7 +1625,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     border: 1px solid #ccc !important;
 }
 
-/* ===== EFECTOS HOVER ===== */
 #backupModal .hover-card {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1699,7 +1634,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     box-shadow: 0 clamp(8px, 2vw, 14px) clamp(16px, 3vw, 24px) rgba(0, 0, 0, 0.12) !important;
 }
 
-/* ===== ESTADÍSTICAS ===== */
 #backupModal .text-muted.small {
     font-size: clamp(0.75rem, 1vw, 0.85rem) !important;
     color: #6b7280 !important;
@@ -1714,7 +1648,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     }
 }
 
-/* BOTÓN DE BACKUP FLOTANTE */
 .option-card {
     position: fixed;
     bottom: clamp(16px, 4vw, 32px);
@@ -1722,7 +1655,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     z-index: 1000;
 }
 
-/* BOTÓN FAB */
 .fab {
     position: relative;
     width: clamp(48px, 7vw, 60px);
@@ -1749,7 +1681,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
                 rgba(102, 126, 234, 0.6);
 }
 
-/* ICONO */
 .fab i {
     font-size: clamp(18px, 3vw, 24px);
     color: #fff;
@@ -1763,7 +1694,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transform: translateX(14px);
 }
 
-/* PULSO */
 .pulse-ring {
     position: absolute;
     inset: 0;
@@ -1773,7 +1703,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     opacity: 0;
 }
 
-/* TOOLTIP */
 .fab-tooltip {
     position: absolute;
     right: clamp(60px, 9vw, 80px); 
@@ -1793,7 +1722,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transition: all 0.25s ease;
 }
 
-/* FLECHITA TOOLTIP */
 .fab-tooltip::before {
     content: '';
     position: absolute;
@@ -1804,14 +1732,12 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     border-left-color:  #4d4c4ca6;
 }
 
-/* HOVER TOOLTIP */
 .fab:hover .fab-tooltip {
     opacity: 1;
     visibility: visible;
     right: clamp(68px, 10vw, 90px);
 }
 
-/* ANIMACIONES */
 @keyframes pulse {
     0% {
         transform: scale(1);

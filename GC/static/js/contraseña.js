@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         toggles.forEach((toggle) => {
             toggle.addEventListener("click", function () {
-            const input = this.previousElementSibling; // el input antes del ícono
+            const input = this.previousElementSibling;
             const icon = this.querySelector("i");
 
             if (input.type === "password") {

@@ -10,7 +10,6 @@
 {% block contenido %}{% endblock %}
 
 {% block main %}
-<!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -21,13 +20,11 @@
 
     <div class="contenedor-principal">
 
-        <!-- ===== TÍTULO PRINCIPAL ===== -->
         <div class="titulo">
             <h3>📅 Eventos</h3>
             <p>Gestiona, organiza y visualiza todos los eventos académicos de los semilleros de investigación.</p>
         </div>
 
-        <!-- ===== TARJETAS DE RESUMEN ===== -->
         <div class="info">
             <div class="grupo">
                 <div class="card naranja">
@@ -75,7 +72,6 @@
             </div>
         </div>
 
-        <!-- ===== SECCIÓN DE BÚSQUEDA Y FILTROS ===== -->
         <div class="seccion-busqueda">
             <div class="titulo2">
                 <h3>Búsqueda y Filtrados</h3>
@@ -117,7 +113,6 @@
             </form>
         </div>
         
-        <!-- ===== GRID DE EVENTOS ===== -->
         <div class="eventos-section">
             <div class="eventos-header">
                 <h3>Lista de Eventos</h3>
@@ -151,13 +146,11 @@
                             {% endif %}
                         </div>
 
-                        <!-- Fecha destacada -->
                         <div class="fecha-box">
                             <span class="fecha-dia">{{ evento.fecha_eve|date:"d" }}</span>
                             <span class="fecha-mes">{{ evento.fecha_eve|date:"b"|upper }}</span>
                         </div>
 
-                        <!-- Badge de modalidad -->
                         <div class="modalidad-badge">
                             {% if evento.modalidad_eve == 'Presencial' %}
                                 <span class="badge presencial">📍 PRESENCIAL</span>
@@ -166,12 +159,10 @@
                             {% endif %}
                         </div>
 
-                        <!-- Contenido principal -->
                         <div class="evento-content">
                             <h3 class="evento-titulo">{{ evento.nom_eve }}</h3>
                             <p class="evento-descripcion">{{ evento.desc_eve|truncatewords:25 }}</p>
 
-                            <!-- Información del evento -->
                             <div class="evento-info">
                                 <div class="info-item">
                                     <i class="fa fa-calendar"></i>
@@ -205,7 +196,6 @@
                             </div>
                         </div>
 
-                        <!-- Botones de acción -->
                         {% if evento.estado_eve != 'Cancelado' and evento.estado_eve != 'Finalizado' %}
                             {% if usuario.cedula == evento.cedula.cedula %}
                                 <div class="botones">
@@ -229,7 +219,6 @@
         </div>
     </div>
 
-<!-- MODAL CREAR EVENTO -->
 <div class="modal-overlay-evento" id="modalCrearEvento">
     <div class="modal-dialog-evento">
         <a href="{% url 'eventos' %}" class="modal-cerrar-evento">&times;</a>
@@ -271,13 +260,11 @@
                             <option value="Presencial">Presencial</option>
                         </select>
                     </div>
-                    <!-- Campo para eventos Virtuales -->
                     <div class="col-evento" id="campoLink" style="display:none;">
                         <label for="link" class="form-label">Link del evento</label>
                         <input type="text" id="link" name="link" maxlength="250">
                     </div>
 
-                    <!-- Campo para eventos Presenciales -->
                     <div class="col-evento" id="campoDireccion" style="display:none;">
                         <label for="direccion_eve" class="form-label">Dirección</label>
                         <input type="text" id="direccion_eve" name="direccion_eve" maxlength="250">
@@ -301,7 +288,6 @@
     </div>
 </div>
 
-<!-- ===== MODALES DE EDITAR EVENTO (uno por cada evento) ===== -->
 {% for evento in eventos %}
 <div class="modal-overlay-evento" id="modalEditarEvento{{ evento.cod_eve }}">
     <div class="modal-dialog-evento">
@@ -353,14 +339,12 @@
                         </select>
                     </div>
 
-                    <!-- Campo para Link (solo Virtual) -->
                     <div class="col-evento" id="campoLink{{ evento.cod_eve }}" style="display:none;">
                         <label for="link{{ evento.cod_eve }}" class="form-label">Link (solo Virtual)</label>
                         <input type="text" id="link{{ evento.cod_eve }}" name="link" maxlength="250"
                             value="{{ evento.link }}">
                     </div>
 
-                    <!-- Campo para Dirección (solo Presencial) -->
                     <div class="col-evento" id="campoDireccion{{ evento.cod_eve }}" style="display:none;">
                         <label for="direccion_eve{{ evento.cod_eve }}" class="form-label">Dirección</label>
                         <input type="text" id="direccion_eve{{ evento.cod_eve }}" name="direccion_eve" maxlength="250"
@@ -386,7 +370,6 @@
 </div>
 {% endfor %}
 
-<!-- MODALES DE CANCELAR EVENTO -->
 {% for evento in eventos %}
 <div class="modal-overlay-cancelar" id="modalCancelarEvento{{ evento.cod_eve }}">
     <div class="modal-dialog-cancelar">
@@ -425,17 +408,13 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  // Reutilizable para todos los selects de modalidad en la página (crear + editar)
   document.querySelectorAll('select[name="modalidad_eve"]').forEach(select => {
 
-    // Buscar el contenedor más cercano: preferimos el modal dialog, si no el form, si no document
     const container = select.closest('.modal-dialog-evento') || select.closest('form') || document;
 
-    // Dentro del mismo contenedor, encontrar los campos (compatibilidad con ids con sufijo o sin sufijo)
     const campoLink = container.querySelector('[id^="campoLink"]') || container.querySelector('#campoLink');
     const campoDireccion = container.querySelector('[id^="campoDireccion"]') || container.querySelector('#campoDireccion');
 
-    // Si no existen campos dentro del contenedor, no hacemos nada
     if (!campoLink && !campoDireccion) return;
 
     function actualizarCampos() {
@@ -452,20 +431,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (campoDireccion) campoDireccion.style.display = "none";
       }
     }
-
-    // Inicializa según el valor actual (útil cuando el modal abre con valores ya cargados)
     actualizarCampos();
 
-    // Maneja cambios del select
     select.addEventListener('change', actualizarCampos);
 
-    // Si el modal se abre/visualiza mediante cambio de atributos (clase, style), es posible que el select haya sido insertado después.
-    // Para cubrir ese caso (poco común), observamos cambios dentro del contenedor y re-inicializamos si aparece el select
-    // (esto es seguro y ligero porque solo se activa si hay mutaciones).
     const mo = new MutationObserver((mutations, obs) => {
-      // reenforce: si el select desaparece (no debería) o los campos cambian, re-ejecutar init
       if (!container.contains(select)) return;
-      // re-ejecutar para ajustar visibilidad si algo cambió
       actualizarCampos();
     });
     mo.observe(container, { childList: true, subtree: true });

@@ -1,6 +1,4 @@
-// ====== CARRUSEL 3D DE PROYECTOS ======
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar todos los carruseles en la página
     const secciones = document.querySelectorAll('.seccion');
     
     secciones.forEach(seccion => {
@@ -18,13 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let currentIndex = 0;
         
-        // Función para actualizar posiciones de las tarjetas
         function updateCarousel() {
             cards.forEach((card, index) => {
-                // Remover todas las clases de posición
                 card.classList.remove('center', 'left-1', 'left-2', 'right-1', 'right-2', 'hidden');
                 
-                // Calcular posición relativa
                 const diff = index - currentIndex;
                 
                 if (diff === 0) {
@@ -42,33 +37,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Actualizar dots
             if (dots.length > 0) {
                 dots.forEach((dot, index) => {
                     dot.classList.toggle('active', index === currentIndex);
                 });
             }
-            
-            // Actualizar visibilidad de flechas si solo hay 1 tarjeta
+
             if (cards.length === 1) {
                 if (leftArrow) leftArrow.style.display = 'none';
                 if (rightArrow) rightArrow.style.display = 'none';
             }
         }
         
-        // Navegar hacia la izquierda
         function navigateLeft() {
             currentIndex = (currentIndex - 1 + cards.length) % cards.length;
             updateCarousel();
         }
         
-        // Navegar hacia la derecha
         function navigateRight() {
             currentIndex = (currentIndex + 1) % cards.length;
             updateCarousel();
         }
         
-        // Event listeners para las flechas
         if (leftArrow) {
             leftArrow.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -85,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Event listeners para los dots
         dots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
                 currentIndex = index;
@@ -93,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Soporte para teclado (solo si el carrusel está en foco)
         container.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
                 e.preventDefault();
@@ -103,11 +91,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 navigateRight();
             }
         });
-        
-        // Hacer el container focusable
         container.setAttribute('tabindex', '0');
         
-        // Navegación táctil (swipe)
         let touchStartX = 0;
         let touchEndX = 0;
         
@@ -126,16 +111,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (Math.abs(diff) > swipeThreshold) {
                 if (diff > 0) {
-                    // Swipe left - navegar derecha
                     navigateRight();
                 } else {
-                    // Swipe right - navegar izquierda
                     navigateLeft();
                 }
             }
         }
-        
-        // Click en tarjetas laterales para navegar
         cards.forEach((card, index) => {
             card.addEventListener('click', () => {
                 if (index !== currentIndex) {
@@ -145,29 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Inicializar el carrusel
         updateCarousel();
-        
-        // Auto-play opcional (descomentado si lo deseas)
-        /*
-        let autoPlayInterval = setInterval(() => {
-            navigateRight();
-        }, 5000);
-        
-        // Pausar auto-play al hover
-        container.addEventListener('mouseenter', () => {
-            clearInterval(autoPlayInterval);
-        });
-        
-        container.addEventListener('mouseleave', () => {
-            autoPlayInterval = setInterval(() => {
-                navigateRight();
-            }, 5000);
-        });
-        */
     });
     
-    // ====== MANEJO DE TABS (Resumen / Entregables) ======
     const tabRadios = document.querySelectorAll('.tab-radio');
     
     tabRadios.forEach(radio => {
@@ -175,13 +136,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = this.closest('.proyecto-card');
             if (!card) return;
             
-            // Ocultar todos los tab-content de esta card
             const tabContents = card.querySelectorAll('.tab-content');
             tabContents.forEach(content => {
                 content.classList.remove('active');
             });
             
-            // Mostrar el tab-content correspondiente
             if (this.id.includes('resumen')) {
                 const resumenContent = card.querySelector('.tab-content[data-tab="resumen"]');
                 if (resumenContent) resumenContent.classList.add('active');
@@ -192,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Inicializar el primer tab como activo en cada card
     document.querySelectorAll('.proyecto-card').forEach(card => {
         const firstRadio = card.querySelector('.tab-radio:checked');
         if (firstRadio) {
@@ -202,9 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ====== FUNCIÓN PARA PREVENIR CLICKS EN ELEMENTOS INTERNOS DE PROPAGARSE ======
 document.addEventListener('click', function(e) {
-    // Prevenir que clicks en tabs y labels cierren o naveguen el carrusel
     if (e.target.closest('.tab') || e.target.closest('.tabs-header')) {
         e.stopPropagation();
     }

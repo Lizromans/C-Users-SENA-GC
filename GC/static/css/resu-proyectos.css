@@ -15,7 +15,6 @@
     --gradient: linear-gradient(90deg,rgba(0, 112, 179, 1) 0%, rgba(112, 39, 122, 0.884) 75%);
 }
 
-/* Contenedor secundario */
 .resumen {
     display: flex;
     flex-direction: column;    
@@ -82,7 +81,6 @@
     filter: brightness(0);
 }
 
-/* Botón 1 */
 .btn:nth-child(1){
     background-color: #39A900;
     border-color: #39A900;
@@ -93,7 +91,6 @@
     box-shadow: 0 0 0 5px rgba(57, 169, 0, 0.39) !important;
 }
 
-/* Lista de Proyectos */
 .cont-2 {
     background: white;
     border-radius: clamp(8px, 2vw, 15px);
@@ -136,7 +133,6 @@
     overflow: hidden;
 }
 
-/* ====== PARTÍCULAS DE FONDO ====== */
 .bg-particles {
     position: absolute !important;
     top: 0;
@@ -158,7 +154,6 @@
     visibility: visible !important;
 }
 
-/* Partículas individuales */
 .particle:nth-child(1) { 
     width: clamp(10px, 1.2%, 20px); 
     height: clamp(10px, 1.2%, 20px); 
@@ -249,13 +244,11 @@
     background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
 }
 
-/* Asegurar que el contenido principal esté por encima */
 .proyecto-card-container,.sin-proyectos-global{
     position: relative !important;
     z-index: 2 !important;
 }
 
-/* Sección de proyectos */
 .seccion{
     overflow: hidden;
 }
@@ -289,7 +282,6 @@
     line-height: 1.2;
 }
 
-/* Sección Sennova */
 .seccion {
     padding: clamp(10px, 3vw, 20px);
     position: relative;
@@ -298,7 +290,6 @@
     isolation: isolate;
 }
 
-/* ====== CARRUSEL 3D DE PROYECTOS ====== */
 .proyectos-carousel-container {
     position: relative;
     width: 100%;
@@ -320,7 +311,6 @@
     transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* ====== TARJETAS DE PROYECTOS (ESTILO 3D) ====== */
 .proyecto-card {
     position: absolute;
     width: clamp(300px, 35vw, 420px);
@@ -337,8 +327,6 @@
     transform-style: preserve-3d;
 }
 
-/* ====== POSICIONES 3D DEL CARRUSEL ====== */
-/* Tarjeta central (activa) */
 .proyecto-card.center {
     transform: translateX(0) scale(1.05) translateZ(0);
     opacity: 1;
@@ -347,21 +335,18 @@
     box-shadow: 0 20px 50px rgba(79, 172, 254, 0.3);
 }
 
-/* Lado izquierdo visible */
 .proyecto-card.left-1 {
     transform: translateX(-75%) scale(0.85) rotateY(15deg);
     opacity: 0.6;
     z-index: 5;
 }
 
-/* Lado derecho visible */
 .proyecto-card.right-1 {
     transform: translateX(75%) scale(0.85) rotateY(-15deg);
     opacity: 0.6;
     z-index: 5;
 }
 
-/* Segundo plano izquierdo */
 .proyecto-card.left-2 {
     transform: translateX(-135%) scale(0.7) rotateY(25deg);
     opacity: 0.3;
@@ -369,7 +354,6 @@
     pointer-events: none;
 }
 
-/* Segundo plano derecho */
 .proyecto-card.right-2 {
     transform: translateX(135%) scale(0.7) rotateY(-25deg);
     opacity: 0.3;
@@ -377,14 +361,12 @@
     pointer-events: none;
 }
 
-/* Tarjetas ocultas */
 .proyecto-card.hidden {
     opacity: 0;
     pointer-events: none;
     transform: scale(0.5);
 }
 
-/* ====== HOVER EFFECTS ====== */
 .proyecto-card.center:hover {
     transform: translateX(0) scale(1.08) translateZ(20px);
     box-shadow: 0 25px 60px rgba(79, 172, 254, 0.4);
@@ -395,7 +377,6 @@
     opacity: 0.8;
 }
 
-/* ====== CONTENIDO DE LA TARJETA ====== */
 .proyecto-card-content,
 .entregables-tab-content {
     height: clamp(320px, 58vh, 350px);
@@ -405,7 +386,6 @@
     overflow: visible !important;
 }
 
-/* Header del Proyecto */
 .proyecto-header {
     display: flex;
     justify-content: space-between;
@@ -469,7 +449,6 @@
     -webkit-box-orient: vertical;
 }
 
-/* Barra de Progreso */
 .proyecto-progress {
     margin-bottom: clamp(15px, 2.5vw, 20px);
 }
@@ -505,7 +484,6 @@
     transition: width 0.6s ease;
 }
 
-/* ====== TABS STYLES ====== */
 .tabs-header {
     display: flex;
     border-bottom: 2px solid #e2e8f0;
@@ -552,7 +530,6 @@
     font-size: clamp(14px, 1.8vw, 16px);
 }
 
-/* ====== TAB CONTENT ====== */
 .tab-content {
     display: none;
     padding: clamp(15px, 2.5vw, 25px);
@@ -567,12 +544,10 @@
     animation: fadeInTab 0.4s ease;
 }
 
-/* ====== OCULTAR RADIO BUTTONS ====== */
 .tab-radio {
     display: none;
 }
 
-/* ====== MOSTRAR CONTENIDO SEGÚN RADIO BUTTON CHECKED ====== */
 input[id^="tab-resumen-"]:checked ~ .tab-content[data-tab="resumen"] {
     display: flex;
 }
@@ -581,7 +556,6 @@ input[id^="tab-entregables-"]:checked ~ .tab-content[data-tab="entregables"] {
     display: flex;
 }
 
-/* ====== TABS ACTIVAS CON RADIO BUTTONS====== */
 input[id^="tab-resumen-"]:checked ~ .tabs-header label[for^="tab-resumen-"] {
     color: #667eea;
 }
@@ -621,7 +595,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     overflow: visible;
 }
 
-/* Grid de líneas en columnas con separadores */
 .proyecto-lineas-grid {
     display: grid;
     grid-template-columns: 1fr auto 1fr auto 1fr;
@@ -672,7 +645,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     margin-bottom: 0;
 }
 
-/* Separadores verticales */
 .separador-vertical {
     width: 1px;
     height: auto;
@@ -692,7 +664,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     margin-bottom: clamp(4px, 0.8vh, 6px);
 }
 
-/* ====== FLECHAS DE NAVEGACIÓN ====== */
 .carousel-nav-arrow {
     background: rgba(79, 172, 254, 0.9);
     color: #fff;
@@ -725,7 +696,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     right: clamp(10px, 2vw, 20px);
 }
 
-/* ====== DOTS DE NAVEGACIÓN ====== */
 .carousel-dots {
     display: flex;
     justify-content: center;
@@ -755,7 +725,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     border-color: white;
 }
 
-/* ====== MENSAJE GLOBAL SIN PROYECTOS ====== */
 .sin-proyectos-global {
     text-align: center;
     padding: clamp(25px, 5vw, 35px) clamp(20px, 3vw, 40px);
@@ -786,7 +755,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     line-height: 1.6;
 }
 
-/* ====== ANIMACIONES ====== */
 @keyframes float-particle {
     0%, 100% { 
         transform: translateY(0px) translateX(0px) scale(1) rotate(0deg); 
@@ -817,7 +785,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     }
 }
 
-/* =======MODAL================ */
 .modal-overlay{
     display: none;
     position: fixed;
@@ -857,8 +824,8 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     animation: modalSlideIn 0.4s ease;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
     margin: auto;
-    max-height: 90vh; /* Limitar altura máxima */
-    overflow-y: auto; /* Scroll en el contenedor principal */
+    max-height: 90vh;
+    overflow-y: auto; 
     overflow-x: hidden;
     transition: transform 0.15s ease, opacity 0.15s ease;
 }
@@ -912,7 +879,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 
 .modal-contenido {
     padding: clamp(30px, 4vw, 50px);
-    overflow: visible; /* Sin scroll aquí */
+    overflow: visible; 
 }
 
 .modal-header {
@@ -945,9 +912,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     margin: 0;
 }
 
-/* ====== LAYOUT DE DOS COLUMNAS PARA EL MODAL ====== */
-
-/* Wrapper principal de dos columnas */
 .modal-form-wrapper {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -955,12 +919,10 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     margin-bottom: clamp(20px, 3vh, 30px);
 }
 
-/* Secciones dentro del wrapper no tienen margin-bottom adicional */
 .modal-form-wrapper > .modal-seccion {
     margin-bottom: 0;
 }
 
-/* Ajustes para que los campos de formulario se vean bien en vertical */
 .modal-form-wrapper .modal-campo {
     margin-bottom: clamp(12px, 2vh, 18px);
 }
@@ -1071,17 +1033,17 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     transition: all 0.3s ease;
     background-color: white;
 }
-/* Aplica solo al campo de programa de formación */
+
 #campo_programa, 
 #campo_programa_edit {
     display: flex;
-    flex-direction: column; /* etiqueta arriba, input debajo */
-    gap: 8px; /* espacio entre label e input */
+    flex-direction: column; 
+    gap: 8px;
 }
 
 #campo_programa input,
 #campo_programa_edit input {
-    width: 100%; /* que el input ocupe todo el ancho */
+    width: 100%; 
 }
 
 .modal-campo textarea {
@@ -1319,20 +1281,15 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     gap: clamp(12px, 2vw, 24px);
 }
 
-/* ========== CONTENEDOR PRINCIPAL DE ENTREGABLES ========== */
 #entregables-container {
     width: 100%;
 }
 
-
-/* ========== LAYOUT GRID DE ENTREGABLES ========== */
-/* Entregable único para Sennova/Capacidad (investigación) */
 .entregable-investigacion {
     grid-column: 1 / -1; /* Ocupa todo el ancho */
     width: 100%;
 }
 
-/* Grid de entregables formativos: 2 columnas, múltiples filas */
 .formativos {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1495,7 +1452,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     transform: scale(1.1);
 }
 
-/* ====== SECCIÓN DE SELECCIÓN DE MIEMBROS ====== */
 .miembros-seleccion {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(clamp(220px, 30vw, 280px), 1fr));
@@ -1506,7 +1462,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     padding: clamp(8px, 1.5vw, 12px);
 }
 
-/* Scrollbar personalizado para miembros */
 .miembros-seleccion::-webkit-scrollbar {
     width: 8px;
 }
@@ -1631,7 +1586,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     color: #39A900;
 }
 
-/* Mensaje de ayuda */
 .modal-seccion small.text-muted {
     display: flex;
     align-items: center;
@@ -1650,7 +1604,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     color: #39A900;
 }
 
-/* Estado vacío mejorado */
 .empty-team {
     border: 2px dashed #cbd5e0;
     text-align: center;
@@ -1676,7 +1629,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     font-weight: 500;
 }
 
-/* Animación de entrada */
 @keyframes fadeInMiembro {
     from {
         opacity: 0;
@@ -1700,7 +1652,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 .miembro-item:nth-child(5) { animation-delay: 0.25s; }
 .miembro-item:nth-child(n+6) { animation-delay: 0.3s; }
 
-/* Variantes de color para los iconos de miembros */
 .miembro-item:nth-child(6n+1) .miembro-icon {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -1725,7 +1676,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
 }
 
-/* Contador de miembros seleccionados (opcional) */
 .contador-miembros-seleccionados {
     display: inline-flex;
     align-items: center;
@@ -1744,7 +1694,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     font-size: clamp(12px, 1.4vw, 14px);
 }
 
-/* === SECCIÓN DE LÍNEAS (3 COLUMNAS RESPONSIVAS) === */
 .lineas-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(clamp(200px, 30%, 350px), 1fr));
@@ -1752,7 +1701,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
   margin-top: clamp(10px, 2vh, 20px);
 }
 
-/* ====== SECCIÓN DE EQUIPO ====== */
 .proyecto-equipo {
     margin-bottom: clamp(5px, 2vh, 10px) ;
 }
@@ -1806,7 +1754,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     letter-spacing: 0.5px;
 }
 
-/* Colores alternados para avatares */
 .avatar-item:nth-child(6n+1) {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -1831,7 +1778,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
 }
 
-/* Avatar de "más" miembros */
 .avatar-mas {
     background: linear-gradient(135deg, #718096 0%, #4a5568 100%) !important;
 }
@@ -1840,7 +1786,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
 }
 
-/* Mensaje sin equipo */
 .sin-equipo {
     font-size: clamp(11px, 1.4vw, 13px);
     color: #a0aec0;
@@ -1851,7 +1796,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     display: inline-block;
 }
 
-/* Animación de entrada para avatares */
 @keyframes fadeInAvatar {
     from {
         opacity: 0;
@@ -1876,7 +1820,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 .avatar-item:nth-child(5) { animation-delay: 0.25s; }
 .avatar-item:nth-child(n+6) { animation-delay: 0.3s; }
 
-/* Tooltip para mostrar nombre completo */
 .avatar-item::after {
     content: attr(data-tooltip);
     position: fixed;
@@ -1920,7 +1863,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     overflow: visible !important; 
 }
 
-/* ====== DROPDOWN DE CONFIGURACIÓN ====== */
 .config-dropdown-wrapper {
     position: relative;
     display: inline-block;
@@ -1952,7 +1894,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     background: #f7fafc;
 }
 
-/* Menú desplegable */
 .dropdown-menu-config {
     position: absolute;
     right: 0;
@@ -1970,20 +1911,17 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     overflow: hidden;
 }
 
-/* Mostrar menú cuando checkbox está checked */
 .dropdown-toggle-config:checked ~ .dropdown-menu-config {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scale(1);
 }
 
-/* Cambiar estilo del label cuando está activo */
 .dropdown-toggle-config:checked ~ .tab-configuracion {
     color: #667eea;
     background: #edf2f7;
 }
 
-/* Items del menú */
 .dropdown-item-config {
     display: flex;
     align-items: center;
@@ -2016,19 +1954,18 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     text-align: center;
     font-size: clamp(14px, 1.8vw, 16px);
     transition: transform 0.2s ease;
-    color: #000000 !important; /* Agregado !important para forzar el color */
+    color: #000000 !important; 
 }
 
 .dropdown-item-config:hover i {
     transform: scale(1.15);
-    color: #667eea !important; /* Color al hacer hover */
+    color: #667eea !important;
 }
 
 .dropdown-item-config span {
     flex: 1;
 }
 
-/* Item de peligro */
 .dropdown-item-config.danger {
     color: #e53e3e;
 }
@@ -2038,14 +1975,12 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     color: #c53030;
 }
 
-/* Separador */
 .dropdown-divider-config {
     margin: clamp(6px, 1vh, 8px) 0;
     border: none;
     border-top: 1px solid #e2e8f0;
 }
 
-/* Animación de entrada */
 @keyframes dropdownFadeIn {
     from {
         opacity: 0;
@@ -2057,7 +1992,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     }
 }
 
-/* Overlay para cerrar al hacer click fuera (opcional) */
 .dropdown-toggle-config:checked ~ .dropdown-overlay {
     display: block;
 }
@@ -2072,7 +2006,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     z-index: 999;
 }
 
-/* Efecto de onda al hacer click */
 .dropdown-item-config::before {
     content: '';
     position: absolute;
@@ -2091,7 +2024,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     height: 100%;
 }
 
-/* === LISTA DE NOTAS === */
 .notas-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2109,7 +2041,7 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     padding: 8px 12px;
      list-style-type: disc !important;
     list-style-position: inside !important;
-    display: block !important;  /* fuerza a comportarse como bloque */
+    display: block !important;
 }
 
 .lista-notas li {
@@ -2126,7 +2058,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     font-size: 14px;
 }
 
-/* =========LISTA DE MIEMBROS EN MODAL========= */
 .item-miembro-modal {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
@@ -2147,7 +2078,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     box-shadow: 0 4px 15px rgba(151, 71, 255, 0.15);
 }
 
-/* Avatar del miembro */
 .item-miembro-modal .avatar-miembro {
     width: clamp(45px, 8vw, 60px);
     height: clamp(45px, 8vw, 60px);
@@ -2163,10 +2093,9 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     margin-left: clamp(8px, 1.5vw, 12px);
 }
 
-/* Información del miembro */
 .item-miembro-modal .info-miembro {
     flex: 1;
-    min-width: 0; /* Importante para que el texto se trunce correctamente */
+    min-width: 0; 
     display: flex;
     flex-direction: column;
     gap: clamp(1px, 0.4vh, 2px);
@@ -2200,7 +2129,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     text-overflow: ellipsis;
 }
 
-/* Badge de estado */
 .estado-miembro {
     font-size: clamp(0.8rem, 1.4vw, 0.95rem);
     font-weight: 600;
@@ -2223,7 +2151,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     border: 1px solid #F5C6CB;
 }
 
-/* Acciones del miembro */
 .acciones-miembro {
     display: flex;
     width: clamp(140px, 20vw, 190px);
@@ -2252,7 +2179,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Estilos específicos por tipo de acción */
 .acciones-miembro .fa-edit {
     color: #667eea;
 }
@@ -2297,13 +2223,11 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     border-color: #17a2b8;
 }
 
-/* Iconos desactivados */
 .acciones-miembro i.desactivado {
     opacity: 0.4;
 
 }
 
-/* Sin resultados */
 .sin-resultados {
     margin-top: clamp(10px, 5vh, 20px);
     text-align: center;
@@ -2316,10 +2240,9 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     border: 2px dashed #dee2e6;
 }
 
-/* Lista de miembros con scroll */
 .lista-miembros-modal {
-    max-height: none; /* Eliminar restricción de altura */
-    overflow-y: visible; /* Sin scroll interno */
+    max-height: none; 
+    overflow-y: visible;
     overflow-x: visible;
     display: flex;
     flex-direction: column;
@@ -2328,10 +2251,9 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 }
 
 .lider-icon {
-    color: #ffc107; /* Color dorado para el líder */
+    color: #ffc107;
 }
 
-/* Estilos para los iconos de acción */
 .acciones-miembro i {
     margin: 0 5px;
     font-size: 1.2rem;
@@ -2342,7 +2264,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     transform: scale(1.2);
 }
 
-/* Estrella de líder */
 .acciones-miembro .fa-star,
 .acciones-miembro .lider-icon {
     color: #FFD700;
@@ -2356,7 +2277,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     color: #ffffff;
 }
 
-/* Toggle de estado */
 .acciones-miembro .fa-toggle-on {
     color: #4CAF50;
 }
@@ -2370,7 +2290,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     color: #999;
 }
 
-/* Icono de ojo */
 .acciones-miembro .fa-eye {
     color: #2196F3;
 }
@@ -2379,7 +2298,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     color: #1976D2;
 }
 
-/* Estados del miembro */
 .estado-miembro {
     padding: 5px 12px;
     border-radius: 20px;
@@ -2397,7 +2315,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     color: #C62828;
 }
 
-/* Animación para cambios de estado */
 @keyframes pulseSuccess {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
@@ -2408,7 +2325,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
     animation: pulseSuccess 0.5s ease;
 }
 
-/* ====== MODAL DE CONFIRMACIÓN ====== */
 .modalConfirmar_miembro {
   display: none;
   position: fixed;
@@ -2477,7 +2393,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
   color: #ffffff;
 }
 
-/* Cursor not-allowed para estrellas desactivadas */
 i.far.fa-star.desactivado,
 i.fa-star.desactivado,
 i.far.fa-star[aria-disabled="true"],
@@ -2489,12 +2404,11 @@ i.fa-star[aria-disabled="true"] {
     box-shadow: none !important;
 }
 
-/* Asegurar que las estrellas activas tengan pointer */
 i.far.fa-star:not(.desactivado):not(.lider-icon),
 i.fa-star:not(.desactivado):not(.lider-icon) {
     cursor: pointer !important;
 }
-/* Desactivar hover para estrellas desactivadas */
+
 i.far.fa-star.desactivado:hover,
 i.fa-star.desactivado:hover,
 i.far.fa-star[aria-disabled="true"]:hover,
@@ -2512,7 +2426,6 @@ i.fa-star[aria-disabled="true"]:hover {
     box-shadow: none !important;
 }
 
-/* Toggle desactivado para líderes */
 .toggle-desactivado {
     cursor: not-allowed !important;
     opacity: 0.4 !important;
@@ -2530,13 +2443,11 @@ i.fa-star[aria-disabled="true"]:hover {
     border-color: #99999977 !important;
 }
 
-/* Asegurar que los toggles activos tengan pointer */
 .acciones-miembro i.fa-toggle-on:not(.toggle-desactivado),
 .acciones-miembro i.fa-toggle-off:not(.toggle-desactivado) {
     cursor: pointer !important;
 }
 
-/* Estrella llena para líder de proyecto */
 .acciones-miembro i.fa-star.lider-icon {
     color: #FFD700 !important;
 }
@@ -2544,7 +2455,6 @@ i.fa-star[aria-disabled="true"]:hover {
 .acciones-miembro i.fa-star.lider-icon:hover {
     color: #fff5f5 !important;
 }
-/* Animaciones para mensajes toast */
 @keyframes slideIn {
     from {
         transform: translateX(400px);
@@ -2568,7 +2478,7 @@ i.fa-star[aria-disabled="true"]:hover {
 }
 
 .botones-item {
-    grid-column: 1 / -1; /* Ocupa todas las columnas del grid */
+    grid-column: 1 / -1; 
     width: 100%;
     display: flex;
     justify-content: flex-end;
@@ -2606,7 +2516,6 @@ i.fa-star[aria-disabled="true"]:hover {
     color: var(--color-sidebar-bg);
 }
 
-/* Estilos para el equipo asignado visual */
 .equipo-asignado-actual {
     background: #f7fafc;
     padding: 15px;
@@ -2671,28 +2580,22 @@ i.fa-star[aria-disabled="true"]:hover {
     line-height: 1.2;
 }
 
-/* ==== MIEMBROS INACTIVOS EN MODAL EDITAR ==== */
 .miembro-asignado-badge.miembro-inactivo {
     opacity: 0.45;
     filter: grayscale(40%);
 }
 
-/* Si manejas avatares fuera de .miembro-asignado-badge */
 .avatar-item.avatar-inactivo {
     opacity: 0.45;
     filter: grayscale(40%);
 }
 
-/* Separador estético */
 .separador {
     margin: 20px 0;
     border: none;
     border-top: 1px solid #e2e8f0;
 }
 
-/* ===== ENTREGABLES DESPLEGABLES (FINAL ORGANIZADO Y RESPONSIVO) ===== */
-
-/* === Estructura general === */
 .entregable-item {
     display: block;
     width: 100%;
@@ -2701,12 +2604,10 @@ i.fa-star[aria-disabled="true"]:hover {
     margin-top: clamp(-16px, 1vh, -20px);
 }
 
-/* Checkbox oculto */
 .entregable-toggle {
     display: none;
 }
 
-/* === Encabezado clickeable === */
 .entregables-tab-content label.entregable-mini {
     display: flex;
     align-items: center;
@@ -2727,14 +2628,12 @@ i.fa-star[aria-disabled="true"]:hover {
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
-/* === Icono Chevron === */
 .entregable-chevron {
     color: #cbd5e0;
     font-size: clamp(12px, 1.5vw, 14px);
     transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Rotar chevron y resaltar header al abrir */
 .entregable-toggle:checked + label.entregable-mini {
     background: #edf2f7;
     border-color: #667eea;
@@ -2745,7 +2644,6 @@ i.fa-star[aria-disabled="true"]:hover {
     color: #667eea;
 }
 
-/* === Contenedor de detalles desplegables === */
 .entregable-detalles-desplegable {
     display: none;
     background: #f9fafb;
@@ -2756,13 +2654,11 @@ i.fa-star[aria-disabled="true"]:hover {
     padding: 0;
 }
 
-/* Mostrar detalles cuando el checkbox está marcado */
 .entregable-toggle:checked + label.entregable-mini + .entregable-detalles-desplegable {
     display: block;
     animation: desplegarEntregable 0.3s ease forwards;
 }
 
-/* === Contenedor de detalles desplegables === */
 .entregable-detalles-desplegable {
     display: none;
     background: #f9fafb;
@@ -2773,13 +2669,11 @@ i.fa-star[aria-disabled="true"]:hover {
     padding: 0;
 }
 
-/* Mostrar detalles cuando el checkbox está marcado */
 .entregable-toggle:checked + label.entregable-mini + .entregable-detalles-desplegable {
     display: block;
     animation: desplegarEntregable 0.3s ease forwards;
 }
 
-/* === Contenido interno de detalles === */
 .entregable-detalles-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2789,7 +2683,6 @@ i.fa-star[aria-disabled="true"]:hover {
     padding: 0 clamp(10px, 1.5vw, 15px); 
 }
 
-/* Asignar áreas del grid */
 .entregable-detalle-columna.descripcion {
     grid-area: descripcion;
     margin-top: clamp(-6px, -1.5vh, -8px);
@@ -2803,7 +2696,6 @@ i.fa-star[aria-disabled="true"]:hover {
     grid-area: fecha2;
 }
 
-/* Ajustes visuales */
 .entregable-detalle-columna p,
 .entregable-documentos p {
     font-size: clamp(12px, 1.4vw, 14px);
@@ -2822,7 +2714,6 @@ i.fa-star[aria-disabled="true"]:hover {
     font-weight: 620;
 }
 
-/* === Animación de despliegue === */
 @keyframes desplegarEntregable {
     from {
         opacity: 0;
@@ -2838,7 +2729,6 @@ i.fa-star[aria-disabled="true"]:hover {
     }
 }
 
-/* ====== ENTREGABLE MINI ====== */
 .entregable-mini {
     display: flex;
     align-items: center;
@@ -2861,7 +2751,6 @@ i.fa-star[aria-disabled="true"]:hover {
     box-shadow: 0 clamp(2px, 0.8vw, 4px) clamp(8px, 1vw, 12px) rgba(102, 126, 234, 0.15);
 }
 
-/* === Número del entregable === */
 .mini-number {
     width: clamp(30px, 3.5vw, 36px);
     height: clamp(30px, 3.5vw, 36px);
@@ -2877,7 +2766,6 @@ i.fa-star[aria-disabled="true"]:hover {
     box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
 }
 
-/* === Información del entregable === */
 .mini-info {
     flex: 1;
     min-width: 0;
@@ -2913,7 +2801,6 @@ i.fa-star[aria-disabled="true"]:hover {
     color: #ed8936;
 }
 
-/* === Chevron / Ícono de despliegue === */
 .entregable-mini .fa-chevron-down,
 .entregable-mini .fa-chevron-right {
     color: #cbd5e0;
@@ -2921,13 +2808,11 @@ i.fa-star[aria-disabled="true"]:hover {
     transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Rotación cuando está abierto */
 .entregable-toggle:checked + label.entregable-mini .fa-chevron-down {
     transform: rotate(180deg);
     color: #667eea;
 }
 
-/* === Sección “Sin documentos” === */
 .sin-documentos {
     text-align: center;
     color: #a0aec0;
@@ -2948,7 +2833,6 @@ i.fa-star[aria-disabled="true"]:hover {
     margin-top: clamp(-10px, 2.5vh, -15px)
 }
 
-/* === Contenedor de botones === */
 .botones {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2958,7 +2842,6 @@ i.fa-star[aria-disabled="true"]:hover {
     margin-top: clamp(-10px, 2.5vh, -15px)
 }
 
-/* === Botón base (aplicado a ambos) === */
 .btn-subir,
 .badges-documentos {
     display: flex;
@@ -2975,7 +2858,6 @@ i.fa-star[aria-disabled="true"]:hover {
     background: #edf2f7;
 }
 
-/* Botón de subir a pantalla completa cuando no hay archivos */
 .full-width {
     display: flex;
     justify-content: center;
@@ -2984,7 +2866,6 @@ i.fa-star[aria-disabled="true"]:hover {
     margin-top: clamp(-10px, 2vh, -14px);
 }
 
-/* === Botón “Subir documento” === */
 .btn-subir {
     border: 2px solid #667eea;
     color: #667eea;
@@ -2996,7 +2877,6 @@ i.fa-star[aria-disabled="true"]:hover {
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
-/* === Botón “Ver archivos” === */
 .badges-documentos {
     border: 2px solid #48bb78;
     color: #48bb78;
@@ -3008,13 +2888,12 @@ i.fa-star[aria-disabled="true"]:hover {
     box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2);
 }
 
-/* ====== Estado: Sin entregables ====== */
 .sin-entregables {
     width: 100%;
     height: 100%;
-    background: #f7fafc; /* fondo claro */
-    border: 2px dashed #cbd5e0; /* borde gris claro con estilo “vacío” */
-    color: #718096; /* texto gris suave */
+    background: #f7fafc;
+    border: 2px dashed #cbd5e0;
+    color: #718096;
     padding: clamp(16px, 3vw, 24px);
     border-radius: 10px;
     display: flex;
@@ -3026,19 +2905,16 @@ i.fa-star[aria-disabled="true"]:hover {
 
 }
 
-/* Ícono */
 .sin-entregables i {
     font-size: clamp(28px, 3vw, 36px);
-    color: #a0aec0; /* gris medio */
+    color: #a0aec0;
 }
 
-/* Texto */
 .sin-entregables p {
     font-size: clamp(13px, 1.4vw, 15px);
     margin: 0;
 }
 
-/* === Modal === */
 .modal {
     position: fixed;
     inset: 0;
@@ -3057,7 +2933,6 @@ i.fa-star[aria-disabled="true"]:hover {
     display: flex;
 }
 
-/* === Contenido del modal === */
 .modal-cont {
     position: relative;
     z-index: 1000!important;
@@ -3084,7 +2959,6 @@ i.fa-star[aria-disabled="true"]:hover {
     to { opacity: 1; }
 }
 
-/* === Inputs y botones dentro del modal === */
 .modal input[type="file"] {
     width: 100%;
     margin-top: clamp(10px, 1.5vh, 15px);
@@ -3127,7 +3001,6 @@ i.fa-star[aria-disabled="true"]:hover {
     background: #e2e8f0;
 }
 
-/* === Modal de Ver Archivos === */
 .lista-archivos {
     list-style: none;
     padding: 0;
@@ -3137,7 +3010,6 @@ i.fa-star[aria-disabled="true"]:hover {
     gap: clamp(8px, 1.5vh, 12px);
 }
 
-/* Cada archivo listado */
 .lista-archivos li {
     background: #f7fafc;
     border: 1px solid #e2e8f0;
@@ -3150,7 +3022,6 @@ i.fa-star[aria-disabled="true"]:hover {
     font-size: clamp(12px, 1.3vw, 14px);
 }
 
-/* Nombre del archivo */
 .nombre-archivo {
     flex: 1;
     overflow: hidden;
@@ -3159,7 +3030,6 @@ i.fa-star[aria-disabled="true"]:hover {
     color: #2d3748;
 }
 
-/* Botones dentro del modal */
 .btn-ver,
 .btn-descargar,
 .btn-eliminar {
@@ -3173,7 +3043,6 @@ i.fa-star[aria-disabled="true"]:hover {
     transition: all 0.3s ease;
 }
 
-/* Botón Ver */
 .btn-ver {
     background: #ebf8ff;
     color: #3182ce;
@@ -3184,7 +3053,6 @@ i.fa-star[aria-disabled="true"]:hover {
     color: #fff;
 }
 
-/* Botón Descargar */
 .btn-descargar {
     background: #f0fff4;
     color: #38a169;
@@ -3195,7 +3063,6 @@ i.fa-star[aria-disabled="true"]:hover {
     color: #fff;
 }
 
-/* Botón Descargar */
 .btn-eliminar {
     background: #fff0f0;
     color: #dd2323;
@@ -3206,7 +3073,6 @@ i.fa-star[aria-disabled="true"]:hover {
     color: #fff;
 }
 
-/* Scrollbar personalizada */
 .modal-cont::-webkit-scrollbar {
     width: clamp(4px, 0.5vw, 6px);
 }
@@ -3215,12 +3081,10 @@ i.fa-star[aria-disabled="true"]:hover {
     border-radius: clamp(4px, 1vw, 8px);
 }
 
-/* Menú configuraciones activo */
 .menu-config.activo {
     display: block;
 }
 
-/* ======= ICONO LÍDER DE SEMILLERO (SIN INTERACTIVIDAD) ======= */
 .lider-sem-icon {
     color: #E9C46A;
     font-size: clamp(18px, 1.8vw, 22px);

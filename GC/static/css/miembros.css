@@ -29,8 +29,8 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    gap: clamp(25px, 4vw, 40px); /* Espacio entre columnas */
-    padding-bottom: clamp(40px, 1vh, 60px); /* Espacio al final */
+    gap: clamp(25px, 4vw, 40px);
+    padding-bottom: clamp(40px, 1vh, 60px);
 }
 
 .tab-item img,
@@ -112,7 +112,6 @@
 
 }
 
-/* Tarjeta 1 - Verde */
 .card.amarillo::before {
   background: 
     linear-gradient(to bottom, #ffe70e 0%, transparent 10%) top,
@@ -120,7 +119,6 @@
     linear-gradient(to left, #ffe70e 0%, transparent 3%) right;
 }
 
-/* Tarjeta 2 - Azul */
 .card.azul::before {
   background: 
     linear-gradient(to bottom, #2196F3 0%, transparent 10%) top,
@@ -128,7 +126,6 @@
     linear-gradient(to left, #2196F3 0%, transparent 3%) right;
 }
 
-/* Tarjeta 3 - Naranja */
 .card.morado::before {
   background: 
     linear-gradient(to bottom, #9747FF 0%, transparent 10%) top,
@@ -136,7 +133,6 @@
     linear-gradient(to left, #9747FF 0%, transparent 3%) right;
 }
 
-/* ====== BACKGROUNDS PARA ICON-CONT ====== */
 .icon-cont.instructores{
     background: linear-gradient(135deg, #fffd98 0%,  #fff347 40%, #ffc70e 100%);
 }
@@ -177,7 +173,6 @@
     font-weight: 500;
 }
 
-/* ====== ICON CONTAINER ====== */
 .icon-cont {
     flex: 0 0 clamp(60px, 12vw, 90px);
     width: clamp(60px, 12vw, 90px);
@@ -197,7 +192,7 @@
     height: clamp(40px, 10vw, 60px);
     object-fit: contain;
 }
-/*====== SECCIÓN DE BÚSQUEDA Y FILTROS ====== */
+
 .seccion-busqueda {
     padding: clamp(1rem, 2vw, 1.5rem);
     background-color: var(--color-fondo-secundario);
@@ -205,7 +200,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    gap: clamp(0.5rem, 1.5vw, 1rem); /* REDUCIDO */
+    gap: clamp(0.5rem, 1.5vw, 1rem);
     flex-wrap: wrap;
     justify-content: flex-start;
 }
@@ -215,16 +210,14 @@
     justify-self: start;
 }
 
-/* Contenedor del formulario de búsqueda */
 .busqueda-miembros {
     display: flex;
     align-items: center;
-    gap: clamp(0.4rem, 1vw, 0.7rem); /* REDUCIDO */
-    flex: 1 1 auto; /* CAMBIADO PARA QUE CREZCA */
+    gap: clamp(0.4rem, 1vw, 0.7rem); 
+    flex: 1 1 auto;
     min-width: clamp(180px, 25vw, 350px);
 }
 
-/* Label del formulario */
 .busqueda-miembros label {
     font-weight: 600;
     color: #333;
@@ -232,13 +225,11 @@
     white-space: nowrap;
 }
 
-/* Contenedor del input con icono */
 .input-busqueda {
     position: relative;
     flex: 1;
 }
 
-/* Input de búsqueda */
 .input-miembros {
     width: 100%;
     padding: clamp(0.45rem, 0.8vw, 0.6rem) clamp(2.5rem, 3.5vw, 3rem) clamp(0.45rem, 0.8vw, 0.6rem) clamp(0.5rem, 0.8vw, 0.65rem);
@@ -254,7 +245,6 @@
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
-/* Botón de búsqueda (lupa) */
 .input-busqueda .search-icon {
     position: absolute;
     right: clamp(0.5rem, 0.8vw, 0.8rem);
@@ -273,11 +263,10 @@
     color: #4CAF50;
 }
 
-/* FILTROS DE ESTADO (BOTONES) */
 .filtros-estado {
     display: flex;
     align-items: center;
-    gap: clamp(0.4rem, 1vw, 0.7rem); /* REDUCIDO */
+    gap: clamp(0.4rem, 1vw, 0.7rem);
     flex: 0 1 auto;
     min-width: fit-content;
 }
@@ -291,7 +280,7 @@
 
 .botones-estado {
     display: flex;
-    gap: clamp(0.3rem, 1vw, 0.5rem); /* REDUCIDO */
+    gap: clamp(0.3rem, 1vw, 0.5rem);
     flex-wrap: nowrap;
 }
 
@@ -314,14 +303,12 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* --- Botón seleccionado --- */
 .btn-estado.activo {
     background-color: #75757563;
     color: #000000;
     border: 0.9px solid #2e2e2e;
 }
 
-/* --- Colores específicos por estado --- */
 .btn-estado[data-estado="Activo"] {
     background-color: #4caf5063;
     color: #286e2b;
@@ -340,11 +327,10 @@
     border: 0.9px solid #bbb;
 }
 
-/* FILTRO DE ROL (SELECT) */
 .filtro-rol {
     display: flex;
     align-items: center;
-    gap: clamp(0.4rem, 1vw, 0.7rem); /* REDUCIDO */
+    gap: clamp(0.4rem, 1vw, 0.7rem); 
     flex: 0 1 auto;
 }
 
@@ -363,7 +349,7 @@
     backdrop-filter: blur(10px);
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: clamp(110px, 12vw, 160px); /* SE ADAPTA */
+    min-width: clamp(110px, 12vw, 160px);
     background-color: #fff;
     color: #333;
 }
@@ -372,7 +358,6 @@
     border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* ====== BOTON LIMPIAR FILTROS ====== */
 .botones-item {
     display: grid;
     grid-auto-flow: column; 
@@ -409,7 +394,6 @@
     color: var(--color-sidebar-bg);
 }
 
-/* ====== Pildoras ====== */
 .titulo2{
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -452,7 +436,7 @@
 }
 
 .pildora-vista input[type="radio"]:checked + span img {
-    filter: brightness(0) invert(1); /* Ícono blanco */
+    filter: brightness(0) invert(1); 
 }
 
 .pildora-vista input[type="radio"]:checked + span {
@@ -461,13 +445,13 @@
 }
 
 .header {
-  display: flex;              /* Activa flexbox */
-  justify-content: space-between; /* Separa los elementos a extremos opuestos */
-  align-items: center;        /* Centra verticalmente */
+  display: flex;   
+  justify-content: space-between; 
+  align-items: center;   
 }
 
 .header h3 {
-  margin: 0;                  /* Quita márgenes extra del título */
+  margin: 0;    
 }
 
 .link {
@@ -485,7 +469,6 @@
     background-color: #760eff;
 }
 
-/* ====== TABLA- LISTADO DE MIEMBROS ====== */
 .lista-container {
     width: 100%;
 }
@@ -506,7 +489,6 @@ table {
     table-layout: fixed; 
 }
 
-/* Encabezado */
 thead {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -519,11 +501,10 @@ thead th {
     font-size: clamp(0.75rem, 1.8vw, 1rem);
     text-transform: uppercase;
     letter-spacing: clamp(0.3px, 0.5vw, 0.5px);
-    white-space: normal; /* ← CAMBIAR de nowrap a normal */
-    word-wrap: break-word; /* ← AGREGAR */
+    white-space: normal;
+    word-wrap: break-word; 
 }
 
-/* Cuerpo de la tabla */
 tbody tr {
     background-color: var(--color-fondo-principal);
     border-bottom: 1px solid #f0f0f0;
@@ -544,17 +525,15 @@ tbody td {
     padding: clamp(0.7rem, 1.8vw, 1rem) clamp(0.5rem, 1.5vw, 1rem);
     color: #333;
     font-size: clamp(0.8rem, 1.6vw, 0.95rem);
-    word-wrap: break-word; /* ← AGREGAR */
-    overflow-wrap: break-word; /* ← AGREGAR */
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
 }
 
-/* Columnas específicas */
 .nombre {
     min-width: clamp(100px, 20vw, 200px);
     font-weight: 700;
 }
 
-/* Botones de acción */
 .acciones {
     display: flex;
     gap: clamp(0.3rem, 1vw, 0.5rem);
@@ -563,7 +542,6 @@ tbody td {
    
 }
 
-/* Modificar .btn */
 .btn {
     padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.7rem, 1.5vw, 1rem);
     border: none;
@@ -572,12 +550,12 @@ tbody td {
     font-size: clamp(0.7rem, 1.4vw, 0.85rem);
     font-weight: 600;
     transition: all 0.3s ease;
-    white-space: nowrap; /* ← AGREGAR - evita que el texto se parta */
+    white-space: nowrap;
     background-color: #38a900cc;
     width: 90%;
     color: var(--color-primario);
-    text-overflow: ellipsis; /* ← AGREGAR - agrega ... si es muy largo */
-    overflow: hidden; /* ← AGREGAR */
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .btn:hover{
@@ -602,20 +580,19 @@ tbody td {
     margin: 20px 0;
 }
 
-/* ====== TARJETA DE MIEMBROS (MÁS PEQUEÑAS) ====== */
 .tabla-container {
     display: flex;
     flex-direction: column;
     gap: clamp(1rem, 2vw, 1.5rem);
     width: 100%;
-    align-items: center; /* <-- centra las filas dentro del contenedor */
+    align-items: center; 
 }
 
 .titulo-tarjeta {
     width: 100%;
-    display: flex;              /* Activa flexbox */
-    justify-content: space-between; /* Separa los elementos a extremos opuestos */
-    align-items: center;        /* Centra verticalmente */
+    display: flex;    
+    justify-content: space-between; 
+    align-items: center;   
 }
 
 .titulo-tarjeta h3 {
@@ -680,7 +657,6 @@ tbody td {
     z-index: -1;
 }
 
-/* Tarjeta 1 - Amarillo */
 .tabla-container .card.amarillo::before {
   background: 
     linear-gradient(to bottom, #ffe70e 0%, transparent 10%) top,
@@ -688,7 +664,6 @@ tbody td {
     linear-gradient(to left, #ffe70e 0%, transparent 3%) right;
 }
 
-/* Tarjeta 2 - Azul */
 .tabla-container .card.azul::before {
   background: 
     linear-gradient(to bottom, #2196F3 0%, transparent 10%) top,
@@ -696,7 +671,6 @@ tbody td {
     linear-gradient(to left, #2196F3 0%, transparent 3%) right;
 }
 
-/* Tarjeta 3 - Morado */
 .tabla-container .card.morado::before {
   background: 
     linear-gradient(to bottom, #9747FF 0%, transparent 10%) top,
@@ -742,7 +716,6 @@ tbody td {
     font-weight: 200;
 }
 
-/* ====== ICON CONTAINER (MÁS PEQUEÑO) ====== */
 .tabla-container .icon-cont {
     flex: 0 0 clamp(45px, 8vw, 60px);
     width: clamp(45px, 8vw, 60px);
@@ -769,7 +742,6 @@ tbody td {
     background-color: transparent!important;
 }
 
-/* ====== BADGE INFO (MÁS PEQUEÑO) ====== */
 .tabla-container .rol.investigadores {
     background-color:#2196F363;
     color: #2196F3;
@@ -823,7 +795,6 @@ tbody td {
     z-index: 1;
 }
 
-/* ====== ICON INFO ====== */
 .tabla-container .info-icon {
     position: absolute;
     bottom: 0;
@@ -834,28 +805,24 @@ tbody td {
     font-size: clamp(0.9rem, 1.2vw, 1.1rem);
 }
 
-/* El enlace dentro del ícono */
 .tabla-container .info-icon a {
-    color: #000000; /* Negro por defecto */
+    color: #000000;
     text-decoration: none;
     transition: all 0.3s ease;
     display: inline-block;
 }
 
-/* Al pasar el mouse */
 .tabla-container .info-icon a:hover {
-    color: var(--color-nav-active); /* Verde al hacer hover */
+    color: var(--color-nav-active);
     transform: scale(1.15);
     border: none;
 }
 
-/* Al hacer clic */
 .tabla-container .info-icon a:active {
-    color: #007832; /* Verde más oscuro al hacer clic */
+    color: #007832; 
     transform: scale(0.95);
 }
 
-/* Al enfocar con teclado */
 .tabla-container .info-icon a:focus {
     outline: none
 }
@@ -875,7 +842,6 @@ tbody td {
     text-align: center;
 }
 
-/* ======== MODAL DE PERFIL DEL MIEMBRO =========== */
 body:has(#modalPerfilMiembro[style*="display: flex"]) {
     overflow: hidden !important;
 }
@@ -941,14 +907,12 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     transform: rotate(90deg);
 }
 
-/* Contenedor principal del perfil mejorado */
 .perfil-miembro-moderno {
     display: flex;
     flex-direction: column;
     width: 100%;
 }
 
-/* ====== HEADER DEL MODAL ====== */
 .modal-perfil-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: clamp(20px, 3vw, 32px);
@@ -1022,7 +986,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     50% { opacity: 0.5; }
 }
 
-/* ====== TABS ====== */
 .modal-tabs {
     display: flex;
     border-bottom: 1px solid #e5e7eb;
@@ -1068,7 +1031,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     filter: grayscale(0);
 }
 
-/* ====== BODY DEL MODAL ====== */
 .modal-perfil-body {
     padding: clamp(20px, 3vw, 32px);
     overflow-y: auto;
@@ -1089,7 +1051,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ====== STATS GRID ====== */
 .stats-grid-modal {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1116,7 +1077,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     opacity: 0.9;
 }
 
-/* ====== FORM GRID ====== */
 .perfil-form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1171,14 +1131,12 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     padding-right: clamp(35px, 6vw, 40px);
 }
 
-/* ====== SECTION DIVIDER ====== */
 .section-divider-modal {
     height: 1px;
     background: #e5e7eb;
     margin: clamp(20px, 3vh, 24px) 0;
 }
 
-/* ====== INFO CARD ====== */
 .info-card-modal {
     background: #f9fafb;
     border: 1px solid #e5e7eb;
@@ -1224,7 +1182,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     font-size: clamp(0.85rem, 1.5vw, 0.95rem);
 }
 
-/* ====== CHIPS CONTAINER ====== */
 .chips-container-modal {
     display: flex;
     flex-wrap: wrap;
@@ -1264,7 +1221,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     width: 100%;
 }
 
-/* ====== INPUT CON ICONO ====== */
 .input-con-icono-modal {
     position: relative;
     display: flex;
@@ -1295,7 +1251,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     transform: translateY(-50%) scale(1.1);
 }
 
-/* ====== FOOTER ====== */
 .modal-perfil-footer {
     padding: clamp(16px, 2.5vw, 20px) clamp(20px, 3vw, 32px);
     border-top: 1px solid #e5e7eb;
@@ -1341,7 +1296,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     transform: translateY(-1px);
 }
 
-/* ====== ANIMACIONES ====== */
 @keyframes perfilFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -1358,7 +1312,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     }
 }
 
-/* ====== BOTÓN VERIFICAR ====== */
 .btn-success {
     width: 5vw;
 }
@@ -1368,8 +1321,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     transform: scale(1.2);
 }
 
-
-/* ======ESTILOS PARA MODAL DE VERIFICACIÓN===== */
 .modal-verificacion-overlay {
     position: fixed;
     inset: 0;
@@ -1475,7 +1426,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     margin-bottom: clamp(20px, 3vh, 30px);
 }
 
-/* Inputs del código */
 .codigo-inputs {
     display: flex;
     border-radius: clamp(8px, 1.5vw, 12px);
@@ -1513,7 +1463,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     background: #f0fff4;
 }
 
-/* Botones */
 .btn-verificar-codigo {
     width: 100%;
     padding: clamp(10px, 1.5vw, 18px);
@@ -1557,7 +1506,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     color: white;
 }
 
-/* Mensajes de alerta */
 .mensajes-verificacion {
     margin: clamp(15px, 3vh, 30px) 0;
 }
@@ -1588,7 +1536,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     border: 1px solid #bee5eb;
 }
 
-/* Información del aprendiz */
 .texto-info-aprendiz {
     margin-top: clamp(15px, 2vh, 20px);
     padding: clamp(8px, 1.5vw, 12px);
@@ -1599,7 +1546,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     font-weight: 500;
 }
 
-/* Intentos restantes */
 .intentos-restantes {
     background: transparent;
     border: 2px solid #f39c12;
@@ -1641,7 +1587,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     }
 }
 
-/* Botón reenviar código */
 .reenviar-codigo-container {
     margin-top: clamp(8px, 1.5vw, 15px);
     text-align: center;
@@ -1679,8 +1624,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     font-weight: bold;
 }
 
-/*==== MODAL LINK REGISTRO =====*/
-/* Desactivar overflow en todo el modal de registro */
 #modalLinkAprendiz,
 #modalLinkAprendiz *,
 #modalLinkAprendiz .modal-dialog,
@@ -1696,7 +1639,7 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 #modalLinkAprendiz{
     top: clamp(-120px, -20vw, -140px);
 }
-/* Asegurar que el contenido del modal sea visible */
+
 #modalLinkAprendiz .input-group {
     overflow: visible !important;
 }
@@ -1709,7 +1652,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     overflow: visible !important;
 }
 
-/* Permitir que los estilos de base.css se apliquen al modal de backup */
 #backupModal,
 #backupModal .modal-dialog,
 #backupModal .modal-content,
@@ -1719,7 +1661,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     margin-top: 0 !important;
 }
 
-/* Animación específica para el pulse-ring del botón flotante */
 @keyframes backupPulse {
     0% {
         transform: scale(1);
@@ -1731,7 +1672,6 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
     }
 }
 
-/* Aplicar la animación correcta al pulse-ring del botón de backup */
 .option-card .pulse-ring {
     animation: backupPulse 2s ease-in-out infinite !important;
 }

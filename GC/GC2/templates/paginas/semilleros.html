@@ -12,7 +12,6 @@
 {% endblock %}
 
 {% block main %}
-   <!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -30,7 +29,6 @@
         
         <form method="GET" class="buscador">
 
-            <!-- Buscador -->
             <div class="input-group">
                 <input type="text"
                     class="form-control"
@@ -42,7 +40,6 @@
                 </button>
             </div>
 
-            <!-- Fechas (lado a lado) -->
             <div class="filtros-fecha">
                 <input type="date"
                     class="date"
@@ -54,7 +51,6 @@
                     value="{{ request.GET.fecha_fin }}">
             </div>
 
-            <!-- Ordenar -->
             <div class="ordenar">
                 <select class="form-select"
                         name="ordenar"
@@ -67,7 +63,6 @@
                 </select>
             </div>
 
-            <!-- Botones -->
             <div class="botones-item">
                 <button type="submit" class="aplicar">
                     <i class="fa fa-filter"></i> Aplicar filtros
@@ -96,11 +91,9 @@
                 {% endif %}
             </div>
             
-            <!-- Formulario para eliminar múltiples semilleros -->
             <form method="POST" action="{% url 'eliminar_semilleros' %}" id="form-eliminar">
                 {% csrf_token %}
                 
-                <!-- Barra de acciones cuando está en modo eliminar -->
                 <div class="modo-eliminar-acciones" id="modo-eliminar">
                     <div class="acciones-info">
                         <i class="fas fa-info-circle"></i>
@@ -119,7 +112,6 @@
                 <div class="grid-semilleros">
                     {% for semillero in semilleros %}
                     <div class="card-semillero">
-                        <!-- Checkbox para seleccionar el semillero -->
                         <input type="checkbox" 
                                name="semilleros_eliminar" 
                                value="{{ semillero.id_sem }}" 
@@ -183,21 +175,17 @@
 <!-- MODAL CREAR SEMILLERO -->
 <div id="modal-crear" class="modal-overlay">
     <div class="modal-contenedor">
-        <!-- Botón cerrar (X) -->
         <a href="{% url 'semilleros' %}" class="modal-cerrar">&times;</a>
         
         <div class="modal-contenido">
-            <!-- Header del modal -->
             <div class="modal-header">
                 <img src="{% static 'img/microscopio.png' %}" alt="Semilleros">
                 <h2 class="modal-titulo">Crear Nuevo Semillero</h2>
             </div>
             
-            <!-- Formulario -->
             <form method="POST" action="{% url 'crear_semillero' %}" class="modal-form">
                 {% csrf_token %}
                 
-                <!-- Sección: Información Básica -->
                 <div class="modal-seccion">
                     <div class="modal-seccion-titulo">
                         <i class="fas fa-info-circle"></i>
@@ -223,7 +211,6 @@
                     </div>
                 </div>
                 
-                <!-- Sección: Descripción y Categorías -->
                 <div class="modal-seccion">
                     <div class="modal-seccion-titulo">
                         <i class="fas fa-align-left"></i>
@@ -237,7 +224,6 @@
                     </div>
                 </div>
                 
-                <!-- Sección: Objetivos -->
                 <div class="modal-seccion">
                     <div class="modal-seccion-titulo">
                         <i class="fas fa-bullseye"></i>
@@ -246,7 +232,6 @@
                     <hr class="modal-hr modal-hr-terciario">
                     
                     <div id="objetivos-container">
-                        <!-- Objetivo 1 (por defecto) -->
                         <div class="objetivo-item">
                             <div class="modal-campo">
                                 <label for="objetivo">Objetivo 1 *</label>
@@ -267,7 +252,6 @@
                 
                 <hr class="modal-hr modal-hr-final">
                 
-                <!-- Acciones del modal -->
                 <div class="modal-acciones">
                     <a href="{% url 'semilleros' %}" class="modal-btn modal-btn-cancelar">
                         <i class="fas fa-times"></i> Cancelar

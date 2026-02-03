@@ -4,12 +4,10 @@
 {% block css %}
 <link href="{% static 'css/resu-proyectos.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
- <!-- Flatpickr CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
-    <!-- Mensajes de alerta -->
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -52,7 +50,6 @@
                     <div class="particle"></div>
                 </div>
                 
-                <!-- Sección de Sennova-->
                 {% if proyectos_sennova %}
                 <div class="seccion">
                     <div class="header-seccion">
@@ -150,7 +147,6 @@
                                             </div>
                                         </div>
 
-                                         <!-- Sección de Equipo -->
                                         <div class="proyecto-equipo">
                                             <div class="equipo-label">
                                                 <i class="fas fa-users"></i>
@@ -232,13 +228,10 @@
                                         {% if proyecto.entregable_set.all %}
                                             {% for entregable in proyecto.entregable_set.all %}
 
-                                            <!-- Contenedor del entregable -->
                                             <div class="entregable-item">
                                                 
-                                                <!-- Checkbox oculto para controlar el desplegable -->
                                                 <input type="checkbox" id="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-toggle">
 
-                                                <!-- Header clickeable -->
                                                 <label for="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-mini">
                                                     <div class="mini-number">{{ forloop.counter }}</div>
                                                     <div class="mini-info">
@@ -258,7 +251,6 @@
                                                     <i class="fas fa-chevron-down entregable-chevron"></i>
                                                 </label>
 
-                                                <!-- Detalles desplegables -->
                                                 <div class="entregable-detalles-desplegable">
                                                     <div class="entregable-detalles-grid">
                                                         <div class="entregable-detalle-columna descripcion">
@@ -273,11 +265,9 @@
                                                     </div>
 
                                                     {% if entregable.archivos.exists %}
-                                                        <!-- Caso: hay archivos -->
                                                         <div class="entregable-documentos">
                                                             <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
                                                             {% if proyecto.estado_pro != "desactivado" and perms.GC2.add_archivo %}
-                                                                <!-- Tiene permisos: mostrar ambos botones -->
                                                                 <div class="botones">
                                                                     <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
                                                                         <i class="fas fa-eye"></i> Ver Archivos
@@ -289,14 +279,12 @@
                                                                     {% endif %}
                                                                 </div>
                                                             {% else %}
-                                                                <!-- NO tiene permisos: mostrar solo Ver Archivos grande -->
                                                                 <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos full-width">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
                                                             {% endif %}
                                                         </div>
 
-                                                        <!-- Modal de archivos -->
                                                         <div id="modal-archivos-{{ entregable.cod_entre }}" class="modal">
                                                             <div class="modal-cont">
                                                             <a href="#" class="modal-cerrar mini">&times;</a>
@@ -335,7 +323,6 @@
                                                         </div>
 
                                                     {% else %}
-                                                        <!-- Caso: NO hay archivos -->
                                                         <div class="entregable-documentos sin-documentos">
                                                             <i class="fas fa-file-alt"></i>
                                                             <p>No hay documentos disponibles</p>
@@ -375,8 +362,6 @@
                     </div>
                 </div>
                 {% endif %}
-
-                <!-- Sección de Capacidad Instalada-->
                 {% if proyectos_capacidad %}
                 <div class="seccion">
                     <div class="header-seccion">
@@ -475,7 +460,6 @@
                                             </div>
                                         </div>
 
-                                         <!-- Sección de Equipo -->
                                         <div class="proyecto-equipo">
                                             <div class="equipo-label">
                                                 <i class="fas fa-users"></i>
@@ -559,13 +543,10 @@
                                         {% if proyecto.entregable_set.all %}
                                             {% for entregable in proyecto.entregable_set.all %}
 
-                                            <!-- Contenedor del entregable -->
                                             <div class="entregable-item">
                                                 
-                                                <!-- Checkbox oculto para controlar el desplegable -->
                                                 <input type="checkbox" id="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-toggle">
 
-                                                <!-- Header clickeable -->
                                                 <label for="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-mini">
                                                     <div class="mini-number">{{ forloop.counter }}</div>
                                                     <div class="mini-info">
@@ -585,7 +566,6 @@
                                                     <i class="fas fa-chevron-down entregable-chevron"></i>
                                                 </label>
 
-                                                <!-- Detalles desplegables -->
                                                 <div class="entregable-detalles-desplegable">
                                                     <div class="entregable-detalles-grid">
                                                         <div class="entregable-detalle-columna descripcion">
@@ -600,11 +580,9 @@
                                                     </div>
 
                                                     {% if entregable.archivos.exists %}
-                                                        <!-- Caso: hay archivos -->
                                                         <div class="entregable-documentos">
                                                             <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
                                                             {% if proyecto.estado_pro != "desactivado" and perms.GC2.add_archivo %}
-                                                                <!-- Tiene permisos: mostrar ambos botones -->
                                                                 <div class="botones">
                                                                     <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
                                                                         <i class="fas fa-eye"></i> Ver Archivos
@@ -616,14 +594,12 @@
                                                                     {% endif %}
                                                                 </div>
                                                             {% else %}
-                                                                <!-- NO tiene permisos: mostrar solo Ver Archivos grande -->
                                                                 <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos full-width">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
                                                             {% endif %}
                                                         </div>
 
-                                                        <!-- Modal de archivos -->
                                                         <div id="modal-archivos-{{ entregable.cod_entre }}" class="modal">
                                                             <div class="modal-cont">
                                                             <a href="#" class="modal-cerrar mini">&times;</a>
@@ -662,7 +638,6 @@
                                                         </div>
 
                                                     {% else %}
-                                                        <!-- Caso: NO hay archivos -->
                                                         <div class="entregable-documentos sin-documentos">
                                                             <i class="fas fa-file-alt"></i>
                                                             <p>No hay documentos disponibles</p>
@@ -705,7 +680,6 @@
                 </div>
                 {% endif %}
 
-                <!-- Sección de Formativa-->
                 {% if proyectos_formativos %}
                 <div class="seccion">
                     <div class="header-seccion">
@@ -803,7 +777,6 @@
                                                 <div class="progress-fill" style="width: {{ proyecto.progreso|default:"0" }}%"></div>
                                             </div>
                                         </div>
-                                        <!-- Sección de Equipo -->
                                         <div class="proyecto-equipo">
                                             <div class="equipo-label">
                                                 <i class="fas fa-users"></i>
@@ -885,13 +858,10 @@
                                         {% if proyecto.entregable_set.all %}
                                             {% for entregable in proyecto.entregable_set.all %}
 
-                                            <!-- Contenedor del entregable -->
                                             <div class="entregable-item">
                                                 
-                                                <!-- Checkbox oculto para controlar el desplegable -->
                                                 <input type="checkbox" id="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-toggle">
 
-                                                <!-- Header clickeable -->
                                                 <label for="entregable-{{ proyecto.cod_pro }}-{{ forloop.counter }}" class="entregable-mini">
                                                     <div class="mini-number">{{ forloop.counter }}</div>
                                                     <div class="mini-info">
@@ -911,7 +881,6 @@
                                                     <i class="fas fa-chevron-down entregable-chevron"></i>
                                                 </label>
 
-                                                <!-- Detalles desplegables -->
                                                 <div class="entregable-detalles-desplegable">
                                                     <div class="entregable-detalles-grid">
                                                         <div class="entregable-detalle-columna descripcion">
@@ -926,11 +895,9 @@
                                                     </div>
 
                                                     {% if entregable.archivos.exists %}
-                                                        <!-- Caso: hay archivos -->
                                                         <div class="entregable-documentos">
                                                             <p><strong>Documentos Adjuntos:</strong> {{ entregable.archivos.count }}</p>
                                                             {% if proyecto.estado_pro != "desactivado" and perms.GC2.add_archivo %}
-                                                                <!-- Tiene permisos: mostrar ambos botones -->
                                                                 <div class="botones">
                                                                     <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos">
                                                                         <i class="fas fa-eye"></i> Ver Archivos
@@ -942,14 +909,12 @@
                                                                     {% endif %}
                                                                 </div>
                                                             {% else %}
-                                                                <!-- NO tiene permisos: mostrar solo Ver Archivos grande -->
                                                                 <a href="#modal-archivos-{{ entregable.cod_entre }}" class="badges-documentos full-width">
                                                                     <i class="fas fa-eye"></i> Ver Archivos
                                                                 </a>
                                                             {% endif %}
                                                         </div>
 
-                                                        <!-- Modal de archivos -->
                                                         <div id="modal-archivos-{{ entregable.cod_entre }}" class="modal">
                                                             <div class="modal-cont">
                                                             <a href="#" class="modal-cerrar mini">&times;</a>
@@ -988,7 +953,6 @@
                                                         </div>
 
                                                     {% else %}
-                                                        <!-- Caso: NO hay archivos -->
                                                         <div class="entregable-documentos sin-documentos">
                                                             <i class="fas fa-file-alt"></i>
                                                             <p>No hay documentos disponibles</p>
@@ -1004,7 +968,6 @@
                                                         </div>
                                                     {% endif %}
 
-                                                    <!-- Modal para subir archivos -->
                                                     <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
                                                         <div class="modal-cont">
                                                             <h3><i class="fas fa-cloud-upload-alt"></i> Subir documento</h3>
@@ -1050,7 +1013,6 @@
                 </div>
                 {% endif %}
 
-                <!-- Mensaje cuando no hay ningún proyecto -->
                 {% if not proyectos_sennova and not proyectos_capacidad and not proyectos_formativos %}
                 <div class="sin-proyectos-global">
                     <i class="fas fa-folder-open"></i>
@@ -1063,30 +1025,24 @@
         </div>
     </div>
 
-    <!-- MODAL CREAR PROYECTO -->
+
     <div id="modal-crear" class="modal-overlay">
         <div class="modal-contenedor">
-            <!-- Botón cerrar (X) -->
             <a href="{% url 'resu-proyectos' semillero.id_sem %}" 
                 class="modal-cerrar">&times;</a>
 
             
             <div class="modal-contenido">
-                <!-- Header del modal -->
                 <div class="modal-header">
                     <img src="{% static 'img/project.png' %}" alt="Proyectos">
                     <h2 class="modal-titulo">Crear Nuevo Proyecto</h2>
                 </div>
                 
-                <!-- Formulario -->
                 <form method="POST" action="{% url 'crear_proyecto' semillero.id_sem %}">
                     {% csrf_token %}
                     
-                    <!-- Wrapper de dos columnas -->
                     <div class="modal-form-wrapper">
                         
-                        <!-- COLUMNA 1 -->
-                        <!-- Sección: Información Básica -->
                         <div class="modal-seccion">
                             <div class="modal-seccion-titulo">
                                 <i class="fas fa-info-circle"></i>
@@ -1125,8 +1081,6 @@
                             </div>
                         </div>
                         
-                        <!-- COLUMNA 2 -->
-                        <!-- Sección: Líneas -->
                         <div class="modal-seccion">
                             <div class="modal-seccion-titulo">
                                 <i class="fa-solid fa-flask"></i>
@@ -1171,9 +1125,7 @@
                         </div>
                         
                     </div>
-                    <!-- FIN del wrapper de dos columnas -->
-                    
-                    <!-- ANCHO COMPLETO: Asignar Miembros -->
+
                     <div class="modal-seccion">
                         <div class="modal-seccion-titulo">
                             <i class="fas fa-users"></i>       
@@ -1219,7 +1171,6 @@
                         {% endif %}
                     </div>
 
-                    <!-- ANCHO COMPLETO: Entregables con grid 2x3 -->
                     <div class="modal-seccion entregables-full-width">
                         <div class="modal-seccion-titulo">
                             <i class="fas fa-clipboard-check"></i>
@@ -1233,7 +1184,6 @@
                         
                         <div id="entregables-container">
                             
-                            <!-- Entregable para Sennova/Capacidad Instalada (inicialmente oculto) -->
                             <div class="entregable-item entregable-investigacion" style="display: none;" data-obligatorio="true">
                                 <div class="modal-campo">
                                     <label for="entregable_investigacion">
@@ -1256,9 +1206,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Entregables para Formativos (inicialmente visibles) -->
                             <div class="formativos" style="display:none">
-                                <!-- Entregable 1: Formalización de Proyecto -->
                                 <div class="entregable-item" data-obligatorio="true">
                                     <div class="modal-campo">
                                         <label for="entregable_1">
@@ -1282,7 +1230,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Entregable 2: Diagnóstico -->
                                 <div class="entregable-item" data-obligatorio="true">
                                     <div class="modal-campo">
                                         <label for="entregable_2">
@@ -1306,7 +1253,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Entregable 3: Planeación -->
                                 <div class="entregable-item" data-obligatorio="true">
                                     <div class="modal-campo">
                                         <label for="entregable_3">
@@ -1330,7 +1276,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Entregable 4: Ejecución -->
                                 <div class="entregable-item" data-obligatorio="true">
                                     <div class="modal-campo">
                                         <label for="entregable_4">
@@ -1354,7 +1299,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Entregable 5: Evaluación -->
                                 <div class="entregable-item" data-obligatorio="true">
                                     <div class="modal-campo">
                                         <label for="entregable_5">
@@ -1378,7 +1322,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Entregable 6: Conclusiones -->
                                 <div class="entregable-item" data-obligatorio="true">
                                     <div class="modal-campo">
                                         <label for="entregable_6">
@@ -1407,7 +1350,6 @@
                     
                     <hr class="modal-hr modal-hr-final">
                     
-                    <!-- Acciones del modal -->
                     <div class="modal-acciones">
                         <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
                             <i class="fas fa-times"></i> Cancelar
@@ -1421,27 +1363,21 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR PROYECTO -->
     {% if mostrar_modal_editar and proyecto_editar %}
     <div id="modal-editar" class="modal-overlay activo">
         <div class="modal-contenedor">
 
-            <!-- BOTÓN CERRAR -->
             <a href="#" class="modal-cerrar" onclick="cerrarModal(event,'modal-editar')">×</a>
 
             <div class="modal-contenido">
-
-                <!-- ========== HEADER ========== -->
                 <div class="modal-header">
                     <img src="{% static 'img/project.png' %}" alt="Proyectos">
                     <h2 class="modal-titulo">Editar Proyecto</h2>
                 </div>
 
-                <!-- ========== FORMULARIO ========== -->
                 <form method="POST" action="{% url 'resu-proyectos' semillero.id_sem proyecto_editar.cod_pro %}">
                     {% csrf_token %}
 
-                    <!-- ========== INFORMACIÓN GENERAL ========== -->
                     <div class="modal-seccion">
                         <div class="modal-seccion-titulo">
                             <i class="fas fa-info-circle"></i>
@@ -1487,7 +1423,6 @@
                         </div>
                     </div>
 
-                    <!-- ========== LÍNEAS (3 COLUMNAS) ========== -->
                     <div class="modal-seccion">
                         <div class="modal-seccion-titulo">
                             <i class="fa-solid fa-flask"></i>
@@ -1496,7 +1431,6 @@
                         <hr class="modal-hr modal-hr-terciario">
 
                         <div class="lineas-grid">
-                            <!-- LÍNEAS TECNOLÓGICAS -->
                             <div class="linea-columna">
                                 <label>Líneas Tecnológicas *</label>
                                 <div class="modal-check-group">
@@ -1546,7 +1480,6 @@
                                 </div>
                             </div>
 
-                            <!-- LÍNEAS DE INVESTIGACIÓN -->
                             <div class="linea-columna">
                                 <label>Líneas de Investigación *</label>
                                 <div class="modal-check-group">
@@ -1588,7 +1521,6 @@
                                 </div>
                             </div>
 
-                            <!-- LÍNEAS DE SEMILLERO -->
                             <div class="linea-columna">
                                 <label>Líneas de Semillero *</label>
                                 <div class="modal-check-group">
@@ -1614,7 +1546,6 @@
                         </div>
                     </div>
 
-                    <!-- ========== ASIGNAR MIEMBROS ========== -->
                     <div class="modal-seccion">
                         <div class="modal-seccion-titulo">
                             <i class="fas fa-users"></i>
@@ -1622,7 +1553,6 @@
                         </div>
                         <hr class="modal-hr modal-hr-terciario">
 
-                        <!-- Mostrar equipo actual asignado -->
                         {% if miembros_proyecto_actual %}
                             <div class="equipo-asignado-actual">
                                 <label style="font-weight: 600; margin-bottom: 10px; display: block;">
@@ -1643,7 +1573,6 @@
                             <hr class="separador">
                         {% endif %}
 
-                        <!-- Sección para modificar miembros -->
                         <label style="font-weight: 600; margin-bottom: 10px; display: block;">
                             <i class="fas fa-edit"></i> Modificar Equipo del Proyecto
                         </label>
@@ -1690,7 +1619,6 @@
                             </div>
                         {% endif %}
                     </div>
-                    <!-- ========== CONFIGURACIÓN AVANZADA ========== -->
                     <div class="modal-seccion">
                         <div class="modal-seccion-titulo">
                             <i class="fas fa-cogs"></i>
@@ -1717,7 +1645,6 @@
 
                     <hr class="modal-hr modal-hr-final">
 
-                    <!-- ========== ACCIONES ========== -->
                     <div class="modal-acciones">
                         <a href="#" class="modal-btn modal-btn-cancelar" onclick="cerrarModal(event,'modal-editar')">
                             <i class="fas fa-times"></i> Cancelar
@@ -1732,21 +1659,17 @@
     </div>
     {% endif %}
 
-    <!-- MODAL GESTIONAR MIEMBROS -->
     {% if mostrar_modal_gestionar %}
     <div id="modal-gestionar-miembros" class="modal-overlay activo">
         <div class="modal-contenedor">
-            <!-- Botón cerrar -->
             <a href="#" class="modal-cerrar" onclick="cerrarModal(event,'modal-gestionar-miembros')">×</a>
 
             <div class="modal-contenido">
-                <!-- HEADER -->
                 <div class="modal-header miembros-header">
                     <img src="{% static 'img/People2.png' %}" alt="Equipo">
                     <h2 class="modal-titulo">Gestionar Equipo - {{ proyecto_editar.nom_pro }}</h2>
                 </div>
 
-                <!-- FORMULARIO -->
                 <form method="GET" action="{% url 'resu-proyectos' semillero.id_sem proyecto_editar.cod_pro %}">
                     <input type="hidden" name="gestionar_equipo" value="1">
                     
@@ -1758,7 +1681,6 @@
                         <hr class="modal-hr modal-hr-primario">
 
                         <div class="modal-filtros-grid">
-                            <!-- Campo de búsqueda -->
                             <div class="modal-campo">
                                 <label for="busqueda_usuario">Buscar por nombre o correo</label>
                                 <input type="text" 
@@ -1768,7 +1690,6 @@
                                     placeholder="Escribe para buscar...">
                             </div>
 
-                            <!-- Filtro por rol -->
                             <div class="modal-campo">
                                 <label for="filtro_rol">Filtrar por rol</label>
                                 <select id="filtro_rol" name="filtro_rol" onchange="this.form.submit()">
@@ -1780,7 +1701,6 @@
                                 </select>
                             </div>
 
-                            <!-- Filtro por estado -->
                             <div class="modal-campo">
                                 <label for="filtro_estado">Filtrar por estado</label>
                                 <select id="filtro_estado" name="filtro_estado" onchange="this.form.submit()">
@@ -1790,7 +1710,6 @@
                                 </select>
                             </div>
 
-                            <!-- Reemplaza el botón actual por este -->
                             <div class="botones-item">
                                 <a href="{% url 'resu-proyectos' semillero.id_sem proyecto_editar.cod_pro %}?gestionar_equipo=1" 
                                     class="limpiar">
@@ -1803,12 +1722,10 @@
                     <div class="modal-seccion lista-miembros-modal">
                         {% for miembro in miembros_proyecto_actual %}
                             <div class="item-miembro-modal" data-cedula="{{ miembro.cedula }}">
-                                <!-- Avatar -->
                                 <div class="avatar-miembro" data-color="{{ forloop.counter }}">
                                     {{ miembro.iniciales }}
                                 </div>
                                 
-                                <!-- Información del miembro -->
                                 <div class="info-miembro">
                                     <h4>{{ miembro.nombre_completo }}</h4>
                                     <span class="rol-miembro">{{ miembro.rol }}</span>
@@ -1817,33 +1734,26 @@
                                     {% endif %}
                                 </div>
                                 
-                                <!-- Estado -->
                                 {% if miembro.estado == 'activo' %}
                                     <span class="estado-miembro activo">Activo</span>
                                 {% else %}
                                     <span class="estado-miembro inactivo">Inactivo</span>
                                 {% endif %}
                                 
-                                <!-- Acciones -->
                                 <div class="acciones-miembro">
-                                    <!-- Verificar primero si es Líder de Semillero -->
                                     {% if miembro.es_lider_sem %}
                                         <i class="fas fa-medal lider-sem-icon" title="Líder del Semillero"></i>
                                     
-                                    <!-- Si no es líder de semillero, verificar otros roles -->
                                     {% elif miembro.rol|lower == 'instructor' or miembro.rol|lower == 'investigador' or miembro.rol|lower == 'líder de proyecto' or miembro.rol|lower == 'lider de proyecto' %}
                                         
                                         {% if miembro.es_lider %}
-                                            <!-- Ya es líder de proyecto -->
                                             <i class="fas fa-star lider-icon" title="Líder del Proyecto"></i>
                                         {% elif miembro.estado == 'inactivo' %}
-                                            <!-- Inactivo -->
                                             <i class="far fa-star desactivado" 
                                             title="Miembro inactivo – no puede ser líder" 
                                             aria-disabled="true"
                                             style="cursor: not-allowed; opacity: 0.5;"></i>
                                         {% else %}
-                                            <!-- Puede ser asignado como líder -->
                                             <i class="far fa-star" 
                                             title="Asignar como Líder" 
                                             onclick="asignarLiderProyecto('{{ miembro.cedula }}')"
@@ -1851,34 +1761,28 @@
                                         {% endif %}
                                         
                                     {% else %}
-                                        <!-- Otros roles -->
                                         <span style="width: 24px; display: inline-block;"></span>
                                     {% endif %}
                                     
-                                    <!-- Toggle de estado -->
                                     {% if miembro.es_lider %}
-                                        <!-- Si es líder de PROYECTO, mostrar toggle desactivado -->
                                         <i class="fas fa-toggle-{% if miembro.estado == 'activo' %}on{% else %}off{% endif %} toggle-desactivado"
                                         title="No se puede desactivar al líder del proyecto"
                                         aria-disabled="true"
                                         style="cursor: not-allowed; opacity: 0.5;"></i>
                                         
                                     {% elif miembro.rol|lower == 'líder de semillero' or miembro.rol|lower == 'lider de semillero' %}
-                                        <!-- Si es líder de SEMILLERO, mostrar toggle desactivado -->
                                         <i class="fas fa-toggle-{% if miembro.estado == 'activo' %}on{% else %}off{% endif %} toggle-desactivado"
                                         title="No se puede desactivar al líder del semillero"
                                         aria-disabled="true"
                                         style="cursor: not-allowed; opacity: 0.5;"></i>
                                         
                                     {% else %}
-                                        <!-- Si no es líder, toggle normal -->
                                         <i class="fas {% if miembro.estado == 'activo' %}fa-toggle-on{% else %}fa-toggle-off{% endif %}"
                                         title="Alternar Estado"
                                         onclick="alternarEstadoMiembro('{{ miembro.cedula }}')"
                                         style="cursor: pointer;"></i>
                                     {% endif %}
                                     
-                                    <!-- Ver detalles -->
                                     <i class="fas fa-eye"
                                     title="Ver Detalles"
                                     onclick="verDetallesMiembro('{{ miembro.cedula }}')"
@@ -1919,7 +1823,6 @@
                     id="form-subir-{{ entregable.cod_entre }}">
                     {% csrf_token %}
                     
-                    <!-- CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
                     {% if proyecto.tipo|lower == 'sennova' or proyecto.tipo|lower == 'capacidadinstalada' or proyecto.tipo|lower == 'capacidad instalada' %}
                     <div class="seccion-categorizacion">
                         <h6 class="seccion-titulo">
@@ -1965,7 +1868,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- SECCIÓN DE ARCHIVOS (para todos los tipos) -->
                     <div class="seccion-archivos">
                         <h6 class="seccion-titulo">
                             <i class="fas fa-paperclip"></i> Archivos Adjuntos
@@ -1991,7 +1893,6 @@
                         <div id="preview-archivos-{{ entregable.cod_entre }}" class="preview-archivos"></div>
                     </div>
 
-                    <!-- BOTONES DE ACCIÓN -->
                     <div class="modal-botones">
                         <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">
                             <i class="fas fa-times"></i> Cancelar
@@ -2006,7 +1907,6 @@
         {% endfor %}
     {% endfor %}
 
-    <!-- Capacidad Instalada -->
     {% for proyecto in proyectos_capacidad %}
         {% for entregable in proyecto.entregable_set.all %}
         <div id="modal-subir-{{ entregable.cod_entre }}" class="modal">
@@ -2025,7 +1925,6 @@
                     id="form-subir-{{ entregable.cod_entre }}">
                     {% csrf_token %}
                     
-                    <!-- CATEGORIZACIÓN (solo para Sennova/Capacidad Instalada) -->
                     {% if proyecto.tipo|lower == 'sennova' or proyecto.tipo|lower == 'capacidadinstalada' or proyecto.tipo|lower == 'capacidad instalada' %}
                     <div class="seccion-categorizacion">
                         <h6 class="seccion-titulo">
@@ -2071,7 +1970,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- ✅ SECCIÓN DE ARCHIVOS -->
                     <div class="seccion-archivos">
                         <h6 class="seccion-titulo">
                             <i class="fas fa-paperclip"></i> Archivos Adjuntos
@@ -2097,7 +1995,6 @@
                         <div id="preview-archivos-{{ entregable.cod_entre }}" class="preview-archivos"></div>
                     </div>
 
-                    <!-- ✅ BOTONES DE ACCIÓN -->
                     <div class="modal-botones">
                         <a href="{% url 'resu-proyectos' semillero.id_sem %}" class="btn-cancelar">
                             <i class="fas fa-times"></i> Cancelar
@@ -2114,7 +2011,6 @@
 
     {% if proyecto_editar %}
     <script>
-    // Función para obtener el token CSRF
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -2132,16 +2028,13 @@
 
     const csrftoken = getCookie('csrftoken');
 
-    // Función para asignar líder de proyecto
     function asignarLiderProyecto(cedula) {
-        // Obtener información del miembro
         const itemMiembro = document.querySelector(`[data-cedula="${cedula}"]`);
         if (!itemMiembro) {
             console.error('No se encontró el miembro con cédula:', cedula);
             return;
         }
 
-        // Obtener el nombre del miembro del DOM
         const nombreMiembro = itemMiembro.querySelector('.info-miembro h4').textContent;
 
         const estadoSpan = itemMiembro.querySelector('.estado-miembro');
@@ -2164,7 +2057,6 @@
         .then(data => {
             if (data.success) {
                 mostrarMensajeExito(data.mensaje);
-                // Recargar la página después de mostrar el mensaje
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -2178,7 +2070,6 @@
         });
     }
 
-    // Función para alternar estado del miembro
     function alternarEstadoMiembro(cedula) {
         const itemMiembro = document.querySelector(`[data-cedula="${cedula}"]`);
         if (!itemMiembro) {
@@ -2197,21 +2088,17 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Actualizar el estado visual sin recargar la página
                 const estadoSpan = itemMiembro.querySelector('.estado-miembro');
                 const toggleIcon = itemMiembro.querySelector('.acciones-miembro .fa-toggle-on, .acciones-miembro .fa-toggle-off');
                 const starIcon = itemMiembro.querySelector('.acciones-miembro .fa-star:not(.lider-icon), .acciones-miembro .far.fa-star:not(.lider-icon)');
                 
-                // Cambiar texto y clases del estado
                 estadoSpan.textContent = data.nuevo_estado.charAt(0).toUpperCase() + data.nuevo_estado.slice(1);
                 estadoSpan.className = `estado-miembro ${data.nuevo_estado}`;
                 
-                // Cambiar ícono del toggle
                 if (data.nuevo_estado === 'activo') {
                     toggleIcon.classList.remove('fa-toggle-off');
                     toggleIcon.classList.add('fa-toggle-on');
                     
-                    // SOLO reactivar la estrella si existe Y no es líder actual
                     if (starIcon) {
                         starIcon.classList.remove('desactivado');
                         starIcon.removeAttribute('aria-disabled');
@@ -2223,8 +2110,6 @@
                 } else {
                     toggleIcon.classList.remove('fa-toggle-on');
                     toggleIcon.classList.add('fa-toggle-off');
-                    
-                    // SOLO desactivar la estrella si existe Y no es líder actual
                     if (starIcon) {
                         starIcon.classList.add('desactivado');
                         starIcon.setAttribute('aria-disabled', 'true');
@@ -2235,10 +2120,8 @@
                     }
                 }
 
-                // Mostrar mensaje visual de éxito
                 mostrarMensajeExito(data.mensaje);
             } else {
-                // Mostrar mensaje de error
                 mostrarMensajeError(data.error);
             }
         })
@@ -2248,14 +2131,12 @@
         });
     }
 
-    // Función para mostrar mensaje de éxito
     function mostrarMensajeExito(mensaje, tipo) {
-        // Paleta de colores según el tipo de mensaje
         const colores = {
-            success: "#4CAF50",   // Verde
-            error: "#E53935",     // Rojo
-            warning: "#FF9800",   // Naranja
-            info: "#2196F3"       // Azul
+            success: "#4CAF50",  
+            error: "#E53935", 
+            warning: "#FF9800",   
+            info: "#2196F3"   
         };
 
         const mensajeDiv = document.createElement('div');
@@ -2278,13 +2159,11 @@
 
         document.body.appendChild(mensajeDiv);
 
-        // Activar animación (entrada)
         setTimeout(() => {
             mensajeDiv.style.opacity = "1";
             mensajeDiv.style.transform = "translateX(0)";
         }, 50);
 
-        // Ocultar después de 2.5s
         setTimeout(() => {
             mensajeDiv.style.opacity = "0";
             mensajeDiv.style.transform = "translateX(50px)";
@@ -2292,9 +2171,7 @@
         }, 2500);
     }
 
-    // Función para ver detalles del miembro
     function verDetallesMiembro(cedula) {
-        // Redirigir a la página de miembros con el ID del miembro seleccionado
         window.location.href = "{% url 'miembros' %}?miembro_id=" + cedula;
     }
     </script>
@@ -2317,10 +2194,8 @@
             select.addEventListener("change", actualizar);
         }
 
-        // Para crear
         activarCampoPrograma("tipo", "campo_programa");
 
-        // Para editar
         activarCampoPrograma("tipo_edit", "campo_programa_edit");
 
     });
@@ -2358,7 +2233,6 @@
                 modal.style.display = "";
             }
 
-            // Limpiar backdrop
             const backdrop = document.querySelector(".modal-backdrop");
             if (backdrop) backdrop.remove();
 
@@ -2366,13 +2240,11 @@
             document.body.style.overflow = "auto";
             document.body.style.paddingRight = "";
 
-            // ✅ SIN HASH
             const baseUrl = "{% url 'resu-proyectos' semillero.id_sem %}";
             history.pushState(null, "", baseUrl);
         }
     </script>
     <script>
-    // ==================== ESTRUCTURA DE CATEGORÍAS ====================
     const estructuraCategorias = {
         tipo1: {
             titulo: 'Tipo 1: Generación de Nuevo Conocimiento',
@@ -2519,12 +2391,9 @@
             ]
         }
     };
-
-    // ==================== INICIALIZACIÓN ====================
     document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Sistema de categorización unificado inicializado');
         
-        // Configurar todos los formularios de entregables
         const formularios = document.querySelectorAll('[id^="form-subir-"]');
         
         formularios.forEach(form => {
@@ -2534,7 +2403,6 @@
         });
     });
 
-    // ==================== CONFIGURAR FORMULARIO POR ENTREGABLE ====================
     function configurarFormularioEntregable(codEntregable) {
         const selectCategoria = document.getElementById(`categoria_principal_${codEntregable}`);
         const selectProducto = document.getElementById(`producto_especifico_${codEntregable}`);
@@ -2544,12 +2412,10 @@
             return;
         }
         
-        // Listener: cuando cambia la categoría
         selectCategoria.addEventListener('change', function() {
             actualizarProductos(codEntregable, this.value);
         });
         
-        // Listener: cuando cambia el producto
         if (selectProducto) {
             selectProducto.addEventListener('change', function() {
                 actualizarSubcategorias(codEntregable, this.value);
@@ -2559,7 +2425,6 @@
         console.log(`✅ Formulario configurado para entregable: ${codEntregable}`);
     }
 
-    // ==================== ACTUALIZAR PRODUCTOS ====================
     function actualizarProductos(codEntregable, tipoCategoria) {
         console.log(`🔄 Actualizando productos para ${codEntregable}, tipo: ${tipoCategoria}`);
         
@@ -2572,15 +2437,12 @@
             return;
         }
         
-        // Limpiar select de productos
         selectProducto.innerHTML = '<option value="" disabled selected>Seleccione un producto...</option>';
         
-        // Limpiar subcategorías
         if (containerSubcat) {
             containerSubcat.innerHTML = '';
         }
         
-        // Obtener productos del tipo seleccionado
         const estructura = estructuraCategorias[tipoCategoria];
         if (!estructura) {
             console.error('❌ No se encontró estructura para:', tipoCategoria);
@@ -2589,7 +2451,6 @@
         
         console.log('✅ Productos encontrados:', estructura.productos.length);
         
-        // Llenar productos
         estructura.productos.forEach(prod => {
             const option = document.createElement('option');
             option.value = prod.valor;
@@ -2597,17 +2458,14 @@
             selectProducto.appendChild(option);
         });
         
-        // Mostrar contenedor de productos
         if (containerProducto) {
             containerProducto.style.display = 'block';
             console.log('✅ Contenedor de productos mostrado');
         }
         
-        // Actualizar JSON
         actualizarCampoJSON(codEntregable);
     }
 
-    // ==================== ACTUALIZAR SUBCATEGORÍAS ====================
     function actualizarSubcategorias(codEntregable, valorProducto) {
         console.log(`🔄 Actualizando subcategorías para ${codEntregable}, producto: ${valorProducto}`);
         
@@ -2619,15 +2477,12 @@
             return;
         }
         
-        // Limpiar subcategorías anteriores
         containerSubcat.innerHTML = '';
         
-        // Obtener tipo de categoría actual
         const tipoCategoria = selectCategoria.value;
         const estructura = estructuraCategorias[tipoCategoria];
         if (!estructura) return;
         
-        // Buscar el producto seleccionado
         const productoData = estructura.productos.find(p => p.valor === valorProducto);
         if (!productoData || !productoData.subcategorias || productoData.subcategorias.length === 0) {
             console.log('ℹ️ No hay subcategorías para este producto');
@@ -2637,7 +2492,6 @@
         
         console.log('✅ Subcategorías encontradas:', productoData.subcategorias.length);
         
-        // Crear campos de subcategorías
         productoData.subcategorias.forEach(subcat => {
             const campoDiv = crearCampoSubcategoria(subcat, codEntregable);
             if (campoDiv) {
@@ -2645,11 +2499,9 @@
             }
         });
         
-        // Actualizar campo oculto JSON
         actualizarCampoJSON(codEntregable);
     }
 
-    // ==================== CREAR CAMPO DE SUBCATEGORÍA ====================
     function crearCampoSubcategoria(subcategoria, codEntregable) {
         const wrapper = document.createElement('div');
         wrapper.className = 'campo-formulario';
@@ -2675,7 +2527,6 @@
             optDefault.textContent = 'Seleccione...';
             select.appendChild(optDefault);
             
-            // Opciones
             subcategoria.opciones.forEach(opt => {
                 const option = document.createElement('option');
                 option.value = opt;
@@ -2683,7 +2534,6 @@
                 select.appendChild(option);
             });
             
-            // Evento change
             select.addEventListener('change', () => actualizarCampoJSON(codEntregable));
             
             wrapper.appendChild(select);
@@ -2697,7 +2547,6 @@
             input.dataset.nombre = subcategoria.nombre;
             input.dataset.codEntregable = codEntregable;
             
-            // Evento input
             input.addEventListener('input', () => actualizarCampoJSON(codEntregable));
             
             wrapper.appendChild(input);
@@ -2723,7 +2572,6 @@
                 checkbox.dataset.nombre = subcategoria.nombre;
                 checkbox.dataset.codEntregable = codEntregable;
                 
-                // Evento change
                 checkbox.addEventListener('change', () => actualizarCampoJSON(codEntregable));
                 
                 const span = document.createElement('span');
@@ -2739,35 +2587,28 @@
         
         return wrapper;
     }
-
-    // ==================== ACTUALIZAR CAMPO JSON OCULTO ====================
     function actualizarCampoJSON(codEntregable) {
         const datos = {};
         
-        // Capturar categoría principal
         const selectPrincipal = document.getElementById(`categoria_principal_${codEntregable}`);
         if (selectPrincipal && selectPrincipal.value) {
             datos.categoria = selectPrincipal.value;
         }
         
-        // Capturar producto específico
         const selectProducto = document.getElementById(`producto_especifico_${codEntregable}`);
         if (selectProducto && selectProducto.value) {
             datos.producto = selectProducto.value;
         }
-        
-        // Capturar subcategorías (selects y text)
         const campos = document.querySelectorAll(`[data-cod-entregable="${codEntregable}"]`);
         campos.forEach(campo => {
-            if (campo.type === 'checkbox') return; // Los checkboxes se procesan aparte
+            if (campo.type === 'checkbox') return; 
             
             const nombre = campo.dataset.nombre;
             if (campo.value) {
                 datos[nombre] = campo.value;
             }
         });
-        
-        // Capturar checkboxes
+
         const checkboxGroups = {};
         const checkboxes = document.querySelectorAll(`[data-cod-entregable="${codEntregable}"][type="checkbox"]:checked`);
         checkboxes.forEach(checkbox => {
@@ -2778,10 +2619,8 @@
             checkboxGroups[nombre].push(checkbox.value);
         });
         
-        // Agregar arrays de checkboxes
         Object.assign(datos, checkboxGroups);
         
-        // Actualizar campo oculto
         const inputHidden = document.getElementById(`subcategorias_json_${codEntregable}`);
         if (inputHidden) {
             inputHidden.value = JSON.stringify(datos);
@@ -2789,8 +2628,8 @@
         }
     }
 
-    // ==================== VALIDACIÓN ANTES DE ENVIAR ====================
-    // Función opcional para validar antes de submit
+    // VALIDACIÓN ANTES DE ENVIAR 
+
     function validarCategorizacionEntregable(codEntregable) {
         const inputJson = document.getElementById(`subcategorias_json_${codEntregable}`);
         
@@ -2817,7 +2656,6 @@
         }
     }
 
-    // Exponer funciones globalmente si es necesario
     window.actualizarProductos = actualizarProductos;
     window.actualizarSubcategorias = actualizarSubcategorias;
     window.validarCategorizacionEntregable = validarCategorizacionEntregable;

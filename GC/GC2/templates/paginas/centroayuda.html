@@ -7,7 +7,7 @@
 {% endblock %}
 {% block contenido %} {% endblock %}
 {% block main %}
-<!-- Mensajes de alerta -->
+
     {% if messages %}
     <script>
         {% for message in messages %}
@@ -26,7 +26,6 @@
             <h3>Búsqueda y Filtrados</h3>
             <form method="GET" action="">
                 <div class="filtros">
-                    <!-- Buscador -->
                     <div class="input-group">
                         <input type="text"
                             name="buscar" 
@@ -48,7 +47,6 @@
         </div>
 
         <div class="recursos">
-            <!-- Sección: Manuales y Documentación -->
             <div class="grupo">
                 <div class="card">
                     <div class="icon-cont documentos">
@@ -85,7 +83,6 @@
                 </div>
             </div>
             
-            <!-- Sección: Video Tutoriales -->
             <div class="grupo">
                 <div class="card">
                     <div class="icon-cont tutoriales">
@@ -123,8 +120,7 @@
                     </ul>
                 </div>
             </div>
-
-            <!-- Sección: Preguntas y Soporte -->
+            
             <div class="grupo">
                 <div class="card">
                     <div class="icon-cont soporte">

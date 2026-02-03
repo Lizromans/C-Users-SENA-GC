@@ -29,7 +29,6 @@
     margin-bottom: auto;
 }
 
-/* ====== BUSCADOR ====== */
 .buscador {
     display: flex;
     flex-wrap: wrap;
@@ -44,7 +43,6 @@
     max-width: 98%;
 }
 
-/* Input búsqueda */
 .input-group {
     position: relative;
     flex: 1;
@@ -97,7 +95,6 @@
    
 }
 
-/* Fechas */
 .filtros-fecha {
     display: flex;
     gap: clamp(8px, 1.5vw, 12px);
@@ -141,7 +138,6 @@
     border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* ====== CONTENEDOR DEL BOTÓN LIMPIAR ====== */
 .botones-item {
     display: flex;
     justify-content: flex-end;
@@ -204,7 +200,6 @@
     color: var(--color-sidebar-bg);
 }
 
-/* ====== CONTENEDOR SEMILLEROS ====== */
 .contenedor-semillero {
     background-color: var(--color-fondo-secundario);
     display: flex;
@@ -226,7 +221,6 @@
     gap: clamp(10px, 2vw, 20px);
 }
 
-/* Botón crear semillero */
 .btn {
     color: white;
     border: none;
@@ -282,7 +276,6 @@
     font-size: clamp(12px, 1.3vw, 14px);
 }
 
-/* Grid de semilleros */
 .grid-semilleros {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -291,7 +284,6 @@
     justify-items: center;
 }
 
-/* Cuando no hay semilleros, ocupa todo el ancho */
 .grid-semilleros .no-semilleros {
     grid-column: 1 / -1;
 }
@@ -305,7 +297,7 @@
     flex-direction: column;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
-    max-width: 480px; /* todas iguales */
+    max-width: 480px;
 }
 
 .card-semillero::before {
@@ -480,7 +472,6 @@
     font-size: clamp(14px, 2vw, 16px);
 }
 
-/* === Botón Activar cuando está desactivado === */
 .card-acciones .btn-activar.success {
     border-color: #4CAF50;
     color: #0a0a0a;
@@ -491,7 +482,6 @@
     color: white;
 }
 
-/* === Botón Desactivar cuando está activo === */
 .card-acciones .btn-activar.danger {
     border-color: #f44336;
     color: #f44336;
@@ -502,9 +492,8 @@
     color: white;
 }
 
-/* Mensaje cuando no hay semilleros - Responsive con clamp */
 .no-semilleros {
-    grid-column: 1 / -1; /* Ocupa todas las columnas */
+    grid-column: 1 / -1;
     text-align: center;
     padding: clamp(2rem, 4vw, 3rem) clamp(1rem, 2vw, 1.5rem);
     color: #6c757d;
@@ -527,7 +516,6 @@
     font-weight: 500;
 }
 
-/* Animación opcional para hacer más atractivo */
 .no-semilleros {
     animation: fadeIn 0.5s ease-in;
 }
@@ -543,7 +531,6 @@
     }
 }
 
-/* =======MODAL================ */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -608,12 +595,10 @@
     transform: rotate(90deg);
 }
 
-/* Contenido principal del modal */
 .modal-contenido {
     padding: clamp(30px, 4vw, 50px);
 }
 
-/* ====== HEADER DEL MODAL ====== */
 .modal-header {
     display: flex;
     background-color: transparent!important;
@@ -640,7 +625,6 @@
     margin: 0;
 }
 
-/* ====== SECCIONES DEL MODAL ====== */
 .modal-seccion {
     background-color: #fafafa;
     padding: clamp(15px, 2.5vw, 25px);
@@ -672,7 +656,6 @@
     margin: 0;
 }
 
-/* HRs con colores */
 .modal-hr {
     border: none;
     height: 3px;
@@ -701,7 +684,6 @@
     margin: clamp(15px, 2.5vh, 25px) 0;
 }
 
-/* ====== FORMULARIO ====== */
 .modal-form {
     display: flex;
     flex-direction: column;
@@ -758,7 +740,6 @@
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
 }
 
-/* Mensaje sin datos */
 .modal-sin-datos {
     grid-column: 1 / -1;
     text-align: center;
@@ -777,7 +758,6 @@
     margin-bottom: clamp(8px, 1.5vh, 12px);
 }
 
-/* ====== BOTONES DEL MODAL ====== */
 .modal-acciones {
     display: flex;
     gap: clamp(10px, 2vw, 15px);
@@ -804,7 +784,6 @@
     font-size: clamp(0.85rem, 1.5vw, 1rem);
 }
 
-/* Botón cancelar */
 .modal-btn-cancelar {
     background-color: transparent;
     color: var(--color-text-secondary);
@@ -816,7 +795,6 @@
     border-color: var(--color-text-secondary);
 }
 
-/* Botón primario */
 .modal-btn-primario {
     background-color: #39A900;
     color: white;
@@ -830,7 +808,6 @@
     box-shadow: 0 6px 20px rgba(57, 169, 0, 0.4);
 }
 
-/* Botón secundario */
 .modal-btn-secundario {
     background-color: rgba(57, 169, 0, 0.15);
     border: 3px solid #39A900;
@@ -858,7 +835,6 @@
     box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
 }
 
-/* Botón guardar centrado */
 .modal-btn-centrado {
     width: fit-content;
     min-width: clamp(150px, 30%, 250px);
@@ -866,7 +842,6 @@
     justify-content: center;
 }
 
-/* ====== CARD DE RESUMEN ====== */
 .modal-card-resumen {
     background-color: #f8f9fa;
     border-radius: clamp(10px, 2vw, 16px);
@@ -923,7 +898,6 @@
     color: #f44336;
 }
 
-/* ====== ANIMACIONES ====== */
 @keyframes modalFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -940,7 +914,6 @@
     }
 }
 
-/* ====== OBJETIVOS DINÁMICOS ====== */
 #objetivos-container {
     display: flex;
     flex-direction: column;
@@ -988,7 +961,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     flex-shrink: 0;
-    margin-top: clamp(24px, 4vh, 30px); /* Alinear con el textarea */
+    margin-top: clamp(24px, 4vh, 30px);
 }
 
 .btn-eliminar-objetivo:hover:not(:disabled) {
@@ -1037,7 +1010,6 @@
     font-size: clamp(1rem, 1.8vw, 1.2rem);
 }
 
-/* ====== MODO ELIMINAR SEMILLEROS ====== */
 .modo-eliminar-acciones {
     display: none;
     background-color: #fff3cd;
@@ -1113,7 +1085,6 @@
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
 
-/* Checkbox de eliminación */
 .checkbox-eliminar {
     display: none;
 }
@@ -1142,12 +1113,10 @@
     transition: opacity 0.2s ease;
 }
 
-/* Mostrar checkbox cuando el modo eliminar está activo */
 .modo-eliminar-acciones:target ~ .grid-semilleros .checkbox-label {
     display: flex;
 }
 
-/* Checkbox seleccionado */
 .checkbox-eliminar:checked + .checkbox-label {
     background-color: #dc3545;
     border-color: #dc3545;
@@ -1162,12 +1131,10 @@
     transform: scale(1.05);
 }
 
-/* Estilo de la card cuando está seleccionada */
 .checkbox-eliminar:checked ~ .card-body {
     opacity: 0.6;
 }
 
-/* Ajustar posición relativa para el checkbox */
 .card-semillero {
     position: relative;
 }

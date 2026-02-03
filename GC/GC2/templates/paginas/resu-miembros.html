@@ -44,7 +44,6 @@
             
             <div class="lista-miembros">
                 {% if miembros %}
-                    <!-- Sección de Instructores con Carrusel -->
                     {% if tiene_instructores %}
                         <div class="seccion-miembros">
                             <div class="bg-particles">
@@ -71,7 +70,6 @@
                                     {% for m in instructores %}
                                         <div class="card" data-index="{{ forloop.counter0 }}">
                                             <div class="item-miembro">
-                                                <!-- Ícono de líder -->
                                                 <div class="lider">
                                                     {% if m.es_lider %}
                                                         <i class="fas fa-medal" title="Líder del Semillero" style="color: #FFD700;"></i>
@@ -81,7 +79,6 @@
                                                     {% endif %}
                                                 </div>
                                                     
-                                                <!-- Estado arriba a la derecha -->
                                                 <div class="estado-miembro">
                                                     {% if m.cedula.estado %}
                                                         <span class="badge-activo">Activo</span>
@@ -89,13 +86,9 @@
                                                         <span class="badge-inactivo">Inactivo</span>
                                                     {% endif %}
                                                 </div>
-
-                                                <!-- Avatar centrado -->
                                                 <div class="avatar-miembro" data-color="{{ forloop.counter }}">
                                                     {{ m.cedula.get_iniciales }}
                                                 </div>
-
-                                                <!-- Información del usuario -->
                                                 <div class="info-miembro">
                                                     <h4>{{ m.cedula.nom_usu }} {{ m.cedula.ape_usu }}</h4>
                                                     <span class="rol-miembro">{{ m.cedula.rol }}</span>
@@ -108,7 +101,6 @@
                                 <button class="nav-arrow right" data-carousel="instructores">›</button>
                             </div>
 
-                            <!-- Dots del carrusel -->
                             <div class="dots" data-carousel="instructores">
                                 {% for m in miembros %}
                                     {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
@@ -124,7 +116,6 @@
                 
                
                 {% if aprendices %}
-                    <!-- Sección de Aprendices con Carrusel -->
                     <div class="seccion-miembros">
                         <div class="header-seccion">
                             <img src="{% static 'img/student.png' %}" alt="Icono de Aprendices" class="icono-seccion">
@@ -174,7 +165,6 @@
         </div>
     </div>
 
-<!-- MODAL BUSCAR MIEMBROS -->
 <div id="modal-crear" class="modal-overlay">
     <div class="modal-contenedor modal-miembros">
         <a href="{% url 'resu-miembros' semillero.id_sem %}" class="modal-cerrar">&times;</a>
@@ -224,41 +214,33 @@
         </div>
     </div>
 </div>
-
-<!-- MODAL ASIGNAR LÍDER DE SEMILLERO -->
 <div id="modal-semillero" class="modal-overlay">
     <div class="modal-contenedor modal-miembros">
-        <!-- Botón cerrar -->
         <a href="{% url 'resu-miembros' semillero.id_sem %}" 
            class="modal-cerrar" 
            onclick="cerrarModal('modal-semillero'); return false;">&times;</a>
 
-        <!-- Formulario -->
         <form method="POST" action="{% url 'asignar-lider-semillero' semillero.id_sem %}">
             {% csrf_token %}
             
             <div class="modal-contenido">
 
-                <!-- Encabezado -->
                 <div class="modal-header">
                     <img src="{% static 'img/Medal.png' %}" alt="Icono de semilleros">
                     <h2 class="modal-titulo">
                         Asignar Líder del Semillero: <span>{{ semillero.sigla }}</span>
                     </h2>
                 </div>
-               
-                <!-- Lista de miembros -->
+
                 <div class="lista-miembros-modal">
                     {% if miembros %}
                         {% for m in miembros %}
                             {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador"  or m.cedula.rol|lower == "líder" or m.cedula.rol|lower == "lider" %}
                                 <div class="item-miembro-modal {% if m.es_lider %}item-lider{% endif %}">
-                                    <!-- Avatar -->
                                     <div class="avatar-miembro" data-color="{{ forloop.counter }}">
                                         {{ m.cedula.get_iniciales }}
                                     </div>
 
-                                    <!-- Información -->
                                     <div class="info-miembro">
                                         <h4>
                                             {{ m.cedula.nom_usu }} {{ m.cedula.ape_usu }}
@@ -276,7 +258,6 @@
                                             {% endif %}
                                         {% endif %}
                                      </div>
-                                    <!-- Selección de líder -->
                                     <div class="check">
                                         <label>
                                             <input 
@@ -301,7 +282,6 @@
 
                 <hr class="modal-hr modal-hr-final">
 
-                <!-- Acciones -->
                 <div class="modal-acciones">
                     <a href="{% url 'resu-miembros' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
                         <i class="fas fa-times"></i> Cancelar

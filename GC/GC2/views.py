@@ -109,7 +109,6 @@ def descifrar_numero(numero_cifrado):
 @require_http_methods(["GET"])
 def api_notificaciones(request):
     try:
-        # Verificar que hay sesión activa
         if not request.session.get('cedula'):
             return JsonResponse({
                 'success': False,
@@ -232,7 +231,6 @@ def api_limpiar_todas(request):
 
 # VISTA BIENVENIDO
 def bienvenido(request):
-    # CONTADORES DINÁMICOS
     investigadores = Usuario.objects.filter(rol="Investigador").count()
     instructores = Usuario.objects.filter(rol="Instructor").count()
     semilleros = Semillero.objects.count()
@@ -262,7 +260,6 @@ def registro(request):
             try:
                 usuario = form.save(commit=False)
                 
-                # Configurar estado inicial
                 usuario.email_verificado = False
                 usuario.is_active = True       
                 usuario.estado = 'Activo'
@@ -270,10 +267,8 @@ def registro(request):
                 usuario.save()
 
                 try:
-                    # Generar token (esto guarda automáticamente)
                     usuario.generar_token_verificacion()
                     
-                    # Enviar email de verificación
                     usuario.enviar_email_verificacion(request)
                     
                     messages.success(
@@ -301,7 +296,6 @@ def registro(request):
                 traceback.print_exc()
                 
         else:
-            # Manejo de errores del formulario
             errores_contexto = {}
             
             mapeo_errores = {

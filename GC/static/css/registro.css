@@ -13,7 +13,6 @@ body {
     position: relative;
 }
 
-/* ====== PARTÍCULAS DE FONDO ====== */
 .bg-particles {
     position: fixed !important;
     top: 0;
@@ -36,7 +35,6 @@ body {
     visibility: visible !important;
 }
 
-/* Partículas individuales con colores vibrantes */
 .particle:nth-child(1) {
     width: 15px; height: 15px; top: 15%; left: 10%; animation-delay: 0s;
     background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(255, 255, 255, 0.8));
@@ -97,7 +95,6 @@ body {
     }
 }
 
-/* ====== MENSAJES DE ALERTA ====== */
 .mensajes-container {
     position: fixed;
     top: 16%;
@@ -160,16 +157,14 @@ body {
     }
 }
 
-/* ====== ERRORES ====== */
 .form-group {
     position: relative;
 }
 
-/* ===== MENSAJES EN LOGIN (DERECHA - con clase active) ===== */
 .container.active .error-container,
 .container.active .error-correo,
 .container.active .error-contra {
-    left: 102%; /* Posición a la derecha */
+    left: 102%;
     right: auto;
     font-family: 'Work Sans', sans-serif;
 }
@@ -178,11 +173,10 @@ body {
 .container.active .error-cedula,
 .container.active .error-rol {
     right: auto;
-    left: 102%; /* Posición a la derecha */
+    left: 102%; 
     font-family: 'Work Sans', sans-serif;
 }
 
-/* Flecha apuntando a la izquierda para mensajes de login */
 .container.active .error-container::after,
 .container.active .error-correo::after,
 .container.active .error-contra::after,
@@ -200,11 +194,10 @@ body {
     border-color: transparent #f8d7da transparent transparent;
 }
 
-/* ===== MENSAJES EN REGISTRO (IZQUIERDA - sin clase active) ===== */
 .container:not(.active) .error-container,
 .container:not(.active) .error-correo,
 .container:not(.active) .error-contra {
-    right: 102%; /* Posición a la izquierda */
+    right: 102%; 
     left: auto;
     font-family: 'Work Sans', sans-serif;
 }
@@ -212,12 +205,11 @@ body {
 .container:not(.active) .error-contrase,
 .container:not(.active) .error-cedula,
 .container:not(.active) .error-rol {
-    right: 102%; /* Posición a la izquierda */
+    right: 102%; 
     left: auto;
     font-family: 'Work Sans', sans-serif;
 }
 
-/* Flecha apuntando a la derecha para mensajes de registro */
 .container:not(.active) .error-container::after,
 .container:not(.active) .error-correo::after,
 .container:not(.active) .error-contra::after,
@@ -235,7 +227,6 @@ body {
     border-color: transparent transparent transparent #f8d7da;
 }
 
-/* Estilos base de los mensajes de error */
 .error-container {
     color: #721c24;
     background-color: #f8d7da;
@@ -352,7 +343,6 @@ body {
                 0 0 50px rgba(0, 212, 255, 0.25);
 }
 
-/* ====== CONTENEDOR PRINCIPAL ====== */
 .container {
     width: 65vw;
     height: 90vh;
@@ -372,11 +362,10 @@ body {
                 0 0 50px rgba(0, 212, 255, 0.25);
 }
 
-/* ====== BOTÓN DE RETROCESO FIJO - SIEMPRE VISIBLE ====== */
 .back-arrow {
-    position: fixed; /* Cambiado de absolute a fixed */
-    top: 6%; /* Posición fija desde el top */
-    left: calc((100vw - 65vw) / 2 + 20px); /* Centrado respecto al container */
+    position: fixed; 
+    top: 6%;
+    left: calc((100vw - 65vw) / 2 + 20px); 
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -389,7 +378,7 @@ body {
     box-shadow: none;
     outline: none;
     transition: all 0.3s ease;
-    z-index: 1000; /* Z-index muy alto */
+    z-index: 1000; 
     backdrop-filter: blur(5px);
 }
 
@@ -404,7 +393,6 @@ body {
     filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1547%) hue-rotate(177deg) brightness(95%) contrast(101%);
 }
 
-/* ====== PANEL AZUL MEJORADO CON DINAMISMO ====== */
 .blue-panel {
     width: 50%;
     background: linear-gradient(135deg, #00304D 0%, #0070B3 60%, #50E5F9 100%);
@@ -420,7 +408,6 @@ body {
     transition: border-radius 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Efecto de brillo animado en el panel azul */
 .blue-panel::before {
     content: '';
     position: absolute;
@@ -433,7 +420,6 @@ body {
     pointer-events: none;
 }
 
-/* Partículas flotantes dentro del panel azul */
 .blue-panel::after {
     content: '';
     position: absolute;
@@ -463,7 +449,6 @@ body {
     }
 }
 
-/* Logo SENA con efecto mejorado y más presencia */
 .blue-panel .logo-sena {
     width: 10vw;
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6))
@@ -472,7 +457,7 @@ body {
     transition: all 0.4s ease;
     z-index: 2;
     animation: fadeContent 0.6s ease-in-out 0s backwards, 
-               float-logo 3s ease-in-out 0.6s infinite; /* Combinadas */
+               float-logo 3s ease-in-out 0.6s infinite;
 }
 
 @keyframes float-logo {
@@ -491,7 +476,6 @@ body {
     transform: scale(1.1);
 }
 
-/* Texto con efectos mejorados */
 .blue-panel h2 {
     margin: 10px 0;
     font-family: 'Work Sans', sans-serif;
@@ -499,7 +483,7 @@ body {
     font-size: 1.7rem;
     z-index: 2;
     animation: fadeContent 0.6s ease-in-out 0.3s backwards,
-               pulse-text 2s ease-in-out 0.9s infinite; /* Combinadas */
+               pulse-text 2s ease-in-out 0.9s infinite; 
 }
 
 @keyframes pulse-text {
@@ -523,7 +507,6 @@ body {
     animation: fadeContent 0.6s ease-in-out 0.5s backwards;
 }
 
-/* Botón con glassmorphism */
 .blue-panel button {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
@@ -552,14 +535,13 @@ body {
         0 0 40px rgba(80, 229, 249, 0.4);
 }
 
-/* ====== HEADER DEL FORMULARIO ====== */
 .header-content {
     display: flex;
-    flex-direction: column; /* Apilar verticalmente */
+    flex-direction: column; 
     justify-content: center;
     align-items: center;
-    gap: 15px; /* Espacio entre logo y título */
-    margin-bottom: 5px; /* Espacio debajo del header */
+    gap: 15px; 
+    margin-bottom: 5px;
 }
 
 .header-content:hover{
@@ -572,7 +554,6 @@ body {
     transform: scale(1.12) translateY(-3px);
 }
 
-/* Logo InnHub */
 .header-gc-logo {
     width: clamp(185px, 15%, 195px);
     height: auto;
@@ -587,11 +568,10 @@ body {
     image-rendering: crisp-edges;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    margin: 0; /* Sin margen lateral */
+    margin: 0;
     animation: fadeContent 0.6s ease-in-out 0s backwards;
 }
 
-/* Título dentro del header-content */
 .header-content h2 {
     color: #00304D;
     text-align: center;
@@ -604,10 +584,10 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin: 0; /* Sin márgenes */
+    margin: 0;
     animation: fadeContent 0.6s ease-in-out 0.4s backwards;
 }
-/* ====== FORMULARIOS ====== */
+
 .form-container {
     width: 45%;
     padding: 40px;
@@ -615,10 +595,9 @@ body {
     flex-direction: column;
     justify-content: center;
     opacity: 1;
-    transition: opacity 0.2s ease-in-out; /* Transición de opacidad */
+    transition: opacity 0.2s ease-in-out; 
 }
 
-/* Título más BOLD y con efecto */
 .form-container h2 {
     color: #00304D;
     text-align: center;
@@ -634,7 +613,6 @@ body {
     animation: fadeContent 0.6s ease-in-out 0.4s backwards;
 }
 
-/* Inputs y selects */
 .input,
 .select {
     width: 100%;
@@ -678,7 +656,6 @@ body {
     animation: fadeContent 0.6s ease-in-out 0.7s backwards;
 }
 
-/* Select con flecha personalizada */
 .select_container,
 .select-container {
     position: relative;
@@ -705,13 +682,11 @@ body {
     color: #00304D;
 }
 
-/* Form groups */
 .form-group {
     position: relative;
     animation: fadeContent 0.6s ease-in-out 0.6s backwards;
 }
 
-/* Botón */
 .form-container .btn {
     margin-top: 3%;
     background: linear-gradient(135deg, #00304D 0%, #0070B3 100%);
@@ -762,7 +737,6 @@ body {
     transform: translateY(-1px) scale(0.98);
 }
 
-/* Campo de contraseña */
 .password-field-container {
     position: relative;
     width: 100%;
@@ -813,7 +787,6 @@ body {
     transform: translateY(-50%) scale(1.2);
 }
 
-/* Animación de cambio MEJORADA - SIN PARPADEO */
 .container.active .blue-panel {
     order: 2;
     border-radius: 80% 0 0 0;
@@ -834,7 +807,6 @@ body {
     }
 }
 
-/* === Modal General === */
 .modal {
     display: none;
     position: fixed;
@@ -852,7 +824,6 @@ body {
     background-color: rgba(0, 0, 0, 0.8) !important; 
 }
 
-/* === Contenido del modal === */
 .modal-content {
     background-color: #fff;
     margin: 10% auto;
@@ -891,7 +862,6 @@ body {
     transform: rotate(90deg);
 }
 
-/* === Header === */
 .modal-header {
     padding: 15px 20px;
     position: relative;
@@ -906,7 +876,6 @@ body {
     color: #000;
 }
 
-/* Botón de cierre */
 .close {
     position: absolute;
     top: 5%;
@@ -924,7 +893,6 @@ body {
     transform: rotate(90deg);
 }
 
-/* === Body === */
 .modal-body {
     padding: 20px;
     background-color: #fff;
@@ -951,7 +919,6 @@ body {
     display: block;
 }
 
-/* Errores */
 .modal-body .error-container {
     color: #721c24;
     background-color: #f8d7da;
@@ -963,7 +930,6 @@ body {
     text-align: center;
 }
 
-/* === Footer === */
 .modal-footer {
     text-align: center;
     padding: 15px;
@@ -991,7 +957,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* === Animaciones === */
 @keyframes slideDown {
     from {
         transform: translateY(-50px);

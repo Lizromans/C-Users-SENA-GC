@@ -1,10 +1,5 @@
-// ========================================
-// SISTEMA DE GESTIÓN DE ENTREGABLES
-// ========================================
-
 document.addEventListener('DOMContentLoaded', function() {
     
-    // ====== ACORDEÓN DE ENTREGABLES ======
     const entregableToggles = document.querySelectorAll('.entregable-toggle');
     
     function actualizarChevron(toggle) {
@@ -46,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         cerrarTodosEntregables();
     };
     
-    // ====== DROPDOWN DE CONFIGURACIÓN ======
     const dropdownToggles = document.querySelectorAll('.dropdown-toggle-config');
     
     function cerrarTodosDropdowns(excepto = null) {
@@ -90,11 +84,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ========================================
-    // MOSTRAR/OCULTAR ENTREGABLES SEGÚN TIPO DE PROYECTO
-    // (Solo para modal de CREAR proyecto - sin categorización)
-    // ========================================
-    
     const tipoSelect = document.getElementById('tipo');
     const contenedor = document.getElementById('entregables-container');
     const entregableInvestigacion = document.querySelector('.entregable-investigacion');
@@ -105,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const tipo = tipoSelect.value;
         
-        // Ocultar todo por defecto
         if (entregableInvestigacion) entregableInvestigacion.style.display = 'none';
         if (entregablesFormativos) entregablesFormativos.style.display = 'none';
         
@@ -114,17 +102,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Mostrar contenedor general
         contenedor.style.display = 'block';
-        
-        // Sennova o Capacidad Instalada → Solo fechas (SIN categorías en crear)
         if (tipo === 'sennova' || tipo === 'capacidadinstalada') {
             if (entregableInvestigacion) {
                 entregableInvestigacion.style.display = 'block';
             }
         }
         
-        // Formativo → 6 entregables con fechas
         if (tipo === 'formativo') {
             if (entregablesFormativos) {
                 entregablesFormativos.style.display = 'grid';
@@ -132,15 +116,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Ejecutar al cargar y al cambiar tipo de proyecto
     if (tipoSelect) {
         actualizarEntregables();
         tipoSelect.addEventListener('change', actualizarEntregables);
     }
-    
-    // ========================================
-    // VALIDACIÓN DE FECHAS EN FORMULARIO
-    // ========================================
     
     const formCrear = document.querySelector('form[action*="crear_proyecto"]');
     if (formCrear) {
@@ -154,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Validar que se hayan seleccionado fechas para los entregables visibles
             if (tipo === 'sennova' || tipo === 'capacidadinstalada') {
                 const fechaInput = document.getElementById('fechaRango_investigacion');
                 if (fechaInput && !fechaInput.value) {
@@ -185,10 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// ========================================
-// FUNCIÓN DE ACORDEÓN POR PROYECTO
-// ========================================
-
 function inicializarAcordeonProyecto(codProyecto) {
     const togglesProyecto = document.querySelectorAll(
         `input[id^="entregable-${codProyecto}-"].entregable-toggle`
@@ -218,11 +192,6 @@ function inicializarAcordeonProyecto(codProyecto) {
     });
 }
 
-// ========================================
-// UTILIDADES GLOBALES
-// ========================================
-
-// Función para cerrar modales
 window.cerrarModal = function(event, modalId) {
     if (event) event.preventDefault();
     
@@ -241,7 +210,6 @@ window.cerrarModal = function(event, modalId) {
     document.body.style.paddingRight = '';
 };
 
-// Función para abrir modales
 window.abrirModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -253,12 +221,7 @@ window.abrirModal = function(modalId) {
     }
 };
 
-// ========================================
-// PREVIEW DE ARCHIVOS ANTES DE SUBIR
-// ========================================
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Buscar todos los inputs de archivo en modales de subir
     const inputsArchivo = document.querySelectorAll('input[type="file"][id^="archivo_"]');
     
     inputsArchivo.forEach(input => {
@@ -269,12 +232,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!previewContainer) return;
             
-            // Limpiar preview anterior
             previewContainer.innerHTML = '';
             
             if (files.length === 0) return;
             
-            // Crear lista de archivos seleccionados
             previewContainer.innerHTML = '<p style="margin: 10px 0; font-weight: 600;">Archivos seleccionados:</p>';
             
             const lista = document.createElement('ul');
@@ -307,7 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Función auxiliar para formatear tamaño de archivo
 function formatearTamano(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;

@@ -76,14 +76,12 @@ class UsuarioRegistroForm(forms.ModelForm):
         contraseña = cleaned_data.get('contraseña')
         conf_contraseña = cleaned_data.get('conf_contraseña')
 
-        # Validar fortaleza primero (solo si existe la contraseña)
         if contraseña:
             try:
                 validate_password(contraseña)
             except ValidationError as e:
                 self.add_error('contraseña', e)
 
-        # Luego validar coincidencia
         if contraseña and conf_contraseña and contraseña != conf_contraseña:
             self.add_error('conf_contraseña', "Las contraseñas no coinciden.")
 
@@ -106,11 +104,8 @@ class UsuarioRegistroForm(forms.ModelForm):
 
         return cedula
 
-    # ------------------- GUARDADO -------------------
-
     def save(self, commit=True):
         usuario = super().save(commit=False)
-        # Guardar la contraseña cifrada correctamente
         usuario.set_password(self.cleaned_data['contraseña'])
         if commit:
             usuario.save()
@@ -219,8 +214,6 @@ class AprendizForm(forms.ModelForm):
             'numero_cuenta': 'Número de Cuenta',
             'telefono': 'Teléfono',
         }
-    
-    # =================== VALIDACIONES ===================
     
     def clean_acepta_tratamiento_datos(self):
         acepta = self.cleaned_data.get('acepta_tratamiento_datos')
@@ -340,16 +333,13 @@ class AprendizForm(forms.ModelForm):
         
         return numero
     
-    # =================== GUARDAR (CIFRAR NÚMERO DE CUENTA) ===================
     def save(self, commit=True):
         aprendiz = super().save(commit=False)
         
-        # Cifrar el número de cuenta
         numero_cuenta = self.cleaned_data.get('numero_cuenta')
         if numero_cuenta:
             aprendiz.numero_cuenta = cifrar(numero_cuenta)
         
-        # Guardar fecha de aceptación
         if self.cleaned_data.get('acepta_tratamiento_datos'):
             aprendiz.fecha_aceptacion_datos = timezone.now()
         
@@ -375,7 +365,6 @@ class FormularioSoporte(forms.Form):
    
 import json
 
-# 1. MAPEOS GENERALES
 
 CATEGORIAS_MAP = {
     'tipo1': 'Tipo 1: Generación de Nuevo Conocimiento',
@@ -385,17 +374,16 @@ CATEGORIAS_MAP = {
     'tipo5': 'Tipo 5: Formación de Recurso Humano en CTeI'
 }
 
-# 2. PRODUCTOS POR TIPO
 
 PRODUCTOS_MAP = {
-    # ---------- TIPO 1 ----------
+    # TIPO 1
     'articulos_investigacion': 'Artículos de investigación',
     'libros_investigacion': 'Libros resultado de investigación',
     'libros_formacion': 'Libros de formación',
     'capitulos_libro': 'Capítulos en libro resultado de investigación',
     'productos_patentados': 'Productos tecnológicos patentados o en proceso de concesión',
 
-    # ---------- TIPO 2 ----------
+    # TIPO 2 
     'disenos_industriales': 'Diseños industriales',
     'plantas_piloto': 'Plantas piloto',
     'prototipos_industriales': 'Prototipos industriales',
@@ -406,11 +394,11 @@ PRODUCTOS_MAP = {
     'normas_tecnicas': 'Normas técnicas',
     'empresas_base_tecnologica': 'Empresas de base tecnológica',
 
-    # ---------- TIPO 3 ----------
+    # TIPO 3
     'procesos_asc_social': 'Procesos ASC para asuntos de interés social',
     'procesos_asc_cadenas': 'Procesos ASC para cadenas productivas',
 
-    # ---------- TIPO 4 ----------
+    # TIPO 4
     'eventos_cientificos': 'Eventos científicos con apropiación',
     'consultoria_cientifica': 'Consultoría científico-tecnológica',
     'informes_investigacion': 'Informes finales de investigación',
@@ -418,12 +406,11 @@ PRODUCTOS_MAP = {
     'desarrollo_web': 'Desarrollo web',
     'publicaciones_editoriales': 'Publicaciones editoriales no especializadas',
 
-    # ---------- TIPO 5 ----------
+    # TIPO 5
     'trabajos_dirigidos': 'Trabajos dirigidos',
     'proyectos': 'Proyectos'
 }
 
-# 3. CAMPOS LEGIBLES
 
 CAMPOS_LEGIBLES = {
     'tipo_libro': 'Tipo de libro',
@@ -448,7 +435,6 @@ CAMPOS_LEGIBLES = {
     'rol_participacion': 'Rol de participación'
 }
 
-# 4. CONSTRUIR DESCRIPCIÓN
 
 def construir_descripcion_entregable(categoria_principal, subcategorias_json):
  
@@ -458,19 +444,16 @@ def construir_descripcion_entregable(categoria_principal, subcategorias_json):
         datos = json.loads(subcategorias_json)
         lineas = []
         
-        # === CATEGORÍA PRINCIPAL ===
         categoria_texto = CATEGORIAS_MAP.get(categoria_principal, 'No especificada')
         lineas.append(f"--CATEGORÍA MINCIENCIAS: {categoria_texto}")  
-        lineas.append("")  # Línea vacía
+        lineas.append("") 
         
-        # === PRODUCTO ESPECÍFICO ===
         producto_key = datos.get('producto')
         if producto_key:
             producto_texto = PRODUCTOS_MAP.get(producto_key, 'No especificado')
             lineas.append(f"--PRODUCTO: {producto_texto}")  
             lineas.append("")
         
-        # === SUBCATEGORÍAS DINÁMICAS ===
         campos_procesados = {'categoria', 'producto'}
         
         for key, value in datos.items():
@@ -479,14 +462,11 @@ def construir_descripcion_entregable(categoria_principal, subcategorias_json):
             
             etiqueta = CAMPOS_LEGIBLES.get(key, key.replace('_', ' ').title())
             
-            # Manejar listas
             if isinstance(value, list):
-                if value:  # Solo si tiene elementos
                     lineas.append(f"{etiqueta}:")  
                     for item in value:
                         lineas.append(f"  - {item}")
                     lineas.append("")
-            # Manejar valores simples
             else:
                 lineas.append(f"{etiqueta}: {value}") 
         
@@ -496,14 +476,11 @@ def construir_descripcion_entregable(categoria_principal, subcategorias_json):
         return f"Error al procesar categorización: {e}"
     except Exception as e:
         return f"Error inesperado: {e}"
-    
-# 5. LIMPIAR DESCRIPCIÓN ANTERIOR
 
 def limpiar_descripcion_anterior(descripcion):
     if not descripcion:
         return ""
     
-    # Buscar el primer marcador de categorización
     marcadores = [
         "📋 CATEGORÍA MINCIENCIAS:",
         "--- Nueva categorización ---"
@@ -511,12 +488,10 @@ def limpiar_descripcion_anterior(descripcion):
     
     for marcador in marcadores:
         if marcador in descripcion:
-            # Devolver solo lo que está ANTES del marcador
             return descripcion.split(marcador)[0].strip()
     
     return descripcion.strip()
 
-# 6. VALIDACIONES POR CATEGORÍA
 
 def validar_datos_categoria(categoria, datos):
     errores = []
@@ -571,8 +546,6 @@ def validar_datos_categoria(categoria, datos):
                 errores.append("Debe indicar el rol de participación.")
 
     return len(errores) == 0, errores
-
-# 7. OPCIONES DE PRODUCTO POR CATEGORÍA
 
 def obtener_opciones_producto(categoria):
     opciones = {

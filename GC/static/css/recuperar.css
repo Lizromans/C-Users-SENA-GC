@@ -20,7 +20,7 @@ body {
     min-height: 100vh;
     width: 100vw;
     display: flex;
-    flex-direction: column; /* Layout vertical */
+    flex-direction: column; 
 }
 
 header {
@@ -101,7 +101,6 @@ footer {
     padding: 0 20px;
 }
 
-/* Overlay para los popups */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -115,7 +114,6 @@ footer {
     z-index: 1000;
 }
 
-/* Estilos para el contenedor del mensaje popup */
 .popup-message {
     background-color: #ffffff;
     border-radius: 15px;
@@ -127,13 +125,11 @@ footer {
     animation: popIn 0.3s ease-out;
 }
 
-/* Animación para la aparición del popup */
 @keyframes popIn {
     0% { transform: scale(0.7); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* ====== PARTÍCULAS DE FONDO ====== */
 .bg-particles {
     position: fixed !important;
     top: 0;
@@ -155,7 +151,6 @@ footer {
     visibility: visible !important;
 }
 
-/* Partículas individuales */
 .particle:nth-child(1) { 
     width: 15px; height: 15px; top: 15%; left: 10%; animation-delay: 0s; 
     background: radial-gradient(circle, rgba(61, 177, 3, 1), rgba(255, 255, 255, 0.8));
@@ -197,7 +192,6 @@ footer {
     background: radial-gradient(circle, rgba(80, 229, 249, 1), rgba(255, 255, 255, 0.8));
 }
 
-/* Animación más visible */
 @keyframes float-particle {
     0%, 100% { 
         transform: translateY(0px) translateX(0px) scale(1) rotate(0deg); 
