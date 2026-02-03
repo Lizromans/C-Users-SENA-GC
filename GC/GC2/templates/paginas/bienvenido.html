@@ -186,7 +186,7 @@
 
             <div class="card-container">
                 <!-- Tarjeta 1: InnHub -->
-                <article class="info-card" data-category="investigacion" data-url="https://innhub.ejemplo.com">
+                <article class="info-card" data-category="investigacion" data-url='{% url 'iniciarsesion' %}'>
                     <span class="card-badge badge-new">Nuevo</span>
                     <div class="card-icon">
                         <img src="{% static 'img/logo_gc.png' %}" alt="Icono solución" class="card-icon-img">
@@ -199,7 +199,7 @@
                         <span class="card-tag">Investigación</span>
                         <button class="card-link-btn"
                             aria-label="Abrir InnHub"
-                            onclick="window.location.href='{% url 'iniciarsesion' %}'">
+                            data-url='{% url 'iniciarsesion' %}'>
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M7.5 15L12.5 10L7.5 5"
                                 stroke="currentColor"
@@ -211,7 +211,7 @@
                 </article>
 
                 <!-- Tarjeta 2: Gestión Académica -->
-                <article class="info-card" data-category="academico" data-url="https://academico.ejemplo.com">
+                <article class="info-card" data-category="academico" data-url="https://betowa.sena.edu.co/">
                     <div class="card-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
@@ -224,7 +224,8 @@
                     </p>
                     <div class="card-footer">
                         <span class="card-tag">Académico</span>
-                        <button class="card-link-btn" aria-label="Abrir Gestión Académica">
+                        <button class="card-link-btn" aria-label="Abrir Gestión Académica"
+                            data-url="https://betowa.sena.edu.co/">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
                             </svg>
@@ -274,7 +275,7 @@
                 </article>
 
                 <!-- Tarjeta 5: Biblioteca Digital -->
-                <article class="info-card" data-category="academico" data-url="https://biblioteca.ejemplo.com">
+                <article class="info-card" data-category="academico" data-url="https://biblioteca.sena.edu.co/">
                     <div class="card-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/>
@@ -287,7 +288,8 @@
                     </p>
                     <div class="card-footer">
                         <span class="card-tag">Recursos</span>
-                        <button class="card-link-btn" aria-label="Abrir Biblioteca Digital">
+                        <button class="card-link-btn" aria-label="Abrir Biblioteca Digital"
+                        data-url="https://biblioteca.sena.edu.co/">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
                             </svg>
@@ -296,7 +298,7 @@
                 </article>
 
                 <!-- Tarjeta 6: Comunica+ -->
-                <article class="info-card" data-category="academico" data-url="https://comunica.ejemplo.com">
+                <article class="info-card" data-category="academico" data-url='https://senalasalada.blogspot.com/'>
                     <div class="card-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
@@ -309,7 +311,9 @@
                     </p>
                     <div class="card-footer">
                         <span class="card-tag">Comunicación</span>
-                        <button class="card-link-btn" aria-label="Abrir Comunica+">
+                        <button class="card-link-btn"
+                                aria-label="Abrir Comunica+"
+                                data-url='https://senalasalada.blogspot.com/'">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
                             </svg>
@@ -354,7 +358,7 @@
             <div class="footer-section">
                 <h4>Contacto</h4>
                 <p>Centro de Gestión del Conocimiento</p>
-                <p>SENA - Bogotá, Colombia</p>
+                <p>SENA - Antioquia, Colombia</p>
             </div>
         </div>
         <div class="footer-bottom">

@@ -12,7 +12,7 @@ class NotificationSystem {
         console.log('✅ NotificationSystem inicializado');
     }
 
-    // ==================== INICIALIZACIÓN ====================
+    // ==================== INICIALIZACIÓN ====================//
     init() {
         this.setupEventListeners();
         this.loadNotifications();
