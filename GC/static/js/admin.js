@@ -354,7 +354,7 @@
     }
 
     // ============================================================
-    // INICIALIZAR SISTEMA DE CARGA DE IMÁGENES - CORREGIDO
+    // INICIALIZAR SISTEMA DE CARGA DE IMÁGENES 
     // ============================================================
     function initImageUpload() {
         console.log('🖼️ Inicializando sistema de carga de imágenes...');
@@ -705,6 +705,50 @@ if (!document.querySelector('style[data-sr-only]')) {
     `;
     document.head.appendChild(style);
 }
+/* ============================================================
+   JAVASCRIPT ADICIONAL PARA DROPDOWN MÓVIL DE LOGIN
+   Agregar esto al final de admin.js
+   ============================================================ */
+
+// MOBILE LOGIN DROPDOWN
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileLoginTrigger = document.getElementById('mobileLoginTrigger');
+    const mobileLoginDropdown = document.getElementById('mobileLoginDropdown');
+    
+    if (mobileLoginTrigger && mobileLoginDropdown) {
+        console.log('📱 Inicializando dropdown de login móvil...');
+        
+        // Toggle del dropdown móvil
+        mobileLoginTrigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Toggle clase active
+            mobileLoginDropdown.classList.toggle('active');
+            mobileLoginTrigger.classList.toggle('active');
+            
+            console.log('🔄 Dropdown móvil toggled:', mobileLoginDropdown.classList.contains('active'));
+        });
+        
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!mobileLoginTrigger.contains(e.target) && 
+                !mobileLoginDropdown.contains(e.target)) {
+                mobileLoginDropdown.classList.remove('active');
+                mobileLoginTrigger.classList.remove('active');
+            }
+        });
+        
+        // Prevenir que el clic dentro del dropdown lo cierre
+        mobileLoginDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        console.log('✅ Dropdown de login móvil inicializado correctamente');
+    } else {
+        console.log('ℹ️ Elementos de dropdown móvil no encontrados (usuario ya autenticado)');
+    }
+});
 
 // CONSOLE MESSAGE
 console.log('%c¡Bienvenido a Gestión del Conocimiento!', 'color: #3db103; font-size: 24px; font-weight: bold;');

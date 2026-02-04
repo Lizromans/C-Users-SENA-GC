@@ -140,7 +140,68 @@
     <nav class="mobile-menu" role="navigation" aria-label="Menú móvil">
         <a href="#main-content" class="mobile-nav-link">Inicio</a>
         <a href="#soluciones" class="mobile-nav-link">Soluciones Tecnológicas</a>
-        <a href="{% url 'login_catalogo' %}" class="mobile-nav-link">Iniciar Sesión</a>
+        
+        {% if request.session.catalogo_admin_id %}
+            <a class="mobile-nav-link" href="{% url 'logout_catalogo' %}">
+                Cerrar Sesión
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </a>
+        {% else %}
+            <!-- Login Dropdown Mobile -->
+            <div class="mobile-login-dropdown-container">
+                <button class="mobile-nav-link mobile-login-trigger" id="mobileLoginTrigger">
+                    <span>Iniciar Sesión</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                        <path d="M6 9L1 4h10z"/>
+                    </svg>
+                </button>
+                
+                <!-- Mobile Dropdown Menu -->
+                <div class="mobile-login-dropdown" id="mobileLoginDropdown">
+                    <div class="dropdown-header">
+                        <h3>Iniciar Sesión</h3>
+                        <p>Accede al panel de administración</p>
+                    </div>
+                    
+                    <form method="post" action="{% url 'login_catalogo' %}" class="login-form">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="mobile-username">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                Usuario
+                            </label>
+                            <input type="text" id="mobile-username" name="username" required placeholder="Ingresa tu usuario">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="mobile-password">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                Contraseña
+                            </label>
+                            <input type="password" id="mobile-password" name="password" required placeholder="Ingresa tu contraseña">
+                        </div>
+                        
+                        <button type="submit" class="login-submit-btn">
+                            Iniciar Sesión
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
     </nav>
 
     <!-- ===== PARTÍCULAS DE FONDO ===== -->
@@ -270,7 +331,6 @@
                                  alt="Icono de {{ solucion.titulo }}" 
                                  class="card-icon-img">
                         {% else %}
-                            <!-- Mostrar SVG dinámico basado en icono_nombre -->
                             <!-- Mostrar SVG dinámico basado en icono_nombre -->
                             <svg viewBox="0 0 24 24" style="width: 55%; height: 55%;" fill="currentColor" stroke="none">
                                 {% if solucion.icono_nombre == 'Chat' %}
