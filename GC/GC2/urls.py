@@ -95,6 +95,17 @@ urlpatterns = [
     path('backup/personal/', views.backup_personal, name='backup_personal'),
     path('backup/completo/', views.backup_completo, name='backup_completo'),
     path('backup/info/', views.backup_info, name='backup_info'),
+
+    # Catalogo
+    path('catalogo/login/', views.login_catalogo, name='login_catalogo'),
+    path('catalogo/logout/', views.logout_catalogo, name='logout_catalogo'),
+    path('catalogo/editor/', views.editar_catalogo, name='editar_catalogo'),
+
+    # API para manejar soluciones
+    path('api/agregar-solucion/', views.agregar_solucion, name='agregar_solucion'),
+    path('api/eliminar-solucion/<int:solucion_id>/', views.eliminar_solucion, name='eliminar_solucion'),
+    path('api/editar-solucion/<int:solucion_id>/', views.editar_solucion, name='editar_solucion'),
+
 ]
 
 if settings.DEBUG:

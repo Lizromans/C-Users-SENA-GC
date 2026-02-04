@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from ctypes import alignment
 import os
 import random
@@ -9,7 +10,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from .forms import UsuarioRegistroForm, FormularioSoporte
-from .models import Documento, Usuario, Semillero,SemilleroUsuario, Archivo, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento, Evento
+from .models import Documento, Usuario, Semillero,SemilleroUsuario, Archivo, Aprendiz, ProyectoAprendiz, Proyecto, UsuarioProyecto, SemilleroProyecto, Entregable, SemilleroDocumento, Evento, Admin , Solucion
 from django.utils import timezone 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
@@ -83,7 +84,8 @@ from io import BytesIO
 from django.core import serializers
 from django.apps import apps
 from django.template.loader import render_to_string
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.csrf import csrf_exempt
 
 # Funciones de cifrado/descifrado
 def cifrar_numero(numero):
@@ -230,25 +232,22 @@ def api_limpiar_todas(request):
         }, status=500)  
 
 # VISTA BIENVENIDO
+
 def bienvenido(request):
-    investigadores = Usuario.objects.filter(rol="Investigador").count()
-    instructores = Usuario.objects.filter(rol="Instructor").count()
-    semilleros = Semillero.objects.count()
-    proyectos = Proyecto.objects.count()
-    capacidad_instalada = Proyecto.objects.filter(tipo="capacidadinstalada").count()  
-    proyectos_formativos = Proyecto.objects.filter(tipo="Formativo").count()
-    sennova = Proyecto.objects.filter(tipo="Sennova").count()  
+    # Obtener todas las soluciones de la base de datos
+    soluciones = Solucion.objects.all().order_by('-id')  # Ordenadas por más reciente
+    
+    paginator = Paginator(soluciones, 4)
+    page_number = request.GET.get('page')
+    soluciones_paginadas = paginator.get_page(page_number)
 
+    total_soluciones = Solucion.objects.count() + 6
+    
     context = {
-        'investigadores': investigadores,
-        'instructores': instructores,
-        'semilleros': semilleros,
-        'proyectos': proyectos,
-        'capacidad_instalada': capacidad_instalada,
-        'proyectos_formativos': proyectos_formativos,
-        'sennova': sennova,
+        'soluciones_paginadas': soluciones_paginadas,
+        'total_soluciones': total_soluciones,
     }
-
+    
     return render(request, 'paginas/bienvenido.html', context)
 
 # VISTAS DE LOGIN Y REGISTRO
@@ -8105,3 +8104,550 @@ def logout(request):
     request.session.flush()
     messages.success(request, "Has cerrado sesión correctamente")
     return redirect('iniciarsesion')
+
+# VISTAS DE CATALOGO DE SOLUCIONES
+def login_catalogo(request):
+    """Vista de login para el admin del catálogo"""
+    # Si ya está autenticado, redirigir al editor
+    if request.session.get('catalogo_admin_id'):
+        return redirect('bienvenido.html')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        try:
+            admin = Admin.objects.get(username=username)
+            
+            if admin.check_password(password):
+                # Guardar en sesión
+                request.session['catalogo_admin_id'] = admin.id_admin
+                request.session['catalogo_admin_username'] = admin.username
+                
+                messages.success(request, f'¡Bienvenido {admin.username}!')
+                return redirect('bienvenido')
+            else:
+                messages.error(request, 'Contraseña incorrecta')
+        except Admin.DoesNotExist:
+            messages.error(request, 'Usuario no encontrado')
+    
+    return render(request, 'paginas/bienvenido.html')
+
+def logout_catalogo(request):
+    """Cerrar sesión del admin del catálogo"""
+    request.session.flush()
+    messages.success(request, 'Sesión cerrada exitosamente')
+    return redirect('bienvenido')
+
+def editar_catalogo(request):
+    """Vista para editar el catálogo - requiere autenticación"""
+    # Verificar si está autenticado
+    if not request.session.get('catalogo_admin_id'):
+        messages.warning(request, 'Debes iniciar sesión primero')
+        return redirect('bienvenido.html')
+    
+    # Obtener el admin actual
+    try:
+        admin = Admin.objects.get(id_admin=request.session['catalogo_admin_id'])
+    except Admin.DoesNotExist:
+        request.session.flush()
+        return redirect('bienvenido.html')
+    
+    # Ruta del archivo HTML
+    file_path = os.path.join(settings.BASE_DIR, 'templates', 'bienvenido.html')
+    
+    if request.method == 'POST':
+        contenido = request.POST.get('contenido')
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(contenido)
+            messages.success(request, '¡Catálogo guardado exitosamente!')
+        except Exception as e:
+            messages.error(request, f'Error al guardar: {str(e)}')
+        
+        return redirect('paginas/bienvenido.html')
+    
+    # Leer el contenido actual
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            contenido = f.read()
+    except FileNotFoundError:
+        contenido = '<!-- Archivo no encontrado, crea tu contenido aquí -->'
+    
+    return render(request, 'paginas/bienvenido.html', {
+        'contenido': contenido,
+        'admin': admin
+    })
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def agregar_solucion(request):
+    """
+    Vista para agregar una nueva solución al catálogo.
+    Soporta tanto iconos SVG (por nombre) como imágenes PNG (upload).
+    
+    IMPORTANTE: Esta vista funciona con el modelo actualizado que tiene:
+    - tipo_icono: CharField
+    - icono_nombre: CharField (para SVG)
+    - icono_imagen: ImageField (para PNG)
+    """
+    try:
+        # ============================================================
+        # 1. VALIDACIÓN DE AUTENTICACIÓN
+        # ============================================================
+        admin_id = request.session.get('catalogo_admin_id')
+        if not admin_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'No estás autenticado como administrador'
+            }, status=403)
+        
+        # Verificar que el admin existe
+        try:
+            admin = Admin.objects.get(id_admin=admin_id)
+        except Admin.DoesNotExist:
+            logger.error(f'Admin con id {admin_id} no encontrado')
+            return JsonResponse({
+                'success': False,
+                'error': 'Administrador no encontrado'
+            }, status=404)
+        
+        # ============================================================
+        # 2. OBTENCIÓN DE DATOS DEL FORMULARIO
+        # ============================================================
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        categoria = request.POST.get('categoria', '').strip()
+        url = request.POST.get('url', '').strip()
+        tipo_imagen = request.POST.get('tipo_imagen', 'icon').strip()
+        
+        print(f"📝 Datos recibidos:")
+        print(f"   - titulo: {titulo}")
+        print(f"   - categoria: {categoria}")
+        print(f"   - tipo_imagen: {tipo_imagen}")
+        print(f"   - FILES: {request.FILES.keys()}")
+        print(f"   - POST: {request.POST.keys()}")
+        
+        # ============================================================
+        # 3. VALIDACIÓN DE CAMPOS OBLIGATORIOS
+        # ============================================================
+        if not titulo:
+            return JsonResponse({
+                'success': False,
+                'error': 'El título es requerido'
+            }, status=400)
+        
+        if len(titulo) > 200:
+            return JsonResponse({
+                'success': False,
+                'error': 'El título no puede exceder 200 caracteres'
+            }, status=400)
+        
+        if not descripcion:
+            return JsonResponse({
+                'success': False,
+                'error': 'La descripción es requerida'
+            }, status=400)
+        
+        if not categoria or categoria not in ['innovacion', 'investigacion', 'academico']:
+            return JsonResponse({
+                'success': False,
+                'error': 'Categoría inválida. Debe ser: innovacion, investigacion o academico'
+            }, status=400)
+        
+        if not url:
+            return JsonResponse({
+                'success': False,
+                'error': 'La URL es requerida'
+            }, status=400)
+        
+        if len(url) > 200:
+            return JsonResponse({
+                'success': False,
+                'error': 'La URL no puede exceder 200 caracteres'
+            }, status=400)
+        
+        # Validar formato básico de URL
+        if not url.startswith(('http://', 'https://')):
+            return JsonResponse({
+                'success': False,
+                'error': 'La URL debe comenzar con http:// o https://'
+            }, status=400)
+        
+        # ============================================================
+        # 4. MANEJO DE ICONO/IMAGEN
+        # ============================================================
+        if tipo_imagen == 'image':
+            # ========== MANEJO DE IMAGEN PNG ==========
+            if 'icono' not in request.FILES:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No se proporcionó ninguna imagen'
+                }, status=400)
+            
+            imagen = request.FILES['icono']
+            
+            print(f"🖼️ Imagen recibida:")
+            print(f"   - Nombre: {imagen.name}")
+            print(f"   - Tamaño: {imagen.size} bytes")
+            print(f"   - Content-Type: {imagen.content_type}")
+            
+            # Validar tipo de archivo
+            if not imagen.name.lower().endswith('.png'):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Solo se permiten archivos PNG'
+                }, status=400)
+            
+            # Validar content type
+            if imagen.content_type not in ['image/png', 'image/x-png']:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'El archivo debe ser una imagen PNG válida'
+                }, status=400)
+            
+            # Validar tamaño (2MB máximo)
+            max_size = 2 * 1024 * 1024  # 2MB
+            if imagen.size > max_size:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'La imagen es demasiado grande ({imagen.size} bytes). Tamaño máximo: 2MB'
+                }, status=400)
+            
+            # Crear solución con imagen
+            try:
+                nueva_solucion = Solucion(
+                    titulo=titulo,
+                    descripcion=descripcion,
+                    categoria=categoria,
+                    url=url,
+                    tipo_icono='imagen',
+                    icono_imagen=imagen,  # Django maneja el guardado del archivo
+                    id_admin=admin
+                )
+                nueva_solucion.save()
+                
+                print(f"✅ Solución guardada con imagen en: {nueva_solucion.icono_imagen.name}")
+                
+            except Exception as e:
+                logger.error(f'Error al guardar solución con imagen: {str(e)}')
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Error al guardar la imagen: {str(e)}'
+                }, status=500)
+                
+        else:
+            # ========== MANEJO DE ICONO SVG ==========
+            icono_nombre = request.POST.get('icono_nombre', '').strip()
+            
+            if not icono_nombre:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Debe seleccionar un icono o subir una imagen'
+                }, status=400)
+            
+            # Lista de iconos válidos
+            iconos_validos = [
+                'Chat', 'Teléfono', 'Correo', 'Notificación', 'Anuncio',
+                'Ubicación', 'Mapa', 'Casa', 'Edificio',
+                'Reloj', 'Calendario', 'Alarma',
+                'Engranaje', 'Herramienta', 'Bombilla',
+                'Código', 'Terminal', 'Base de datos',
+                'Gráfica', 'Dinero', 'Maletín',
+                'Documento', 'Carpeta', 'Nube', 'Descargar',
+                'Libro', 'Diploma', 'Graduación', 'Lápiz',
+                'Estrella', 'Corazón', 'Usuario', 'Buscar', 'Candado'
+            ]
+            
+            if icono_nombre not in iconos_validos:
+                logger.warning(f'Icono inválido seleccionado: {icono_nombre}')
+                icono_nombre = 'Estrella'  # Icono por defecto
+            
+            # Crear solución con icono SVG
+            try:
+                nueva_solucion = Solucion(
+                    titulo=titulo,
+                    descripcion=descripcion,
+                    categoria=categoria,
+                    url=url,
+                    tipo_icono='svg',
+                    icono_nombre=icono_nombre,
+                    id_admin=admin
+                )
+                nueva_solucion.save()
+                
+                print(f"✅ Solución guardada con icono SVG: {icono_nombre}")
+                
+            except Exception as e:
+                logger.error(f'Error al guardar solución con icono SVG: {str(e)}')
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Error al guardar el icono: {str(e)}'
+                }, status=500)
+        
+        # ============================================================
+        # 6. RESPUESTA EXITOSA
+        # ============================================================
+        logger.info(
+            f'Solución "{titulo}" creada exitosamente por admin {admin.id_admin}'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Solución agregada exitosamente',
+            'solucion': {
+                'id': nueva_solucion.id,
+                'titulo': nueva_solucion.titulo,
+                'descripcion': nueva_solucion.descripcion,
+                'tipo_icono': nueva_solucion.tipo_icono,
+                'icono_nombre': nueva_solucion.icono_nombre if nueva_solucion.tipo_icono == 'svg' else None,
+                'icono_imagen': nueva_solucion.icono_imagen.url if nueva_solucion.tipo_icono == 'imagen' and nueva_solucion.icono_imagen else None,
+                'categoria': nueva_solucion.categoria,
+                'url': nueva_solucion.url,
+            }
+        }, status=201)
+        
+    except Exception as e:
+        # ============================================================
+        # 7. MANEJO DE ERRORES GENERALES
+        # ============================================================
+        logger.error(f'Error inesperado en agregar_solucion: {str(e)}', exc_info=True)
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': f'Error interno del servidor: {str(e)}'
+        }, status=500)
+
+@require_http_methods(["POST"])
+def editar_solucion(request, solucion_id):
+    """
+    Vista para editar una solución existente.
+    
+    Parámetros esperados:
+        - solucion_id: int (en URL)
+        - titulo: str (opcional)
+        - descripcion: str (opcional)
+        - categoria: str (opcional)
+        - url: str (opcional)
+        - tipo_imagen: str (opcional) - ['icon', 'image']
+        - icono_nombre: str (opcional, si tipo_imagen='icon')
+        - icono: file (opcional, si tipo_imagen='image')
+    
+    Returns:
+        JsonResponse con success: bool y datos actualizados o error
+    """
+    try:
+        # Validar autenticación
+        admin_id = request.session.get('catalogo_admin_id')
+        if not admin_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'No estás autenticado como administrador'
+            }, status=403)
+        
+        # Obtener la solución
+        try:
+            solucion = Solucion.objects.get(id=solucion_id)
+        except Solucion.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Solución no encontrada'
+            }, status=404)
+        
+        # Verificar que el admin sea el propietario o tenga permisos
+        if solucion.id_admin.id_admin != admin_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'No tienes permisos para editar esta solución'
+            }, status=403)
+        
+        # Actualizar campos si se proporcionan
+        if 'titulo' in request.POST:
+            titulo = request.POST.get('titulo', '').strip()
+            if titulo:
+                solucion.titulo = titulo
+        
+        if 'descripcion' in request.POST:
+            descripcion = request.POST.get('descripcion', '').strip()
+            if descripcion:
+                solucion.descripcion = descripcion
+        
+        if 'categoria' in request.POST:
+            categoria = request.POST.get('categoria', '').strip()
+            if categoria in ['innovacion', 'investigacion', 'academico']:
+                solucion.categoria = categoria
+        
+        if 'url' in request.POST:
+            url = request.POST.get('url', '').strip()
+            if url and url.startswith(('http://', 'https://')):
+                solucion.url = url
+        
+        # Actualizar icono/imagen si se proporciona
+        tipo_imagen = request.POST.get('tipo_imagen')
+        if tipo_imagen == 'image' and 'icono' in request.FILES:
+            imagen = request.FILES['icono']
+            if imagen.name.lower().endswith('.png') and imagen.size <= 2 * 1024 * 1024:
+                solucion.icono = imagen
+        elif tipo_imagen == 'icon':
+            icono_nombre = request.POST.get('icono_nombre', '').strip()
+            if icono_nombre:
+                solucion.icono = icono_nombre
+        
+        solucion.save()
+        
+        logger.info(f'Solución {solucion_id} actualizada por admin {admin_id}')
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Solución actualizada exitosamente',
+            'solucion': {
+                'id': solucion.id,
+                'titulo': solucion.titulo,
+                'descripcion': solucion.descripcion,
+                'icono': str(solucion.icono),
+                'categoria': solucion.categoria,
+                'url': solucion.url
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f'Error al editar solución {solucion_id}: {str(e)}', exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'Error al actualizar la solución'
+        }, status=500)
+
+
+@require_http_methods(["DELETE", "POST"])
+def eliminar_solucion(request, solucion_id):
+    from django.core.files.storage import default_storage
+    """
+    Vista para eliminar una solución.
+    
+    Parámetros:
+        - solucion_id: int (en URL)
+    
+    Returns:
+        JsonResponse con success: bool
+    """
+    try:
+        # Validar autenticación
+        admin_id = request.session.get('catalogo_admin_id')
+        if not admin_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'No estás autenticado como administrador'
+            }, status=403)
+        
+        # Obtener la solución
+        try:
+            solucion = Solucion.objects.get(id=solucion_id)
+        except Solucion.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Solución no encontrada'
+            }, status=404)
+        
+        # Verificar permisos
+        if solucion.id_admin.id_admin != admin_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'No tienes permisos para eliminar esta solución'
+            }, status=403)
+        
+        # Guardar información antes de eliminar
+        titulo = solucion.titulo
+        
+        # Eliminar archivo de icono si existe
+        if solucion.icono and hasattr(solucion.icono, 'path'):
+            try:
+                if default_storage.exists(solucion.icono.name):
+                    default_storage.delete(solucion.icono.name)
+            except Exception as e:
+                logger.warning(f'No se pudo eliminar el archivo de icono: {str(e)}')
+        
+        # Eliminar la solución
+        solucion.delete()
+        
+        logger.info(f'Solución "{titulo}" (ID: {solucion_id}) eliminada por admin {admin_id}')
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Solución eliminada exitosamente'
+        })
+        
+    except Exception as e:
+        logger.error(f'Error al eliminar solución {solucion_id}: {str(e)}', exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'Error al eliminar la solución'
+        }, status=500)
+
+
+    """
+    Vista para editar una solución existente
+    """
+    if request.method == 'POST' or request.method == 'PUT':
+        try:
+            # Verificar que el usuario esté autenticado como admin
+            if not request.session.get('catalogo_admin_id'):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No estás autenticado como administrador'
+                }, status=403)
+            
+            # Buscar la solución
+            try:
+                solucion = Solucion.objects.get(id=solucion_id)
+            except Solucion.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Solución no encontrada'
+                }, status=404)
+            
+            # Obtener datos del POST
+            data = json.loads(request.body)
+            
+            # Actualizar campos si se proporcionan
+            if 'titulo' in data:
+                solucion.titulo = data['titulo'].strip()
+            if 'descripcion' in data:
+                solucion.descripcion = data['descripcion'].strip()
+            if 'icono' in data:
+                solucion.icono = data['icono'].strip()
+            if 'categoria' in data and data['categoria'] in ['innovacion', 'investigacion', 'academico']:
+                solucion.categoria = data['categoria']
+            if 'url' in data:
+                solucion.url = data['url'].strip()
+            
+            solucion.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Solución actualizada exitosamente',
+                'solucion': {
+                    'id': solucion.id,
+                    'titulo': solucion.titulo,
+                    'descripcion': solucion.descripcion,
+                    'icono': solucion.icono,
+                    'categoria': solucion.categoria,
+                    'url': solucion.url
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Datos JSON inválidos'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Error al actualizar la solución: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Método no permitido'
+    }, status=405)
