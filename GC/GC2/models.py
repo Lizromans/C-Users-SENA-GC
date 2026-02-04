@@ -512,3 +512,104 @@ class ProyectoAprendiz(models.Model):
         db_table = 'proyecto_aprendiz'
         unique_together = ('cedula_apre', 'cod_pro')  # evita duplicados
 
+# MODELO PARA ADMIN CATALOGO DE SOLUCIONES
+from django.contrib.auth.hashers import make_password, check_password
+
+class Admin(models.Model):
+    id_admin = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=250, unique=True)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)  
+    
+    class Meta:
+        managed = True
+        db_table = "admin"
+        verbose_name = "Administrador de Catálogo"
+        verbose_name_plural = "Administradores de Catálogo"
+    
+    def __str__(self):
+        return self.username
+    
+    def set_password(self, raw_password):
+        """Hashear la contraseña antes de guardar"""
+        self.password = make_password(raw_password)
+    
+    def check_password(self, raw_password):
+        """Verificar la contraseña"""
+        return check_password(raw_password, self.password)
+    
+class Solucion(models.Model):
+    id = models.AutoField(primary_key=True)
+    CATEGORIAS = [
+        ('innovacion', 'Innovación'),
+        ('investigacion', 'Investigación'),
+        ('academico', 'Académico'),
+    ]
+    
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField()
+    # DESPUÉS (FUNCIONA para ambos)
+    tipo_icono = models.CharField(
+        max_length=10,
+        choices=[('svg', 'Icono SVG'), ('imagen', 'Imagen PNG')],
+        default='svg'
+    )
+
+    icono_nombre = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+
+    icono_imagen = models.ImageField(
+        upload_to="iconos/",
+        blank=True,
+        null=True
+    )
+    categoria = models.CharField(max_length=100, choices=CATEGORIAS)
+    url = models.URLField(max_length=200)
+    id_admin = models.ForeignKey(
+        Admin,
+        on_delete=models.CASCADE,
+        related_name="soluciones",
+        db_column='id_admin'
+    )
+
+    class Meta:
+        managed = True
+        db_table = 'solucion'  
+        verbose_name_plural = "Soluciones"
+    
+    def __str__(self):
+        return self.titulo
+    
+    def get_icono_display(self):
+        """
+        Obtiene el icono para mostrar según el tipo.
+        
+        Returns:
+            dict: Información del icono con tipo y valor
+        """
+        if self.tipo_icono == 'svg':
+            return {
+                'tipo': 'svg',
+                'valor': self.icono_nombre or 'Estrella'
+            }
+        else:
+            return {
+                'tipo': 'imagen',
+                'valor': self.icono_imagen.url if self.icono_imagen else None
+            }
+    
+    def clean(self):
+        """
+        Validación personalizada del modelo.
+        Asegura que el icono correcto esté presente según el tipo.
+        """
+        from django.core.exceptions import ValidationError
+        
+        if self.tipo_icono == 'svg' and not self.icono_nombre:
+            raise ValidationError('Debe proporcionar un nombre de icono SVG')
+        
+        if self.tipo_icono == 'imagen' and not self.icono_imagen:
+            raise ValidationError('Debe proporcionar una imagen PNG')

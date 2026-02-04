@@ -66,6 +66,67 @@
         <nav class="header-menu" role="navigation" aria-label="Navegación principal">
             <a href="#main-content" class="nav-link">Inicio</a>
             <a href="#soluciones" class="nav-link">Soluciones Tecnológicas</a>
+            {% if request.session.catalogo_admin_id %}
+                <a class="nav-link" href="{% url 'logout_catalogo' %}">
+                    Cerrar Sesión
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </a>
+            {% else %}
+                <!-- Dropdown de Login -->
+                <div class="login-dropdown-container">
+                    <button class="nav-link login-trigger" id="loginTrigger">
+                        <span>Iniciar Sesión</span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                            <path d="M6 9L1 4h10z"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="login-dropdown" id="loginDropdown">
+                        <div class="dropdown-header">
+                            <h3>Iniciar Sesión</h3>
+                            <p>Accede al panel de administración</p>
+                        </div>
+                        
+                        <form method="post" action="{% url 'login_catalogo' %}" class="login-form">
+                            {% csrf_token %}
+                            
+                            <div class="form-group">
+                                <label for="username">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    Usuario
+                                </label>
+                                <input type="text" id="username" name="username" required placeholder="Ingresa tu usuario">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                    Contraseña
+                                </label>
+                                <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
+                            </div>
+                            
+                            <button type="submit" class="login-submit-btn">
+                                Iniciar Sesión
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
         </nav>
         <!-- Mobile menu button -->
         <button class="mobile-menu-toggle" aria-label="Abrir menú de navegación" aria-expanded="false">
@@ -79,7 +140,7 @@
     <nav class="mobile-menu" role="navigation" aria-label="Menú móvil">
         <a href="#main-content" class="mobile-nav-link">Inicio</a>
         <a href="#soluciones" class="mobile-nav-link">Soluciones Tecnológicas</a>
-        <a href="{% url 'iniciarsesion' %}" class="mobile-nav-link">Iniciar Sesión</a>
+        <a href="{% url 'login_catalogo' %}" class="mobile-nav-link">Iniciar Sesión</a>
     </nav>
 
     <!-- ===== PARTÍCULAS DE FONDO ===== -->
@@ -112,16 +173,16 @@
                 <!-- Trust signals -->
                 <div class="trust-signals">
                     <div class="trust-item">
-                        <span class="trust-number" data-count="150">0</span>
-                        <span class="trust-label">Proyectos Activos</span>
+                        <span class="trust-number" data-count="{{ total_soluciones }}">0</span>
+                        <span class="trust-label">Soluciones Tecnológicas</span>
                     </div>
                     <div class="trust-item">
-                        <span class="trust-number" data-count="5000">0</span>
-                        <span class="trust-label">Usuarios</span>
+                        <span class="trust-number" data-count="33">0</span>
+                        <span class="trust-label">Sedes Regionales</span>
                     </div>
                     <div class="trust-item">
-                        <span class="trust-number" data-count="25">0</span>
-                        <span class="trust-label">Centros SENA</span>
+                        <span class="trust-number" data-count="118">0</span>
+                        <span class="trust-label">Centros de Formación</span>
                     </div>
                 </div>
             </div>
@@ -183,143 +244,92 @@
                     <button class="filter-btn" data-filter="innovacion">Innovación</button>
                 </div>
             </div>
+            <div class="boton-container">
+            <!-- Botón para agregar solución (solo admin) -->
+                {% if request.session.catalogo_admin_id %}
+                    <button class="nav-link admin-add-btn" id="adminAddBtn" title="Agregar Solución">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        <span>Agregar Solución</span>
+                    </button>
+                {% endif %}
+            </div>
 
             <div class="card-container">
-                <!-- Tarjeta 1: InnHub -->
-                <article class="info-card" data-category="investigacion" data-url='{% url 'iniciarsesion' %}'>
-                    <span class="card-badge badge-new">Nuevo</span>
+                <!-- ===== TARJETAS DINÁMICAS DE LA BASE DE DATOS ===== -->
+                {% for solucion in soluciones_paginadas %}
+                <article class="info-card dynamic-card" data-category="{{ solucion.categoria }}" data-url="{{ solucion.url }}">
+                    <!-- ===== CAMBIO PRINCIPAL: Mostrar icono basado en tipo ===== -->
                     <div class="card-icon">
-                        <img src="{% static 'img/logo_gc.png' %}" alt="Icono solución" class="card-icon-img">
+                        {% if solucion.tipo_icono == 'imagen' and solucion.icono_imagen %}
+                            <!-- Mostrar imagen PNG -->
+                            <img src="{{ solucion.icono_imagen.url }}" 
+                                 alt="Icono de {{ solucion.titulo }}" 
+                                 class="card-icon-img">
+                        {% else %}
+                            <!-- Mostrar SVG dinámico basado en icono_nombre -->
+                            <svg viewBox="0 0 24 24" style="width: 55%; height: 55%;" fill="currentColor" stroke="none">
+                                {% if solucion.icono_nombre == 'Estrella' %}
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                {% elif solucion.icono_nombre == 'Corazón' %}
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                {% elif solucion.icono_nombre == 'Usuario' %}
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                {% elif solucion.icono_nombre == 'Código' %}
+                                    <polyline points="16 18 22 12 16 6"></polyline>
+                                    <polyline points="8 6 2 12 8 18"></polyline>
+                                {% elif solucion.icono_nombre == 'Bombilla' %}
+                                    <path d="M9 18h6M10 22h4M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                    <path d="M9 10c0 4-3 6-3 6h12s-3-2-3-6"/>
+                                {% elif solucion.icono_nombre == 'Libro' %}
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                {% elif solucion.icono_nombre == 'Calendario' %}
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                {% elif solucion.icono_nombre == 'Gráfica' %}
+                                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                                {% elif solucion.icono_nombre == 'Documento' %}
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                {% elif solucion.icono_nombre == 'Engranaje' %}
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 1v6m0 6v6m5.196-15.804l-4.242 4.242m-6 6l-4.242 4.242m15.588 0l-4.242-4.242m-6-6l-4.242-4.242"/>
+                                {% elif solucion.icono_nombre == 'Nube' %}
+                                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                                {% else %}
+                                    <!-- Icono por defecto: Estrella -->
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                {% endif %}
+                            </svg>
+                        {% endif %}
                     </div>
-                    <h3>InnHub</h3>
+                    <h3>{{ solucion.titulo }}</h3>
                     <p class="card-description">
-                        Plataforma colaborativa para la gestión de semilleros y proyectos de investigación del SENA La Salada.
+                        {{ solucion.descripcion }}
                     </p>
                     <div class="card-footer">
-                        <span class="card-tag">Investigación</span>
-                        <button class="card-link-btn"
-                            aria-label="Abrir InnHub"
-                            data-url='{% url 'iniciarsesion' %}'>
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M7.5 15L12.5 10L7.5 5"
-                                stroke="currentColor"
-                                stroke-width="2"/>
-                        </svg>
-                    </button>
-
-                    </div>
-                </article>
-
-                <!-- Tarjeta 2: Gestión Académica -->
-                <article class="info-card" data-category="academico" data-url="https://betowa.sena.edu.co/">
-                    <div class="card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-                        </svg>
-                    </div>
-                    <h3>Gestión Académica</h3>
-                    <p class="card-description">
-                        Administración integral de proyectos formativos,
-                        instructores y aprendices.
-                    </p>
-                    <div class="card-footer">
-                        <span class="card-tag">Académico</span>
-                        <button class="card-link-btn" aria-label="Abrir Gestión Académica"
-                            data-url="https://betowa.sena.edu.co/">
+                        <span class="card-tag">{{ solucion.get_categoria_display }}</span>
+                        <button class="card-link-btn" aria-label="Abrir {{ solucion.titulo }}"
+                            data-url="{{ solucion.url }}">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
                             </svg>
                         </button>
                     </div>
                 </article>
-
-                <!-- Tarjeta 3: Portal Sennova -->
-                <article class="info-card" data-category="innovacion" data-url="https://sennova.ejemplo.com">
-                    <span class="card-badge badge-popular">Popular</span>
-                    <div class="card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                        </svg>
-                    </div>
-                    <h3>Portal Sennova</h3>
-                    <p class="card-description">
-                        Seguimiento, documentación y recursos de innovación
-                        tecnológica.
-                    </p>
-                    <div class="card-footer">
-                        <span class="card-tag">Innovación</span>
-                        <button class="card-link-btn" aria-label="Abrir Portal Sennova">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Tarjeta 4: Analytics Hub -->
-                <article class="info-card" data-category="investigacion" data-url="https://analytics.ejemplo.com">
-                    <div class="card-icon">
-                        <img src="{% static 'img/labsys.png' %}" alt="Icono solución" class="card-icon-img">
-                    </div>
-                    <h3>LabSys One</h3>
-                    <p class="card-description">
-                        Sistema LIMS para la gestión digital de datos, inventarios y procesos del laboratorio tecnológico SENNOVA La Salada.                    </p>
-                    <div class="card-footer">
-                        <span class="card-tag">Análisis</span>
-                        <button class="card-link-btn" aria-label="Abrir Analytics Hub">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Tarjeta 5: Biblioteca Digital -->
-                <article class="info-card" data-category="academico" data-url="https://biblioteca.sena.edu.co/">
-                    <div class="card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/>
-                        </svg>
-                    </div>
-                    <h3>Biblioteca Digital</h3>
-                    <p class="card-description">
-                        Repositorio centralizado de recursos educativos
-                        y científicos.
-                    </p>
-                    <div class="card-footer">
-                        <span class="card-tag">Recursos</span>
-                        <button class="card-link-btn" aria-label="Abrir Biblioteca Digital"
-                        data-url="https://biblioteca.sena.edu.co/">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Tarjeta 6: Comunica+ -->
-                <article class="info-card" data-category="academico" data-url='https://senalasalada.blogspot.com/'>
-                    <div class="card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-                        </svg>
-                    </div>
-                    <h3>Comunica+</h3>
-                    <p class="card-description">
-                        Mensajería institucional y anuncios internos
-                        para equipos.
-                    </p>
-                    <div class="card-footer">
-                        <span class="card-tag">Comunicación</span>
-                        <button class="card-link-btn"
-                                aria-label="Abrir Comunica+"
-                                data-url='https://senalasalada.blogspot.com/'">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </button>
-                    </div>
-                </article>
+                {% endfor %}
             </div>
 
             <!-- No results message -->
@@ -330,8 +340,238 @@
                 </svg>
                 <p>No se encontraron soluciones que coincidan con tu búsqueda.</p>
             </div>
+            
+            <!-- ===== PAGINACIÓN ===== -->
+            {% if soluciones_paginadas.has_other_pages %}
+            <nav aria-label="Page navigation example" class="mt-4">
+                <ul class="pagination justify-content-center">
+
+                    <!-- Previous -->
+                    <li class="page-item {% if not soluciones_paginadas.has_previous %}disabled{% endif %}">
+                        <a class="page-link"
+                        href="{% if soluciones_paginadas.has_previous %}?page={{ soluciones_paginadas.previous_page_number }}{% else %}#{% endif %}"
+                        aria-label="Previous">
+                            <
+                        </a>
+                    </li>
+
+                    <!-- Números -->
+                    {% for num in soluciones_paginadas.paginator.page_range %}
+                        <li class="page-item {% if soluciones_paginadas.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endfor %}
+
+                    <!-- Next -->
+                    <li class="page-item {% if not soluciones_paginadas.has_next %}disabled{% endif %}">
+                        <a class="page-link"
+                        href="{% if soluciones_paginadas.has_next %}?page={{ soluciones_paginadas.next_page_number }}{% else %}#{% endif %}"
+                        aria-label="Next">
+                            >
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+            {% endif %}
         </section>
+
+
     </main>
+
+<!-- Modal para Agregar Solución (Solo Admin) -->
+{% if request.session.catalogo_admin_id %}
+<div class="admin-modal" id="adminModal">
+    <div class="admin-modal-content">
+        <div class="admin-modal-header">
+            <h2>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Agregar Nueva Solución
+            </h2>
+            <button class="admin-modal-close" id="closeModalBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <form id="addSolutionForm" enctype="multipart/form-data" class="admin-modal-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="solutionTitle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    Título de la Solución
+                </label>
+                <input type="text" id="solutionTitle" required maxlength="200" placeholder="Ej: Sistema de Gestión de Proyectos">
+            </div>
+
+            <div class="form-group">
+                <label for="solutionDescription">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    Descripción
+                </label>
+                <textarea id="solutionDescription" required rows="3" placeholder="Describe brevemente la solución tecnológica..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="solutionCategory">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>
+                    </svg>
+                    Categoría
+                </label>
+                <select id="solutionCategory" required>
+                    <option value="">Selecciona una categoría</option>
+                    <option value="innovacion">Innovación</option>
+                    <option value="investigacion">Investigación</option>
+                    <option value="academico">Académico</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="solutionUrl">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    URL de Acceso
+                </label>
+                <input type="url" id="solutionUrl" required maxlength="200" placeholder="https://ejemplo.com">
+            </div>
+
+            <!-- ===== CAMBIO: Agregar name="icono_nombre" al input ===== -->
+            <div class="form-group">
+                <label>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Tipo de Representación
+                </label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="imageType" value="icon" id="radioIcon" checked>
+                        <span>Icono SVG</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="imageType" value="image" id="radioImage">
+                        <span>Imagen PNG</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sección de Icono SVG -->
+            <div class="form-group" id="iconSection">
+                <label>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    Seleccionar Icono
+                </label>
+
+                <div class="input-row">
+                    <!-- live preview -->
+                    <div class="icon-preview" id="iconPreview">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".35"/>
+                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <!-- ===== AGREGAR name="icono_nombre" ===== -->
+                    <input type="text" id="solutionIcon" name="icono_nombre" placeholder="Buscar o escribir icono…" readonly />
+                    <button type="button" class="btn-catalog" id="btnOpen" title="Abrir catálogo">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- ─── Popup ─── -->
+                <div class="catalog-popup" id="catalogPopup">
+                    <div class="catalog-header">
+                        <span>Catálogo de Iconos</span>
+                        <button type="button" class="close-btn" id="btnClose">×</button>
+                    </div>
+
+                    <div class="catalog-search">
+                        <input type="text" id="searchInput" placeholder="🔍 Buscar icono…" />
+                    </div>
+
+                    <div class="catalog-tabs" id="catalogTabs">
+                        <!-- filled by JS -->
+                    </div>
+
+                    <div class="catalog-grid" id="catalogGrid">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Imagen PNG -->
+            <div class="form-group" id="imageSection" style="display: none;">
+                <label for="solutionImage">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Subir Imagen PNG
+                </label>
+                
+                <div class="image-upload-area">
+                    <input type="file" id="solutionImage" accept=".png,image/png" style="display: none;">
+                    <div class="upload-box" id="uploadBox">
+                        <div class="upload-content">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p class="upload-text">Haz clic o arrastra tu imagen PNG aquí</p>
+                            <p class="upload-hint">Tamaño recomendado: 512x512px • Máximo: 2MB</p>
+                        </div>
+                        <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+                            <img id="imagePreview" src="" alt="Vista previa">
+                            <button type="button" class="remove-image-btn" id="removeImageBtn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="imageFileName" name="imageFileName">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" id="cancelBtn">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-submit">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Agregar Solución
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 
     <!-- Scroll to top button -->
     <button class="scroll-to-top" aria-label="Volver arriba" title="Volver arriba">
@@ -352,7 +592,7 @@
                 <ul>
                     <li><a href="#main-content">Inicio</a></li>
                     <li><a href="#soluciones">Soluciones</a></li>
-                    <li><a href="{% url 'iniciarsesion' %}">Iniciar Sesión</a></li>
+                    <li><a href="{% url 'login_catalogo' %}">Iniciar Sesión</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -368,442 +608,15 @@
 
     <!-- JS de Bootstrap y dependencias -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/admin.js' %}"></script>
+    <script src="{% static 'js/mensajes.js' %}"></script>
+    <!-- Mensajes de alerta -->
+    {% if messages %}
     <script>
-        // ============================================================
-        // BIENVENIDO MEJORADO - JavaScript
-        // ============================================================
-
-        (function() {
-            'use strict';
-
-            // ============================================================
-            // MOBILE MENU TOGGLE
-            // ============================================================
-            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const hamburgerLines = document.querySelectorAll('.hamburger-line');
-
-            if (mobileMenuToggle && mobileMenu) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
-                    
-                    // Toggle aria-expanded
-                    this.setAttribute('aria-expanded', !isExpanded);
-                    
-                    // Toggle mobile menu
-                    mobileMenu.classList.toggle('active');
-                    
-                    // Animate hamburger to X
-                    if (!isExpanded) {
-                        hamburgerLines[0].style.transform = 'rotate(45deg) translateY(8px)';
-                        hamburgerLines[1].style.opacity = '0';
-                        hamburgerLines[2].style.transform = 'rotate(-45deg) translateY(-8px)';
-                    } else {
-                        hamburgerLines[0].style.transform = '';
-                        hamburgerLines[1].style.opacity = '';
-                        hamburgerLines[2].style.transform = '';
-                    }
-                });
-
-                // Close mobile menu when clicking on a link
-                const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-                mobileNavLinks.forEach(link => {
-                    link.addEventListener('click', function() {
-                        mobileMenu.classList.remove('active');
-                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-                        hamburgerLines[0].style.transform = '';
-                        hamburgerLines[1].style.opacity = '';
-                        hamburgerLines[2].style.transform = '';
-                    });
-                });
-            }
-
-            // ============================================================
-            // SMOOTH SCROLL FOR ANCHOR LINKS
-            // ============================================================
-            const anchorLinks = document.querySelectorAll('a[href^="#"]');
-            
-            anchorLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    
-                    // Skip if it's just "#"
-                    if (href === '#') return;
-                    
-                    e.preventDefault();
-                    
-                    const target = document.querySelector(href);
-                    if (target) {
-                        const headerHeight = document.querySelector('.header-container').offsetHeight;
-                        const targetPosition = target.offsetTop - headerHeight;
-                        
-                        window.scrollTo({
-                            top: targetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-
-            // ============================================================
-            // SCROLL TO TOP BUTTON
-            // ============================================================
-            const scrollToTopBtn = document.querySelector('.scroll-to-top');
-            
-            if (scrollToTopBtn) {
-                // Show/hide button based on scroll position
-                window.addEventListener('scroll', function() {
-                    if (window.pageYOffset > 300) {
-                        scrollToTopBtn.classList.add('visible');
-                    } else {
-                        scrollToTopBtn.classList.remove('visible');
-                    }
-                });
-
-                // Scroll to top on click
-                scrollToTopBtn.addEventListener('click', function() {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-
-            // ============================================================
-            // SEARCH FUNCTIONALITY
-            // ============================================================
-            const searchInput = document.getElementById('search-solutions');
-            const cards = document.querySelectorAll('.info-card');
-            const noResults = document.querySelector('.no-results');
-
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase().trim();
-                    let visibleCount = 0;
-
-                    cards.forEach(card => {
-                        const title = card.querySelector('h3').textContent.toLowerCase();
-                        const description = card.querySelector('.card-description').textContent.toLowerCase();
-                        
-                        if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                            card.style.display = '';
-                            visibleCount++;
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-
-                    // Show/hide no results message
-                    if (noResults) {
-                        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
-                    }
-                });
-            }
-
-            // ============================================================
-            // FILTER FUNCTIONALITY
-            // ============================================================
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Remove active class from all buttons
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    
-                    // Add active class to clicked button
-                    this.classList.add('active');
-                    
-                    const filter = this.getAttribute('data-filter');
-                    let visibleCount = 0;
-
-                    cards.forEach(card => {
-                        const category = card.getAttribute('data-category');
-                        
-                        if (filter === 'all' || category === filter) {
-                            card.style.display = '';
-                            visibleCount++;
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-
-                    // Show/hide no results message
-                    if (noResults) {
-                        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
-                    }
-
-                    // Clear search input when filtering
-                    if (searchInput) {
-                        searchInput.value = '';
-                    }
-                });
-            });
-
-            // ============================================================
-            // CARD CLICK NAVIGATION
-            // ============================================================
-            cards.forEach(card => {
-                // Make entire card clickable
-                card.addEventListener('click', function() {
-                    const url = this.getAttribute('data-url');
-                    if (url) {
-                        window.open(url, '_blank');
-                    }
-                });
-
-                // Make card keyboard accessible
-                card.setAttribute('tabindex', '0');
-                card.setAttribute('role', 'link');
-                
-                card.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        const url = this.getAttribute('data-url');
-                        if (url) {
-                            window.open(url, '_blank');
-                        }
-                    }
-                });
-            });
-
-            // ============================================================
-            // ANIMATED COUNTER FOR TRUST SIGNALS
-            // ============================================================
-            const trustNumbers = document.querySelectorAll('.trust-number');
-            let hasAnimated = false;
-
-            function animateCounter(element) {
-                const target = parseInt(element.getAttribute('data-count'));
-                const duration = 2000; // 2 seconds
-                const increment = target / (duration / 16); // 60fps
-                let current = 0;
-
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        element.textContent = target.toLocaleString();
-                        clearInterval(timer);
-                    } else {
-                        element.textContent = Math.floor(current).toLocaleString();
-                    }
-                }, 16);
-            }
-
-            // Intersection Observer for counter animation
-            const observerOptions = {
-                threshold: 0.5,
-                rootMargin: '0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && !hasAnimated) {
-                        hasAnimated = true;
-                        trustNumbers.forEach(number => {
-                            animateCounter(number);
-                        });
-                    }
-                });
-            }, observerOptions);
-
-            // Observe trust signals section
-            const trustSignals = document.querySelector('.trust-signals');
-            if (trustSignals) {
-                observer.observe(trustSignals);
-            }
-
-            // ============================================================
-            // INTERSECTION OBSERVER FOR CARD ANIMATIONS
-            // ============================================================
-            const cardObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry, index) => {
-                    if (entry.isIntersecting) {
-                        setTimeout(() => {
-                            entry.target.style.opacity = '1';
-                            entry.target.style.transform = 'translateY(0)';
-                        }, index * 100);
-                        cardObserver.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            });
-
-            // Initially hide cards and observe them
-            cards.forEach(card => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(30px)';
-                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                cardObserver.observe(card);
-            });
-
-            // ============================================================
-            // ACTIVE NAVIGATION LINK HIGHLIGHT
-            // ============================================================
-            const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
-            const sections = document.querySelectorAll('section[id]');
-
-            function highlightNavigation() {
-                const scrollPosition = window.pageYOffset;
-
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop - 100;
-                    const sectionHeight = section.offsetHeight;
-                    const sectionId = section.getAttribute('id');
-
-                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                        navLinks.forEach(link => {
-                            link.classList.remove('active-link');
-                            if (link.getAttribute('href') === `#${sectionId}`) {
-                                link.classList.add('active-link');
-                            }
-                        });
-                    }
-                });
-            }
-
-            window.addEventListener('scroll', highlightNavigation);
-
-            // ============================================================
-            // KNOWLEDGE NODE TOOLTIPS
-            // ============================================================
-            const knowledgeNodes = document.querySelectorAll('.knowledge-node');
-            
-            knowledgeNodes.forEach(node => {
-                node.addEventListener('mouseenter', function() {
-                    // Could add custom tooltip functionality here
-                    this.style.zIndex = '20';
-                });
-
-                node.addEventListener('mouseleave', function() {
-                    this.style.zIndex = '';
-                });
-            });
-
-            // ============================================================
-            // PERFORMANCE OPTIMIZATION: LAZY LOAD IMAGES
-            // ============================================================
-            if ('IntersectionObserver' in window) {
-                const imageObserver = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const img = entry.target;
-                            img.src = img.dataset.src;
-                            img.classList.remove('lazy');
-                            imageObserver.unobserve(img);
-                        }
-                    });
-                });
-
-                const lazyImages = document.querySelectorAll('img.lazy');
-                lazyImages.forEach(img => imageObserver.observe(img));
-            }
-
-            // ============================================================
-            // ACCESSIBILITY: KEYBOARD NAVIGATION IMPROVEMENTS
-            // ============================================================
-            
-            // Trap focus in mobile menu when open
-            if (mobileMenu) {
-                const focusableElements = mobileMenu.querySelectorAll('a, button');
-                const firstFocusable = focusableElements[0];
-                const lastFocusable = focusableElements[focusableElements.length - 1];
-
-                mobileMenu.addEventListener('keydown', function(e) {
-                    if (e.key === 'Tab') {
-                        if (e.shiftKey) {
-                            if (document.activeElement === firstFocusable) {
-                                e.preventDefault();
-                                lastFocusable.focus();
-                            }
-                        } else {
-                            if (document.activeElement === lastFocusable) {
-                                e.preventDefault();
-                                firstFocusable.focus();
-                            }
-                        }
-                    }
-
-                    if (e.key === 'Escape') {
-                        mobileMenu.classList.remove('active');
-                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-                        mobileMenuToggle.focus();
-                    }
-                });
-            }
-
-            // ============================================================
-            // PREVENT LAYOUT SHIFT
-            // ============================================================
-            
-            // Add explicit dimensions to images after load
-            window.addEventListener('load', function() {
-                const images = document.querySelectorAll('img:not([width]):not([height])');
-                images.forEach(img => {
-                    if (img.naturalWidth && img.naturalHeight) {
-                        img.setAttribute('width', img.naturalWidth);
-                        img.setAttribute('height', img.naturalHeight);
-                    }
-                });
-            });
-
-            // ============================================================
-            // ANNOUNCEMENT FOR SCREEN READERS
-            // ============================================================
-            function announceToScreenReader(message) {
-                const announcement = document.createElement('div');
-                announcement.setAttribute('role', 'status');
-                announcement.setAttribute('aria-live', 'polite');
-                announcement.className = 'sr-only';
-                announcement.textContent = message;
-                document.body.appendChild(announcement);
-
-                setTimeout(() => {
-                    document.body.removeChild(announcement);
-                }, 1000);
-            }
-
-            // Add screen reader class to CSS if not exists
-            if (!document.querySelector('style[data-sr-only]')) {
-                const style = document.createElement('style');
-                style.setAttribute('data-sr-only', '');
-                style.textContent = `
-                    .sr-only {
-                        position: absolute;
-                        width: 1px;
-                        height: 1px;
-                        padding: 0;
-                        margin: -1px;
-                        overflow: hidden;
-                        clip: rect(0, 0, 0, 0);
-                        white-space: nowrap;
-                        border-width: 0;
-                    }
-                    .active-link {
-                        background: rgba(255, 255, 255, 0.2);
-                        border-radius: 8px;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-
-            // Announce filter changes
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const filter = this.textContent;
-                    announceToScreenReader(`Mostrando soluciones: ${filter}`);
-                });
-            });
-
-            // ============================================================
-            // CONSOLE WELCOME MESSAGE
-            // ============================================================
-            console.log('%c¡Bienvenido a InnHub!', 'color: #3db103; font-size: 24px; font-weight: bold;');
-            console.log('%cRepositorio de Soluciones Tecnológicas del SENA', 'color: #50e5f9; font-size: 14px;');
-            console.log('%c💡 ¿Interesado en contribuir? Contáctanos.', 'color: #666; font-size: 12px;');
-
-})();
+        {% for message in messages %}
+            mostrarMensajeExito("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
     </script>
+    {% endif %}
 </body>
 </html>
