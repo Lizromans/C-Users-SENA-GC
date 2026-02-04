@@ -7,34 +7,41 @@
     <meta name="description" content="Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas del SENA. Plataforma colaborativa para gestión de proyectos de investigación, recursos educativos y herramientas innovadoras.">
     <meta name="keywords" content="SENA, tecnología, investigación, innovación, educación, repositorio">
     <meta name="author" content="SENA - Gestión del Conocimiento">
-
+    
+    <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas">
     <meta property="og:description" content="Explora nuestro catálogo de herramientas innovadoras diseñadas para transformar procesos y potenciar resultados.">
     <meta property="og:image" content="{% static 'img/og-image.jpg' %}">
     <meta property="og:url" content="https://innhub.sena.edu.co">
-  
+    
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas">
     <meta name="twitter:description" content="Explora nuestro catálogo de herramientas innovadoras del SENA.">
     
     <title>{% block titulo %}Gestión del Conocimiento - Repositorio de Soluciones Tecnológicas | SENA{% endblock %}</title>
 
+    <!-- Preload critical resources -->
     <link rel="preload" href="{% static 'css/bienvenido.css' %}" as="style">
     <link rel="preload" href="{% static 'img/logo1.png' %}" as="image">
-
+    
+    <!-- Bootstrap CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-
+    <!-- CSS personalizado -->
     <link rel="stylesheet" href="{% static 'css/bienvenido.css' %}">
     
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
     {% block css %}{% endblock %}
 </head>
 <body>
 
+    <!-- Skip to main content for accessibility -->
     <a href="#main-content" class="skip-to-main">Saltar al contenido principal</a>
 
+    <!-- ===== HEADER ===== -->
     <header class="header-container" role="banner">
         <div class="header-content">
             <img src="{% static 'img/logo1.png' %}" 
@@ -50,6 +57,7 @@
                     width="75"
                     height="75">
 
+                <!-- Imagen debajo -->
                 <img src="{% static 'img/logo3.png' %}" 
                     alt="Imagen secundaria InnHub"
                     class="header-gc-sublogo">
@@ -120,7 +128,7 @@
                 </div>
             {% endif %}
         </nav>
-
+        <!-- Mobile menu button -->
         <button class="mobile-menu-toggle" aria-label="Abrir menú de navegación" aria-expanded="false">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
@@ -128,13 +136,14 @@
         </button>
     </header>
 
-
+    <!-- Mobile Navigation Menu -->
     <nav class="mobile-menu" role="navigation" aria-label="Menú móvil">
         <a href="#main-content" class="mobile-nav-link">Inicio</a>
         <a href="#soluciones" class="mobile-nav-link">Soluciones Tecnológicas</a>
         <a href="{% url 'login_catalogo' %}" class="mobile-nav-link">Iniciar Sesión</a>
     </nav>
 
+    <!-- ===== PARTÍCULAS DE FONDO ===== -->
     <div class="bg-particles" aria-hidden="true">
         <div class="particle"></div>
         <div class="particle"></div>
@@ -146,9 +155,11 @@
         <div class="particle"></div>
     </div>
 
+    <!-- ===== MAIN ===== -->
     <main id="main-content" role="main">
+        <!-- ===== SECCIÓN HERO / BIENVENIDA ===== -->
         <section class="container hero-section">
-
+            <!-- Texto principal -->
             <div class="main-text">
                 <h1>Repositorio de Soluciones Tecnológicas</h1>
                 <p class="subtitle">
@@ -158,7 +169,8 @@
                 <div class="cta-container">
                     <a href="#soluciones" class="cta-button cta-secondary">Explorar Soluciones</a>
                 </div>
-
+                
+                <!-- Trust signals -->
                 <div class="trust-signals">
                     <div class="trust-item">
                         <span class="trust-number" data-count="{{ total_soluciones }}">0</span>
@@ -175,21 +187,24 @@
                 </div>
             </div>
 
+            <!-- Hub de conocimiento animado -->
             <div class="knowledge-hub">
                 <div class="hub-container">
-
+                    <!-- Icono central -->
                     <div class="central-icon">⚛</div>
                     
-
+                    <!-- Órbitas -->
                     <div class="orbit orbit-1"></div>
                     <div class="orbit orbit-2"></div>
                     <div class="orbit orbit-3"></div>
-
+                    
+                    <!-- Líneas de conexión -->
                     <div class="connection-line line-1"></div>
                     <div class="connection-line line-2"></div>
                     <div class="connection-line line-3"></div>
                     <div class="connection-line line-4"></div>
-
+                    
+                    <!-- Nodos de conocimiento -->
                     <div class="knowledge-node node-1" title="Investigación Científica">🔬</div>
                     <div class="knowledge-node node-2" title="Análisis de Datos">📊</div>
                     <div class="knowledge-node node-3" title="Inteligencia Artificial">🧠</div>
@@ -202,6 +217,7 @@
             </div>
         </section>
 
+        <!-- ===== SECCIÓN SOLUCIONES TECNOLÓGICAS ===== -->
         <section class="secondary-container" id="soluciones">
             <h2 class="section-title">Soluciones Tecnológicas</h2>
             <p class="section-subtitle">
@@ -209,6 +225,7 @@
                 para transformar procesos y potenciar resultados.
             </p>
 
+            <!-- Search and Filter -->
             <div class="search-filter-container">
                 <div class="search-box">
                     <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -247,21 +264,54 @@
                 <article class="info-card dynamic-card" data-category="{{ solucion.categoria }}" data-url="{{ solucion.url }}">
                     <!-- ===== CAMBIO PRINCIPAL: Mostrar icono basado en tipo ===== -->
                     <div class="card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-                        </svg>
-                    </div>
-                    <h3>Gestión Académica</h3>
-                    <p class="card-description">
-                        Administración integral de proyectos formativos,
-                        instructores y aprendices.
-                    </p>
-                    <div class="card-footer">
-                        <span class="card-tag">Académico</span>
-                        <button class="card-link-btn" aria-label="Abrir Gestión Académica"
-                            data-url="https://betowa.sena.edu.co/">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"/>
+                        {% if solucion.tipo_icono == 'imagen' and solucion.icono_imagen %}
+                            <!-- Mostrar imagen PNG -->
+                            <img src="{{ solucion.icono_imagen.url }}" 
+                                 alt="Icono de {{ solucion.titulo }}" 
+                                 class="card-icon-img">
+                        {% else %}
+                            <!-- Mostrar SVG dinámico basado en icono_nombre -->
+                            <svg viewBox="0 0 24 24" style="width: 55%; height: 55%;" fill="currentColor" stroke="none">
+                                {% if solucion.icono_nombre == 'Estrella' %}
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                {% elif solucion.icono_nombre == 'Corazón' %}
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                {% elif solucion.icono_nombre == 'Usuario' %}
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                {% elif solucion.icono_nombre == 'Código' %}
+                                    <polyline points="16 18 22 12 16 6"></polyline>
+                                    <polyline points="8 6 2 12 8 18"></polyline>
+                                {% elif solucion.icono_nombre == 'Bombilla' %}
+                                    <path d="M9 18h6M10 22h4M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                    <path d="M9 10c0 4-3 6-3 6h12s-3-2-3-6"/>
+                                {% elif solucion.icono_nombre == 'Libro' %}
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                {% elif solucion.icono_nombre == 'Calendario' %}
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                {% elif solucion.icono_nombre == 'Gráfica' %}
+                                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                                {% elif solucion.icono_nombre == 'Documento' %}
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                {% elif solucion.icono_nombre == 'Engranaje' %}
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 1v6m0 6v6m5.196-15.804l-4.242 4.242m-6 6l-4.242 4.242m15.588 0l-4.242-4.242m-6-6l-4.242-4.242"/>
+                                {% elif solucion.icono_nombre == 'Nube' %}
+                                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                                {% else %}
+                                    <!-- Icono por defecto: Estrella -->
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                {% endif %}
                             </svg>
                         {% endif %}
                     </div>
@@ -282,6 +332,7 @@
                 {% endfor %}
             </div>
 
+            <!-- No results message -->
             <div class="no-results" style="display: none;">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
@@ -337,7 +388,7 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 5v14M5 12h14"/>
                 </svg>
-                Agregar Nueva Solución
+                Agregar Nueva Solucións
             </h2>
             <button class="admin-modal-close" id="closeModalBtn">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -522,12 +573,14 @@
 </div>
 {% endif %}
 
+    <!-- Scroll to top button -->
     <button class="scroll-to-top" aria-label="Volver arriba" title="Volver arriba">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
     </button>
 
+    <!-- ===== FOOTER ===== -->
     <footer role="contentinfo">
         <div class="footer-content">
             <div class="footer-section">
@@ -553,6 +606,7 @@
         </div>
     </footer>
 
+    <!-- JS de Bootstrap y dependencias -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/admin.js' %}"></script>
     <script src="{% static 'js/mensajes.js' %}"></script>
