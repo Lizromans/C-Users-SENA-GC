@@ -495,26 +495,8 @@
 // FUNCIONALIDADES FUERA DEL MÓDULO PRINCIPAL
 // ============================================================
 
-// LOGIN DROPDOWN
-const loginTrigger = document.getElementById('loginTrigger');
-const loginDropdown = document.getElementById('loginDropdown');
-
-if (loginTrigger && loginDropdown) {
-    loginTrigger.addEventListener('click', function(e) {
-        e.stopPropagation();
-        loginDropdown.classList.toggle('active');
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!loginDropdown.contains(e.target) && !loginTrigger.contains(e.target)) {
-            loginDropdown.classList.remove('active');
-        }
-    });
-
-    loginDropdown.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-}
+// NOTA: El manejo del login dropdown ahora está en el HTML inline
+// para evitar conflictos y tener mejor control del flujo
 
 // ANIMATED COUNTER FOR TRUST SIGNALS
 const trustNumbers = document.querySelectorAll('.trust-number');
@@ -749,6 +731,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('ℹ️ Elementos de dropdown móvil no encontrados (usuario ya autenticado)');
     }
 });
+
+// NOTA: El manejo del footer login link ahora está en el HTML inline
+// para evitar conflictos y tener mejor control del flujo
+
 
 // CONSOLE MESSAGE
 console.log('%c¡Bienvenido a Gestión del Conocimiento!', 'color: #3db103; font-size: 24px; font-weight: bold;');

@@ -87,8 +87,14 @@
                     
                     <!-- Dropdown Menu -->
                     <div class="login-dropdown" id="loginDropdown">
+                        <button class="close-dropdown" aria-label="Cerrar formulario">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
                         <div class="dropdown-header">
-                            <h3>Iniciar Sesión</h3>
+                            <h3>Bienvenido</h3>
                             <p>Accede al panel de administración</p>
                         </div>
                         
@@ -685,7 +691,7 @@
                 <ul>
                     <li><a href="#main-content">Inicio</a></li>
                     <li><a href="#soluciones">Soluciones</a></li>
-                    <li><a href="{% url 'login_catalogo' %}">Iniciar Sesión</a></li>
+                    <li><a id="footerLoginLink">Iniciar Sesión</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -711,5 +717,142 @@
         {% endfor %}
     </script>
     {% endif %}
+    <script>
+        function initLoginDropdownClose() {
+            const closeBtn = document.querySelector('.close-dropdown');
+            const loginDropdown = document.getElementById('loginDropdown');
+            const loginTrigger = document.getElementById('loginTrigger');
+
+            if (!closeBtn || !loginDropdown || !loginTrigger) {
+                console.log('ℹ️ Botón de cerrar dropdown no disponible');
+                return;
+            }
+
+            console.log('❌ Inicializando botón de cerrar dropdown...');
+
+            closeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                loginDropdown.classList.remove('active');
+                loginTrigger.setAttribute('aria-expanded', 'false');
+                
+                // ✨ NUEVO: Remover clase active del botón
+                loginTrigger.classList.remove('active');
+                
+                console.log('✅ Dropdown cerrado por botón X');
+            });
+
+            console.log('✅ Botón de cerrar dropdown inicializado correctamente');
+        }
+
+        function initFooterLoginLink() {
+            const footerLoginLink = document.getElementById('footerLoginLink');
+            const loginTrigger = document.getElementById('loginTrigger');
+            const loginDropdown = document.getElementById('loginDropdown');
+            
+            if (!footerLoginLink || !loginTrigger || !loginDropdown) {
+                console.log('ℹ️ Enlace del footer no disponible (usuario autenticado)');
+                return;
+            }
+            
+            console.log('🔗 Conectando enlace del footer con dropdown del header');
+            
+            footerLoginLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('🖱️ Click en enlace del footer detectado');
+                
+                // Hacer scroll suave hacia el header
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                
+                console.log('📜 Haciendo scroll al header...');
+                
+                // Esperar a que termine el scroll antes de abrir el dropdown
+                setTimeout(function() {
+                    // Activar el dropdown de login
+                    loginDropdown.classList.add('active');
+                    loginTrigger.setAttribute('aria-expanded', 'true');
+                    
+                    // ✨ Agregar clase active al botón trigger para activar estilos
+                    loginTrigger.classList.add('active');
+                    
+                    console.log('✅ Dropdown de login abierto desde footer con estilos del botón');
+                    
+                    // Enfocar automáticamente el campo de usuario
+                    const usernameInput = document.getElementById('username');
+                    if (usernameInput) {
+                        usernameInput.focus();
+                        console.log('⌨️ Campo de usuario enfocado');
+                    }
+                }, 500);  // 500ms para el scroll suave
+            });
+            
+            console.log('✅ Enlace del footer configurado correctamente');
+        }
+
+        function initLoginTriggerButton() {
+            const loginTrigger = document.getElementById('loginTrigger');
+            const loginDropdown = document.getElementById('loginDropdown');
+            
+            if (!loginTrigger || !loginDropdown) {
+                console.log('ℹ️ Botón de login no disponible (usuario autenticado)');
+                return;
+            }
+            
+            console.log('🔘 Inicializando botón de login del header...');
+            
+            loginTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // Toggle del dropdown
+                const isActive = loginDropdown.classList.toggle('active');
+                
+                // Toggle de la clase active en el botón para estilos
+                loginTrigger.classList.toggle('active');
+                
+                // Actualizar aria-expanded
+                loginTrigger.setAttribute('aria-expanded', isActive);
+                
+                console.log('🔄 Dropdown toggled:', isActive ? 'abierto' : 'cerrado');
+            });
+            
+            // Cerrar al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!loginDropdown.contains(e.target) && !loginTrigger.contains(e.target)) {
+                    if (loginDropdown.classList.contains('active')) {
+                        loginDropdown.classList.remove('active');
+                        loginTrigger.classList.remove('active');
+                        loginTrigger.setAttribute('aria-expanded', 'false');
+                        console.log('✅ Dropdown cerrado al hacer clic fuera');
+                    }
+                }
+            });
+            
+            // Prevenir que el clic dentro del dropdown lo cierre
+            loginDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            console.log('✅ Botón de login del header inicializado correctamente');
+        }
+
+        // Inicializar todas las funciones cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initLoginDropdownClose();
+                initFooterLoginLink();
+                initLoginTriggerButton();
+            });
+        } else {
+            initLoginDropdownClose();
+            initFooterLoginLink();
+            initLoginTriggerButton();
+        }
+    </script>
 </body>
 </html>
