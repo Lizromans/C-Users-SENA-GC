@@ -235,6 +235,73 @@ body {
     background: rgba(255, 255, 255, 0.1);
 }
 
+/* ============================================================
+   4.5 MOBILE LOGIN DROPDOWN
+   ============================================================ */
+.mobile-login-dropdown-container {
+    position: relative;
+}
+
+.mobile-login-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent !important;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none !important;
+}
+
+.mobile-login-trigger:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.mobile-login-trigger:focus {
+    background: transparent !important;
+    outline: none !important;
+}
+
+/* ✨ Estilos cuando el botón móvil está activo */
+.mobile-login-trigger.active {
+    background: rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5) !important;
+    transform: scale(1.02);
+    color: rgb(0, 51, 153) !important;
+    outline: none !important;
+}
+
+.mobile-login-trigger.active span,
+.mobile-login-trigger.active svg {
+    color: rgb(0, 51, 153) !important;
+}
+
+.mobile-login-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1002;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.mobile-login-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    max-height: 500px;
+}
+
 
 /* ============================================================
    5. LOGIN DROPDOWN
@@ -265,6 +332,7 @@ body {
     background: transparent !important;
     outline: none !important;
     color: white !important;
+
 }
 
 /* Estilos cuando el botón está activo (dropdown abierto) */

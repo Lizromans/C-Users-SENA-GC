@@ -626,11 +626,24 @@ const mobileMenu = document.querySelector('.mobile-menu');
 
 if (mobileMenuToggle && mobileMenu) {
     mobileMenuToggle.addEventListener('click', () => {
+        const isOpening = !mobileMenu.classList.contains('active');
+        
         mobileMenu.classList.toggle('active');
         mobileMenuToggle.setAttribute(
             'aria-expanded',
             mobileMenu.classList.contains('active')
         );
+        
+        // Si se está cerrando el menú móvil, cerrar también el dropdown de login
+        if (!isOpening) {
+            const mobileLoginDropdown = document.getElementById('mobileLoginDropdown');
+            const mobileLoginTrigger = document.getElementById('mobileLoginTrigger');
+            
+            if (mobileLoginDropdown && mobileLoginTrigger) {
+                mobileLoginDropdown.classList.remove('active');
+                mobileLoginTrigger.classList.remove('active');
+            }
+        }
     });
 }
 
@@ -696,6 +709,7 @@ if (!document.querySelector('style[data-sr-only]')) {
 document.addEventListener('DOMContentLoaded', function() {
     const mobileLoginTrigger = document.getElementById('mobileLoginTrigger');
     const mobileLoginDropdown = document.getElementById('mobileLoginDropdown');
+    const closeMobileDropdown = document.getElementById('closeMobileDropdown');
     
     if (mobileLoginTrigger && mobileLoginDropdown) {
         console.log('📱 Inicializando dropdown de login móvil...');
@@ -711,6 +725,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('🔄 Dropdown móvil toggled:', mobileLoginDropdown.classList.contains('active'));
         });
+        
+        // Botón de cerrar (X)
+        if (closeMobileDropdown) {
+            closeMobileDropdown.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                mobileLoginDropdown.classList.remove('active');
+                mobileLoginTrigger.classList.remove('active');
+                
+                console.log('✅ Dropdown móvil cerrado por botón X');
+            });
+        }
         
         // Cerrar dropdown al hacer clic fuera
         document.addEventListener('click', function(e) {
@@ -731,10 +758,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('ℹ️ Elementos de dropdown móvil no encontrados (usuario ya autenticado)');
     }
 });
-
-// NOTA: El manejo del footer login link ahora está en el HTML inline
-// para evitar conflictos y tener mejor control del flujo
-
 
 // CONSOLE MESSAGE
 console.log('%c¡Bienvenido a Gestión del Conocimiento!', 'color: #3db103; font-size: 24px; font-weight: bold;');
