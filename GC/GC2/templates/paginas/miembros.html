@@ -460,10 +460,12 @@
                                 <div class="input-con-icono-modal">
                                     <input type="text" id="perfilCuenta" name="numero_cuenta"
                                         value="{{ miembro_seleccionado.numero_cuenta_visible }}" class="perfil-form-input" readonly>
+                                    {% if perms.GC2.chance_aprendiz %}
                                     <a href="{% url 'solicitar_codigo_verificacion_form' miembro_seleccionado.cedula %}" 
                                         class="icono-interno-modal">
                                         <i class="fa fa-eye"></i>
                                     </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

@@ -3163,6 +3163,7 @@ def registro_aprendiz(request):
     return render(request, 'paginas/formaprendiz.html', {'form': form})
 
 @login_required
+@permission_required("GC2.change_aprendiz")
 def solicitar_codigo_verificacion_form(request, aprendiz_id):
     try:
         usuario_id = request.session.get('cedula')
