@@ -10,10 +10,9 @@ urlpatterns = [
     path('api/notifications/mark-all-read/', views.api_marcar_leidas, name='api_marcar_leidas'),
     path('api/notifications/clear-all/', views.api_limpiar_todas, name='api_limpiar_todas'),
 
-    path('', views.bienvenido, name='bienvenido'),
     path('home/', views.home, name='home'),
     path('registro/', views.registro, name='registro'),
-    path('iniciarsesion/', views.iniciarsesion, name='iniciarsesion'),
+    path('', views.iniciarsesion, name='iniciarsesion'),
     path('verificar_email/<str:token>/', views.verificar_email, name='verificar_email'),
     path('recuperar-contrasena/', views.mostrar_recuperar_contrasena, name='mostrar_recuperar_contrasena'),
     path('procesar-recuperacion/', views.recuperar_contrasena, name='recuperar_contrasena'),
@@ -95,17 +94,6 @@ urlpatterns = [
     path('backup/personal/', views.backup_personal, name='backup_personal'),
     path('backup/completo/', views.backup_completo, name='backup_completo'),
     path('backup/info/', views.backup_info, name='backup_info'),
-
-    # Catalogo
-    path('catalogo/login/', views.login_catalogo, name='login_catalogo'),
-    path('catalogo/logout/', views.logout_catalogo, name='logout_catalogo'),
-    path('catalogo/editor/', views.editar_catalogo, name='editar_catalogo'),
-
-    # API para manejar soluciones
-    path('api/agregar-solucion/', views.agregar_solucion, name='agregar_solucion'),
-    path('api/eliminar-solucion/<int:solucion_id>/', views.eliminar_solucion, name='eliminar_solucion'),
-    path('api/editar-solucion/<int:solucion_id>/', views.editar_solucion, name='editar_solucion'),
-
 ]
 
 if settings.DEBUG:
