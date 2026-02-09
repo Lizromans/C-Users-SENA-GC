@@ -3390,7 +3390,7 @@ def eventos(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
 
-    limite = timezone.now() - timedelta(hours=24)
+    limite = timezone.now() - timedelta(hours=12)
     Evento.objects.filter(
         estado_eve__in=["Cancelado", "Finalizado"],
         fecha_estado__lt=limite
