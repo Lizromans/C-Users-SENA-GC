@@ -54,10 +54,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     fecha_registro = models.DateTimeField(auto_now_add=True, null=True)
-    # Nuevos campos para verificación
-    codigo_verificacion = models.CharField(max_length=6, null=True, blank=True)
-    codigo_expiracion = models.DateTimeField(null=True, blank=True)
-    # campos para limitar intentos de código
     codigo_verificacion = models.CharField(max_length=6, null=True, blank=True)
     codigo_expiracion = models.DateTimeField(null=True, blank=True)
     intentos_codigo_fallidos = models.IntegerField(default=0)

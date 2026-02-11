@@ -16,87 +16,90 @@
 </script>
 {% endif %}
 
-<form method="POST" action="{% url 'perfil' %}">
-    {% csrf_token %}
-    <div class="perfil">
+<div class="perfil">
+    
+    <div class="top-section">
         
-        <div class="top-section">
-            
-            <div class="cont-1">
-                <div class="foto-container">
-                    <div class="foto">
-                        <form action="{% url 'actualizar_foto' %}" method="POST" enctype="multipart/form-data" style="width: 100%; height: 100%;">
-                            {% csrf_token %}
-                            
-                            {% if usuario.imagen_perfil %}
-                                <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
-                            {% else %}
-                                <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
-                            {% endif %}
-
-                            <label for="foto-input" class="icon-edit">
-                                <img src="{% static 'img/edit.png' %}" alt="Editar foto">
-                            </label>
-                            <input type="file" name="imagen_perfil" id="foto-input" accept="image/*" onchange="this.form.submit()" hidden>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="perfil-info">
-                    <h2 class="perfil-nombre">{{ usuario.nom_usu }} {{ usuario.ape_usu }}</h2>
-                    <p class="perfil-rol">{{ usuario.rol }}</p>
-                    <div class="estado-badge">
-                        <span class="estado-dot"></span>
-                        {{ usuario.estado }}
-                    </div>
-                    <div class="perfil-stats">
-                        <div class="stat-item">
-                            <div class="stat-icon">🌱</div>
-                            <div class="stat-content">
-                                <span class="stat-value">{{ total_semilleros }}</span>
-                                <span class="stat-label">Semilleros</span>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-icon">📊</div>
-                            <div class="stat-content">
-                                <span class="stat-value">{{ total_proyectos }}</span>
-                                <span class="stat-label">Proyectos</span>
-                            </div>
-                        </div>
-                    </div>
+        <div class="cont-1">
+            <div class="foto-container">
+                <div class="foto">
+                    {% if usuario.imagen_perfil %}
+                        <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
+                    {% else %}
+                        <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
+                    {% endif %}
+                    <form action="{% url 'actualizar_foto' %}" method="POST" enctype="multipart/form-data" id="formFotoPerfil">
+                        {% csrf_token %}
+                        <label for="foto-input" class="icon-edit">
+                            <img src="{% static 'img/edit.png' %}" alt="Editar foto">
+                        </label>
+                        <input type="file" 
+                            name="imagen_perfil" 
+                            id="foto-input" 
+                            accept="image/*" 
+                            onchange="this.form.submit()" 
+                            hidden>
+                    </form>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">⏰</div>
-                    <h3 class="card-title">Última Sesión</h3>
+            <div class="perfil-info">
+                <h2 class="perfil-nombre">{{ usuario.nom_usu }} {{ usuario.ape_usu }}</h2>
+                <p class="perfil-rol">{{ usuario.rol }}</p>
+                <div class="estado-badge">
+                    <span class="estado-dot"></span>
+                    {{ usuario.estado }}
                 </div>
-                <div class="session-time">
-                    {% if usuario.last_login %}
-                        {{ ultimo_acceso }}
-                    {% else %}
-                        Nunca
-                    {% endif %}
-                </div>
-                <div class="card-details">
-                    <div class="card-detail">
-                        <div class="detail-label">Departamento</div>
-                        <div class="detail-value">{{ usuario.dependencia|default:"N/A" }}</div>
+                <div class="perfil-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">🌱</div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ total_semilleros }}</span>
+                            <span class="stat-label">Semilleros</span>
+                        </div>
                     </div>
-                    <div class="card-detail">
-                        <div class="detail-label">Contrato</div>
-                        <div class="detail-value">{{ usuario.vinculacion_laboral|default:"N/A" }}</div>
-                    </div>
-                    <div class="card-detail">
-                        <div class="detail-label">Email</div>
-                        <div class="detail-value">{{ usuario.correo_ins|truncatechars:15 }}</div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ total_proyectos }}</span>
+                            <span class="stat-label">Proyectos</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">⏰</div>
+                <h3 class="card-title">Última Sesión</h3>
+            </div>
+            <div class="session-time">
+                {% if usuario.last_login %}
+                    {{ ultimo_acceso }}
+                {% else %}
+                    Nunca
+                {% endif %}
+            </div>
+            <div class="card-details">
+                <div class="card-detail">
+                    <div class="detail-label">Departamento</div>
+                    <div class="detail-value">{{ usuario.dependencia|default:"N/A" }}</div>
+                </div>
+                <div class="card-detail">
+                    <div class="detail-label">Contrato</div>
+                    <div class="detail-value">{{ usuario.vinculacion_laboral|default:"N/A" }}</div>
+                </div>
+                <div class="card-detail">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">{{ usuario.correo_ins|truncatechars:15 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form method="POST" action="{% url 'perfil' %}">
+        {% csrf_token %}
+        
         <div class="bottom-section">
             
             <div class="columna">
@@ -214,8 +217,8 @@
             <button type="submit" class="guardar">Guardar Cambios</button>
         </div>
 
-    </div>
-</form>
+    </form>
+</div>
 
 <script src="{% static 'js/notificaciones.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
