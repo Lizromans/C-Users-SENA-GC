@@ -957,6 +957,24 @@ body {
     transform: translateY(-2px);
 }
 
+/* 12. ANIMACIONES */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes fadeContent {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes slideDown {
     from {
         transform: translateY(-50px);
@@ -968,7 +986,441 @@ body {
     }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+@keyframes rotate-gradient {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes float-bg {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(20px, -20px) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes float-logo {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes pulse-text {
+    0%, 100% {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
+                     0 0 40px rgba(80, 229, 249, 0.2);
+    }
+    50% {
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+                     0 0 60px rgba(80, 229, 249, 0.4);
+    }
+}
+
+/* 13. MEDIA QUERIES RESPONSIVE */
+@media (min-width: 1024px) {
+    .container {
+        width: 65vw;
+        height: 90vh;
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .blue-panel {
+        width: 50%;
+        border-radius: 0 80% 0 0;
+        height: 100%;
+    }
+
+    .container.active .blue-panel {
+        order: 2;
+        border-radius: 80% 0 0 0;
+    }
+
+    .form-container {
+        width: 50%;
+        order: 1;
+        height: 100%;
+        padding: 30px 40px;
+        justify-content: center;
+    }
+
+    .container.active .form-container {
+        order: 1;
+    }
+
+    .form-container .btn {
+        margin-bottom: 20px;
+    }
+
+    .back-arrow {
+        left: calc((100vw - 65vw) / 2 + 20px);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .container {
+        width: 85vw;
+        height: 85vh;
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .blue-panel {
+        width: 45%;
+        border-radius: 0 60% 0 0;
+        padding: 20px 15px;
+        height: 100%;
+    }
+
+    .container.active .blue-panel {
+        border-radius: 60% 0 0 0;
+    }
+
+    .blue-panel .logo-sena {
+        width: 80px;
+    }
+
+    .blue-panel h2 {
+        font-size: 1.3rem;
+    }
+
+    .blue-panel p {
+        font-size: 12px;
+    }
+
+    .form-container {
+        width: 55%;
+        padding: 25px 20px;
+        height: 100%;
+        justify-content: center;
+    }
+
+    .form-container .btn {
+        margin-bottom: 20px;
+    }
+
+    .header-gc-logo {
+        width: 140px;
+    }
+
+    .back-arrow {
+        left: calc((100vw - 85vw) / 2 + 18px);
+    }
+
+    .input,
+    .select {
+        font-size: 12px;
+        padding: 9px 13px;
+        height: 40px;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+    .container {
+        width: 90vw;
+        height: auto;
+        min-height: 95vh;
+        flex-direction: column;
+    }
+
+    .blue-panel {
+        width: 100%;
+        height: auto;
+        border-radius: 20px 20px 0 0 !important;
+        padding: 30px 20px;
+        min-height: 280px;
+    }
+
+    .container.active .blue-panel {
+        order: 2;
+        border-radius: 0 0 20px 20px !important;
+    }
+
+    .blue-panel .logo-sena {
+        width: 100px;
+    }
+
+    .blue-panel h2 {
+        font-size: 1.5rem;
+    }
+
+    .form-container {
+        width: 100%;
+        height: auto;
+        padding: 25px 20px;
+        order: 1;
+    }
+
+    .form-container .btn {
+        margin-bottom: 20px;
+    }
+
+    .container.active .form-container {
+        order: 1;
+    }
+
+    .header-gc-logo {
+        width: 150px;
+    }
+
+    .back-arrow {
+        top: 3%;
+        left: calc((100vw - 90vw) / 2 + 15px);
+    }
+
+    .mensajes-container {
+        width: 85%;
+    }
+}
+
+@media (max-width: 575px) {
+    body {
+        padding: 5px;
+    }
+
+    .container {
+        width: 98vw;
+        height: auto;
+        min-height: 98vh;
+        flex-direction: column;
+        border-radius: 15px;
+    }
+
+    .blue-panel {
+        width: 100%;
+        height: auto;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 20px 15px;
+        min-height: 300px;
+    }
+
+    .container.active .blue-panel {
+        order: 2;
+        border-radius: 0 0 15px 15px !important;
+    }
+
+    .blue-panel .logo-sena {
+        width: 70px;
+    }
+
+    .blue-panel h2 {
+        font-size: 1.1rem;
+    }
+
+    .blue-panel p {
+        font-size: 11px;
+    }
+
+    .blue-panel button {
+        padding: 9px 18px;
+        font-size: 0.85rem;
+    }
+
+    .form-container {
+        width: 90%;
+        height: auto;
+        padding: 20px 15px;
+        order: 1;
+    }
+
+    .container.active .form-container {
+        order: 1;
+    }
+
+    .header-gc-logo {
+        width: 120px;
+    }
+
+    .header-content h2,
+    .form-container h2 {
+        font-size: 0.9rem;
+    }
+
+    .input,
+    .select {
+        padding: 9px 12px;
+        font-size: 12px;
+        height: 38px;
+    }
+
+    .form-container .btn {
+        padding: 10px 15px;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .back-arrow {
+        top: 2%;
+        left: 20px;
+        width: 38px;
+        height: 38px;
+    }
+
+    .mensajes-container {
+        width: 90%;
+        top: 2%;
+    }
+
+    .alert {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .error-container,
+    .error-correo,
+    .error-contra,
+    .error-contrase,
+    .error-cedula,
+    .error-rol {
+        position: static !important;
+        width: 90%;
+        margin-top: 5px;
+        transform: none !important;
+        left: auto !important;
+        right: auto !important;
+    }
+
+    .container.active .error-container::after,
+    .container.active .error-correo::after,
+    .container.active .error-contra::after,
+    .container.active .error-contrase::after,
+    .container.active .error-cedula::after,
+    .container.active .error-rol::after,
+    .container:not(.active) .error-container::after,
+    .container:not(.active) .error-correo::after,
+    .container:not(.active) .error-contra::after,
+    .container:not(.active) .error-contrase::after,
+    .container:not(.active) .error-cedula::after,
+    .container:not(.active) .error-rol::after {
+        display: none;
+    }
+
+    .modal-content {
+        width: 90%;
+        margin: 5% auto;
+    }
+
+    .particle {
+        display: none !important;
+    }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+    .container {
+        height: auto;
+        min-height: 98vh;
+        flex-direction: row;
+    }
+
+    .blue-panel {
+        width: 42%;
+        border-radius: 0 50% 0 0 !important;
+        min-height: auto;
+        padding: 15px;
+    }
+
+    .container.active .blue-panel {
+        border-radius: 50% 0 0 0 !important;
+    }
+
+    .blue-panel .logo-sena {
+        width: 70px;
+    }
+
+    .blue-panel h2 {
+        font-size: 1.1rem;
+        margin: 8px 0;
+    }
+
+    .blue-panel p {
+        font-size: 11px;
+        margin: 3px 0 12px 0;
+    }
+
+    .blue-panel button {
+        padding: 8px 20px;
+        font-size: 0.85rem;
+    }
+
+    .form-container {
+        width: 58%;
+        padding: 15px 25px;
+    }
+
+    .input,
+    .select {
+        height: 38px;
+        margin: 4px 0;
+    }
+
+    .back-arrow {
+        top: 2%;
+    }
+}
+
+@media (min-width: 1920px) {
+    .container {
+        width: 60vw;
+        max-width: 1600px;
+    }
+
+    .blue-panel .logo-sena {
+        width: 160px;
+    }
+
+    .blue-panel h2 {
+        font-size: 2rem;
+    }
+
+    .header-gc-logo {
+        width: 190px;
+    }
+
+    .form-container {
+        padding: 40px 45px;
+    }
+
+    .form-container .btn {
+        margin-bottom: 25px;
+    }
+
+    .input,
+    .select {
+        font-size: 14px;
+        height: 45px;
+    }
+
+    .form-container .btn {
+        font-size: 1rem;
+        padding: 12px 20px;
+    }
+}
+
+@media print {
+    .back-arrow,
+    .mensajes-container,
+    .bg-particles,
+    .particle,
+    .blue-panel button {
+        display: none !important;
+    }
+
+    .container {
+        box-shadow: none;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+    }
+
+    .blue-panel,
+    .form-container {
+        width: 100%;
+        border-radius: 0 !important;
+    }
 }

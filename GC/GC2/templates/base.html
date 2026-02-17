@@ -15,6 +15,9 @@
     <div>
         <div class="header-container">
             <header class="header-content">
+                <button class="mobile-menu-btn" id="mobile-menu-btn" style="display: none;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
                 <div class="header-left">
                     <div class="header-logo-container">
                         <img src="{% static 'img/logo_gc.png' %}" alt="Logo InnHub" class="header-gc-logo">
@@ -50,9 +53,7 @@
                                 </div>
                             </div>
                             <div class="notification-footer" id="view-all-notifications" >
-                                <a href="#" >
-                                    Ver todas las notificaciones
-                                </a>
+                                <a>Ver todas las notificaciones</a>
                             </div>
 
                         </div>
@@ -75,6 +76,7 @@
                 </div>
             </header>
         </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
         <div class="sidebar-container">
             <aside class="sidebar">

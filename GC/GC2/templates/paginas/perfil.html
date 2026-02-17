@@ -26,7 +26,7 @@
                     {% if usuario.imagen_perfil %}
                         <img src="{{ usuario.imagen_perfil.url }}" alt="Foto de perfil" class="foto-perfil">
                     {% else %}
-                        <img src="{% static 'img/cam.png' %}" alt="foto de perfil">
+                        <img src="{% static 'img/users.png' %}" alt="foto de perfil">
                     {% endif %}
                     <form action="{% url 'actualizar_foto' %}" method="POST" enctype="multipart/form-data" id="formFotoPerfil">
                         {% csrf_token %}

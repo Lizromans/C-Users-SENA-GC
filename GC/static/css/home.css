@@ -847,3 +847,668 @@ aside {
     margin-right: clamp(6px, 1vw, 10px);
     color: var(--azul-secundario);
 }
+
+/* MEDIA QUERIES RESPONSIVE */
+
+/* Móviles pequeños (< 480px) */
+@media (max-width: 479px) {
+    .contenedor-principal {
+        padding: 8px;
+        gap: 15px;
+    }
+
+    .contenedor-info {
+        min-height: 350px;
+        padding: 20px 15px;
+    }
+
+    .bienvenida {
+        gap: 20px;
+    }
+
+    .info h3 {
+        font-size: 1.8rem;
+    }
+
+    .info p {
+        font-size: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 1.2rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .contenedor-tres {
+        padding: 20px 15px;
+    }
+
+    .contenedor-tres h2 {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+
+    .contenedor-actividad-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .timeline {
+        padding: 1rem 0;
+    }
+
+    .timeline::before {
+        left: 15px;
+        width: 3px;
+    }
+
+    .timeline-marker {
+        left: 8px;
+        width: 16px;
+        height: 16px;
+    }
+
+    .timeline-content {
+        margin-left: 45px;
+        padding: 1rem;
+    }
+
+    .timeline-title-item {
+        font-size: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .timeline-description {
+        font-size: 0.85rem;
+    }
+
+    .badge {
+        font-size: 0.65rem;
+        padding: 4px 10px;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+
+    .quick-actions-widget,
+    .progress-widget {
+        padding: 1.2rem;
+    }
+
+    .widget-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .action-btn {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .action-title {
+        font-size: 0.8rem;
+    }
+
+    .action-desc {
+        font-size: 0.65rem;
+    }
+}
+
+/* Móviles medianos (480px - 575px) */
+@media (min-width: 480px) and (max-width: 575px) {
+    .contenedor-principal {
+        padding: 10px;
+        gap: 18px;
+    }
+
+    .contenedor-info {
+        min-height: 320px;
+        padding: 25px 18px;
+    }
+
+    .info h3 {
+        font-size: 2rem;
+    }
+
+    .info p {
+        font-size: 1.05rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+    }
+
+    .stat-card {
+        padding: 1.3rem;
+    }
+
+    .contenedor-tres {
+        padding: 22px 18px;
+    }
+
+    .contenedor-actividad-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline-content {
+        margin-left: 55px;
+    }
+
+    .timeline-marker {
+        left: 10px;
+    }
+}
+
+/* Móviles grandes (576px - 767px) */
+@media (min-width: 576px) and (max-width: 767px) {
+    .contenedor-principal {
+        padding: 12px;
+        gap: 20px;
+    }
+
+    .contenedor-info {
+        min-height: 300px;
+        padding: 28px 20px;
+    }
+
+    .info h3 {
+        font-size: 2.2rem;
+    }
+
+    .info p {
+        font-size: 1.1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+
+    .stat-card {
+        padding: 1.4rem;
+    }
+
+    .stat-value {
+        font-size: 2.4rem;
+    }
+
+    .contenedor-tres {
+        padding: 25px 20px;
+    }
+
+    .contenedor-tres h2 {
+        font-size: 1.7rem;
+    }
+
+    .contenedor-actividad-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline::before {
+        left: 22px;
+    }
+
+    .timeline-marker {
+        left: 14px;
+        width: 18px;
+        height: 18px;
+    }
+
+    .timeline-content {
+        margin-left: 60px;
+        padding: 1.3rem;
+    }
+
+    .timeline-title-item {
+        font-size: 1.2rem;
+    }
+
+    .action-btn {
+        padding: 0.875rem 1rem;
+    }
+}
+
+/* Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .contenedor-principal {
+        padding: 15px;
+        gap: 22px;
+    }
+
+    .contenedor-info {
+        min-height: 320px;
+        padding: 32px 24px;
+    }
+
+    .info h3 {
+        font-size: 2.5rem;
+    }
+
+    .info p {
+        font-size: 1.15rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 18px;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 2.6rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.6rem;
+    }
+
+    .contenedor-tres {
+        padding: 28px 24px;
+    }
+
+    .contenedor-tres h2 {
+        font-size: 1.9rem;
+        margin-bottom: 28px;
+    }
+
+    .contenedor-actividad-layout {
+        grid-template-columns: 1fr;
+        gap: 1.8rem;
+    }
+
+    .timeline {
+        padding: 1.5rem 0;
+    }
+
+    .timeline::before {
+        left: 25px;
+        width: 3.5px;
+    }
+
+    .timeline-marker {
+        left: 17px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .timeline-content {
+        margin-left: 65px;
+        padding: 1.5rem;
+    }
+
+    .timeline-title-item {
+        font-size: 1.25rem;
+    }
+
+    .timeline-description {
+        font-size: 0.95rem;
+    }
+
+    .quick-actions-widget,
+    .progress-widget {
+        padding: 1.75rem;
+    }
+
+    .action-btn {
+        padding: 0.95rem 1.15rem;
+        gap: 1rem;
+    }
+
+    .action-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1.15rem;
+    }
+}
+
+/* Laptops pequeñas (1024px - 1365px) */
+@media (min-width: 1024px) and (max-width: 1365px) {
+    .contenedor-principal {
+        padding: 18px;
+        gap: 24px;
+    }
+
+    .contenedor-info {
+        min-height: 340px;
+        padding: 36px 28px;
+    }
+
+    .info h3 {
+        font-size: 2.8rem;
+    }
+
+    .info p {
+        font-size: 1.2rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .stat-card {
+        padding: 1.6rem;
+    }
+
+    .stat-value {
+        font-size: 2.7rem;
+    }
+
+    .contenedor-tres {
+        padding: 32px 28px;
+    }
+
+    .contenedor-tres h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    .contenedor-actividad-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+        gap: 2rem;
+    }
+
+    .timeline {
+        padding: 1.75rem 0;
+    }
+
+    .timeline::before {
+        left: 28px;
+    }
+
+    .timeline-marker {
+        left: 19px;
+        width: 21px;
+        height: 21px;
+    }
+
+    .timeline-content {
+        margin-left: 70px;
+        padding: 1.6rem;
+    }
+
+    .timeline-title-item {
+        font-size: 1.3rem;
+    }
+
+    .timeline-description {
+        font-size: 1rem;
+    }
+
+    aside {
+        gap: 1.5rem;
+    }
+
+    .quick-actions-widget,
+    .progress-widget {
+        padding: 1.8rem;
+    }
+}
+
+/* Desktops medianos (1366px - 1919px) */
+@media (min-width: 1366px) and (max-width: 1919px) {
+    .contenedor-principal {
+        padding: 20px;
+        gap: 25px;
+    }
+
+    .contenedor-info {
+        min-height: 360px;
+        padding: 38px 32px;
+    }
+
+    .info h3 {
+        font-size: 3rem;
+    }
+
+    .info p {
+        font-size: 1.3rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 22px;
+    }
+
+    .stat-card {
+        padding: 1.7rem;
+    }
+
+    .stat-value {
+        font-size: 2.8rem;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.7rem;
+    }
+
+    .contenedor-tres {
+        padding: 35px 32px;
+    }
+
+    .contenedor-tres h2 {
+        font-size: 2.1rem;
+        margin-bottom: 32px;
+    }
+
+    .contenedor-actividad-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
+        gap: 2rem;
+    }
+
+    .timeline-content {
+        margin-left: 72px;
+        padding: 1.7rem;
+    }
+
+    .timeline-title-item {
+        font-size: 1.35rem;
+    }
+
+    .quick-actions-widget,
+    .progress-widget {
+        padding: 1.9rem;
+    }
+}
+
+/* Pantallas grandes (≥1920px) */
+@media (min-width: 1920px) {
+    .contenedor-principal {
+        padding: 20px;
+        gap: 25px;
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    .contenedor-info {
+        min-height: 380px;
+        padding: 40px 40px;
+    }
+
+    .info h3 {
+        font-size: 3.5rem;
+    }
+
+    .info p {
+        font-size: 1.4rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+    }
+
+    .stat-card {
+        padding: 1.8rem;
+    }
+
+    .stat-value {
+        font-size: 3rem;
+    }
+
+    .stat-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 1.8rem;
+    }
+
+    .contenedor-tres {
+        padding: 40px 40px;
+    }
+
+    .contenedor-tres h2 {
+        font-size: 2.2rem;
+        margin-bottom: 35px;
+    }
+
+    .contenedor-actividad-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(380px, 400px);
+        gap: 2rem;
+    }
+
+    .timeline {
+        padding: 2rem 0;
+    }
+
+    .timeline::before {
+        left: 30px;
+        width: 4px;
+    }
+
+    .timeline-marker {
+        left: 21px;
+        width: 22px;
+        height: 22px;
+    }
+
+    .timeline-content {
+        margin-left: 75px;
+        padding: 1.8rem;
+    }
+
+    .timeline-title-item {
+        font-size: 1.45rem;
+    }
+
+    .timeline-description {
+        font-size: 1.05rem;
+    }
+
+    .quick-actions-widget,
+    .progress-widget {
+        padding: 2rem;
+    }
+
+    .action-btn {
+        padding: 1rem 1.25rem;
+    }
+
+    .action-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+
+    .action-title {
+        font-size: 0.95rem;
+    }
+}
+
+/* Landscape móviles */
+@media (max-height: 600px) and (orientation: landscape) {
+    .contenedor-info {
+        min-height: 250px;
+        padding: 20px;
+    }
+
+    .info h3 {
+        font-size: 1.8rem;
+    }
+
+    .info p {
+        font-size: 0.95rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+    }
+
+    .timeline-content {
+        padding: 1rem;
+    }
+
+    .quick-actions-widget,
+    .progress-widget {
+        padding: 1.2rem;
+    }
+}
+
+/* Print */
+@media print {
+    .contenedor-principal {
+        padding: 0;
+    }
+
+    .contenedor-info::before,
+    .contenedor-info::after {
+        display: none;
+    }
+
+    .quick-actions-widget {
+        display: none;
+    }
+
+    .timeline-marker {
+        box-shadow: none;
+    }
+
+    .stat-card:hover,
+    .timeline-content:hover,
+    .action-btn:hover {
+        transform: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+    @page {
+        margin: 1cm;
+    }
+}

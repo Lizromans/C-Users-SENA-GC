@@ -698,3 +698,22 @@ select.success:focus {
 .option-card .pulse-ring {
     animation: backupPulse 2s ease-in-out infinite !important;
 }
+
+@container (min-width: 500px) {
+    .cont-1 {
+        flex-direction: row;
+    }
+}
+
+@container (min-width: 500px) {
+    .perfil-info {
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
+@container (min-width: 500px) {
+    .perfil-stats {
+        justify-content: flex-start;
+    }
+}
