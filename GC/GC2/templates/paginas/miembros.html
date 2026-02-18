@@ -218,7 +218,7 @@
                                         {% if miembro.imagen_perfil %}
                                             <img src="{{ miembro.imagen_perfil }}" alt="Foto de perfil" class="user-perfil">
                                         {% else %}
-                                            <img src="{% static 'img/cam.png' %}" alt="Foto de perfil por defecto" class="user-perfil">
+                                            <img src="{% static 'img/users.png' %}" alt="Foto de perfil por defecto" class="user-perfil">
                                         {% endif %}
                                     {% endif %}
                                 </span>
@@ -230,8 +230,8 @@
                                         (Yo)
                                     {% endif %}
                                 </h5>
-                                <p id="correo">{{ miembro.correo_sena }}</p>
-                                <p id="celular">{{ miembro.celular }}</p>
+                                <p id="correo">{{ miembro.correo_sena|default:"Sin correo sena" }}</p>
+                                <p id="celular">{{ miembro.celular|default:"Sin numero de contacto" }}</p>
                             </div>
                             <div class="info-badge">
                                 <div class="rol {% if miembro.rol == 'Instructor' %}instructores{% elif miembro.rol == 'Investigador' %}investigadores{% else %}aprendices{% endif %}">
