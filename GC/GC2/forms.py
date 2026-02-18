@@ -33,7 +33,7 @@ class UsuarioRegistroForm(forms.ModelForm):
             'cedula',
             'nom_usu',
             'ape_usu',
-            'correo_ins',
+            'correo_per',
             'rol',
             'contraseña',
             'conf_contraseña'
@@ -54,10 +54,10 @@ class UsuarioRegistroForm(forms.ModelForm):
                 'id': 'apellido',
                 'placeholder': 'Apellido'
             }),
-            'correo_ins': forms.EmailInput(attrs={
+            'correo_per': forms.EmailInput(attrs={
                 'class': 'input',
                 'id': 'email',
-                'placeholder': 'Correo Institucional'
+                'placeholder': 'Correo Personal'
             }),
             'rol': forms.Select(
                 attrs={'class': 'select', 'id': 'rol'},
@@ -87,11 +87,11 @@ class UsuarioRegistroForm(forms.ModelForm):
 
         return cleaned_data
 
-    def clean_correo_ins(self):
-        correo_ins = self.cleaned_data.get('correo_ins')
-        if Usuario.objects.filter(correo_ins=correo_ins).exists():
+    def clean_correo_per(self):
+        correo_per = self.cleaned_data.get('correo_per')
+        if Usuario.objects.filter(correo_per=correo_per).exists():
             raise ValidationError("Este correo ya está registrado.")
-        return correo_ins
+        return correo_per
 
     def clean_cedula(self):
         cedula = self.cleaned_data.get('cedula')
@@ -107,6 +107,19 @@ class UsuarioRegistroForm(forms.ModelForm):
     def save(self, commit=True):
         usuario = super().save(commit=False)
         usuario.set_password(self.cleaned_data['contraseña'])
+        if commit:
+            usuario.save()
+        return usuario
+    
+    def save(self, commit=True):
+        usuario = super().save(commit=False)
+        usuario.set_password(self.cleaned_data['contraseña'])
+        
+        # Forzar valores de seguridad siempre desde el form
+        usuario.email_verificado = False
+        usuario.is_active = True
+        usuario.estado = 'Activo'
+        
         if commit:
             usuario.save()
         return usuario

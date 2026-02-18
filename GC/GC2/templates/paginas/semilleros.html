@@ -142,6 +142,11 @@
                             </div>
                             <div class="card-acciones">
                                 {% if perms.GC2.change_semillero %}
+                                    <button class="btn btn-primary"
+                                            onclick="abrirModalEditar({{ semillero.id_sem }})">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                            
                                     <a href="{% url 'cambiar_estado_semillero' semillero.id_sem %}"
                                         class="btn-activar {% if semillero.estado == 'desactivado' %}success{% else %}danger{% endif %} btn-cambiar-estado"
                                         data-nombre="{{ semillero.nombre }}"
@@ -157,6 +162,7 @@
                                         {% endif %}
                                     </a>
                                 {% endif %}
+
                                 <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
                             </div>
                         </div>
@@ -264,9 +270,194 @@
         </div>
     </div>
 </div>
-<script src="{% static 'js/notificaciones.js' %}"></script>
+
+{% for semillero in semilleros %}
+<!-- MODAL EDITAR SEMILLERO -->
+<div id="modal-editar-{{ semillero.id_sem }}" class="modal-overlay">
+    <div class="modal-contenedor">
+        <button class="modal-cerrar" onclick="cerrarModalEditar({{ semillero.id_sem }})">&times;</button>
+
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <img src="{% static 'img/microscopio.png' %}" alt="Editar">
+                <h2 class="modal-titulo">Editar Semillero</h2>
+            </div>
+
+            <form method="POST" action="{% url 'editar_semillero' semillero.id_sem %}" class="modal-form">
+                {% csrf_token %}
+
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <i class="fas fa-info-circle"></i>
+                        <h6>Información Básica</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-primario">
+
+                    <div class="modal-form-grid">
+                        <div class="modal-campo">
+                            <label>Siglas *</label>
+                            <input type="text" name="sigla" value="{{ semillero.sigla }}" placeholder="Ej: SEM-ROB" required>
+                        </div>
+                        <div class="modal-campo">
+                            <label>Código *</label>
+                            <input type="text" name="cod_sem" value="{{ semillero.cod_sem }}" placeholder="Ej: SEM-ROB-001" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-campo" id="sub-campo">
+                        <label>Nombre del Semillero *</label>
+                        <input type="text" name="nombre" value="{{ semillero.nombre }}" placeholder="Nombre del semillero" required>
+                    </div>
+                </div>
+
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <i class="fas fa-align-left"></i>
+                        <h6>Descripción</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-secundario">
+
+                    <div class="modal-campo">
+                        <label>Descripción *</label>
+                        <textarea name="desc_sem" placeholder="Describe el propósito del semillero..." required>{{ semillero.desc_sem }}</textarea>
+                    </div>
+                </div>
+
+                <div class="modal-seccion">
+                    <div class="modal-seccion-titulo">
+                        <i class="fas fa-bullseye"></i>
+                        <h6>Objetivos del Semillero</h6>
+                    </div>
+                    <hr class="modal-hr modal-hr-terciario">
+
+                    <div id="objetivos-editar-{{ semillero.id_sem }}">
+                        {% if semillero.objetivo %}
+                            {% for objetivo in semillero.objetivo.splitlines %}
+                                {% if objetivo.strip %}
+                                <div class="objetivo-item">
+                                    <div class="modal-campo">
+                                        <label>Objetivo {{ forloop.counter }} *</label>
+                                        <div class="objetivo-input-group">
+                                            <textarea name="objetivo" class="objetivo-textarea" required>{{ objetivo }}</textarea>
+                                            <button type="button"
+                                                class="btn-eliminar-objetivo"
+                                                {% if forloop.first and forloop.last %}disabled title="Mínimo 1 objetivo"{% endif %}
+                                                onclick="eliminarObjetivoEditar(this, {{ semillero.id_sem }})">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                        <div class="objetivo-item">
+                            <div class="modal-campo">
+                                <label>Objetivo 1 *</label>
+                                <div class="objetivo-input-group">
+                                    <textarea name="objetivo" class="objetivo-textarea" required placeholder="Describe el objetivo..."></textarea>
+                                    <button type="button" class="btn-eliminar-objetivo" disabled title="Mínimo 1 objetivo">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <button type="button" class="btn-agregar-item" onclick="agregarObjetivoEditar({{ semillero.id_sem }})">
+                        <i class="fas fa-plus-circle"></i> Agregar otro objetivo
+                    </button>
+                </div>
+
+                <hr class="modal-hr modal-hr-final">
+
+                <div class="modal-acciones">
+                    <button type="button" class="modal-btn modal-btn-cancelar" onclick="cerrarModalEditar({{ semillero.id_sem }})">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="modal-btn modal-btn-primario">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
 <script src="{% static 'js/mensaje.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/objetivos.js' %}"></script>
+<script>
+    function abrirModalEditar(id) {
+        const modal = document.getElementById('modal-editar-' + id);
+        if (modal) {
+            modal.classList.add('activo');
+            document.body.style.overflow = 'hidden';
+        }
+    }
 
+    function cerrarModalEditar(id) {
+        const modal = document.getElementById('modal-editar-' + id);
+        if (modal) {
+            modal.classList.remove('activo');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function agregarObjetivoEditar(id) {
+        const contenedor = document.getElementById('objetivos-editar-' + id);
+        const items = contenedor.querySelectorAll('.objetivo-item');
+        const num = items.length + 1;
+
+        const div = document.createElement('div');
+        div.className = 'objetivo-item';
+        div.innerHTML = `
+            <div class="modal-campo">
+                <label>Objetivo ${num} *</label>
+                <div class="objetivo-input-group">
+                    <textarea name="objetivo" class="objetivo-textarea" 
+                            placeholder="Describe el objetivo del semillero..." required></textarea>
+                    <button type="button" class="btn-eliminar-objetivo"
+                            onclick="eliminarObjetivoEditar(this, ${id})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>`;
+
+        contenedor.appendChild(div);
+        actualizarBotonesEditar(id);
+    }
+
+    function eliminarObjetivoEditar(btn, id) {
+        const contenedor = document.getElementById('objetivos-editar-' + id);
+        const items = contenedor.querySelectorAll('.objetivo-item');
+        if (items.length <= 1) return;
+        btn.closest('.objetivo-item').remove();
+        actualizarBotonesEditar(id);
+    }
+
+    function actualizarBotonesEditar(id) {
+        const contenedor = document.getElementById('objetivos-editar-' + id);
+        const botones = contenedor.querySelectorAll('.btn-eliminar-objetivo');
+        botones.forEach(btn => {
+            btn.disabled = botones.length === 1;
+            btn.title = botones.length === 1 ? 'Mínimo 1 objetivo' : 'Eliminar objetivo';
+        });
+
+        // Renumerar labels
+        contenedor.querySelectorAll('.objetivo-item').forEach((item, i) => {
+            const label = item.querySelector('label');
+            if (label) label.textContent = `Objetivo ${i + 1} *`;
+        });
+    }
+
+    // Cerrar al hacer click fuera
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('activo')) {
+            e.target.classList.remove('activo');
+            document.body.style.overflow = '';
+        }
+    });
+</script>
 {% endblock %}

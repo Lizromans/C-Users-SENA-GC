@@ -19,7 +19,6 @@
     display: flex;
     flex-direction: column;    
     gap: clamp(1rem, 2vw, 2rem);
-    width: 100%;
     background-color: var(--color-fondo-secundario);
     border-radius: clamp(10px, 2vw, 15px);
     padding: clamp(20px, 3vh, 40px);
@@ -1175,4 +1174,780 @@
 .team-badge:has(input[type="checkbox"]:checked)::after {
     content: '✓';
     display: flex;
+}
+
+/* MEDIA QUERIES RESPONSIVE*/
+
+/* ── TABLET 768px – 1023px ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+    :root {
+        --sidebar-width: 220px;
+        --sidebar-collapsed-width: 68px;
+        --header-height: 65px;
+    }
+
+    /* ── Resumen / botones ── */
+    .resumen {
+        gap: clamp(0.8rem, 1.8vw, 1.5rem);
+        padding: clamp(16px, 2.5vh, 28px);
+    }
+
+    .cont-1 {
+        gap: clamp(8px, 1.5vw, 16px);
+
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        font-size: clamp(8px, 1.3vw, 11px);
+        padding: clamp(5px, 1.2vw, 7px) clamp(5px, 1.5vw, 7px);
+        width: clamp(80px, 16vw, 130px);
+    }
+
+    .btn img {
+        width: clamp(14px, 1.8vw, 22px);
+    }
+
+    /* ── Contenedor miembros ── */
+    .contenedor-miembros {
+        width: calc(var(--sidebar-width)-100wv);
+        border-radius: clamp(8px, 1.8vw, 13px);
+    }
+
+    .header-miembros {
+        padding: clamp(10px, 2.2vw, 14px);
+        height: auto;
+        min-height: clamp(50px, 8vh, 75px);
+    }
+
+    .header-miembros h3 {
+        font-size: clamp(13px, 2.2vw, 16px);
+    }
+
+    .header-miembros p {
+        font-size: clamp(8px, 1.3vw, 12px);
+    }
+
+    .header-miembros img {
+        width: clamp(44px, 7vw, 56px);
+        height: clamp(52px, 7vh, 64px);
+    }
+
+    /* ── Carousel ── */
+    .carousel-container {
+        height: clamp(280px, 28vh, 400px);
+        margin: clamp(16px, 3.5vh, 48px) auto;
+    }
+
+    .card {
+        width: clamp(170px, 22vw, 240px);
+        height: clamp(180px, 26vh, 260px);
+        border-radius: clamp(10px, 1.8vw, 17px);
+        padding: clamp(12px, 1.8vw, 20px);
+    }
+
+    .avatar-miembro {
+        width: clamp(76px, 12vw, 96px);
+        height: clamp(76px, 12vh, 96px);
+        font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+    }
+
+    .info-miembro h4 {
+        font-size: clamp(11px, 1.6vw, 14px);
+    }
+
+    .rol-miembro {
+        font-size: clamp(9px, 1.2vw, 11px);
+    }
+
+    .nav-arrow {
+        width: clamp(28px, 4.5vw, 40px);
+        height: clamp(28px, 4.5vw, 40px);
+        font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+    }
+
+    /* ── Secciones ── */
+    .titulo-seccion {
+        font-size: clamp(13px, 2vw, 15px);
+    }
+
+    .icono-seccion {
+        width: clamp(20px, 3vw, 26px);
+        height: clamp(20px, 3vw, 26px);
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+        padding: clamp(16px, 2.5vw, 30px);
+    }
+
+    .modal-contenedor {
+        width: 92%;
+        max-width: 720px;
+        border-radius: clamp(10px, 1.8vw, 17px);
+    }
+
+    .modal-contenido {
+        padding: clamp(22px, 3.5vw, 40px);
+    }
+
+    .modal-titulo {
+        font-size: clamp(1.1rem, 2.6vw, 1.55rem);
+    }
+
+    .buscador {
+        width: 100%;
+        min-width: unset;
+        font-size: clamp(0.85rem, 1.4vw, 0.95rem);
+    }
+
+    .fa-search {
+        left: auto;
+        right: clamp(10px, 2vw, 16px);
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .item-miembro-modal {
+        padding: clamp(5px, 0.9vw, 9px);
+        gap: clamp(5px, 0.9vw, 9px);
+        border-radius: clamp(8px, 1.3vw, 12px);
+    }
+
+    .item-miembro-modal .avatar-miembro {
+        width: clamp(40px, 7vw, 55px);
+        height: clamp(40px, 7vw, 55px);
+        font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+        margin-left: clamp(10px, 1.8vw, 16px);
+    }
+
+    .modal-btn {
+        padding: clamp(9px, 1.8vh, 13px) clamp(16px, 3.5vw, 28px);
+        font-size: clamp(0.85rem, 1.4vw, 1rem);
+    }
+}
+
+
+/* ── MÓVIL < 768px ── */
+@media (max-width: 767px) {
+    :root {
+        --sidebar-width: 0px;
+        --sidebar-collapsed-width: 0px;
+        --header-height: 58px;
+    }
+
+    /* ── Resumen / botones ── */
+    .resumen {
+        gap: 0.75rem;
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: 10px;
+    }
+
+    .cont-1 {
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        font-size: clamp(7px, 3vw, 10px);
+        padding: 6px 8px;
+        width: clamp(68px, 28vw, 100px);
+        border-radius: 5px;
+    }
+
+    .btn img {
+        width: clamp(12px, 4vw, 18px);
+        margin-right: 5px;
+    }
+
+    /* ── Contenedor miembros ── */
+    .contenedor-miembros {
+        border-radius: 10px;
+    }
+
+    .header-miembros {
+        padding: 10px 12px;
+        height: auto;
+        min-height: 60px;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .header-miembros h3 {
+        font-size: clamp(12px, 4vw, 15px);
+        margin-top: 0;
+    }
+
+    .header-miembros p {
+        font-size: clamp(8px, 2.8vw, 11px);
+    }
+
+    .header-miembros img {
+        width: clamp(38px, 10vw, 50px);
+        height: clamp(42px, 10vw, 56px);
+    }
+
+    /* ── Lista miembros ── */
+    .lista-miembros {
+        padding: 10px;
+    }
+
+    .seccion-miembros {
+        margin-bottom: clamp(12px, 3vw, 20px);
+    }
+
+    .header-seccion {
+        gap: 8px;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+    }
+
+    .icono-seccion {
+        width: clamp(18px, 5vw, 24px);
+        height: clamp(18px, 5vw, 24px);
+    }
+
+    .titulo-seccion {
+        font-size: clamp(12px, 3.5vw, 15px);
+    }
+
+    /* ── Carousel: cards más compactas ── */
+    .carousel-container {
+        height: clamp(260px, 45vw, 340px);
+        margin: 12px auto;
+        perspective: 800px;
+    }
+
+    .card {
+        width: clamp(160px, 55vw, 220px);
+        height: clamp(180px, 42vw, 250px);
+        border-radius: 12px;
+        padding: clamp(12px, 3.5vw, 18px);
+    }
+
+    .card.left-1  { transform: translateX(-65%) scale(0.88); }
+    .card.right-1 { transform: translateX(65%)  scale(0.88); }
+    .card.left-2  { transform: translateX(-120%) scale(0.76); opacity: 0.25; }
+    .card.right-2 { transform: translateX(120%)  scale(0.76); opacity: 0.25; }
+
+    .avatar-miembro {
+        width: clamp(70px, 18vw, 90px);
+        height: clamp(70px, 18vw, 90px);
+        font-size: clamp(1.5rem, 5vw, 2.2rem);
+        margin-bottom: 8px;
+    }
+
+    .info-miembro h4 {
+        font-size: clamp(10px, 3.2vw, 13px);
+    }
+
+    .rol-miembro {
+        font-size: clamp(8px, 2.6vw, 10px);
+    }
+
+    .nav-arrow {
+        width: clamp(28px, 8vw, 38px);
+        height: clamp(28px, 8vw, 38px);
+        font-size: clamp(0.85rem, 3.5vw, 1.2rem);
+    }
+
+    .nav-arrow.left  { left: 4px; }
+    .nav-arrow.right { right: 4px; }
+
+    .dots {
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+    }
+
+    .dot {
+        width: clamp(7px, 2.2vw, 10px);
+        height: clamp(7px, 2.2vw, 10px);
+    }
+
+    /* Hover deshabilitado en táctil */
+    .card:hover,
+    .resumen .grupo:hover,
+    .btn:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* ── Badges ── */
+    .badge-activo,
+    .badge-inactivo {
+        font-size: clamp(8px, 2.4vw, 10px);
+        padding: 3px 7px;
+        border-radius: 6px;
+    }
+
+    /* ── Modal: bottom-sheet en móvil ── */
+    .modal-overlay {
+        padding: clamp(8px, 2vw, 16px);
+        align-items: flex-end !important;
+    }
+
+    .modal-contenedor {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        margin: 0;
+        max-height: 92dvh;
+        overflow-y: auto;
+    }
+
+    .modal-cerrar {
+        top: 12px;
+        right: 12px;
+        width: clamp(30px, 8vw, 38px);
+        height: clamp(30px, 8vw, 38px);
+        font-size: clamp(1rem, 4vw, 1.3rem);
+    }
+
+    .modal-contenido {
+        padding: clamp(16px, 4vw, 28px);
+    }
+
+    .modal-header {
+        gap: 10px;
+        margin-bottom: clamp(16px, 3vh, 24px);
+        padding-bottom: clamp(10px, 2vh, 14px);
+    }
+
+    .modal-header img,
+    .modal-header i {
+        width: clamp(36px, 10vw, 48px);
+        height: clamp(36px, 10vw, 48px);
+        font-size: clamp(1rem, 4vw, 1.4rem);
+    }
+
+    .modal-titulo {
+        font-size: clamp(1rem, 5vw, 1.4rem);
+    }
+
+    .buscador {
+        width: 100%;
+        min-width: unset;
+        font-size: clamp(0.82rem, 3.5vw, 0.95rem);
+        padding: 8px 42px 8px 14px;
+    }
+
+    .fa-search {
+        left: auto;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+    }
+
+    .lista-miembros-modal {
+        gap: clamp(8px, 2.5vw, 14px);
+        padding-right: 4px;
+    }
+
+    .item-miembro-modal {
+        padding: 6px;
+        gap: 6px;
+        border-radius: 10px;
+    }
+
+    .item-miembro-modal .avatar-miembro {
+        width: clamp(36px, 10vw, 48px);
+        height: clamp(36px, 10vw, 48px);
+        font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+        margin-left: 8px;
+    }
+
+    .item-miembro-modal .info-miembro h4 {
+        font-size: clamp(0.85rem, 3.8vw, 1rem);
+    }
+
+    .item-miembro-modal .rol-miembro {
+        font-size: clamp(0.7rem, 2.8vw, 0.82rem);
+    }
+
+    .check {
+        padding: 0 clamp(10px, 3vw, 16px);
+    }
+
+    .check input[type="checkbox"],
+    .check input[type="radio"] {
+        width: clamp(18px, 5vw, 22px) !important;
+        height: clamp(18px, 5vw, 22px) !important;
+    }
+
+    /* Acciones en columna en móvil */
+    .modal-acciones {
+        display: flex;
+        flex-direction: row;   
+        gap: 8px;
+        justify-content: flex-end; 
+        align-items: center;    
+    }
+
+    .modal-btn {
+        padding: 12px 18px;
+        font-size: clamp(0.85rem, 3.5vw, 0.98rem);
+        justify-content: center;
+        width: auto; 
+    }
+
+    .modal-btn-centrado {
+        min-width: unset;
+        width: auto; 
+        margin: 0;
+    }
+
+    .item-lider {
+        padding: clamp(6px, 2vw, 12px);
+    }
+}
+
+/* ── EXTRA SMALL < 400px ── */
+@media (max-width: 399px) {
+    .resumen {
+        gap: 0.6rem;
+        padding: 10px;
+    }
+
+    .cont-1 { gap: 6px; }
+
+    .btn {
+        font-size: 7px;
+        padding: 5px 6px;
+        width: clamp(64px, 30vw, 110px);
+    }
+
+    .btn img {
+        width: 12px;
+        margin-right: 4px;
+    }
+
+    .header-miembros {
+        padding: 8px 10px;
+        min-height: 52px;
+    }
+
+    .header-miembros h3 { font-size: 12px; }
+    .header-miembros img { width: 34px; height: 38px; }
+
+    .carousel-container {
+        height: clamp(230px, 52vw, 290px);
+    }
+
+    .card {
+        width: clamp(140px, 58vw, 195px);
+        height: clamp(160px, 46vw, 220px);
+        padding: 10px;
+    }
+
+    .avatar-miembro {
+        width: clamp(60px, 16vw, 78px);
+        height: clamp(60px, 16vw, 78px);
+        font-size: clamp(1.3rem, 5vw, 1.8rem);
+    }
+
+    .info-miembro h4   { font-size: clamp(9px, 3vw, 11px); }
+    .nav-arrow { width: 26px; height: 26px; font-size: 0.8rem; }
+
+    .modal-contenido { padding: 14px; }
+
+    .modal-titulo { font-size: clamp(0.9rem, 5vw, 1.2rem); }
+
+    .item-miembro-modal .avatar-miembro {
+        width: 32px; height: 32px;
+        font-size: 0.78rem;
+        margin-left: 6px;
+    }
+
+    .item-miembro-modal .info-miembro h4 { font-size: 0.8rem; }
+    .item-miembro-modal .rol-miembro     { font-size: 0.65rem; }
+
+    .titulo-seccion { font-size: 11px; }
+
+    .badge-activo,
+    .badge-inactivo { font-size: 7px; padding: 2px 5px; }
+}
+
+
+/* ── LANDSCAPE MÓVIL ── */
+@media (max-height: 500px) and (max-width: 900px) and (orientation: landscape) {
+    :root { --header-height: 50px; }
+
+    .resumen { gap: 0.65rem; padding: 10px; }
+
+    .cont-1 { gap: 8px; flex-wrap: nowrap; }
+
+    .btn {
+        font-size: 8px;
+        padding: 4px 6px;
+        width: clamp(70px, 14vw, 110px);
+    }
+
+    .header-miembros {
+        padding: 8px 12px;
+        min-height: 50px;
+    }
+
+    .header-miembros h3 { font-size: 12px; margin-top: 0; }
+    .header-miembros img { width: 38px; height: 44px; }
+
+    .carousel-container {
+        height: clamp(200px, 38vh, 280px);
+        margin: 8px auto;
+    }
+
+    .card {
+        width: clamp(130px, 22vw, 195px);
+        height: clamp(150px, 32vh, 215px);
+        padding: 10px;
+    }
+
+    .avatar-miembro {
+        width: clamp(60px, 10vw, 80px);
+        height: clamp(60px, 10vh, 80px);
+        font-size: clamp(1.3rem, 3vw, 1.8rem);
+        margin-bottom: 6px;
+    }
+
+    .info-miembro h4 { font-size: clamp(9px, 1.6vw, 12px); }
+    .nav-arrow { width: 28px; height: 28px; font-size: 0.85rem; }
+
+    /* Modal centrado en landscape (no bottom-sheet) */
+    .modal-overlay {
+        padding: 6px;
+        align-items: center !important;
+    }
+
+    .modal-contenedor {
+        max-height: 88dvh;
+        overflow-y: auto;
+        border-radius: 12px;
+        width: 92%;
+        margin: auto;
+    }
+
+    .modal-contenido { padding: 12px 18px; }
+
+    .modal-header {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+
+    .modal-acciones {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .modal-btn { padding: 8px 14px; font-size: 0.82rem; }
+
+    .lista-miembros-modal {
+        gap: 8px;
+        max-height: 35vh;
+        overflow-y: auto;
+    }
+
+    .item-miembro-modal .avatar-miembro {
+        width: 36px; height: 36px; font-size: 0.85rem;
+    }
+}
+
+
+/* ── DESKTOP GRANDE ≥ 1600px ── */
+@media (min-width: 1600px) {
+    :root {
+        --sidebar-width: 310px;
+        --header-height: 80px;
+    }
+
+    .resumen {
+        gap: clamp(1.5rem, 2.5vw, 2.5rem);
+        padding: clamp(28px, 3.5vh, 50px);
+        border-radius: 18px;
+    }
+
+    .cont-1 { gap: clamp(14px, 2.2vw, 24px); }
+
+    .btn {
+        font-size: clamp(11px, 1.5vw, 14px);
+        padding: clamp(8px, 1.5vw, 11px) clamp(10px, 2vw, 14px);
+        width: clamp(120px, 16vw, 170px);
+        border-radius: 7px;
+    }
+
+    .btn img { width: clamp(22px, 2.2vw, 30px); }
+
+    .contenedor-miembros { border-radius: clamp(12px, 2.2vw, 18px); }
+
+    .header-miembros {
+        padding: clamp(14px, 3vw, 20px);
+        min-height: clamp(70px, 9vh, 100px);
+    }
+
+    .header-miembros h3 { font-size: clamp(17px, 2.8vw, 22px); }
+    .header-miembros p  { font-size: clamp(12px, 1.5vw, 16px); }
+    .header-miembros img {
+        width: clamp(60px, 9vw, 76px);
+        height: clamp(70px, 9vh, 86px);
+    }
+
+    .carousel-container {
+        height: clamp(380px, 34vh, 520px);
+        margin: clamp(28px, 5vh, 72px) auto;
+    }
+
+    .card {
+        width: clamp(260px, 28vw, 340px);
+        height: clamp(260px, 34vh, 360px);
+        border-radius: clamp(16px, 2.2vw, 24px);
+        padding: clamp(20px, 2.5vw, 32px);
+    }
+
+    .avatar-miembro {
+        width: clamp(100px, 15vw, 130px);
+        height: clamp(100px, 15vh, 130px);
+        font-size: clamp(2.2rem, 4.2vw, 3.2rem);
+        margin-bottom: clamp(14px, 2.5vh, 20px);
+    }
+
+    .info-miembro h4 { font-size: clamp(15px, 2vw, 20px); }
+    .rol-miembro     { font-size: clamp(12px, 1.5vw, 15px); }
+
+    .nav-arrow {
+        width: clamp(44px, 5.5vw, 56px);
+        height: clamp(44px, 5.5vw, 56px);
+        font-size: clamp(1.2rem, 2.8vw, 1.7rem);
+    }
+
+    .titulo-seccion { font-size: clamp(16px, 2.4vw, 20px); }
+    .icono-seccion  {
+        width: clamp(28px, 3.8vw, 38px);
+        height: clamp(28px, 3.8vw, 38px);
+    }
+
+    .modal-contenedor {
+        max-width: 900px;
+        border-radius: clamp(16px, 2.2vw, 24px);
+    }
+
+    .modal-contenido { padding: clamp(40px, 5vw, 60px); }
+
+    .modal-titulo { font-size: clamp(1.5rem, 3vw, 2.1rem); }
+
+    .modal-header img,
+    .modal-header i {
+        width: clamp(56px, 5.5vw, 72px);
+        height: clamp(56px, 5.5vw, 72px);
+        font-size: clamp(1.4rem, 3.5vw, 2rem);
+    }
+
+    .buscador {
+        width: 100%;
+        min-width: unset;
+        font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+        padding: clamp(0.5rem, 0.8vw, 0.7rem) clamp(3rem, 4.5vw, 3.8rem)
+                 clamp(0.5rem, 0.8vw, 0.7rem) clamp(1.2rem, 2vw, 1.8rem);
+    }
+
+    .item-miembro-modal {
+        padding: clamp(8px, 1.2vw, 14px);
+        gap: clamp(8px, 1.2vw, 14px);
+        border-radius: clamp(12px, 1.8vw, 18px);
+    }
+
+    .item-miembro-modal .avatar-miembro {
+        width: clamp(60px, 9vw, 78px);
+        height: clamp(60px, 9vw, 78px);
+        font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+        margin-left: clamp(16px, 2.2vw, 24px);
+    }
+
+    .item-miembro-modal .info-miembro h4 {
+        font-size: clamp(1.1rem, 2vw, 1.4rem);
+    }
+
+    .item-miembro-modal .rol-miembro {
+        font-size: clamp(0.85rem, 1.4vw, 1rem);
+    }
+
+    .modal-btn {
+        padding: clamp(13px, 2vh, 18px) clamp(28px, 4.5vw, 44px);
+        font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+        border-radius: clamp(10px, 1.5vw, 14px);
+    }
+
+    .check input[type="checkbox"],
+    .check input[type="radio"] {
+        width: clamp(22px, 3.2vw, 28px) !important;
+        height: clamp(22px, 3.2vw, 28px) !important;
+    }
+
+    .badge-activo,
+    .badge-inactivo {
+        font-size: clamp(11px, 1.2vw, 14px);
+        padding: clamp(5px, 0.9vw, 8px) clamp(10px, 1.8vw, 16px);
+    }
+
+    .dot {
+        width: clamp(10px, 1.1vw, 14px);
+        height: clamp(10px, 1.1vw, 14px);
+    }
+}
+
+
+/* ── PRINT ── */
+@media print {
+    .cont-1,
+    .carousel-container,
+    .nav-arrow,
+    .dots,
+    .modal-overlay,
+    .bg-particles {
+        display: none !important;
+    }
+
+    .resumen {
+        gap: 14px;
+        padding: 16px;
+        box-shadow: none;
+        background-color: #fff;
+    }
+
+    .contenedor-miembros {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+        break-inside: avoid;
+    }
+
+    .header-miembros {
+        background: #e9ecef !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .header-miembros h3,
+    .header-miembros p {
+        color: #212529 !important;
+    }
+
+    .item-miembro-modal {
+        border: 1px solid #dee2e6;
+        break-inside: avoid;
+        box-shadow: none;
+    }
+
+    .badge-activo,
+    .badge-inactivo {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    * {
+        box-shadow: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
 }
