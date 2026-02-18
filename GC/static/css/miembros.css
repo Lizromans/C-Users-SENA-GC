@@ -462,6 +462,7 @@
     border-radius: 7px;
     cursor: pointer;
     font-weight: 500;
+    margin-bottom: 2%;
 }
 
 .link:hover {
@@ -501,8 +502,9 @@ thead th {
     font-size: clamp(0.75rem, 1.8vw, 1rem);
     text-transform: uppercase;
     letter-spacing: clamp(0.3px, 0.5vw, 0.5px);
-    white-space: normal;
-    word-wrap: break-word; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
 }
 
 tbody tr {
@@ -525,8 +527,9 @@ tbody td {
     padding: clamp(0.7rem, 1.8vw, 1rem) clamp(0.5rem, 1.5vw, 1rem);
     color: #333;
     font-size: clamp(0.8rem, 1.6vw, 0.95rem);
-    word-wrap: break-word; 
-    overflow-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nombre {
@@ -606,7 +609,7 @@ tbody td {
 .tarjetas-grid {
     display: grid;
     gap: clamp(0.8rem, 1.5vw, 1.2rem);
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     width: 100%;
 }
 
@@ -1674,4 +1677,25 @@ body:has(#modalPerfilMiembro[style*="display: flex"]) {
 
 .option-card .pulse-ring {
     animation: backupPulse 2s ease-in-out infinite !important;
+}
+
+@media (max-width: 992px) {
+    .tarjetas-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .tarjetas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .titulo2 {
+        grid-template-columns: 1fr; /* 👈 una sola columna */
+        gap: 10px;
+    }
+
+    .pildora-vista {
+        justify-self: start; /* o center si la quieres centrada */
+    }
 }

@@ -889,7 +889,7 @@ def crear_semillero(request):
                 nombre=nombre,
                 desc_sem=desc_sem,
                 objetivo=objetivo_texto,
-                estado='Activo',
+                estado='activo',
                 progreso_sem=0
             )
             semillero.save()
