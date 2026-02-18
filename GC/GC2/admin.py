@@ -6,7 +6,7 @@ class UsuarioGruposInline(admin.TabularInline):
     extra = 1
 
 class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ("cedula", "nom_usu", "ape_usu", "correo_ins", "rol", "password")
+    list_display = ("cedula", "nom_usu", "ape_usu", "correo_per", "rol", "password")
     inlines = [UsuarioGruposInline] 
 
 admin.site.register(Usuario, UsuarioAdmin)

@@ -266,7 +266,7 @@ def registro(request):
                 'cedula_reg': form.data.get('cedula', ''),
                 'nom_usu': form.data.get('nom_usu', ''),
                 'ape_usu': form.data.get('ape_usu', ''),
-                'correo_per': form.data.get('correo_per', ''),
+                'correo_per': form.data.get('correo_per'),
                 'rol_reg': form.data.get('rol', ''),
             }
 
@@ -282,7 +282,6 @@ def registro(request):
         **errores_contexto,
         **valores_preservados,
     })
-
 def iniciarsesion(request):
     if request.method == 'POST':
         cedula = request.POST.get('cedula', '').strip()
@@ -366,7 +365,7 @@ def iniciarsesion(request):
         request.session['nom_usu'] = usuario.nom_usu
         request.session['ape_usu'] = usuario.ape_usu
         request.session['rol'] = usuario.rol
-        request.session['correo_ins'] = usuario.correo_ins
+        request.session['correo_per'] = usuario.correo_per
 
         login(request, usuario)
         request.session.set_expiry(3600)
@@ -378,7 +377,7 @@ def iniciarsesion(request):
 
         # 8. Redirigir según perfil completo o no
         perfil_incompleto = (
-            not usuario.correo_per or
+            not usuario.correo_ins or
             not usuario.telefono or
             not usuario.fecha_nacimiento or
             not usuario.vinculacion_laboral or
@@ -442,7 +441,7 @@ def recuperar_contrasena(request):
             })
         
         try:
-            admin = Usuario.objects.filter(correo_ins=email).first()
+            admin = Usuario.objects.filter(correo_per=email).first()
             
             if admin:
                 uid = urlsafe_base64_encode(force_bytes(admin.pk))
@@ -462,7 +461,7 @@ def recuperar_contrasena(request):
                         subject,
                         '',  # Mensaje de texto plano vacío
                         settings.DEFAULT_FROM_EMAIL,
-                        [admin.correo_ins],
+                        [admin.correo_per],
                         html_message=message,
                         fail_silently=False
                     )
@@ -743,7 +742,6 @@ def perfil(request):
         usuario.correo_per = request.POST.get('correo1')
         usuario.telefono = request.POST.get('celular')
         usuario.fecha_nacimiento = request.POST.get('fecha')
-        usuario.genero = request.POST.get('genero')
         usuario.correo_ins = request.POST.get('correo2')
         usuario.vinculacion_laboral = request.POST.get('vinculacion')
         usuario.dependencia = request.POST.get('dependencia')

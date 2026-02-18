@@ -94,7 +94,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     )
 
     USERNAME_FIELD = 'cedula'
-    REQUIRED_FIELDS = ['correo_ins']
+    REQUIRED_FIELDS = ['correo_per']
 
     objects = UsuarioManager()
 
@@ -127,7 +127,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
             
             subject = '✅ Verifica tu correo electrónico - InnHub'
             from_email = settings.DEFAULT_FROM_EMAIL
-            to_email = self.correo_ins
+            to_email = self.correo_per
             
             email = EmailMultiAlternatives(
                 subject=subject,
