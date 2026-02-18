@@ -588,8 +588,6 @@ body {
 
 main { 
     width: 100%; 
-    display: flex; 
-    flex-direction: column; 
 }
 
 body.sidebar-collapsed .header-container { 
@@ -1542,10 +1540,6 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 
     .user p { 
         font-size: 0.67rem; 
-    }
-
-    .main-content { 
-        padding: 20px; 
     }
 
     #backupModal .modal-dialog { 

@@ -23,11 +23,11 @@
     </div>
 
     <div class="container {% if mostrar_registro %}{% else %}active{% endif %}" id="container">
-      
+      <a class="back-arrow" href="{% url 'iniciarsesion' %}">
+        <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back">
+      </a>
       <div class="blue-panel" id="bluePanel">
-        <a class="back-arrow" href="{% url 'iniciarsesion' %}">
-          <img class="arrow" src="{% static 'img/arrow.png' %}" alt="back">
-        </a>  
+          
         <img src="{% static 'img/logo1.png' %}" alt="Logo SENA" class="logo-sena">
         <h2 id="blueTitle">{% if mostrar_registro %}¿Ya tienes cuenta?{% else %}¿Eres un usuario nuevo?{% endif %}</h2>
         <p id="blueText">{% if mostrar_registro %}Inicia sesión para acceder a todas las funcionalidades del sistema{% else %}Regístrate para acceder al sistema de gestión del conocimiento{% endif %}</p>
@@ -65,12 +65,12 @@
             </div>
 
             <div class="form-group m-1">
-              <input type="email" name="correo_ins" class="input" placeholder="Correo Institucional" value="{% if correo_ins %}{{ correo_ins }}{% endif %}" required>
+              <input type="email" name="correo_per" class="input" placeholder="Correo Personal" value="{% if correo_per %}{{ correo_per }}{% endif %}" required>
               <small class="form-text text-muted">
                 Se enviará un enlace de verificación a este correo.
               </small>
-              {% if error_correo_ins %}
-                <div class="error-cedula">{{ error_correo_ins }}</div>
+              {% if error_correo_per %}
+                <div class="error-cedula">{{ error_correo_per }}</div>
               {% endif %}
             </div>
 
@@ -332,7 +332,7 @@ function showLoginForm() {
           </div>
 
           <div class="form-group m-1">
-            <input type="email" name="correo_ins" class="input" placeholder="Correo Institucional" required>
+            <input type="email" name="correo_per" class="input" placeholder="Correo Personal" required>
             <small class="form-text text-muted">
               Se enviará un enlace de verificación a este correo.
             </small>

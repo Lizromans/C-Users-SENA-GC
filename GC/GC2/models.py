@@ -61,6 +61,11 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     ultimo_codigo_enviado = models.DateTimeField(null=True, blank=True)
     codigos_enviados_hoy = models.IntegerField(default=0)
     fecha_ultimo_reset_codigos = models.DateField(null=True, blank=True)
+    notificaciones_habilitadas = models.BooleanField(default=True)
+    notif_eventos              = models.BooleanField(default=True)
+    notif_entregables          = models.BooleanField(default=True)
+    notif_proyectos            = models.BooleanField(default=True)
+    notif_miembros             = models.BooleanField(default=True)
 
     groups = models.ManyToManyField(
         Group,
@@ -245,7 +250,7 @@ class UsuarioGrupos(models.Model):
     grupo = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'usuario_grupos'
         unique_together = ('usuario', 'grupo')
 
@@ -255,7 +260,7 @@ class UsuarioUserPermissions(models.Model):
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE, db_column='permission_id')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'usuario_user_permissions'
         unique_together = ('usuario', 'permission')
 
@@ -392,7 +397,7 @@ class Archivo(models.Model):
 
     class Meta:
         db_table = 'archivo'
-        managed = False
+        managed = True
 
 class Evento(models.Model):
     cod_eve = models.AutoField(primary_key=True, )
@@ -425,7 +430,7 @@ class SemilleroDocumento(models.Model):
     cod_doc = models.ForeignKey(Documento, on_delete=models.CASCADE, db_column='cod_doc')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'semillero_documento'
         unique_together = ('id_sem', 'cod_doc') 
 class SemilleroProyecto(models.Model):
@@ -434,7 +439,7 @@ class SemilleroProyecto(models.Model):
     cod_pro = models.ForeignKey(Proyecto, on_delete=models.CASCADE, db_column='cod_pro')
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'semillero_proyecto'
         unique_together = ('id_sem', 'cod_pro')
 
@@ -470,7 +475,7 @@ class UsuarioProyecto(models.Model):
     estado = models.CharField(max_length=10, default="activo")
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'usuario_proyecto'
         unique_together = (('cedula', 'cod_pro'),)  
 
@@ -481,7 +486,7 @@ class ProyectoAprendiz(models.Model):
     estado = models.CharField(max_length=10, default="activo")  
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'proyecto_aprendiz'
         unique_together = ('cedula_apre', 'cod_pro') 
 

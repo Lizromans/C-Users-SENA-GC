@@ -730,77 +730,65 @@ body {
 }
 
 /* ── MAIN CONTENT ── */
-.main-content {
-    margin-top: var(--header-height);
-    margin-left: var(--sidebar-width);
-    padding: clamp(20px, 4%, 40px);
-    min-height: calc(100vh - var(--header-height));
-    transition: margin-left 0.3s ease;
+.main-content { 
+    margin-top: var(--header-height); 
+    margin-left: var(--sidebar-width); 
+    padding: 28px; 
+    min-height: calc(100vh - var(--header-height)); 
+    transition: margin-left 0.3s ease; 
 }
 
-main {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: clamp(5px, 1vh, 15px);
+main { 
+    width: 100%; 
+    display: flex; 
+    flex-direction: column; 
 }
 
-body.sidebar-collapsed .header-container {
-    left: var(--sidebar-collapsed-width);
-    width: calc(100% - var(--sidebar-collapsed-width));
+body.sidebar-collapsed .header-container { 
+    left: var(--sidebar-collapsed-width); 
+    width: calc(100vw - var(--sidebar-collapsed-width)); 
 }
 
-body.sidebar-collapsed .main-content {
-    margin-left: var(--sidebar-collapsed-width);
+body.sidebar-collapsed .main-content { 
+    margin-left: var(--sidebar-collapsed-width); 
 }
 
-html.sidebar-collapsed .sidebar {
-    width: var(--sidebar-collapsed-width) !important;
+html.sidebar-collapsed .sidebar { 
+    width: var(--sidebar-collapsed-width) !important; 
 }
 
-html.sidebar-collapsed .header-container {
-    left: var(--sidebar-collapsed-width) !important;
+html.sidebar-collapsed .header-container { 
+    left: var(--sidebar-collapsed-width) !important; 
     width: calc(100% - var(--sidebar-collapsed-width)) !important;
 }
 
-html.sidebar-collapsed .main-content {
-    margin-left: var(--sidebar-collapsed-width) !important;
+html.sidebar-collapsed .main-content { 
+    margin-left: var(--sidebar-collapsed-width) !important; 
 }
 
 html.sidebar-collapsed .sidebar .sidebar-title,
 html.sidebar-collapsed .sidebar .nav-text,
 html.sidebar-collapsed .sidebar .config-btn .nav-text,
-html.sidebar-collapsed .sidebar .logout-btn .nav-text {
-    opacity: 0 !important;
-    transform: translateX(-10px) !important;
-    width: 0 !important;
+html.sidebar-collapsed .sidebar .logout-btn .nav-text { 
+    opacity: 0 !important; 
+    width: 0 !important; 
 }
 
-html.sidebar-collapsed .sidebar .sidebar-header {
-    justify-content: center !important;
+html.sidebar-collapsed .sidebar .sidebar-header { 
+    justify-content: center !important; 
 }
 
-html.sidebar-collapsed .sidebar .btn-open {
-    margin: 0 !important;
-}
-
-html.sidebar-collapsed .sidebar .nav-link {
-    padding-left: clamp(15px, 3%, 25px) !important;
-    justify-content: center !important;
-}
-
+html.sidebar-collapsed .sidebar .nav-link,
 html.sidebar-collapsed .sidebar .config-btn,
-html.sidebar-collapsed .sidebar .logout-btn {
-    padding-left: clamp(15px, 3%, 25px) !important;
-    justify-content: center !important;
+html.sidebar-collapsed .sidebar .logout-btn { 
+    padding: 12px !important; 
+    justify-content: center !important; 
 }
 
 html.sidebar-collapsed .sidebar .nav-icon,
 html.sidebar-collapsed .sidebar .config-btn .nav-icon,
-html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
-    margin-right: 0 !important;
+html.sidebar-collapsed .sidebar .logout-btn .nav-icon { 
+    margin-right: 0 !important; 
 }
 
 /* ── CONTENEDOR Y TARJETAS ── */
@@ -2099,6 +2087,12 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     .card-body h6 { 
         font-size: clamp(10px, 1.6vw, 16px); 
     }
+
+    .fab i {
+        font-size: 20px;
+        transform: translateX(15px) translateY(16px);
+    }
+
 }
 
 /* ── MÓVIL < 768px ── */

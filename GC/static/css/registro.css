@@ -363,11 +363,11 @@ body {
 }
 
 .back-arrow {
-    position: fixed; 
-    top: 6%;
-    left: calc((100vw - 65vw) / 2 + 20px); 
-    width: 50px;
-    height: 50px;
+    position: absolute; 
+    top: 15px;
+    left: 15px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -378,10 +378,9 @@ body {
     box-shadow: none;
     outline: none;
     transition: all 0.3s ease;
-    z-index: 1000; 
+    z-index: 1000;
     backdrop-filter: blur(5px);
 }
-
 .back-arrow:hover {
     background: rgba(255, 255, 255, 0.25);
     transform: translateX(-5px) scale(1.1);
@@ -1057,10 +1056,6 @@ body {
     .form-container .btn {
         margin-bottom: 20px;
     }
-
-    .back-arrow {
-        left: calc((100vw - 65vw) / 2 + 20px);
-    }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -1107,10 +1102,6 @@ body {
 
     .header-gc-logo {
         width: 140px;
-    }
-
-    .back-arrow {
-        left: calc((100vw - 85vw) / 2 + 18px);
     }
 
     .input,
@@ -1167,11 +1158,6 @@ body {
 
     .header-gc-logo {
         width: 150px;
-    }
-
-    .back-arrow {
-        top: 3%;
-        left: calc((100vw - 90vw) / 2 + 15px);
     }
 
     .mensajes-container {
@@ -1253,13 +1239,6 @@ body {
         padding: 10px 15px;
         font-size: 0.85rem;
         margin-bottom: 15px;
-    }
-
-    .back-arrow {
-        top: 2%;
-        left: 20px;
-        width: 38px;
-        height: 38px;
     }
 
     .mensajes-container {
@@ -1357,10 +1336,6 @@ body {
     .select {
         height: 38px;
         margin: 4px 0;
-    }
-
-    .back-arrow {
-        top: 2%;
     }
 }
 

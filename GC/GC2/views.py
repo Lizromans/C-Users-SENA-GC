@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
@@ -218,96 +218,79 @@ def api_limpiar_todas(request):
 def registro(request):
     if request.method == 'POST':
         form = UsuarioRegistroForm(request.POST)
-        
+
         if form.is_valid():
             try:
-                usuario = form.save(commit=False)
-                
-                usuario.email_verificado = False
-                usuario.is_active = True       
-                usuario.estado = 'Activo'
-                
-                usuario.save()
+                usuario = form.save()
 
                 try:
                     usuario.generar_token_verificacion()
-                    
                     usuario.enviar_email_verificacion(request)
-                    
                     messages.success(
-                        request, 
+                        request,
                         "¡Registro exitoso! Por favor, revisa tu correo y verifica tu email para poder iniciar sesión."
                     )
-                    
+
                 except Exception as email_error:
                     print(f"❌ Error al enviar email de verificación: {email_error}")
-                    import traceback
-                    traceback.print_exc()
-                    
                     messages.warning(
-                        request, 
+                        request,
                         "Usuario registrado correctamente, pero hubo un problema al enviar el correo de verificación. "
                         "Por favor contacta al administrador para que reenvíe el correo."
                     )
-                
-                return redirect('iniciarsesion') 
-                
+
+                return redirect('iniciarsesion')
+
             except Exception as e:
                 messages.error(request, f"Error al registrar usuario: {str(e)}")
-                print(f"❌ Error en registro: {e}")
-                import traceback
-                traceback.print_exc()
-                
+
         else:
             errores_contexto = {}
-            
             mapeo_errores = {
                 'cedula': 'error_cedula_reg',
                 'nom_usu': 'error_nom_usu',
                 'ape_usu': 'error_ape_usu',
-                'correo_ins': 'error_correo_ins',
+                'correo_per': 'error_correo_per',
                 'rol': 'error_rol_reg',
                 'contraseña': 'error_contrasena',
                 'conf_contraseña': 'error_conf_contrasena',
             }
-            
+
             for field, errors in form.errors.items():
                 if field in mapeo_errores:
                     errores_contexto[mapeo_errores[field]] = errors[0]
                 elif field == '__all__':
                     messages.error(request, errors[0])
-            
+
             valores_preservados = {
                 'cedula_reg': form.data.get('cedula', ''),
                 'nom_usu': form.data.get('nom_usu', ''),
                 'ape_usu': form.data.get('ape_usu', ''),
-                'correo_ins': form.data.get('correo_ins', ''),
+                'correo_per': form.data.get('correo_per', ''),
                 'rol_reg': form.data.get('rol', ''),
             }
+
     else:
         form = UsuarioRegistroForm()
         errores_contexto = {}
         valores_preservados = {}
 
-    context = {
+    return render(request, 'paginas/registro.html', {
         'form': form,
         'current_page_name': 'Registro',
         'mostrar_registro': True,
-        **errores_contexto,  
-        **valores_preservados,  
-    }
-    
-    return render(request, 'paginas/registro.html', context)
+        **errores_contexto,
+        **valores_preservados,
+    })
 
 def iniciarsesion(request):
-    
     if request.method == 'POST':
         cedula = request.POST.get('cedula', '').strip()
         password = request.POST.get('password', '')
         rol = request.POST.get('rol', '').strip()
 
+        # 1. Validaciones de campos vacíos
         errores = {}
-
         if not rol:
             errores['error_rol'] = "Debe seleccionar un rol."
         if not cedula:
@@ -324,6 +307,7 @@ def iniciarsesion(request):
                 'current_page_name': 'Iniciar Sesión'
             })
 
+        # 2. Verificar que el usuario existe
         try:
             usuario = Usuario.objects.get(cedula=cedula)
         except Usuario.DoesNotExist:
@@ -331,10 +315,11 @@ def iniciarsesion(request):
                 'error_user': 'Usuario no registrado.',
                 'cedula': cedula,
                 'rol': rol,
-                'mostrar_registro': False, 
+                'mostrar_registro': False,
                 'current_page_name': 'Iniciar Sesión'
             })
 
+        # 3. Verificar contraseña
         if not usuario.check_password(password):
             return render(request, 'paginas/registro.html', {
                 'error_password': 'Contraseña incorrecta.',
@@ -344,6 +329,7 @@ def iniciarsesion(request):
                 'current_page_name': 'Iniciar Sesión'
             })
 
+        # 4. Verificar rol
         if usuario.rol != rol:
             return render(request, 'paginas/registro.html', {
                 'error_rol': 'El rol seleccionado no coincide con tu usuario.',
@@ -353,30 +339,44 @@ def iniciarsesion(request):
                 'current_page_name': 'Iniciar Sesión'
             })
 
-        if not usuario.email_verificado:
+        # 5. Verificar cuenta activa
+        if usuario.estado != 'Activo':
             return render(request, 'paginas/registro.html', {
-                'error_user': 'Debes verificar tu correo antes de iniciar sesión.',
+                'error_user': 'Tu cuenta está desactivada. Contacta al administrador.',
                 'cedula': cedula,
                 'rol': rol,
-                'mostrar_registro': False,  
+                'mostrar_registro': False,
                 'current_page_name': 'Iniciar Sesión'
             })
 
+        # 6. Verificar email — SIEMPRE antes de crear sesión
+        if not usuario.email_verificado:
+            request.session.flush()  # Limpiar cualquier sesión residual
+            return render(request, 'paginas/registro.html', {
+                'error_user': 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
+                'cedula': cedula,
+                'rol': rol,
+                'mostrar_registro': False,
+                'current_page_name': 'Iniciar Sesión'
+            })
+
+        # 7. Todo validado — crear sesión
+        request.session.flush()  # Limpiar sesión anterior por seguridad
         request.session['cedula'] = usuario.cedula
         request.session['nom_usu'] = usuario.nom_usu
         request.session['ape_usu'] = usuario.ape_usu
         request.session['rol'] = usuario.rol
         request.session['correo_ins'] = usuario.correo_ins
-        
-        login(request, usuario)
 
-        request.session.set_expiry(3600) 
+        login(request, usuario)
+        request.session.set_expiry(3600)
 
         usuario.last_login = timezone.now()
         usuario.save(update_fields=['last_login'])
 
         messages.success(request, f"¡Bienvenido, {usuario.nom_usu}!")
 
+        # 8. Redirigir según perfil completo o no
         perfil_incompleto = (
             not usuario.correo_per or
             not usuario.telefono or
@@ -384,15 +384,16 @@ def iniciarsesion(request):
             not usuario.vinculacion_laboral or
             not usuario.dependencia
         )
-        
+
         if perfil_incompleto:
             messages.info(request, "Por favor completa tu perfil con la información faltante.")
             return redirect('perfil')
-        
+
         return redirect('home')
 
+    # GET — mostrar formulario de login
     return render(request, 'paginas/registro.html', {
-        'mostrar_registro': False,  
+        'mostrar_registro': False,
         'current_page_name': 'Iniciar Sesión'
     })
 
@@ -539,7 +540,6 @@ def reset_password_confirm(request):
 def login_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-    
         cedula = request.session.get('cedula')
         
         if not cedula:
@@ -549,9 +549,14 @@ def login_required(view_func):
         try:
             from .models import Usuario
             usuario = Usuario.objects.get(cedula=cedula)
-    
-            estado_usuario = getattr(usuario, 'estado', None)
-            if estado_usuario and estado_usuario != 'Activo':
+
+            if not usuario.email_verificado:
+                request.session.flush()
+                messages.error(request, "Debes verificar tu correo electrónico antes de acceder.")
+                return redirect('iniciarsesion')
+
+            if usuario.estado and usuario.estado != 'Activo':
+                request.session.flush() 
                 messages.error(request, "Tu cuenta no está activa")
                 return redirect('iniciarsesion')
                 
@@ -3170,39 +3175,35 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
         if not usuario_id:
             messages.error(request, 'No hay sesión activa')
             return redirect('miembros')
-        
+
         usuario = Usuario.objects.get(cedula=usuario_id)
 
+        # 1. Verificar si puede solicitar un nuevo código
         puede_solicitar, mensaje_error = usuario.puede_solicitar_codigo()
-        
         if not puede_solicitar:
             messages.error(request, mensaje_error)
             return redirect('miembros')
 
+        # 2. Verificar que el aprendiz existe
         aprendiz = Aprendiz.objects.filter(cedula_apre=aprendiz_id).first()
         if not aprendiz:
             messages.error(request, 'Aprendiz no encontrado')
             return redirect('miembros')
 
-        codigo = usuario.generar_codigo_verificacion()
-
+        # 3. Verificar que el usuario tiene correo
         correo_destino = usuario.correo_ins or usuario.correo_per
-        
         if not correo_destino:
-            messages.error(request, 'No hay correo registrado')
+            messages.error(request, 'No hay correo registrado para enviar el código')
             return redirect('miembros')
 
-        intentos_restantes = max(0, 7 - usuario.intentos_codigo_fallidos)
-        
-        # Generar código de verificación
-        codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-        request.session['codigo_verificacion'] = codigo
-        request.session['codigo_timestamp'] = timezone.now().timestamp()
+        # 4. Generar código y registrar envío
+        codigo = usuario.generar_codigo_verificacion()
+        usuario.registrar_codigo_enviado()
 
-        # Renderizar plantilla HTML profesional
+        intentos_restantes = max(0, 7 - usuario.intentos_codigo_fallidos)
+
+        # 5. Renderizar y enviar correo
         asunto = "Código de Verificación - InnHub"
-        correo_destino = usuario.correo_ins
-        
         mensaje = render_to_string('paginas/verification_code_email.html', {
             'nombre_usuario': usuario.nom_usu,
             'codigo': codigo,
@@ -3212,26 +3213,24 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
         try:
             send_mail(
                 asunto,
-                '',  # Mensaje de texto plano vacío
+                '',
                 settings.DEFAULT_FROM_EMAIL,
                 [correo_destino],
                 html_message=mensaje,
                 fail_silently=False
             )
-            
-            usuario.registrar_codigo_enviado()
-            
+
             request.session['verificacion_aprendiz_id'] = aprendiz_id
             request.session['mostrar_modal_codigo'] = True
             request.session['codigo_enviado'] = True
-            
+
             messages.success(request, f'✅ Código enviado a {correo_destino}.')
             return redirect('miembros')
-            
+
         except Exception as email_error:
             messages.error(request, f'Error al enviar el correo: {str(email_error)}')
             return redirect('miembros')
-        
+
     except Usuario.DoesNotExist:
         messages.error(request, 'Usuario no encontrado')
         return redirect('miembros')
@@ -3240,114 +3239,104 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
         return redirect('miembros')
 
 @login_required
+@require_http_methods(["POST"])
 def verificar_codigo_form(request):
     try:
         usuario_id = request.session.get('cedula')
         if not usuario_id:
             messages.error(request, 'No hay sesión activa')
             return redirect('miembros')
-        
+
         usuario = Usuario.objects.get(cedula=usuario_id)
-        
         ahora = timezone.now()
+
+        # 1. Verificar si el usuario está bloqueado
         if usuario.bloqueado_hasta and ahora < usuario.bloqueado_hasta:
             tiempo_restante = usuario.bloqueado_hasta - ahora
             minutos = int(tiempo_restante.total_seconds() / 60)
             horas = minutos // 60
             mins = minutos % 60
-            
-            if horas > 0:
-                tiempo_msg = f"{horas} hora(s) y {mins} minuto(s)"
-            else:
-                tiempo_msg = f"{mins} minuto(s)"
-            
+            tiempo_msg = f"{horas} hora(s) y {mins} minuto(s)" if horas > 0 else f"{mins} minuto(s)"
+
             request.session['mostrar_modal_codigo'] = False
-            if 'verificacion_aprendiz_id' in request.session:
-                del request.session['verificacion_aprendiz_id']
-            
+            request.session.pop('verificacion_aprendiz_id', None)
+
             messages.error(request, f'⏱️ Demasiados intentos fallidos. Espera {tiempo_msg} antes de intentar nuevamente.')
             return redirect('miembros')
-        
+
         codigo_ingresado = request.POST.get('codigo', '').strip()
         aprendiz_id = request.session.get('verificacion_aprendiz_id')
-        
+
+        # 2. Validar formato del código
         if not codigo_ingresado or len(codigo_ingresado) != 6:
             messages.error(request, '❌ Debes ingresar los 6 dígitos del código')
             return redirect(f'/miembros/?miembro_id={aprendiz_id}')
-        
+
+        # 3. Validar que hay sesión de verificación activa
         if not aprendiz_id:
             messages.error(request, 'Sesión expirada')
             request.session['mostrar_modal_codigo'] = False
             return redirect('miembros')
-   
-        if not usuario.verificar_codigo(codigo_ingresado):
 
+        # 4. Verificar código
+        if not usuario.verificar_codigo(codigo_ingresado):
             usuario.incrementar_intentos_fallidos()
 
+            # ← FIX: refrescar desde BD para obtener bloqueado_hasta actualizado
+            usuario.refresh_from_db()
+
             intentos_restantes = max(0, 7 - usuario.intentos_codigo_fallidos)
-            
             request.session['intentos_restantes'] = intentos_restantes
-            
+
             if intentos_restantes == 0:
                 tiempo_bloqueo = usuario.bloqueado_hasta - ahora if usuario.bloqueado_hasta else timedelta(minutes=15)
                 minutos = int(tiempo_bloqueo.total_seconds() / 60)
                 horas = minutos // 60
                 mins = minutos % 60
-                
-                if horas > 0:
-                    tiempo_msg = f"{horas} hora(s) y {mins} minuto(s)"
-                else:
-                    tiempo_msg = f"{mins} minuto(s)"
-                
-                # Cerrar modal
+                tiempo_msg = f"{horas} hora(s) y {mins} minuto(s)" if horas > 0 else f"{mins} minuto(s)"
+
                 request.session['mostrar_modal_codigo'] = False
-                if 'verificacion_aprendiz_id' in request.session:
-                    del request.session['verificacion_aprendiz_id']
-                
+                request.session.pop('verificacion_aprendiz_id', None)
+
                 messages.error(request, f'🚫 Demasiados intentos fallidos. Espera {tiempo_msg} antes de intentar nuevamente.')
                 return redirect('miembros')
-            
+
             messages.error(request, f'❌ Código incorrecto. Te quedan {intentos_restantes} intentos.')
             return redirect(f'/miembros/?miembro_id={aprendiz_id}')
-        
 
+        # 5. Código correcto — obtener aprendiz
         aprendiz = Aprendiz.objects.filter(cedula_apre=aprendiz_id).first()
         if not aprendiz:
             messages.error(request, 'Aprendiz no encontrado')
             return redirect('miembros')
 
+        # 6. Descifrar y guardar número en sesión (visible 60 segundos)
         numero_completo = descifrar_numero(aprendiz.numero_cuenta)
-
-        timestamp_actual = timezone.now().timestamp()
         numeros_revelados = request.session.get('numeros_revelados', {})
         numeros_revelados[str(aprendiz_id)] = {
             'numero': numero_completo,
-            'timestamp': timestamp_actual
+            'timestamp': timezone.now().timestamp()
         }
-        
         request.session['numeros_revelados'] = numeros_revelados
         request.session['numero_cuenta_aprendiz_id'] = str(aprendiz_id)
-        
+
+        # 7. Limpiar estado de verificación
         usuario.resetear_intentos_codigo()
-        
         request.session['mostrar_modal_codigo'] = False
-        if 'verificacion_aprendiz_id' in request.session:
-            del request.session['verificacion_aprendiz_id']
-        if 'codigo_enviado' in request.session:
-            del request.session['codigo_enviado']
-        if 'intentos_restantes' in request.session:
-            del request.session['intentos_restantes']
-        
+        request.session.pop('verificacion_aprendiz_id', None)
+        request.session.pop('codigo_enviado', None)
+        request.session.pop('intentos_restantes', None)
+
         messages.success(request, '✅ Código verificado correctamente. El número estará visible por 30 segundos.')
         return redirect(f'/miembros/?miembro_id={aprendiz_id}')
-        
+
     except Usuario.DoesNotExist:
         messages.error(request, 'Usuario no encontrado')
         return redirect('miembros')
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
         return redirect('miembros')
-
+    
 @login_required
 def cancelar_verificacion(request):
     request.session['mostrar_modal_codigo'] = False
