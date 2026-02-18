@@ -915,7 +915,7 @@ def crear_semillero(request):
     return redirect('semilleros')
 
 @login_required
-@permission_required('GC2.change_semillero', login_url='/')
+@permission_required('GC2.change_semillero')
 def editar_semillero(request, id_sem):
     cedula = request.session.get('cedula')
     try:

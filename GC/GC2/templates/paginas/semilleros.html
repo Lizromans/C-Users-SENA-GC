@@ -142,11 +142,14 @@
                             </div>
                             <div class="card-acciones">
                                 {% if perms.GC2.change_semillero %}
-                                    <button class="btn btn-primary"
+                                    <button type="button"
+                                        class="btn btn-primary"
                                             onclick="abrirModalEditar({{ semillero.id_sem }})">
                                         <i class="fas fa-edit"></i> Editar
                                     </button>
-                            
+                                {% endif %}
+                                
+                                {% if perms.GC2.change_semillero %}
                                     <a href="{% url 'cambiar_estado_semillero' semillero.id_sem %}"
                                         class="btn-activar {% if semillero.estado == 'desactivado' %}success{% else %}danger{% endif %} btn-cambiar-estado"
                                         data-nombre="{{ semillero.nombre }}"
