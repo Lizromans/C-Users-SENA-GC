@@ -370,7 +370,7 @@
     margin-bottom: 1rem;
 }
 
-.modal {
+#modalformulario {
     display: none;
     position: fixed;
     width: 100%;
@@ -381,22 +381,22 @@
     padding: 16px;
 }
 
-.modal-dialog {
+#modalformulario .modal-dialog {
     margin: clamp(20px, 5vh, 60px) auto;
     width: 100%;
     max-width: 800px;
 }
 
-.modal.fade .modal-dialog {
+#modalformulario.fade .modal-dialog {
     transition: transform 0.3s ease-out;
 }
 
-.modal.fade.show .modal-dialog {
+#modalformulario.fade.show .modal-dialog {
     transform: translateY(0);
     animation: modalSlideIn 0.4s ease;
 }
 
-.modal-content {
+#modalformulario .modal-content {
     background: white;
     border-radius: clamp(12px, 2vw, 20px);
     box-shadow: 0 clamp(6px, 1vw, 10px) clamp(30px, 6vw, 50px) rgba(0, 0, 0, 0.3);
@@ -404,7 +404,7 @@
     position: relative;
 }
 
-.modal-cerrar-form {
+#modalformulario .modal-cerrar-form {
     position: absolute;
     top: clamp(10px, 1.5vh, 20px);
     right: clamp(12px, 2vw, 25px);
@@ -424,14 +424,14 @@
     text-decoration: none;
 }
 
-.modal-cerrar-form:hover {
+#modalformulario .modal-cerrar-form:hover {
     background: #f44336;
     color: white;
     border-color: #f44336;
     transform: rotate(90deg);
 }
 
-.modal-header {
+#modalformulario .modal-header {
     display: flex;
     align-items: center;
     padding: clamp(18px, 3vh, 40px) clamp(16px, 4vw, 50px) clamp(20px, 3vh, 30px);
@@ -440,7 +440,7 @@
     border-bottom: 3px solid #39A900;
 }
 
-.modal-title {
+#modalformulario .modal-title {
     margin: 0;
     font-size: clamp(1.1rem, 2.5vw, 1.8rem);
     font-weight: 800;
@@ -448,38 +448,20 @@
     padding-right: 40px;
 }
 
-.modal-body {
+#modalformulario .modal-body {
     padding: clamp(16px, 3vh, 40px) clamp(16px, 4vw, 50px);
 }
 
-.modal-body form {
+#modalformulario .modal-body form {
     display: flex;
     flex-direction: column;
 }
 
-/* Fila de dos columnas para pantallas medianas+ */
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(12px, 2vw, 20px);
-    margin-bottom: clamp(14px, 2.5vh, 22px);
-}
-
-@media (max-width: 520px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-.mb-3 {
+#modalformulario .mb-3 {
     margin-bottom: clamp(14px, 2.5vh, 25px);
 }
 
-.mb-3:last-of-type {
-    margin-bottom: 0;
-}
-
-.form-label {
+#modalformulario .form-label {
     font-size: clamp(0.8rem, 1.5vw, 0.95rem);
     font-weight: 700;
     color: #444;
@@ -487,8 +469,8 @@
     display: block;
 }
 
-.form-control,
-.form-select {
+#modalformulario .form-control,
+#modalformulario .form-select {
     padding: clamp(9px, 1.5vh, 12px) clamp(10px, 2vw, 14px);
     font-size: clamp(0.82rem, 1.5vw, 0.95rem);
     border: 2px solid #e0e0e0;
@@ -498,34 +480,34 @@
     width: 100%;
 }
 
-textarea.form-control {
+#modalformulario textarea.form-control {
     min-height: clamp(80px, 15vh, 100px);
     resize: vertical;
     font-family: inherit;
 }
 
-.form-control:focus,
-.form-select:focus {
+#modalformulario .form-control:focus,
+#modalformulario .form-select:focus {
     outline: none;
     border-color: #39A900;
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
 }
 
-.form-text {
+#modalformulario .form-text {
     font-size: clamp(0.72rem, 1.3vw, 0.85rem);
     color: #6c757d;
     margin-top: clamp(3px, 0.5vh, 4px);
     display: block;
 }
 
-#image-preview {
+#modalformulario #image-preview {
     display: flex;
     flex-wrap: wrap;
     gap: clamp(6px, 1.5vw, 10px);
     margin-top: clamp(6px, 1.5vh, 10px);
 }
 
-.modal-footer {
+#modalformulario .modal-footer {
     display: flex;
     background-color: transparent;
     justify-content: flex-end;
@@ -537,7 +519,7 @@ textarea.form-control {
     flex-wrap: wrap;
 }
 
-.modal-footer .btn {
+#modalformulario .modal-footer .btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -553,21 +535,44 @@ textarea.form-control {
     width: 100%;
 }
 
-@media (min-width: 400px) {
-    .modal-footer .btn {
-        width: auto;
-    }
-}
-
-.modal-footer .btn:hover {
+#modalformulario .modal-footer .btn:hover {
     background-color: #2d8000;
     box-shadow: 0 clamp(3px, 0.6vw, 4px) clamp(10px, 2vw, 12px) rgba(57, 169, 0, 0.3);
     transform: translateY(-2px);
 }
 
-@keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* ───── MEDIA QUERIES ───── */
+
+@media (max-width: 600px) {
+    #modalformulario {
+        padding: 12px;
+    }
+
+    #modalformulario .modal-body {
+        padding: 16px 14px;
+    }
+
+    #modalformulario .modal-footer {
+        margin: 12px 14px 16px;
+    }
+
+    #modalformulario .modal-title {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 380px) {
+    #modalformulario {
+        padding: 8px;
+    }
+
+    #modalformulario .modal-body {
+        padding: 14px 12px;
+    }
+
+    #modalformulario .modal-footer {
+        margin: 10px 12px 14px;
+    }
 }
 
 @keyframes modalSlideIn {
@@ -578,62 +583,5 @@ textarea.form-control {
     to {
         transform: translateY(0);
         opacity: 1;
-    }
-}
-
-.form {
-    background-color: rgba(57, 169, 0, 0.15);
-    border: 3px solid #39A900;
-    border-radius: clamp(10px, 2vw, 14px);
-    padding: clamp(10px, 2vh, 15px) clamp(20px, 4vw, 40px);
-    width: 100%;
-    margin: 0 auto;
-    color: #007832;
-    font-weight: 700;
-    font-size: clamp(0.9rem, 1.8vw, 1.15rem);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.form:hover {
-    background-color: #39A900;
-    color: white;
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(57, 169, 0, 0.4);
-}
-
-/* ── Media queries de respaldo ── */
-@media (max-width: 600px) {
-    .modal {
-        padding: 12px;
-    }
-    .modal-header {
-        padding: clamp(18px, 3vh, 40px) clamp(16px, 4vw, 50px) clamp(20px, 3vh, 30px);
-    }
-    .modal-body {
-        padding: 16px 14px;
-    }
-    .modal-footer {
-        margin: 12px 14px 16px;
-    }
-    .modal-title {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 380px) {
-    .modal {
-        padding: 8px;
-    }
-    .modal-header {
-        margin-top: 2%;
-        padding: clamp(18px, 3vh, 40px) clamp(16px, 4vw, 50px) clamp(20px, 3vh, 30px);
-    }
-    .modal-body {
-        padding: 14px 12px;
-    }
-    .modal-footer {
-        margin: 10px 12px 14px;
     }
 }

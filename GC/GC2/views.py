@@ -3230,7 +3230,7 @@ def solicitar_codigo_verificacion_form(request, aprendiz_id):
             return redirect('miembros')
 
         # 3. Verificar que el usuario tiene correo
-        correo_destino = usuario.correo_ins or usuario.correo_per
+        correo_destino = usuario.correo_per
         if not correo_destino:
             messages.error(request, 'No hay correo registrado para enviar el código')
             return redirect('miembros')

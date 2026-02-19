@@ -1063,28 +1063,28 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ── MODALS ── */
-.modal {
+#cambiarContraseñaModal {
     z-index: 1055 !important; 
+    margin-top: 18vh;
 }
 
-.modal-backdrop { 
+#cambiarContraseñaModal + .modal-backdrop { 
     z-index: 1050 !important; 
 }
 
-.modal-content { 
+#cambiarContraseñaModal .modal-content { 
     background: var(--color-primario); 
     border: 1px solid rgba(57,169,0,0.15); 
     border-radius: 18px; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
     animation: modalFadeIn 0.35s ease; 
-
 }
 
-.modal-dialog-centered .modal-content { 
+#cambiarContraseñaModal .modal-dialog-centered .modal-content { 
     margin-top: 0; 
 }
 
-.modal-header { 
+#cambiarContraseñaModal .modal-header { 
     background: rgba(57,169,0,0.04); 
     border-bottom: 1px solid rgba(57,169,0,0.15); 
     border-radius: 18px 18px 0 0; 
@@ -1093,7 +1093,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     padding: 14px 20px; 
 }
 
-.modal-title { 
+#cambiarContraseñaModal .modal-title { 
     color: var(--color-text-active); 
     font-weight: 700; 
     font-size: 1.1rem; 
@@ -1104,45 +1104,45 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transform: translateX(-50%); 
 }
 
-.btn-close { 
+#cambiarContraseñaModal .btn-close { 
     filter: brightness(0.4); 
     transition: all 0.25s ease; 
 }
 
-.btn-close:hover { 
+#cambiarContraseñaModal .btn-close:hover { 
     filter: brightness(0); 
     transform: rotate(90deg); 
 }
 
-.modal-body { 
+#cambiarContraseñaModal .modal-body { 
     padding: 20px 22px; 
 }
 
-.modal-body label { 
+#cambiarContraseñaModal .modal-body label { 
     font-weight: 600; 
     color: var(--color-text-primary); 
     margin-bottom: 6px; 
     display: block; 
 }
 
-.modal-body .form-control { 
+#cambiarContraseñaModal .modal-body .form-control { 
     border: 1px solid #ccc; 
     border-radius: 10px; 
     padding: 10px 12px; 
     transition: all 0.25s ease; 
 }
 
-.modal-body .form-control:focus { 
+#cambiarContraseñaModal .modal-body .form-control:focus { 
     border-color: var(--color-nav-active); 
     box-shadow: 0 0 0 3px rgba(57,169,0,0.15); 
     outline: none; 
 }
 
-.input-con-icono { 
+#cambiarContraseñaModal .input-con-icono { 
     position: relative; 
 }
 
-.input-con-icono .edit-icon { 
+#cambiarContraseñaModal .input-con-icono .edit-icon { 
     position: absolute; 
     right: 12px; 
     top: 50%; 
@@ -1152,18 +1152,18 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transition: color 0.25s; 
 }
 
-.input-con-icono .edit-icon:hover { 
+#cambiarContraseñaModal .input-con-icono .edit-icon:hover { 
     color: var(--color-nav-active); 
 }
 
-.modal-footer { 
+#cambiarContraseñaModal .modal-footer { 
     border-top: 1px solid rgba(57,169,0,0.12); 
     background: rgba(57,169,0,0.02); 
     border-radius: 0 0 18px 18px; 
     padding: 14px 22px; 
 }
 
-.modal-footer .boton { 
+#cambiarContraseñaModal .modal-footer .boton { 
     border-radius: 8px; 
     padding: 8px 18px; 
     font-weight: 600; 
@@ -1174,7 +1174,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     transition: all 0.25s ease; 
 }
 
-.modal-footer .boton:hover { 
+#cambiarContraseñaModal .modal-footer .boton:hover { 
     background: var(--color-text-active); 
     transform: translateY(-1px); 
 }
