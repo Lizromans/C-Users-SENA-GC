@@ -182,9 +182,11 @@
                 </div>
 
                 <div class="lista-miembros-modal">
+
+                    <!-- Usuarios (instructores, investigadores, etc.) -->
                     {% for usuario in Usuarios %}
                         <div class="item-miembro-modal">
-                            <div class="avatar-miembro" data-color="{{ forloop.counter }}" >
+                            <div class="avatar-miembro" data-color="{{ forloop.counter }}">
                                 {{ usuario.get_iniciales }}
                             </div>
                             <div class="info-miembro">
@@ -197,10 +199,33 @@
                                 </label>
                             </div>
                         </div>
-                    {% empty %}
-                        <p class="sin-resultados">No se encontraron miembros.</p>
                     {% endfor %}
+
+                    <!-- ✅ NUEVO: Aprendices disponibles -->
+                    {% for aprendiz in aprendices_disponibles %}
+                        <div class="item-miembro-modal">
+                            <div class="avatar-miembro" data-color="{{ forloop.counter }}">
+                                {{ aprendiz.get_iniciales }}
+                            </div>
+                            <div class="info-miembro">
+                                <h4>{{ aprendiz.nombre }} {{ aprendiz.apellido }}</h4>
+                                <span class="rol-miembro">Aprendiz</span>
+                            </div>
+                            <div class="check">
+                                <label>
+                                    <input type="checkbox" name="aprendices_seleccionados" value="{{ aprendiz.id }}">
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <!-- Mensaje si no hay ninguno disponible -->
+                    {% if not Usuarios and not aprendices_disponibles %}
+                        <p class="sin-resultados">No se encontraron miembros disponibles.</p>
+                    {% endif %}
+
                 </div>
+
                 <hr class="modal-hr modal-hr-final">
                 <div class="modal-acciones">
                     <a href="{% url 'resu-miembros' semillero.id_sem %}" class="modal-btn modal-btn-cancelar">
@@ -214,6 +239,7 @@
         </div>
     </div>
 </div>
+
 <div id="modal-semillero" class="modal-overlay">
     <div class="modal-contenedor modal-miembros">
         <a href="{% url 'resu-miembros' semillero.id_sem %}" 

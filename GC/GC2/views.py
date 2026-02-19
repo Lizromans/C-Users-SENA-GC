@@ -1203,6 +1203,7 @@ def resumen(request, id_sem):
     })
 
 @login_required
+@login_required
 def resu_miembros(request, id_sem):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
@@ -1225,6 +1226,9 @@ def resu_miembros(request, id_sem):
     usuarios_disponibles = Usuario.objects.exclude(cedula__in=cedulas_en_semillero)
 
     aprendices = Aprendiz.objects.filter(id_sem=semillero)
+    
+    # ✅ NUEVO: aprendices que aún no pertenecen a este semillero
+    aprendices_disponibles = Aprendiz.objects.exclude(id_sem=semillero)
 
     total_miembros = usuarios.count() + aprendices.count()
 
@@ -1291,6 +1295,7 @@ def resu_miembros(request, id_sem):
         'semillero': semillero,
         'usuarios': usuarios,
         'aprendices': aprendices,
+        'aprendices_disponibles': aprendices_disponibles,  # ✅ NUEVO
         'miembros': miembros, 
         'Usuarios': usuarios_disponibles,
         'total_miembros': total_miembros,
@@ -1299,7 +1304,7 @@ def resu_miembros(request, id_sem):
         'total_proyectos': total_proyectos,
         'total_entregables': total_entregables,
         'instructores': instructores, 
-        'usuario' : usuario,
+        'usuario': usuario,
     }
 
     return render(request, 'paginas/resu-miembros.html', context)
@@ -1311,8 +1316,9 @@ def agregar_miembros(request, id_sem):
     if request.method == 'POST':
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
         miembros_seleccionados = request.POST.getlist('miembros_seleccionados')
+        aprendices_seleccionados = request.POST.getlist('aprendices_seleccionados')  # ✅ NUEVO
         
-        if not miembros_seleccionados:
+        if not miembros_seleccionados and not aprendices_seleccionados:  # ✅ MODIFICADO
             messages.warning(request, 'No se seleccionó ningún miembro')
             return redirect('resu-miembros', id_sem=id_sem)
         
@@ -1320,6 +1326,7 @@ def agregar_miembros(request, id_sem):
             agregados = 0
             ya_existentes = 0
             
+            # --- Lógica original para Usuarios ---
             for cedula in miembros_seleccionados:
                 usuario = get_object_or_404(Usuario, cedula=cedula)
                 
@@ -1333,6 +1340,17 @@ def agregar_miembros(request, id_sem):
                         id_sem=semillero, 
                         cedula=usuario
                     )
+                    agregados += 1
+                else:
+                    ya_existentes += 1
+
+            # ✅ NUEVO: Lógica para Aprendices
+            for aprendiz_id in aprendices_seleccionados:
+                aprendiz = get_object_or_404(Aprendiz, id=aprendiz_id)
+                
+                if aprendiz.id_sem != semillero:
+                    aprendiz.id_sem = semillero
+                    aprendiz.save()
                     agregados += 1
                 else:
                     ya_existentes += 1
