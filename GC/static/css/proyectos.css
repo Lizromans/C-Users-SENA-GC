@@ -505,43 +505,44 @@ span.estado.completado {
 
 /* ── Tablets pequeñas y MÓVILES (≤ 768px) ── */
 @media (max-width: 768px) {
-  .info { grid-template-columns: 1fr; }
-  .grupo { width: 100%; }
+    .info { 
+        grid-template-columns: 1fr; 
+    }
 
-  .filtros { flex-direction: column; align-items: stretch; }
-  .search-container { min-width: 100%; }
-  .filtro { min-width: 100%; }
-  .botones-item { justify-content: stretch; }
-  .botones-item .limpiar { width: 100%; text-align: center; }
+    .grupo { 
+        width: 100%; 
+    }
 
-  .titulo h3 { font-size: 1.5rem; }
-  .titulo p { font-size: 0.9rem; }
-  .busqueda h3, .tabla-container h3 { font-size: 1.3rem; }
+    .filtros { flex-direction: column; align-items: stretch; }
+    .search-container { min-width: 100%; }
+    .filtro { min-width: 100%; }
+    .botones-item { justify-content: stretch; }
+    .botones-item .limpiar { width: 100%; text-align: center; }
 
-  .card { flex-direction: row; align-items: center; }
-  .icon-cont { width: 55px; height: 55px; flex: 0 0 55px; margin: 10px 0 10px 12px; }
-  .icon-cont img, .icon { width: 35px; height: 35px; }
-  .card-title { font-size: 1.4rem; }
+    .titulo h3 { font-size: 1.5rem; }
+    .titulo p { font-size: 0.9rem; }
+    .busqueda h3, .tabla-container h3 { font-size: 1.3rem; }
 
-  /* TABLA: scroll horizontal, TODAS las columnas visibles */
-  .tabla-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    /* Sombra que indica scroll disponible */
-    background:
-      linear-gradient(to right, white 30%, rgba(255,255,255,0)),
-      linear-gradient(to left,  white 30%, rgba(255,255,255,0)) 100% 0,
-      radial-gradient(farthest-side at 0%   50%, rgba(0,0,0,.10), transparent),
-      radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.10), transparent) 100% 0;
-    background-repeat: no-repeat;
-    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
-    background-attachment: local, local, scroll, scroll;
-  }
+    .card { flex-direction: row; align-items: center; }
+    .icon-cont { width: 55px; height: 55px; flex: 0 0 55px; margin: 10px 0 10px 12px; }
+    .icon-cont img, .icon { width: 35px; height: 35px; }
+    .card-title { font-size: 1.4rem; }
 
-  table {
-    min-width: 580px;
-    table-layout: auto;
-  }
+    /* TABLA: scroll horizontal, TODAS las columnas visibles */
+    .tabla-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        background: none;
+        background-repeat: no-repeat;
+        background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+        background-attachment: local, local, scroll, scroll;
+    }
+
+    table {
+        min-width: 580px;
+        table-layout: auto;
+    }
 
   /* Asegura que NINGUNA columna quede oculta */
   table thead th,

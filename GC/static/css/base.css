@@ -1396,7 +1396,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     color: #fff; 
     pointer-events: none;
     font-size: 20px;
-    transform: translateX(14px) translateY(14px);
+    transform: translateX(15px) translateY(16px);
 }
 
 .pulse-ring {

@@ -212,7 +212,7 @@ def api_limpiar_todas(request):
             'success': False,
             'error': str(e)
         }, status=500)  
-    
+
 
 # VISTAS DE LOGIN Y REGISTRO
 def registro(request):

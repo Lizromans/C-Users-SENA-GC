@@ -763,11 +763,7 @@ body {
 }
 
 .password-field-container .input {
-    width: 100%;
-    padding: 12px 45px 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 25px;
-    font-size: 14px;
+    padding-right: 45px;
 }
 
 .password-field-container .password-toggle-icon {
@@ -1044,17 +1040,57 @@ body {
     .form-container {
         width: 50%;
         order: 1;
-        height: 100%;
-        padding: 30px 40px;
+        height: auto;
+        padding: 15px 30px;
         justify-content: center;
+
     }
 
     .container.active .form-container {
         order: 1;
     }
 
+    .input,
+    .select {
+        height: 45px;
+        margin: 2px 0;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    .form-container h2 {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+
+    .header-gc-logo {
+        width: 140px;
+    }
+
+    .form-text {
+        font-size: 11px;
+        margin: 1px 0;
+    }
+
+    .password-field-container {
+        margin: 0;
+        font-size: 11px;
+    }
+
+    .select_container,
+    .select-container {
+        margin: 0;
+    }
+
+    .form-group {
+        margin: 0;
+    }
+
     .form-container .btn {
-        margin-bottom: 20px;
+        padding: 9px 20px;
+        font-size: 0.9rem;
+        margin-top: 8px;
+        margin-bottom: 0;
     }
 }
 
@@ -1142,10 +1178,35 @@ body {
     }
 
     .form-container {
-        width: 100%;
-        height: auto;
+        width: 80%;
+        margin: 0 auto;
         padding: 25px 20px;
         order: 1;
+    }
+
+    .error-container,
+    .error-correo,
+    .error-contra,
+    .error-contrase,
+    .error-cedula,
+    .error-rol {
+        position: static !important;
+        width: 100%;
+        margin-top: 4px;
+        transform: none !important;
+        left: auto !important;
+        right: auto !important;
+        display: block;
+        text-align: left;
+    }
+
+    .error-container::after,
+    .error-correo::after,
+    .error-contra::after,
+    .error-contrase::after,
+    .error-cedula::after,
+    .error-rol::after {
+        display: none !important;
     }
 
     .form-container .btn {
@@ -1209,10 +1270,35 @@ body {
     }
 
     .form-container {
-        width: 90%;
-        height: auto;
+        width: 85%;
+        margin: 0 auto;
         padding: 20px 15px;
-        order: 1;
+    }
+
+    /* Mensajes de error debajo de los inputs */
+    .error-container,
+    .error-correo,
+    .error-contra,
+    .error-contrase,
+    .error-cedula,
+    .error-rol {
+        position: static !important;
+        width: 100%;
+        margin-top: 4px;
+        transform: none !important;
+        left: auto !important;
+        right: auto !important;
+        display: block;
+        text-align: left;
+    }
+
+    .error-container::after,
+    .error-correo::after,
+    .error-contra::after,
+    .error-contrase::after,
+    .error-cedula::after,
+    .error-rol::after {
+        display: none !important;
     }
 
     .container.active .form-container {
