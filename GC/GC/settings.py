@@ -162,6 +162,7 @@ AUTH_USER_MODEL = 'GC2.Usuario'
 # Configuración de sesiones
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Guardar en base de datos
 SESSION_COOKIE_NAME = 'gc_sessionid'
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
 SESSION_SAVE_EVERY_REQUEST = True  # Renovar sesión en cada petición
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expirar al cerrar navegador
