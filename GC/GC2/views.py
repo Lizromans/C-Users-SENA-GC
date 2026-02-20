@@ -930,6 +930,7 @@ def editar_semillero(request, id_sem):
         nombre = request.POST.get('nombre')
         desc_sem = request.POST.get('desc_sem')
         objetivos = request.POST.getlist('objetivo')
+        fecha_creacion = request.POST.get('fecha_creacion')
 
         if not all([sigla, cod_sem, nombre, desc_sem]):
             messages.error(request, 'Todos los campos son obligatorios.')
@@ -943,6 +944,7 @@ def editar_semillero(request, id_sem):
             semillero.nombre = nombre
             semillero.desc_sem = desc_sem
             semillero.objetivo = objetivo_texto
+            semillero.fecha_creacion = fecha_creacion
             semillero.save()
 
             messages.success(request, f'Semillero "{nombre}" actualizado exitosamente.')
@@ -1203,7 +1205,6 @@ def resumen(request, id_sem):
     })
 
 @login_required
-@login_required
 def resu_miembros(request, id_sem):
     usuario_id = request.session.get('cedula')
     if not usuario_id:
@@ -1279,7 +1280,7 @@ def resu_miembros(request, id_sem):
             instructor.proyectos_liderados = list(proyectos_liderados)
 
     tiene_instructores = any(
-        m.cedula.rol.lower() in ['instructor', 'investigador', 'líder', 'lider'] 
+        m.cedula.rol.lower() in ['instructor', 'investigador', 'líder de semillero', 'líder de proyecto'] 
         for m in miembros
     )
 
@@ -1295,7 +1296,7 @@ def resu_miembros(request, id_sem):
         'semillero': semillero,
         'usuarios': usuarios,
         'aprendices': aprendices,
-        'aprendices_disponibles': aprendices_disponibles,  # ✅ NUEVO
+        'aprendices_disponibles': aprendices_disponibles,
         'miembros': miembros, 
         'Usuarios': usuarios_disponibles,
         'total_miembros': total_miembros,
@@ -1511,7 +1512,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
     mostrar_gestionar = request.GET.get('gestionar_equipo')
 
     if request.method == 'POST' and cod_pro:
-        if semillero.estado == 'desactivado' or not semillero.activo:
+        if semillero.estado == 'desactivado' or not semillero.estado == 'activo':
             messages.error(
                 request, 
                 f'⚠️ El semillero "{semillero.nombre}" está desactivado. '
@@ -1587,7 +1588,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
             return redirect('resu-proyectos', id_sem=id_sem, cod_pro=cod_pro)
 
     if mostrar_gestionar and cod_pro and request.method == 'GET':
-        if semillero.estado == 'desactivado' or not semillero.activo:
+        if semillero.estado == 'desactivado' or not semillero.estado == 'activo':
             messages.error(
                 request, 
                 f'⚠️ El semillero "{semillero.nombre}" está desactivado. '
@@ -1661,7 +1662,7 @@ def resu_proyectos(request, id_sem, cod_pro=None):
         miembros_proyecto_actual = miembros_equipo
 
     elif cod_pro and request.method == 'GET' and not mostrar_gestionar:
-        if semillero.estado == 'desactivado' or not semillero.activo:
+        if semillero.estado == 'desactivado' or not semillero.estado == 'activo':
             messages.error(
                 request, 
                 f'⚠️ El semillero "{semillero.nombre}" está desactivado. '
@@ -3675,7 +3676,7 @@ def formulario_soporte(request):
                 f'Solicitud de Soporte - InnHub: {asunto}',
                 mensaje_html,
                 settings.DEFAULT_FROM_EMAIL,
-                ['mundobovinoapp@gmail.com'], 
+                ['gestsqgv@gestionconocimientosena.org'], 
                 reply_to=[email_remitente]
             )
             

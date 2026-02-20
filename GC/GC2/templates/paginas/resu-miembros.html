@@ -103,7 +103,7 @@
 
                             <div class="dots" data-carousel="instructores">
                                 {% for m in miembros %}
-                                    {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" %}
+                                    {% if m.cedula.rol|lower == "instructor" or m.cedula.rol|lower == "investigador" or m.cedula.rol|lower == "líder de semillero" or m.cedula.rol|lower == "líder de proyecto"%}
                                         <div class="dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></div>
                                     {% endif %}
                                 {% endfor %}

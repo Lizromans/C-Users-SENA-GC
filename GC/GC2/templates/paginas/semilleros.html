@@ -305,11 +305,16 @@
                             <label>Código *</label>
                             <input type="text" name="cod_sem" value="{{ semillero.cod_sem }}" placeholder="Ej: SEM-ROB-001" required>
                         </div>
-                    </div>
+                
+                        <div class="modal-campo">
+                            <label>Nombre del Semillero *</label>
+                            <input type="text" name="nombre" value="{{ semillero.nombre }}" placeholder="Nombre del semillero" required>
+                        </div>
 
-                    <div class="modal-campo" id="sub-campo">
-                        <label>Nombre del Semillero *</label>
-                        <input type="text" name="nombre" value="{{ semillero.nombre }}" placeholder="Nombre del semillero" required>
+                        <div class="modal-campo">
+                            <label>Fecha de creación *</label>
+                            <input type="date" name="fecha_creacion" value="{{ semillero.fecha_creacion }}" required>
+                        </div>
                     </div>
                 </div>
 

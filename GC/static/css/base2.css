@@ -1423,7 +1423,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ── MODALS ── */
-.modal {
+#cambiarContraseñaModal .modal {
     z-index: 1055 !important;
     margin-top: -8vh;
 }
