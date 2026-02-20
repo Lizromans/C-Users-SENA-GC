@@ -1346,7 +1346,7 @@ def agregar_miembros(request, id_sem):
 
             # ✅ NUEVO: Lógica para Aprendices
             for aprendiz_id in aprendices_seleccionados:
-                aprendiz = get_object_or_404(Aprendiz, id=aprendiz_id)
+                aprendiz = get_object_or_404(Aprendiz, cedula_apre=aprendiz_id)
                 
                 if aprendiz.id_sem != semillero:
                     aprendiz.id_sem = semillero
