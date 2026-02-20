@@ -19,6 +19,126 @@ class NotificationSystem {
         console.log('✅ Sistema de notificaciones activo');
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       getIconConfig: asigna color e ícono único a cada tipo de notificación.
+       Prioridad:
+         1) Si el backend manda clase_icono e icono → los usa tal cual.
+         2) Si no → busca por palabras clave en notif.tipo (fallback visual).
+    ──────────────────────────────────────────────────────────────────────── */
+    getIconConfig(notif) {
+        if (notif.clase_icono && notif.icono) {
+            return { clase: notif.clase_icono, icono: notif.icono };
+        }
+
+        const tipo = (notif.tipo || '').toLowerCase();
+        const titulo = (notif.titulo || '').toLowerCase();
+        const ref = tipo + ' ' + titulo;
+
+        /* Orden: más específico primero */
+        const mapa = [
+            // 📁 Archivos
+            { keys: ['archivo_nuevo', 'nuevo archivo', 'archivo subido', 'subió un archivo'],
+              clase: 'notif-archivo',    icono: 'fa-file-circle-plus'        },
+            { keys: ['archivo eliminado', 'archivo borrado'],
+              clase: 'notif-archivo-del', icono: 'fa-file-circle-xmark'     },
+            { keys: ['archivo'],
+              clase: 'notif-archivo',    icono: 'fa-folder-open'             },
+
+            // 🔄 Estado de proyecto / usuario
+            { keys: ['estado_proyecto', 'cambio de estado', 'estado del proyecto',
+                     'completado', 'en curso', 'pausado', 'terminado', 'cancelado',
+                     'aprobado', 'rechazado'],
+              clase: 'notif-estado-proy', icono: 'fa-arrows-rotate'          },
+
+            // 🎓 Aprendices
+            { keys: ['aprendiz asignado', 'nuevo aprendiz', 'aprendiz agregado',
+                     'aprendiz', 'ficha'],
+              clase: 'notif-aprendiz',   icono: 'fa-user-graduate'           },
+
+            // 👑 Lider / Rol
+            { keys: ['líder', 'lider', 'nuevo rol', 'rol asignado', 'ahora lideras',
+                     'cambio de rol', 'nuevo lider'],
+              clase: 'notif-lider',      icono: 'fa-crown'                   },
+
+            // 📊 Proyectos (general)
+            { keys: ['proyecto_nuevo', 'nuevo proyecto', 'proyecto creado'],
+              clase: 'notif-proyecto',   icono: 'fa-diagram-project'         },
+            { keys: ['proyecto'],
+              clase: 'notif-proyecto',   icono: 'fa-chart-gantt'             },
+
+            // 👥 Miembros / asignaciones
+            { keys: ['miembro_asignado', 'asignación de miembro', 'asignado al',
+                     'nuevo miembro', 'miembro agregado', 'se unió'],
+              clase: 'notif-miembro',    icono: 'fa-user-plus'               },
+            { keys: ['miembro eliminado', 'miembro removido', 'expulsado'],
+              clase: 'notif-miembro-del', icono: 'fa-user-minus'             },
+            { keys: ['miembro', 'asignado'],
+              clase: 'notif-miembro',    icono: 'fa-users'                   },
+
+            // 📅 Eventos
+            { keys: ['evento_proximo', 'evento próximo', 'próximo evento', 'evento mañana'],
+              clase: 'notif-evento-prox', icono: 'fa-calendar-check'        },
+            { keys: ['evento_nuevo', 'nuevo evento', 'evento creado'],
+              clase: 'notif-evento',     icono: 'fa-calendar-plus'           },
+            { keys: ['evento cancelado', 'evento eliminado'],
+              clase: 'notif-evento-del', icono: 'fa-calendar-xmark'         },
+            { keys: ['evento'],
+              clase: 'notif-evento',     icono: 'fa-calendar-days'           },
+
+            // 📋 Entregables
+            { keys: ['entregable_enviado', 'entregable enviado', 'entregable subido'],
+              clase: 'notif-entregable', icono: 'fa-file-export'             },
+            { keys: ['entregable_vencido', 'entregable vencido', 'entregable vence'],
+              clase: 'notif-entregable-ven', icono: 'fa-file-circle-exclamation' },
+            { keys: ['entregable'],
+              clase: 'notif-entregable', icono: 'fa-file-lines'              },
+
+            // 🌱 Semilleros
+            { keys: ['semillero_nuevo', 'nuevo semillero', 'semillero creado'],
+              clase: 'notif-semillero',  icono: 'fa-seedling'                },
+            { keys: ['semillero'],
+              clase: 'notif-semillero',  icono: 'fa-leaf'                    },
+
+            // 👤 Estado de usuario
+            { keys: ['activo', 'usuario activo', 'cuenta activada'],
+              clase: 'notif-user-on',   icono: 'fa-user-check'               },
+            { keys: ['inactivo', 'usuario inactivo', 'cuenta desactivada'],
+              clase: 'notif-user-off',  icono: 'fa-user-slash'               },
+            { keys: ['usuario', 'perfil'],
+              clase: 'notif-usuario',   icono: 'fa-circle-user'              },
+
+            // 🔐 Privacidad / contraseña
+            { keys: ['contraseña', 'password', 'privacidad', 'acceso'],
+              clase: 'notif-privacidad', icono: 'fa-shield-halved'           },
+
+            // ⚠️ Alertas y errores
+            { keys: ['error', 'fallo', 'falla'],
+              clase: 'notif-error',     icono: 'fa-circle-xmark'             },
+            { keys: ['alerta', 'advertencia', 'atención'],
+              clase: 'notif-alerta',    icono: 'fa-triangle-exclamation'     },
+
+            // 💬 Mensajes / comentarios
+            { keys: ['mensaje', 'comentario', 'respuesta'],
+              clase: 'notif-mensaje',   icono: 'fa-comment-dots'             },
+
+            // 📢 General / sistema
+            { keys: ['sistema', 'actualización', 'mantenimiento'],
+              clase: 'notif-sistema',   icono: 'fa-gear'                     },
+        ];
+
+        for (const entry of mapa) {
+            for (const key of entry.keys) {
+                const regex = new RegExp(key, 'i');
+                if (regex.test(ref)) {
+                    return { clase: entry.clase, icono: entry.icono };
+                }
+            }
+        }
+
+        return { clase: 'notif-default', icono: 'fa-bell' };
+    }
+    /* ──────────────────────────────────────────────────────────────────── */
+
     setupEventListeners() {
         const bell = document.getElementById('notification-bell');
         if (bell) {
@@ -50,7 +170,7 @@ class NotificationSystem {
         }
 
         const drawerCloseBtn = document.getElementById('drawer-close-btn');
-        const drawerOverlay = document.getElementById('notifications-drawer-overlay');
+        const drawerOverlay  = document.getElementById('notifications-drawer-overlay');
         
         if (drawerCloseBtn) {
             drawerCloseBtn.addEventListener('click', (e) => {
@@ -71,6 +191,7 @@ class NotificationSystem {
                 this.applyFilter(btn.dataset.filter);
             });
         });
+
         const markAllRead = document.getElementById('mark-all-read');
         if (markAllRead) {
             markAllRead.addEventListener('click', () => this.markAllAsRead());
@@ -83,7 +204,7 @@ class NotificationSystem {
 
         document.addEventListener('click', (e) => {
             const dropdown = document.getElementById('notification-dropdown');
-            const bell = document.getElementById('notification-bell');
+            const bell     = document.getElementById('notification-bell');
             
             if (dropdown && bell && 
                 dropdown.classList.contains('show') &&
@@ -172,9 +293,7 @@ class NotificationSystem {
             
             const response = await fetch('/api/notificaciones/', {
                 method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 credentials: 'same-origin'
             });
 
@@ -186,7 +305,6 @@ class NotificationSystem {
             console.log('📥 Datos recibidos:', data);
             
             if (data.notificaciones && Array.isArray(data.notificaciones)) {
-                // Filtrar notificaciones descartadas
                 this.notifications = data.notificaciones.filter(notif => {
                     const id = this.getNotificationId(notif);
                     return !this.isDismissed(id);
@@ -221,12 +339,7 @@ class NotificationSystem {
         if (unreadCount > 0) {
             badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
             badge.style.display = 'flex';
-            
-            if (unreadCount > 9) {
-                badge.classList.add('many');
-            } else {
-                badge.classList.remove('many');
-            }
+            badge.classList.toggle('many', unreadCount > 9);
         } else {
             badge.style.display = 'none';
         }
@@ -246,15 +359,18 @@ class NotificationSystem {
         const recentNotifications = this.notifications.slice(0, 5);
 
         recentNotifications.forEach(notif => {
-            const id = this.getNotificationId(notif);
+            const id     = this.getNotificationId(notif);
             const isRead = this.isRead(id);
-            
+
+            /* ── usa getIconConfig para garantizar clase e ícono ── */
+            const { clase, icono } = this.getIconConfig(notif);
+
             const item = document.createElement('div');
             item.className = `notification-item ${!isRead ? 'unread' : ''}`;
             
             item.innerHTML = `
-                <div class="notification-icon-type ${notif.clase_icono}">
-                    <i class="fa ${notif.icono}"></i>
+                <div class="notification-icon-type ${clase}">
+                    <i class="fa ${icono}"></i>
                 </div>
                 <div class="notification-content">
                     <div class="notification-title">${this.escapeHtml(notif.titulo)}</div>
@@ -279,7 +395,6 @@ class NotificationSystem {
         console.log('🎨 Actualizando drawer...');
 
         this.applyCurrentFilter();
-
         drawerBody.innerHTML = '';
 
         if (this.filteredNotifications.length === 0) {
@@ -288,7 +403,6 @@ class NotificationSystem {
         }
 
         const grouped = this.groupByDate(this.filteredNotifications);
-        console.log('📦 Notificaciones agrupadas:', grouped);
 
         Object.keys(grouped).sort((a, b) => {
             const order = { 'Hoy': 0, 'Ayer': 1, 'Esta semana': 2, 'Anteriores': 3 };
@@ -305,15 +419,18 @@ class NotificationSystem {
             section.appendChild(title);
 
             grouped[dateLabel].forEach(notif => {
-                const id = this.getNotificationId(notif);
+                const id     = this.getNotificationId(notif);
                 const isRead = this.isRead(id);
-                
+
+                /* ── usa getIconConfig para garantizar clase e ícono ── */
+                const { clase, icono } = this.getIconConfig(notif);
+
                 const item = document.createElement('div');
                 item.className = `drawer-notification-item ${!isRead ? 'unread' : ''}`;
                 
                 item.innerHTML = `
-                    <div class="notification-icon-type ${notif.clase_icono}">
-                        <i class="fa ${notif.icono}"></i>
+                    <div class="notification-icon-type ${clase}">
+                        <i class="fa ${icono}"></i>
                     </div>
                     <div class="notification-content">
                         <div class="notification-title">${this.escapeHtml(notif.titulo)}</div>
@@ -381,33 +498,21 @@ class NotificationSystem {
         const weekAgo = new Date(today);
         weekAgo.setDate(weekAgo.getDate() - 7);
 
-        const grouped = {
-            'Hoy': [],
-            'Ayer': [],
-            'Esta semana': [],
-            'Anteriores': []
-        };
+        const grouped = { 'Hoy': [], 'Ayer': [], 'Esta semana': [], 'Anteriores': [] };
 
         notifications.forEach(notif => {
             try {
                 const notifDate = new Date(notif.fecha);
                 if (isNaN(notifDate.getTime())) {
-                    console.warn('Fecha inválida:', notif.fecha);
                     grouped['Anteriores'].push(notif);
                     return;
                 }
-                
                 notifDate.setHours(0, 0, 0, 0);
 
-                if (notifDate.getTime() === today.getTime()) {
-                    grouped['Hoy'].push(notif);
-                } else if (notifDate.getTime() === yesterday.getTime()) {
-                    grouped['Ayer'].push(notif);
-                } else if (notifDate >= weekAgo) {
-                    grouped['Esta semana'].push(notif);
-                } else {
-                    grouped['Anteriores'].push(notif);
-                }
+                if      (notifDate.getTime() === today.getTime())     grouped['Hoy'].push(notif);
+                else if (notifDate.getTime() === yesterday.getTime()) grouped['Ayer'].push(notif);
+                else if (notifDate >= weekAgo)                        grouped['Esta semana'].push(notif);
+                else                                                  grouped['Anteriores'].push(notif);
             } catch (e) {
                 console.error('Error procesando fecha:', e);
                 grouped['Anteriores'].push(notif);
@@ -416,39 +521,29 @@ class NotificationSystem {
 
         return grouped;
     }
+
     handleNotificationClick(notificationId, url) {
         console.log('👆 Click en notificación:', notificationId);
-        
         this.markAsRead(notificationId);
-        
         this.closeDropdown();
         this.closeDrawer();
-        
         if (url && url !== '#') {
             window.location.href = url;
         }
     }
 
     markAllAsRead() {
-        console.log('📖 Marcando todas como leídas...');
-        
         this.notifications.forEach(notif => {
             const id = this.getNotificationId(notif);
             this.state[id] = true;
         });
-        
         this.saveState();
         this.updateUI();
-        
         this.showToast('Todas las notificaciones marcadas como leídas', 'success');
     }
 
     clearAllNotifications() {
-        if (!confirm('¿Estás seguro de que deseas limpiar todas las notificaciones?')) {
-            return;
-        }
-
-        console.log('🗑️ Limpiando TODAS las notificaciones...');
+        if (!confirm('¿Estás seguro de que deseas limpiar todas las notificaciones?')) return;
 
         this.notifications.forEach(notif => {
             const id = this.getNotificationId(notif);
@@ -458,56 +553,43 @@ class NotificationSystem {
         });
 
         this.saveDismissed();
-
         this.state = {};
         localStorage.removeItem(this.storageKey);
-
         this.notifications = [];
         this.filteredNotifications = [];
-
         this.updateUI();
         this.closeDrawer();
 
         const countSpan = document.getElementById('notification-count');
-        if (countSpan) {
-            countSpan.textContent = '0';
-        }
+        if (countSpan) countSpan.textContent = '0';
 
         this.showToast('Todas las notificaciones fueron eliminadas', 'success');
     }
 
     toggleDropdown() {
         const dropdown = document.getElementById('notification-dropdown');
-        if (dropdown) {
-            dropdown.classList.toggle('show');
-        }
+        if (dropdown) dropdown.classList.toggle('show');
     }
 
     closeDropdown() {
         const dropdown = document.getElementById('notification-dropdown');
-        if (dropdown) {
-            dropdown.classList.remove('show');
-        }
+        if (dropdown) dropdown.classList.remove('show');
     }
 
     openDrawer() {
-        console.log('🚀 Abriendo drawer...');
-        const drawer = document.getElementById('notifications-drawer');
+        const drawer  = document.getElementById('notifications-drawer');
         const overlay = document.getElementById('notifications-drawer-overlay');
-        
         if (drawer && overlay) {
             drawer.classList.add('show');
             overlay.classList.add('show');
             document.body.style.overflow = 'hidden';
-            this.updateDrawer(); 
+            this.updateDrawer();
         }
     }
 
     closeDrawer() {
-        console.log('🔒 Cerrando drawer...');
-        const drawer = document.getElementById('notifications-drawer');
+        const drawer  = document.getElementById('notifications-drawer');
         const overlay = document.getElementById('notifications-drawer-overlay');
-        
         if (drawer && overlay) {
             drawer.classList.remove('show');
             overlay.classList.remove('show');
@@ -542,9 +624,8 @@ class NotificationSystem {
                     <i class="fa fa-exclamation-triangle"></i>
                     <p>Error cargando notificaciones</p>
                     <button onclick="window.notificationSystem.loadNotifications()" 
-                            style="margin-top: 10px; padding: 5px 15px; border: none; 
-                                   background: #39A900; color: white; border-radius: 5px; 
-                                   cursor: pointer;">
+                            style="margin-top:10px;padding:5px 15px;border:none;
+                                   background:#39A900;color:white;border-radius:5px;cursor:pointer;">
                         Reintentar
                     </button>
                 </div>
@@ -554,33 +635,29 @@ class NotificationSystem {
 
     showToast(message, type = 'info') {
         const toast = document.createElement('div');
-        toast.className = `notification-toast ${type}`;
         toast.innerHTML = `
             <i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
             <span>${message}</span>
         `;
-        
         Object.assign(toast.style, {
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            background: type === 'success' ? '#39A900' : '#1976d2',
-            color: 'white',
-            padding: '12px 20px',
+            position:     'fixed',
+            bottom:       '20px',
+            right:        '20px',
+            background:   type === 'success' ? '#39A900' : '#1976d2',
+            color:        'white',
+            padding:      '12px 20px',
             borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            zIndex: '10000',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            fontSize: '14px',
-            fontWeight: '500',
-            animation: 'slideInUp 0.3s ease',
-            maxWidth: '400px'
+            boxShadow:    '0 4px 12px rgba(0,0,0,0.15)',
+            zIndex:       '10000',
+            display:      'flex',
+            alignItems:   'center',
+            gap:          '10px',
+            fontSize:     '14px',
+            fontWeight:   '500',
+            animation:    'slideInUp 0.3s ease',
+            maxWidth:     '400px'
         });
-        
         document.body.appendChild(toast);
-        
         setTimeout(() => {
             toast.style.animation = 'slideOutDown 0.3s ease';
             setTimeout(() => toast.remove(), 300);
@@ -594,40 +671,23 @@ class NotificationSystem {
     }
 }
 
+/* ─── Animaciones del toast ─── */
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInUp {
-        from {
-            transform: translateY(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        from { transform: translateY(100%); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
     }
-
     @keyframes slideOutDown {
-        from {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateY(100%);
-            opacity: 0;
-        }
+        from { transform: translateY(0);    opacity: 1; }
+        to   { transform: translateY(100%); opacity: 0; }
     }
-
-    .notification-toast {
-        transition: all 0.3s ease;
-    }
-
-    .notification-toast:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    }
+    .notification-toast { transition: all 0.3s ease; }
+    .notification-toast:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
 `;
 document.head.appendChild(style);
+
+/* ─── Arranque ─── */
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         console.log('🚀 Inicializando sistema de notificaciones...');
