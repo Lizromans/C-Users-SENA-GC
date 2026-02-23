@@ -26,7 +26,6 @@ function abrirCalendario(idInput) {
             mode: "range",
             dateFormat: "Y-m-d",
             locale: "es",
-            minDate: "today", 
             onChange: function(selectedDates, dateStr, instance) {
                 if (selectedDates.length === 2) {
                     const fechaInicio = selectedDates[0].toISOString().split('T')[0];
