@@ -671,9 +671,10 @@ class NotificationSystem {
     }
 }
 
-/* ─── Animaciones del toast ─── */
+/* ─── Estilos globales inyectados directamente (tienen prioridad sobre cualquier CSS de página) ─── */
 const style = document.createElement('style');
 style.textContent = `
+    /* ── Toast animations ── */
     @keyframes slideInUp {
         from { transform: translateY(100%); opacity: 0; }
         to   { transform: translateY(0);    opacity: 1; }
@@ -684,6 +685,79 @@ style.textContent = `
     }
     .notification-toast { transition: all 0.3s ease; }
     .notification-toast:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+
+    /* ── Ícono: círculo perfecto, no se deforma en ninguna página ── */
+    .notification-icon-type {
+        flex-shrink: 0 !important;
+        flex-grow: 0 !important;
+        align-self: center !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        max-width: 40px !important;
+        max-height: 40px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.1rem !important;
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ── Items: layout correcto en todas las páginas ── */
+    .notification-item,
+    .drawer-notification-item {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+        border-left: 3px solid transparent !important;
+        box-sizing: border-box !important;
+    }
+
+    .notification-item.unread,
+    .drawer-notification-item.unread {
+        border-left: 3px solid #39A900 !important;
+    }
+
+    /* Elimina el punto verde que desplazaba el contenido */
+    .notification-item.unread::before {
+        display: none !important;
+    }
+
+    /* El contenido ocupa todo el espacio disponible */
+    .notification-item .notification-content,
+    .drawer-notification-item .notification-content {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    /* ── Colores por tipo ── */
+    .notification-icon-type.notif-archivo        { background: linear-gradient(135deg, #ede9fe, #c4b5fd) !important; color: #6d28d9 !important; }
+    .notification-icon-type.notif-archivo-del    { background: linear-gradient(135deg, #fce7f3, #f9a8d4) !important; color: #be185d !important; }
+    .notification-icon-type.notif-estado-proy    { background: linear-gradient(135deg, #ffedd5, #fed7aa) !important; color: #c2410c !important; }
+    .notification-icon-type.notif-proyecto       { background: linear-gradient(135deg, #dbeafe, #bfdbfe) !important; color: #1d4ed8 !important; }
+    .notification-icon-type.notif-miembro        { background: linear-gradient(135deg, #ccfbf1, #99f6e4) !important; color: #0f766e !important; }
+    .notification-icon-type.notif-miembro-del    { background: linear-gradient(135deg, #fee2e2, #fca5a5) !important; color: #b91c1c !important; }
+    .notification-icon-type.notif-evento-prox    { background: linear-gradient(135deg, #fef9c3, #fde047) !important; color: #a16207 !important; }
+    .notification-icon-type.notif-evento         { background: linear-gradient(135deg, #fff7ed, #fed7aa) !important; color: #c2410c !important; }
+    .notification-icon-type.notif-evento-del     { background: linear-gradient(135deg, #fee2e2, #fca5a5) !important; color: #991b1b !important; }
+    .notification-icon-type.notif-entregable     { background: linear-gradient(135deg, #fdf4ff, #e9d5ff) !important; color: #7e22ce !important; }
+    .notification-icon-type.notif-entregable-ven { background: linear-gradient(135deg, #fff1f2, #fecdd3) !important; color: #be123c !important; }
+    .notification-icon-type.notif-semillero      { background: linear-gradient(135deg, #f0fdf4, #bbf7d0) !important; color: #15803d !important; }
+    .notification-icon-type.notif-lider          { background: linear-gradient(135deg, #fefce8, #fef08a) !important; color: #b45309 !important; }
+    .notification-icon-type.notif-aprendiz       { background: linear-gradient(135deg, #e0e7ff, #c7d2fe) !important; color: #4338ca !important; }
+    .notification-icon-type.notif-alerta         { background: linear-gradient(135deg, #fffde7, #fff9c4) !important; color: #f57f17 !important; }
+    .notification-icon-type.notif-error          { background: linear-gradient(135deg, #ffebee, #ffcdd2) !important; color: #c62828 !important; }
+    .notification-icon-type.notif-usuario        { background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important; color: #1565c0 !important; }
+    .notification-icon-type.notif-mensaje        { background: linear-gradient(135deg, #e0f7fa, #b2ebf2) !important; color: #00838f !important; }
+    .notification-icon-type.notif-sistema        { background: linear-gradient(135deg, #eceff1, #cfd8dc) !important; color: #455a64 !important; }
+    .notification-icon-type.notif-default        { background: linear-gradient(135deg, #f1f3f5, #e2e8f0) !important; color: #64748b !important; }
+    .notification-icon-type.notif-user-on        { background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important; color: #388e3c !important; }
+    .notification-icon-type.notif-user-off       { background: linear-gradient(135deg, #fff3e0, #ffe0b2) !important; color: #e65100 !important; }
+    .notification-icon-type.notif-privacidad     { background: linear-gradient(135deg, #f3e8ff, #d8b4fe) !important; color: #7c3aed !important; }
 `;
 document.head.appendChild(style);
 

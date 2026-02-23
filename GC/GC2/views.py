@@ -294,6 +294,8 @@ def iniciarsesion(request):
             errores['error_rol'] = "Debe seleccionar un rol."
         if not cedula:
             errores['error_user'] = "La cédula es obligatoria."
+        elif not cedula.isdigit():
+            errores['error_user'] = "Ingresa número de documento válido (solo números)."
         if not password:
             errores['error_password'] = "La contraseña es obligatoria."
 
@@ -305,7 +307,7 @@ def iniciarsesion(request):
                 'mostrar_registro': False,
                 'current_page_name': 'Iniciar Sesión'
             })
-
+        
         # 2. Verificar que el usuario existe
         try:
             usuario = Usuario.objects.get(cedula=cedula)
@@ -804,7 +806,10 @@ def semilleros(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
     
-    semilleros = usuario.semilleros.all()
+    if usuario.rol == 'Coordinador':
+        semilleros = Semillero.objects.all()
+    else:
+        semilleros = usuario.semilleros.all()
 
     buscar = request.GET.get("buscar")
     if buscar:
@@ -4164,7 +4169,7 @@ def reporte_participantes(request):
     ws.title = "Participantes"
 
     crear_encabezado_reporte(ws, request)
-    
+
     thin_border = Border(
         left=Side(style="thin", color="090979"),
         right=Side(style="thin", color="090979"),
@@ -4172,7 +4177,7 @@ def reporte_participantes(request):
         bottom=Side(style="thin", color="090979")
     )
 
-    ws.merge_cells("A7:G7")
+    ws.merge_cells("A7:H7")
     titulo = ws["A7"]
     titulo.value = "REPORTE GENERAL DE PARTICIPANTES"
     titulo.font = Font(bold=True, size=16)
@@ -4184,6 +4189,7 @@ def reporte_participantes(request):
         "Rol",
         "Proyecto",
         "Semillero",
+        "Programa de Formación",
         "Correo Personal",
         "Correo Institucional",
         "Estado"
@@ -4194,36 +4200,35 @@ def reporte_participantes(request):
         cell.alignment = Alignment(horizontal="center")
         cell.border = thin_border
 
-    fila_actual = fila_encabezado + 1
-
     aprendices = Aprendiz.objects.all()
     for a in aprendices:
         semillero_nombre = a.id_sem.nombre if a.id_sem else "Sin semillero"
+        programa_nombre = a.programa if a.programa else "Sin programa"  # CharField directo
         proyectos_apre = ProyectoAprendiz.objects.filter(cedula_apre=a)
+
         if not proyectos_apre.exists():
-            fila = [
+            ws.append([
                 f"{a.nombre} {a.apellido}",
                 "Aprendiz",
                 "Sin proyecto",
                 semillero_nombre,
+                programa_nombre,
                 a.correo_per,
                 a.correo_ins,
                 a.estado_apre
-            ]
-            ws.append(fila)
+            ])
         else:
             for pa in proyectos_apre:
-                fila = [
+                ws.append([
                     f"{a.nombre} {a.apellido}",
                     "Aprendiz",
                     pa.cod_pro.nom_pro,
                     semillero_nombre,
+                    programa_nombre,
                     a.correo_per,
                     a.correo_ins,
                     a.estado_apre
-                ]
-                ws.append(fila)
-
+                ])
 
     usuarios = Usuario.objects.filter(rol__in=["Instructor", "Investigador"])
     for u in usuarios:
@@ -4232,33 +4237,34 @@ def reporte_participantes(request):
         semillero_nombre = ", ".join([s.id_sem.nombre for s in semilleros_usuario]) if semilleros_usuario else "Sin semillero"
 
         if not proyectos_usuario.exists():
-            fila = [
+            ws.append([
                 f"{u.nom_usu} {u.ape_usu}",
                 u.rol,
                 "Sin proyecto",
                 semillero_nombre,
+                "N/A",
                 u.correo_per,
                 u.correo_ins,
                 u.estado or ""
-            ]
-            ws.append(fila)
+            ])
         else:
             for up in proyectos_usuario:
-                fila = [
+                ws.append([
                     f"{u.nom_usu} {u.ape_usu}",
                     u.rol,
                     up.cod_pro.nom_pro,
                     semillero_nombre,
+                    "N/A",
                     u.correo_per,
                     u.correo_ins,
                     u.estado or ""
-                ]
-                ws.append(fila)
+                ])
 
     for row in ws.iter_rows(min_row=fila_encabezado, max_row=ws.max_row, min_col=1, max_col=len(encabezados)):
         for cell in row:
             cell.border = thin_border
 
+    # --- RESUMEN POR ROL ---
     roles_count = {}
     for row in ws.iter_rows(min_row=fila_encabezado + 1, max_row=ws.max_row, min_col=2, max_col=2, values_only=True):
         rol = row[0]
@@ -4293,7 +4299,7 @@ def reporte_participantes(request):
         chart_roles.set_categories(labels)
         ws.add_chart(chart_roles, "I2")
 
-
+    # --- RESUMEN POR PROYECTO ---
     proyectos_count = {}
     for row in ws.iter_rows(min_row=fila_encabezado + 1, max_row=ws.max_row, min_col=3, max_col=3, values_only=True):
         proyecto = row[0] or "Sin proyecto"

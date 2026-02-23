@@ -743,9 +743,12 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 .notification-item {
     padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.8vw, 20px);
     border-bottom: 1px solid #f1f1f1;
+    border-left: 3px solid transparent;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
     gap: clamp(8px, 1.2vw, 14px);
     position: relative;
 }
@@ -760,41 +763,33 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 
 .notification-item.unread {
     background-color: rgba(57, 169, 0, 0.05);
-    border-left: clamp(2px, 0.3vw, 3px) solid var(--color-nav-active);
+    border-left: 3px solid var(--color-nav-active); /* ya no desplaza */
 }
 
 .notification-item.unread:hover {
     background-color: rgba(57, 169, 0, 0.08);
 }
 
-.notification-item.unread::before {
-    content: '';
-    position: absolute;
-    left: clamp(6px, 0.8vw, 10px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(6px, 0.8vw, 8px);
-    height: clamp(6px, 0.8vw, 8px);
-    background-color: var(--color-nav-active);
-    border-radius: 50%;
-    box-shadow: 0 0 6px rgba(57, 169, 0, 0.5);
-}
-
 /* ════════════════════════════════════════════════════
    CAMBIO 1 — Círculo siempre perfecto, nunca se estira
    ════════════════════════════════════════════════════ */
 .notification-icon-type {
-    flex-shrink: 0;
-    align-self: flex-start;
-    width: clamp(32px, 4.5vw, 48px);
-    height: clamp(32px, 4.5vw, 48px);
-    min-width: clamp(32px, 4.5vw, 48px);
-    min-height: clamp(32px, 4.5vw, 48px);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(0.9rem, 1.3vw, 1.4rem);
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    align-self: flex-start !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    /* Fallback color por si la clase del backend no tiene fondo */
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
 }
 
 /* ── Clases legacy ── */
@@ -1164,13 +1159,14 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 .drawer-notification-item { 
-    padding: 13px 22px; 
+    padding: 13px 22px;
+    border-left: 3px solid transparent; /* ← siempre ocupa los 3px aunque no sea unread */
     border-bottom: 1px solid #f1f1f1; 
     cursor: pointer; 
     transition: all 0.2s ease; 
     display: flex; 
     gap: 14px; 
-    align-items: flex-start; 
+    align-items: center;
 }
 
 .drawer-notification-item:hover { 
@@ -1180,7 +1176,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 
 .drawer-notification-item.unread { 
     background: rgba(57,169,0,0.05); 
-    border-left: 3px solid var(--color-nav-active); 
+    border-left: 3px solid var(--color-nav-active); /* ahora no desplaza nada */
 }
 
 .drawer-empty-state { 

@@ -172,8 +172,8 @@
                                     {% if miembro.id|stringformat:"s" == usuario.cedula|stringformat:"s" %}
                                         (Yo)
                                     {% endif %}</td>
-                            <td>{{ miembro.correo_sena }}</td>
-                            <td>{{ miembro.celular }}</td>
+                            <td>{{ miembro.correo_sena|default:"Sin correo" }}</td>
+                            <td>{{ miembro.celular|default:"Sin número de contacto" }}</td>
                             <td>{{ miembro.rol }}</td>
                             <td>{{ miembro.ultima_sesion|default:"No disponible" }}</td>
                             <td>
@@ -231,7 +231,7 @@
                                     {% endif %}
                                 </h5>
                                 <p id="correo">{{ miembro.correo_sena|default:"Sin correo sena" }}</p>
-                                <p id="celular">{{ miembro.celular|default:"Sin numero de contacto" }}</p>
+                                <p id="celular">{{ miembro.celular|default:"Sin número de contacto" }}</p>
                             </div>
                             <div class="info-badge">
                                 <div class="rol {% if miembro.rol == 'Instructor' %}instructores{% elif miembro.rol == 'Investigador' %}investigadores{% else %}aprendices{% endif %}">
