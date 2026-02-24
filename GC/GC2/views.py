@@ -1317,7 +1317,7 @@ def resu_miembros(request, id_sem):
 
 @login_required
 @semillero_activo_requerido
-@permission_required('GC2.add_usuario')
+@permission_required('GC2.change_semillero')
 def agregar_miembros(request, id_sem):
     if request.method == 'POST':
         semillero = get_object_or_404(Semillero, id_sem=id_sem)

@@ -370,10 +370,6 @@ p {
 
 /* ── DESKTOP GRANDE ≥ 1600px ── */
 @media (min-width: 1600px) {
-    :root {
-        --sidebar-width: 310px;
-        --header-height: 80px;
-    }
 
     .resumen {
         grid-template-columns: repeat(3, 1fr);

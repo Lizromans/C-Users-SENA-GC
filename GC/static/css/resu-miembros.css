@@ -1758,10 +1758,6 @@
 
 /* ── DESKTOP GRANDE ≥ 1600px ── */
 @media (min-width: 1600px) {
-    :root {
-        --sidebar-width: 310px;
-        --header-height: 80px;
-    }
 
     .resumen {
         gap: clamp(1.5rem, 2.5vw, 2.5rem);

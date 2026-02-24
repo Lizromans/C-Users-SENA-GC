@@ -315,28 +315,28 @@
     z-index: -1;
 }
 
-.card-semillero:nth-child(5n+3) {
+.card-semillero:nth-child(5n+1) {
   background:
     linear-gradient(to bottom, #9747ff99 0%, transparent 5%) top,
     linear-gradient(to right, #9747ff99 0%, transparent 3%) left,
     linear-gradient(to left, #9747ff99 0%, transparent 3%) right;
 }
 
-.card-semillero:nth-child(5n+4) {
+.card-semillero:nth-child(5n+2) {
   background:
     linear-gradient(to bottom, #f34d9599 0%, transparent 5%) top,
     linear-gradient(to right, #f34d9599 0%, transparent 3%) left,
     linear-gradient(to left, #f34d9599 0%, transparent 3%) right;
 }
 
-.card-semillero:nth-child(5n+5) {
+.card-semillero:nth-child(5n+3) {
   background:
     linear-gradient(to bottom, #47ff9799 0%, transparent 5%) top,
     linear-gradient(to right, #47ff9799 0%, transparent 3%) left,
     linear-gradient(to left, #47ff9799 0%, transparent 3%) right;
 }
 
-.card-semillero:nth-child(5n+1) {
+.card-semillero:nth-child(5n+4) {
   background:
     linear-gradient(to bottom, #ff974799 0%, transparent 5%) top,
     linear-gradient(to right, #ff974799 0%, transparent 3%) left,
@@ -344,7 +344,7 @@
 
 }
 
-.card-semillero:nth-child(5n+2) {
+.card-semillero:nth-child(5n+5) {
   background:
     linear-gradient(to bottom, #4797ff99 0%, transparent 7%) top,
     linear-gradient(to right, #4797ff99 0%, transparent 3%) left,
