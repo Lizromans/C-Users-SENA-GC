@@ -407,11 +407,11 @@
     margin-bottom: 3%;
 }
 
-.card-semillero:nth-of-type(5n+3) .badge.bg-secondary { color: #9747ff !important; }
-.card-semillero:nth-of-type(5n+4) .badge.bg-secondary { color: #ff4797 !important; }
-.card-semillero:nth-of-type(5n+5) .badge.bg-secondary { color: #007832 !important; }
-.card-semillero:nth-of-type(5n+1) .badge.bg-secondary { color: #ff9747 !important; }
-.card-semillero:nth-of-type(5n+2) .badge.bg-secondary { color: #4797ff !important; }
+.card-semillero:nth-of-type(5n+1) .badge.bg-secondary { color: #9747ff !important; }
+.card-semillero:nth-of-type(5n+2) .badge.bg-secondary { color: #ff4797 !important; }
+.card-semillero:nth-of-type(5n+3) .badge.bg-secondary { color: #007832 !important; }
+.card-semillero:nth-of-type(5n+4) .badge.bg-secondary { color: #ff9747 !important; }
+.card-semillero:nth-of-type(5n+5) .badge.bg-secondary { color: #4797ff !important; }
 
 .card-acciones {
     display: flex;
@@ -419,6 +419,7 @@
     gap: clamp(8px, 1.5vw, 12px);
     margin-top: clamp(15px, 2.5vw, 20px);
     justify-content: flex-end;
+    margin-top: auto;
 }
 
 .card-acciones .btn-primary {

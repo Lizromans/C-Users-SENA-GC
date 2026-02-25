@@ -15,7 +15,7 @@ from django.db.models import Q, Avg, Case, When, Value, IntegerField, CharField,
 from django.db.models.functions import Cast
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_POST, require_http_methods
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
@@ -806,7 +806,7 @@ def semilleros(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
     
-    if usuario.rol == 'Coordinador':
+    if usuario.rol in {'Coordinador', 'Dinamizador'}:
         semilleros = Semillero.objects.all()
     else:
         semilleros = usuario.semilleros.all()
@@ -902,11 +902,8 @@ def crear_semillero(request):
             )
             semillero.save()
 
-            SemilleroUsuario.objects.create(
-                id_sem=semillero,
-                cedula=usuario,
-                es_lider=True
-            )
+            if usuario.rol not in {'Dinamizador', 'Coordinador'}:
+                SemilleroUsuario.objects.create(id_sem=semillero, cedula=usuario, es_lider=True)
 
             messages.success(request, f'Semillero "{sigla}" creado exitosamente')
             return redirect('semilleros')
@@ -1236,6 +1233,15 @@ def resu_miembros(request, id_sem):
     # ✅ NUEVO: aprendices que aún no pertenecen a este semillero
     aprendices_disponibles = Aprendiz.objects.exclude(id_sem=semillero)
 
+    buscar = request.GET.get('buscar', '').strip()
+    if buscar:
+        usuarios_disponibles = usuarios_disponibles.filter(
+            Q(nom_usu__icontains=buscar) | Q(ape_usu__icontains=buscar)
+        )
+        aprendices_disponibles = aprendices_disponibles.filter(
+            Q(nombre__icontains=buscar) | Q(apellido__icontains=buscar)
+        )
+
     total_miembros = usuarios.count() + aprendices.count()
 
     miembros = SemilleroUsuario.objects.filter(
@@ -1311,6 +1317,7 @@ def resu_miembros(request, id_sem):
         'total_entregables': total_entregables,
         'instructores': instructores, 
         'usuario': usuario,
+        'buscar': buscar,
     }
 
     return render(request, 'paginas/resu-miembros.html', context)
@@ -1322,8 +1329,7 @@ def agregar_miembros(request, id_sem):
     if request.method == 'POST':
         semillero = get_object_or_404(Semillero, id_sem=id_sem)
         miembros_seleccionados = request.POST.getlist('miembros_seleccionados')
-        aprendices_seleccionados = request.POST.getlist('aprendices_seleccionados')  # ✅ NUEVO
-        
+        aprendices_seleccionados = request.POST.getlist('aprendices_seleccionados')
         if not miembros_seleccionados and not aprendices_seleccionados:  # ✅ MODIFICADO
             messages.warning(request, 'No se seleccionó ningún miembro')
             return redirect('resu-miembros', id_sem=id_sem)
@@ -1524,13 +1530,18 @@ def resu_proyectos(request, id_sem, cod_pro=None):
                 f'No puedes gestionar el equipo. Actívalo primero.'
             )
             return redirect('resu-proyectos', id_sem=id_sem)
-        proyecto_editar = get_object_or_404(Proyecto, cod_pro=cod_pro)
+        proyecto_editar = get_object_or_404(
+                    Proyecto,
+                    cod_pro=cod_pro,
+                    semilleroproyecto__id_sem=semillero
+                )
 
         try:
             proyecto_editar.nom_pro = request.POST.get('nom_pro', '').strip()
             proyecto_editar.tipo = request.POST.get('tipo', '').strip().lower()
             proyecto_editar.desc_pro = request.POST.get('desc_pro', '').strip()
             proyecto_editar.programa_formacion = request.POST.get('programa_formacion', '').strip() if proyecto_editar.tipo == 'formativo' else None
+            proyecto_editar.fecha_creacion = request.POST.get('fecha_creacion')
 
             lineas_tec = request.POST.getlist('lineastec[]')
             lineas_inv = request.POST.getlist('lineasinv[]')
@@ -3193,6 +3204,61 @@ def miembros(request):
     }
 
     return render(request, 'paginas/miembros.html', contexto)
+
+
+from django.db import transaction
+from django.views.decorators.http import require_POST
+
+from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.shortcuts import redirect
+from django.contrib import messages
+from .models import Usuario
+
+
+@require_POST
+@transaction.atomic
+def cambiar_rol(request):
+    cedula = request.POST.get("cedula")
+    nuevo_rol = request.POST.get("rol")
+
+    if not cedula or not nuevo_rol:
+        messages.error(request, "Datos incompletos.")
+        return redirect("miembros")
+
+    usuario = Usuario.objects.filter(cedula=cedula).first()
+
+    if not usuario:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect("miembros")
+
+    nuevo_rol = nuevo_rol.strip().lower()
+    if nuevo_rol == "coordinador semillero":
+
+        coordinador_actual = Usuario.objects.filter(
+            rol__iexact="coordinador semillero"
+        ).exclude(cedula=usuario.cedula).first()
+
+        if coordinador_actual:
+            if coordinador_actual.rol_original:
+                coordinador_actual.rol = coordinador_actual.rol_original
+                coordinador_actual.rol_original = None
+                coordinador_actual.save()
+
+        if usuario.rol.lower() != "coordinador semillero":
+            usuario.rol_original = usuario.rol
+
+        usuario.rol = "coordinador semillero"
+        usuario.save()
+    else:
+        if usuario.rol.lower() == "coordinador semillero":
+            usuario.rol_original = None
+
+        usuario.rol = nuevo_rol
+        usuario.save()
+
+    messages.success(request, "Rol actualizado correctamente.")
+    return redirect("miembros")
 
 def registro_aprendiz(request):  
     if request.method == 'POST':

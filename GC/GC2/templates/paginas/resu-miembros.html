@@ -174,16 +174,25 @@
                 <img src="{% static 'img/people2.png' %}" alt="Semilleros">
                 <h2 class="modal-titulo">Agregar Miembros</h2>
             </div>
-            
-            <form method="POST" action="{% url 'agregar_miembros' semillero.id_sem %}">
-                {% csrf_token %}
+
+            <!-- Form 1: Búsqueda GET -->
+            <form method="GET" action="{% url 'resu-miembros' semillero.id_sem %}">
+                <input type="hidden" name="modal" value="abierto">
                 <div class="modal-busqueda">
-                    <input type="text" name="buscar" placeholder="Buscar miembro..." class="buscador" value="{{ request.GET.buscar }}">
+                    <input type="text" name="buscar" placeholder="Buscar miembro..." 
+                        class="buscador" value="{{ buscar }}">
+                    <button type="submit" class="search-icon">
+                        <i class="fa fa-search"></i>
+                    </button>
                 </div>
+            </form>
+
+            <!-- Form 2: Agregar POST -->
+            <form method="POST" action="{% url 'agregar_miembros' semillero.id_sem %}{% if buscar %}?buscar={{ buscar }}{% endif %}">
+                {% csrf_token %}
 
                 <div class="lista-miembros-modal">
 
-                    <!-- Usuarios (instructores, investigadores, etc.) -->
                     {% for usuario in Usuarios %}
                         <div class="item-miembro-modal">
                             <div class="avatar-miembro" data-color="{{ forloop.counter }}">
@@ -201,7 +210,6 @@
                         </div>
                     {% endfor %}
 
-                    <!-- ✅ NUEVO: Aprendices disponibles -->
                     {% for aprendiz in aprendices_disponibles %}
                         <div class="item-miembro-modal">
                             <div class="avatar-miembro" data-color="{{ forloop.counter }}">
@@ -219,9 +227,14 @@
                         </div>
                     {% endfor %}
 
-                    <!-- Mensaje si no hay ninguno disponible -->
                     {% if not Usuarios and not aprendices_disponibles %}
-                        <p class="sin-resultados">No se encontraron miembros disponibles.</p>
+                        <p class="sin-resultados">
+                            {% if buscar %}
+                                No se encontraron miembros con "{{ buscar }}".
+                            {% else %}
+                                No hay miembros disponibles para agregar.
+                            {% endif %}
+                        </p>
                     {% endif %}
 
                 </div>
@@ -235,7 +248,8 @@
                         <i class="fas fa-check"></i> Agregar Miembro
                     </button>
                 </div>
-            </form>      
+            </form>
+
         </div>
     </div>
 </div>
@@ -325,5 +339,11 @@
     <script src="{% static 'js/miembros-carousel.js' %}"></script>
     <script src="{% static 'js/avatars.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
-
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('modal') === 'abierto') {
+            const modal = new bootstrap.Modal(document.getElementById('modal-crear'));
+            modal.show();
+        }
+    </script>
 {% endblock %}

@@ -474,6 +474,120 @@
 .lista-container {
     width: 100%;
 }
+.modal[id^="confirmarCambioRolModal"] {
+    z-index: 1055 !important;
+    margin-top: 8vh;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal[id^="confirmarCambioRolModal"] .modal-content {
+    background-color: var(--color-primario);
+    border: 1px solid rgba(57, 169, 0, 0.2);
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 2000 !important;
+    animation: modalFadeIn 0.4s ease;
+    margin-top: 40%;
+}
+
+.modal[id^="confirmarCambioRolModal"] .modal-dialog-centered .modal-content {
+    margin-top: 0;
+}
+
+.modal[id^="confirmarCambioRolModal"] .modal-header {
+    background-color: rgba(57, 169, 0, 0.05);
+    border-bottom: 1px solid rgba(57, 169, 0, 0.2);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    position: relative;
+    justify-content: center;
+    height: 7vh;
+}
+
+.modal[id^="confirmarCambioRolModal"] .modal-title {
+    color: var(--color-text-active);
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.modal[id^="confirmarCambioRolModal"] .btn-close {
+    filter: brightness(0.4);
+    transition: all 0.25s ease;
+}
+
+.modal[id^="confirmarCambioRolModal"] .btn-close:hover {
+    filter: brightness(0);
+    transform: rotate(90deg);
+}
+
+
+/* ============================= */
+/*             BODY              */
+/* ============================= */
+
+.modal[id^="confirmarCambioRolModal"] .modal-body {
+    padding: 20px 22px;
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.modal[id^="confirmarCambioRolModal"] .modal-body strong {
+    color: var(--color-text-active);
+    font-weight: 700;
+}
+
+
+/* ============================= */
+/*            FOOTER             */
+/* ============================= */
+
+.modal[id^="confirmarCambioRolModal"] .modal-footer {
+    border-top: 1px solid rgba(57, 169, 0, 0.12);
+    background: rgba(57, 169, 0, 0.02);
+    border-radius: 0 0 18px 18px;
+    padding: 14px 22px;
+}
+
+.modal[id^="confirmarCambioRolModal"] .btn-cancelar {
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background: #fff;
+    transition: all 0.25s ease;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+}
+
+.modal[id^="confirmarCambioRolModal"] .btn-cancelar:hover {
+    background-color: #f5f5f5;
+    border-color: var(--color-text-secondary);
+}
+
+.modal[id^="confirmarCambioRolModal"] .btn-cambiar {
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+    background: var(--color-nav-active);
+    color: #f1f1f1;
+    border: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.modal[id^="confirmarCambioRolModal"] .btn-cambiar:hover {
+    background: var(--color-text-active);
+    transform: translateY(-1px);
+}
 
 .lista-container h3 {
     color: #333;
@@ -807,6 +921,8 @@ tbody td {
     z-index: 1;
     cursor: pointer;
     font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+    display: flex;           
+    gap: clamp(6px, 1vw, 10px); 
 }
 
 .tabla-container .info-icon a {

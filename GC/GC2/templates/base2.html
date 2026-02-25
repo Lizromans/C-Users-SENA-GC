@@ -216,8 +216,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="document.getElementById('cambio-contraseña-form').submit();">
+                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn-guardar" onclick="document.getElementById('cambio-contraseña-form').submit();">
                         Guardar cambios
                     </button>
                 </div>
@@ -692,26 +692,45 @@ async function generarBackupCompleto() {
     <script src="{% static 'js/contraseña.js' %}"></script>
     <script src="{% static 'js/notificaciones.js' %}"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const contenedor = document.querySelector('.contenedor-principal');
-        
-        if (contenedor) {
-            const semilleroId = parseInt(contenedor.getAttribute('data-semillero-id'));
+    // ✅ DESPUÉS - Lee el ?color= que viene en la URL desde la tarjeta
+        document.addEventListener('DOMContentLoaded', function() {
+            const contenedor = document.querySelector('.contenedor-principal');
             
-            const colores = [
-                'linear-gradient(90deg, rgba(151, 71, 255, 1) 0%, rgba(151, 71, 255, 0.884) 75%)',  // 1. Morado
-                'linear-gradient(90deg, rgba(255, 71, 151, 1) 0%, rgba(255, 71, 151, 0.884) 75%)',  // 2. Rosa
-                'linear-gradient(90deg, rgba(71, 255, 151, 1) 0%, rgba(71, 255, 151, 0.884) 75%)',  // 3. Verde
-                'linear-gradient(90deg, rgba(255, 151, 71, 1) 0%, rgba(255, 151, 71, 0.884) 75%)',  // 4. Naranja
-                'linear-gradient(90deg, rgba(71, 151, 255, 1) 0%, rgba(71, 151, 255, 0.884) 75%)'   // 5. Azul
-            ];
-            const colorIndex = ((semilleroId - 1) % 5);
-            
-            contenedor.style.background = colores[colorIndex];
-            
-            console.log(`Semillero ID: ${semilleroId}, Color Index: ${colorIndex}, Gradiente aplicado: Color ${colorIndex + 1}`);
-        }
-    });
+            if (contenedor) {
+                const colores = [
+                    'linear-gradient(90deg, rgba(151, 71, 255, 1) 0%, rgba(151, 71, 255, 0.884) 75%)',
+                    'linear-gradient(90deg, rgba(255, 71, 151, 1) 0%, rgba(255, 71, 151, 0.884) 75%)',
+                    'linear-gradient(90deg, rgba(71, 255, 151, 1) 0%, rgba(71, 255, 151, 0.884) 75%)',
+                    'linear-gradient(90deg, rgba(255, 151, 71, 1) 0%, rgba(255, 151, 71, 0.884) 75%)',
+                    'linear-gradient(90deg, rgba(71, 151, 255, 1) 0%, rgba(71, 151, 255, 0.884) 75%)'
+                ];
+
+                const semilleroId = contenedor.getAttribute('data-semillero-id');
+                const storageKey = `semillero_color_${semilleroId}`;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const colorParam = urlParams.get('color');
+
+                let colorIndex;
+
+                if (colorParam !== null && !isNaN(parseInt(colorParam))) {
+                    // Llegó con ?color= → guardarlo para las otras pestañas
+                    colorIndex = parseInt(colorParam) % colores.length;
+                    sessionStorage.setItem(storageKey, colorIndex);
+                } else {
+                    // Sin ?color= → buscar en sessionStorage (navegación entre pestañas)
+                    const stored = sessionStorage.getItem(storageKey);
+                    if (stored !== null) {
+                        colorIndex = parseInt(stored);
+                    } else {
+                        // Fallback si accede directo sin pasar por la tarjeta
+                        colorIndex = ((parseInt(semilleroId) - 1) % colores.length);
+                    }
+                }
+
+                contenedor.style.background = colores[colorIndex];
+            }
+        });
     </script>
   
 </body>

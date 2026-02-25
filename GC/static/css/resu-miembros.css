@@ -661,8 +661,7 @@
 
 .buscador {
     background-color: var(--color-fondo-secundario);
-    flex: 1;
-    width: clamp(635px, 100%, 800px);
+    width: 100%;
     padding: clamp(0.3rem, 0.6vw, 0.5rem) clamp(2.5rem, 4vw, 3rem) clamp(0.3rem, 0.6vw, 0.5rem) clamp(1rem, 2vw, 1.5rem);
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: clamp(8px, 1.5vw, 12px);
@@ -670,12 +669,20 @@
     backdrop-filter: blur(10px);
 }
 
-.fa-search {
-    width: clamp(20px, 5vw, 30px);
-    height: clamp(20px, 5vw, 30px);
+.search-icon {
     position: absolute;
-    left: clamp(37.5rem, 34vw, 46rem);
-    top: clamp(3px, 0.4vh, 3px) ;
+    right: clamp(0.8rem, 1.5vw, 1.2rem);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
 }
 
 .lista-miembros-modal {

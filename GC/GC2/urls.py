@@ -61,6 +61,7 @@ urlpatterns = [
     path('miembros/verificar-codigo/', views.verificar_codigo_form, name='verificar_codigo_form'),
     path('miembros/cancelar-verificacion/', views.cancelar_verificacion, name='cancelar_verificacion'),
     path('limpiar-numero-revelado/', views.limpiar_numero_revelado, name='limpiar_numero_revelado'),
+    path('miembros/cambiar-rol/', views.cambiar_rol, name='cambiar_rol'),
 
     #EVENTOS
     path('eventos/', views.eventos, name='eventos'),

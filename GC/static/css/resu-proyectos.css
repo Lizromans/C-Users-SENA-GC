@@ -125,13 +125,13 @@
 .header-proyectos h3 {
     color: #ffffff;
     margin: 0;
-    font-size: clamp(14px, 2.5vw, 18px);
+    font-size: clamp(14px, 2vw, 18px);
     font-weight: 600;
     margin-top: clamp(-8px, 1vw, -11px);
 }
 
 .header-proyectos p {
-    font-size: clamp(8px, 1.5vw, 14px);
+    font-size: clamp(7px, 1vw, 12px);
     color: #ffffff;
 }
 
@@ -798,14 +798,12 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 .modal-header i {
     width: clamp(25px, 5vw, 40px);
     height: clamp(25px, 5vw, 40px);
-    font-size: clamp(10px, 4vw, 20px);
-    color: #39A900;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .modal-titulo {
     font-weight: 800;
-    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-size: clamp(1rem, 2vw, 1.4rem);
     color: #333;
     margin: 0;
 }
@@ -841,7 +839,6 @@ input[id^="tab-entregables-"]:checked ~ .tabs-header label[for^="tab-entregables
 .modal-seccion-titulo i {
     width: clamp(20px, 4vw, 33px);
     height: clamp(20px, 4vh, 33px);
-    font-size: clamp(18px, 4vw, 28px);
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
@@ -2938,7 +2935,7 @@ input[type="file"]:hover { border-color: #3b82f6; background-color: #f8fafc; }
     }
 
     .modal-titulo {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 
     .modal-acciones {

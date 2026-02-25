@@ -111,7 +111,7 @@
                 
                 <div class="grid-semilleros">
                     {% for semillero in semilleros %}
-                    <div class="card-semillero">
+                    <div class="card-semillero" data-color-index="{{ forloop.counter0 }}" data-semillero-id="{{ semillero.id_sem }}">
                         <input type="checkbox" 
                                name="semilleros_eliminar" 
                                value="{{ semillero.id_sem }}" 
@@ -166,7 +166,7 @@
                                     </a>
                                 {% endif %}
 
-                                <a href="{% url 'resumen' semillero.id_sem %}" class="btn btn-primary">Ver más</a>
+                                <a href="{% url 'resumen' semillero.id_sem %}?color={{ forloop.counter0 }}" class="btn btn-primary">Ver más</a>
                             </div>
                         </div>
                     </div>
@@ -467,24 +467,5 @@
             document.body.style.overflow = '';
         }
     });
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    const colores = [
-        'linear-gradient(90deg, rgba(151, 71, 255, 1) 0%, rgba(151, 71, 255, 0.884) 75%)',
-        'linear-gradient(90deg, rgba(255, 71, 151, 1) 0%, rgba(255, 71, 151, 0.884) 75%)',
-        'linear-gradient(90deg, rgba(71, 255, 151, 1) 0%, rgba(71, 255, 151, 0.884) 75%)',
-        'linear-gradient(90deg, rgba(255, 151, 71, 1) 0%, rgba(255, 151, 71, 0.884) 75%)',
-        'linear-gradient(90deg, rgba(71, 151, 255, 1) 0%, rgba(71, 151, 255, 0.884) 75%)'
-    ];
-
-    document.querySelectorAll('.card-semillero').forEach(card => {
-        const id = parseInt(card.getAttribute('data-semillero-id'));
-        const colorIndex = ((id - 1) % 5);
-        card.style.background = colores[colorIndex];
-    });
-
-});
 </script>
 {% endblock %}

@@ -135,8 +135,7 @@
                                             <h3 class="proyecto-titulo">{{ proyecto.nom_pro }}</h3>
                                             <span class="proyecto-estado {{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
                                         </div>
-                                        <p class="proyecto-descripcion">{{ proyecto.desc_pro|truncatewords:50 }}</p>
-                                        
+                                        <p class="proyecto-descripcion">{{ proyecto.desc_pro|truncatewords:25 }}</p>
                                         <div class="proyecto-progress">
                                             <div class="progress-label">
                                                 <span>Progreso</span>
@@ -448,7 +447,7 @@
                                             <h3 class="proyecto-titulo">{{ proyecto.nom_pro }}</h3>
                                             <span class="proyecto-estado {{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
                                         </div>
-                                        <p class="proyecto-descripcion">{{ proyecto.desc_pro|truncatewords:50 }}</p>
+                                        <p class="proyecto-descripcion">{{ proyecto.desc_pro|truncatewords:25 }}</p>
                                         
                                         <div class="proyecto-progress">
                                             <div class="progress-label">
@@ -766,7 +765,7 @@
                                             <h3 class="proyecto-titulo">{{ proyecto.nom_pro }}</h3>
                                             <span class="proyecto-estado {{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
                                         </div>
-                                        <p class="proyecto-descripcion">{{ proyecto.desc_pro }}</p>
+                                        <p class="proyecto-descripcion">{{ proyecto.desc_pro|truncatewords:25  }}</p>
                                         
                                         <div class="proyecto-progress">
                                             <div class="progress-label">
@@ -1406,6 +1405,17 @@
                             </select>
                         </div>
 
+                        <div class="modal-campo" id="sub-campo">
+                            <label for="fecha_creacion_edit">Fecha de creación *</label>
+                            <input 
+                                type="date" 
+                                id="fecha_creacion_edit" 
+                                name="fecha_creacion" 
+                                value="{{ proyecto_editar.fecha_creacion|date:'Y-m-d' }}" 
+                                required
+                            >
+                        </div>
+
                         <div id="campo_programa_edit" class="modal-campo sub-campo" style="display:none;">
                             <label for="programa_formacion_edit">Programa de formación:</label>
                             <input 
@@ -1666,7 +1676,7 @@
 
             <div class="modal-contenido">
                 <div class="modal-header miembros-header">
-                    <img src="{% static 'img/People2.png' %}" alt="Equipo">
+                    <img src="{% static 'img/people2.png' %}" alt="Equipo">
                     <h2 class="modal-titulo">Gestionar Equipo - {{ proyecto_editar.nom_pro }}</h2>
                 </div>
 

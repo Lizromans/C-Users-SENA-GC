@@ -242,6 +242,9 @@
                                 </div>
                             </div>
                             <div class="info-icon">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModal{{ miembro.id }}">
+                                    <i class="fa-solid fa-user-gear"></i>
+                                </a>
                                 <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a>
@@ -625,6 +628,44 @@
         </div>
     </div>
 </div>
+
+{% for miembro in miembros %}
+    <div class="modal fade" id="confirmarCambioRolModal{{ miembro.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar cambio de rol</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    ¿Deseas cambiar el rol de 
+                    <strong>{{ miembro.nombres }} {{ miembro.apellidos }}</strong>
+                    a <strong>Coordinador</strong>?
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <form method="post" action="{% url 'cambiar_rol' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="cedula" value="{{ miembro.id }}">
+                        <input type="hidden" name="rol" value="Coordinador semillero">
+
+                        <button type="submit" class="btn-cambiar">
+                            Cambiar
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endfor %}
 
 <script>
     function cancelarVerificacion(aprendizId) {
