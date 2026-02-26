@@ -677,7 +677,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(94, 93, 93, 0.267);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 9999;
     padding: clamp(40px, 10vh, 60px);
     overflow-y: auto;
@@ -737,7 +737,8 @@
 .modal-header-evento {
     display: flex;
     align-items: center;
-    padding: 50px 50px 20px;
+    justify-content: center;
+    padding: 15px 10px 8px;
     background-color: transparent;
     border-bottom: 3px solid #39A900;
 }
@@ -747,6 +748,8 @@
     font-size: 1.8rem;
     font-weight: 800;
     color: #333;
+    width: 100%; 
+    text-align: center; 
 }
 
 .modal-body-evento {
@@ -905,7 +908,7 @@
 /* ── Botón cerrar X ── */
 .modal-dialog-cancelar .modal-cerrar-evento {
     position: absolute;
-    top: clamp(12px, 2vw, 18px);
+    top: clamp(10px, 2vw, 14px);
     right: clamp(12px, 2vw, 18px);
     width: clamp(32px, 4vw, 42px);
     height: clamp(32px, 4vw, 42px);
@@ -935,9 +938,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: clamp(20px, 3vw, 35px) clamp(20px, 4vw, 40px) clamp(15px, 2vw, 20px);
+    padding: 15px 15px 15px;
     background-color: transparent;
     border-bottom: 2px solid #39A900;
+    width: 100%
 }
 
 .modal-header-cancelar h5 {

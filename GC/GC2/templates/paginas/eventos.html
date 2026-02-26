@@ -392,15 +392,25 @@ function abrirModalEvento(id) {
     document.body.style.overflow = 'hidden';
 }
 
-function cerrarModalEvento(id) {
-    document.getElementById(id).classList.remove('activo');
-    document.body.style.overflow = '';
-}
-
 /* ── Modal Cancelar Evento ── */
 function abrirModalCancelar(id) {
     document.getElementById(id).classList.add('activo');
     document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalEvento(id) {
+    const modal = document.getElementById(id);
+    modal.classList.remove('activo');
+    document.body.style.overflow = '';
+
+    // Solo resetear el modal de CREAR, no el de editar
+    if (id === 'modalCrearEvento') {
+        modal.querySelector('form')?.reset();
+        const campoLink = modal.querySelector('#campoLink');
+        const campoDireccion = modal.querySelector('#campoDireccion');
+        if (campoLink) campoLink.style.display = 'none';
+        if (campoDireccion) campoDireccion.style.display = 'none';
+    }
 }
 
 function cerrarModalCancelar(id) {
@@ -414,6 +424,15 @@ document.querySelectorAll('.modal-overlay-evento, .modal-overlay-cancelar').forE
         if (e.target === this) {
             this.classList.remove('activo');
             document.body.style.overflow = '';
+
+            // Solo resetear si es el modal de crear
+            if (this.id === 'modalCrearEvento') {
+                this.querySelector('form')?.reset();
+                const campoLink = this.querySelector('#campoLink');
+                const campoDireccion = this.querySelector('#campoDireccion');
+                if (campoLink) campoLink.style.display = 'none';
+                if (campoDireccion) campoDireccion.style.display = 'none';
+            }
         }
     });
 });
