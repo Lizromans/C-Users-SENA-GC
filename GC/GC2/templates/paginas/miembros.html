@@ -660,7 +660,7 @@
                         <form method="post" action="{% url 'cambiar_rol' %}" onsubmit="setTimeout(() => location.reload(), 300)">
                             {% csrf_token %}
                             <input type="hidden" name="cedula" value="{{ miembro.id }}">
-                            <input type="hidden" name="rol" value="Coordinador semillero">
+                            <input type="hidden" name="rol" value="Coordinador Semillero">
                             <button type="submit" class="btn-cambiar">Cambiar</button>
                         </form>
                     </div>
@@ -692,7 +692,7 @@
                         <form method="post" action="{% url 'cambiar_rol' %}" onsubmit="setTimeout(() => location.reload(), 300)">
                             {% csrf_token %}
                             <input type="hidden" name="cedula" value="{{ miembro.id }}">
-                            <input type="hidden" name="rol" value="Coordinador semillero">
+                            <input type="hidden" name="rol" value="Coordinador Semillero">
                             <button type="submit" class="btn-cambiar">Cambiar</button>
                         </form>
                     </div>

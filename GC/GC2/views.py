@@ -20,6 +20,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.apps import apps
+from django.db import transaction
 from .forms import (
     UsuarioRegistroForm, 
     FormularioSoporte,
@@ -806,7 +807,7 @@ def semilleros(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
     
-    if usuario.rol in {'Coordinador', 'Dinamizador'}:
+    if usuario.rol in {'Coordinador Semillero', 'Dinamizador'}:
         semilleros = Semillero.objects.all()
     else:
         semilleros = usuario.semilleros.all()
@@ -902,7 +903,7 @@ def crear_semillero(request):
             )
             semillero.save()
 
-            if usuario.rol not in {'Dinamizador', 'Coordinador'}:
+            if usuario.rol not in {'Dinamizador', 'Coordinador Semillero'}:
                 SemilleroUsuario.objects.create(id_sem=semillero, cedula=usuario, es_lider=True)
 
             messages.success(request, f'Semillero "{sigla}" creado exitosamente')
@@ -3205,17 +3206,6 @@ def miembros(request):
 
     return render(request, 'paginas/miembros.html', contexto)
 
-
-from django.db import transaction
-from django.views.decorators.http import require_POST
-
-from django.views.decorators.http import require_POST
-from django.db import transaction
-from django.shortcuts import redirect
-from django.contrib import messages
-from .models import Usuario
-
-
 @require_POST
 @transaction.atomic
 def cambiar_rol(request):
@@ -3232,11 +3222,11 @@ def cambiar_rol(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect("miembros")
 
-    nuevo_rol = nuevo_rol.strip().lower()
-    if nuevo_rol == "coordinador semillero":
+    nuevo_rol = nuevo_rol.strip()
+    if nuevo_rol == "Coordinador Semillero":
 
         coordinador_actual = Usuario.objects.filter(
-            rol__iexact="coordinador semillero"
+            rol__iexact="Coordinador Semillero"
         ).exclude(cedula=usuario.cedula).first()
 
         if coordinador_actual:
@@ -3245,16 +3235,16 @@ def cambiar_rol(request):
                 coordinador_actual.rol_original = None
                 coordinador_actual.save()
 
-        if usuario.rol.lower() != "coordinador semillero":
+        if usuario.rol.lower() != "Coordinador Semillero":
             usuario.rol_original = usuario.rol
 
-        usuario.rol = "coordinador semillero"
+        usuario.rol = "Coordinador Semillero"
         usuario.save()
     else:
-        if usuario.rol.lower() == "coordinador semillero":
+        if usuario.rol.lower() == "Coordinador Semillero":
             usuario.rol_original = None
 
-        usuario.rol = nuevo_rol
+        usuario.rol = nuevo_rol.title()
         usuario.save()
 
     messages.success(request, "Rol actualizado correctamente.")
