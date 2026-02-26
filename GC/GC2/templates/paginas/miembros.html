@@ -142,9 +142,7 @@
             </div>
         </div>
 
-        <!-- ══════════════════════════════ -->
         <!--         VISTA LISTA           -->
-        <!-- ══════════════════════════════ -->
         <div class="lista-container" style="display: {% if request.GET.vista == 'lista' %}block{% else %}none{% endif %};">
             <div class="resumen">
                 <div class="header">
@@ -180,14 +178,16 @@
                             <td>{{ miembro.celular|default:"Sin número de contacto" }}</td>
                             <td>{{ miembro.rol }}</td>
                             <td>{{ miembro.ultima_sesion|default:"No disponible" }}</td>
-                            <td style="display: flex; align-items: center; gap: 8px;">
-                                <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" class="btn">Ver perfil</a>
+                            <td style="display: flex; align-items: center; gap: 15px;" class="info-icon">
+                                <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" title="Ver perfil completo">
+                                    <i class="fa-solid fa-info-circle" style="font-size: 1.1rem;" aria-hidden="true"></i>
+                                </a>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModalLista{{ miembro.id }}"
-                                   title="{% if miembro.rol|lower == 'coordinador semillero' %}Ya es Coordinador{% else %}Asignar Coordinador{% endif %}">
+                                title="{% if miembro.rol|lower == 'coordinador semillero' %}Ya es Coordinador{% else %}Asignar Coordinador{% endif %}">
                                     {% if miembro.rol|lower == 'coordinador semillero' %}
                                         <i class="fa-solid fa-user-check" style="color: #22c55e; font-size: 1.1rem;"></i>
                                     {% else %}
-                                        <i class="fa-solid fa-user-gear" style="color: #6c757d; font-size: 1.1rem;"></i>
+                                        <i class="fa-solid fa-user-gear" style="font-size: 1.1rem;"></i>
                                     {% endif %}
                                 </a>
                             </td>
@@ -202,9 +202,7 @@
             </div>
         </div>
 
-        <!-- ══════════════════════════════ -->
         <!--        VISTA TARJETA          -->
-        <!-- ══════════════════════════════ -->
         <div class="tabla-container" style="display: {% if request.GET.vista == 'lista' %}none{% else %}flex{% endif %};">
             <div class="resumen">
                 <div class="titulo-tarjeta">
