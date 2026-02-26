@@ -3696,8 +3696,7 @@ def centroayuda(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
     
-    manual = Documento.objects.filter(nom_doc='Manual De Usuario').first()
-    
+    manual = Documento.objects.filter(nom_doc__icontains='Manual de Usuario InnHub').first()    
     contexto = {
         'usuario': usuario,
         'manual': manual

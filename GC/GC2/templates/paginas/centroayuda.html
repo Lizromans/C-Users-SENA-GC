@@ -62,8 +62,12 @@
                                 <span class="subtitulo">{{ manual.tipo }}</span>
                             </div>
                             <div class="acciones">
-                                <a href="{{ manual.archivo.url }}" target="_blank" class="fas1 fa-eye" title="Ver"></a>
-                                <a href="{{ manual.archivo.url }}" download class="fa fa-download1" aria-hidden="true" title="Descargar"></a>
+                                <a href="{{ manual.archivo.url }}" target="_blank" class="fas1" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ manual.archivo.url }}" download class="fa-download1" title="Descargar">
+                                    <i class="fas fa-download"></i>
+                                </a>
                             </div>
                         </li>
                         {% endif %}
