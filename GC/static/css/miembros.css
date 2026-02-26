@@ -132,6 +132,12 @@
     linear-gradient(to right, #9747FF 0%, transparent 3%) left,
     linear-gradient(to left, #9747FF 0%, transparent 3%) right;
 }
+.card.verde::before {
+  background: 
+    linear-gradient(to bottom, #39A900 0%, transparent 10%) top,
+    linear-gradient(to right, #39A900 0%, transparent 3%) left,
+    linear-gradient(to left, #39A900 0%, transparent 3%) right;
+}
 
 .icon-cont.instructores{
     background: linear-gradient(135deg, #fffd98 0%,  #fff347 40%, #ffc70e 100%);
@@ -142,7 +148,7 @@
 }
 
 .icon-cont.aprendiz {
-    background: linear-gradient(135deg, #c598ff 0%,  #9747FF 40%, #760eff 100%);
+    background: linear-gradient(135deg, #a8e063 0%, #39A900 40%, #2d8500 100%);
 }
 
 .card-body {
@@ -881,6 +887,16 @@ tbody td {
 }
 
 .tabla-container .rol.aprendices {
+    background-color: #39A90063;
+    color: #39A900;
+    border: 0.9px solid #39A90093;
+    padding: clamp(3px, 0.4vw, 5px) clamp(6px, 0.8vw, 10px);
+    border-radius: clamp(10px, 1.5vw, 16px);
+    font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+    font-weight: bold;
+}
+
+.tabla-container .rol.otros {
     background-color: #760eff63;
     color: #760eff;
     border: 0.9px solid #760eff93;

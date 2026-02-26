@@ -46,7 +46,7 @@
             </div>
 
             <div class="grupo">
-                <div class="card morado">
+                <div class="card verde">
                     <div class="icon-cont aprendiz">
                         <img class="icon" src="{% static 'img/Student.png' %}" alt="Icono Completados">
                     </div>
@@ -220,7 +220,7 @@
                 <div class="tarjetas-grid">
                     {% for miembro in miembros %}
                     <div class="grupo">
-                        <div class="card {% if miembro.rol == 'Instructor' %}amarillo{% elif miembro.rol == 'Investigador' %}azul{% else %}morado{% endif %}">
+                        <div class="card {% if miembro.rol == 'Instructor' %}amarillo{% elif miembro.rol == 'Investigador' %}azul{% elif miembro.rol == 'Aprendiz' %}verde{% else %}morado{% endif %}">
                             <div class="icon-cont">
                                 <span class="user-icon">
                                     {% if miembro.rol == 'Aprendiz' %}
@@ -249,7 +249,7 @@
                                 <p id="celular">{{ miembro.celular|default:"Sin número de contacto" }}</p>
                             </div>
                             <div class="info-badge">
-                                <div class="rol {% if miembro.rol == 'Instructor' %}instructores{% elif miembro.rol == 'Investigador' %}investigadores{% else %}aprendices{% endif %}">
+                                <div class="rol {% if miembro.rol == 'Instructor' %}instructores{% elif miembro.rol == 'Investigador' %}investigadores{% elif miembro.rol == 'Aprendiz' %}aprendices{% else %}otros{% endif %}">
                                     <span>{{ miembro.rol }}</span>
                                 </div>
                                 <div class="ultima-sesion">
