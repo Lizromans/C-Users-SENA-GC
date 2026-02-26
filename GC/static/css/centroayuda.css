@@ -197,6 +197,7 @@
     position: relative;
     overflow: hidden;
     border-bottom: 1.5px solid #eef0f3 !important;
+    min-height: 120px;
 }
 
 .card-body {
@@ -973,5 +974,24 @@
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* ═══════════════════════════════
+   RESPONSIVE — PANTALLA PEQUEÑA
+   ═══════════════════════════════ */
+@media (max-width: 768px) {
+    .recursos {
+        grid-template-columns: 1fr;
+        padding: clamp(12px, 2vh, 20px);
+        gap: clamp(0.75rem, 2vw, 1.5rem);
+    }
+
+    .grupo {
+        height: auto;
+    }
+
+    .scrollable-list {
+        max-height: clamp(200px, 30vh, 350px);
     }
 }
