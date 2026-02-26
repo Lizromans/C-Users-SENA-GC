@@ -182,14 +182,16 @@
                                 <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" title="Ver perfil completo">
                                     <i class="fa-solid fa-info-circle" style="font-size: 1.1rem;" aria-hidden="true"></i>
                                 </a>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModalLista{{ miembro.id }}"
-                                title="{% if miembro.rol|lower == 'coordinador semillero' %}Ya es Coordinador{% else %}Asignar Coordinador{% endif %}">
-                                    {% if miembro.rol|lower == 'coordinador semillero' %}
-                                        <i class="fa-solid fa-user-check" style="color: #22c55e; font-size: 1.1rem;"></i>
-                                    {% else %}
-                                        <i class="fa-solid fa-user-gear" style="font-size: 1.1rem;"></i>
-                                    {% endif %}
-                                </a>
+                                {% if usuario.rol|lower == 'dinamizador' %}
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModalLista{{ miembro.id }}"
+                                    title="{% if miembro.rol|lower == 'coordinador semillero' %}Ya es Coordinador{% else %}Asignar Coordinador{% endif %}">
+                                        {% if miembro.rol|lower == 'coordinador semillero' %}
+                                            <i class="fa-solid fa-user-check" style="color: #22c55e; font-size: 1.1rem;"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-user-gear" style="font-size: 1.1rem;"></i>
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}
@@ -255,13 +257,15 @@
                                 </div>
                             </div>
                             <div class="info-icon">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModal{{ miembro.id }}">
-                                    {% if miembro.rol|lower == 'coordinador semillero' %}
-                                        <i class="fa-solid fa-user-check" style="color: #22c55e;"></i>
-                                    {% else %}
-                                        <i class="fa-solid fa-user-gear"></i>
-                                    {% endif %}
-                                </a>
+                                {% if usuario.rol|lower == 'dinamizador' %}
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModal{{ miembro.id }}">
+                                        {% if miembro.rol|lower == 'coordinador semillero' %}
+                                            <i class="fa-solid fa-user-check" style="color: #22c55e;"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-user-gear"></i>
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
                                 <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a>

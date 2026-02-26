@@ -1866,7 +1866,6 @@ def resu_proyectos(request, id_sem, cod_pro=None):
     return render(request, 'paginas/resu-proyectos.html', context)
 
 @login_required
-@permission_required('GC2.change_usuario')
 @semillero_activo_requerido
 def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
     """
@@ -1963,7 +1962,6 @@ def asignar_lider_proyecto_ajax(request, id_sem, cod_pro):
         return JsonResponse({'success': False, 'error': str(e)})
 
 @login_required
-@permission_required('GC2.change_usuario')
 def alternar_estado_miembro(request, id_sem, cod_pro):
     semillero = get_object_or_404(Semillero, id_sem=id_sem)
     proyecto = get_object_or_404(Proyecto, cod_pro=cod_pro)
