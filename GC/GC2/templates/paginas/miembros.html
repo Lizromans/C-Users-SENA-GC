@@ -142,12 +142,15 @@
             </div>
         </div>
 
+        <!-- ══════════════════════════════ -->
+        <!--         VISTA LISTA           -->
+        <!-- ══════════════════════════════ -->
         <div class="lista-container" style="display: {% if request.GET.vista == 'lista' %}block{% else %}none{% endif %};">
             <div class="resumen">
                 <div class="header">
                     <h3>Lista de Miembros</h3>
                     {% if perms.GC2.add_aprendiz %}
-                        <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
+                        <button class="link" data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
                             <i class="fa-solid fa-link"></i> 
                             Invitar Aprendiz
                         </button>
@@ -164,20 +167,29 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         {% for miembro in miembros %}
                         <tr>
-                            <td class="nombre">{{ miembro.nombres }} {{ miembro.apellidos }}
-                                    {% if miembro.id|stringformat:"s" == usuario.cedula|stringformat:"s" %}
-                                        (Yo)
-                                    {% endif %}</td>
+                            <td class="nombre">
+                                {{ miembro.nombres }} {{ miembro.apellidos }}
+                                {% if miembro.id|stringformat:"s" == usuario.cedula|stringformat:"s" %}
+                                    (Yo)
+                                {% endif %}
+                            </td>
                             <td>{{ miembro.correo_sena|default:"Sin correo" }}</td>
                             <td>{{ miembro.celular|default:"Sin número de contacto" }}</td>
                             <td>{{ miembro.rol }}</td>
                             <td>{{ miembro.ultima_sesion|default:"No disponible" }}</td>
-                            <td>
+                            <td style="display: flex; align-items: center; gap: 8px;">
                                 <a href="?miembro_id={{ miembro.id }}&vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" class="btn">Ver perfil</a>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModalLista{{ miembro.id }}"
+                                   title="{% if miembro.rol|lower == 'coordinador semillero' %}Ya es Coordinador{% else %}Asignar Coordinador{% endif %}">
+                                    {% if miembro.rol|lower == 'coordinador semillero' %}
+                                        <i class="fa-solid fa-user-check" style="color: #22c55e; font-size: 1.1rem;"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-user-gear" style="color: #6c757d; font-size: 1.1rem;"></i>
+                                    {% endif %}
+                                </a>
                             </td>
                         </tr>
                         {% empty %}
@@ -190,12 +202,15 @@
             </div>
         </div>
 
+        <!-- ══════════════════════════════ -->
+        <!--        VISTA TARJETA          -->
+        <!-- ══════════════════════════════ -->
         <div class="tabla-container" style="display: {% if request.GET.vista == 'lista' %}none{% else %}flex{% endif %};">
             <div class="resumen">
                 <div class="titulo-tarjeta">
                     <h3>Lista de Miembros</h3>
                     {% if perms.GC2.add_aprendiz %}
-                        <button class="link"data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
+                        <button class="link" data-bs-toggle="modal" data-bs-target="#modalLinkAprendiz">
                             <i class="fa-solid fa-link"></i> 
                             Invitar Aprendiz
                         </button>
@@ -243,8 +258,8 @@
                             </div>
                             <div class="info-icon">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#confirmarCambioRolModal{{ miembro.id }}">
-                                    {% if miembro.rol == 'Coordinador semillero' %}
-                                        <i class="fa-solid fa-user-check"></i>
+                                    {% if miembro.rol|lower == 'coordinador semillero' %}
+                                        <i class="fa-solid fa-user-check" style="color: #22c55e;"></i>
                                     {% else %}
                                         <i class="fa-solid fa-user-gear"></i>
                                     {% endif %}
@@ -262,414 +277,431 @@
             </div>
         </div>
 
-<div id="modalPerfilMiembro" class="modal-perfil-overlay" 
-    {% if miembro_seleccionado %}style="display: flex;"{% endif %}>
+        <!-- ══════════════════════════════ -->
+        <!--       MODAL PERFIL            -->
+        <!-- ══════════════════════════════ -->
+        <div id="modalPerfilMiembro" class="modal-perfil-overlay" 
+            {% if miembro_seleccionado %}style="display: flex;"{% endif %}>
 
-    <div class="modal-perfil-contenedor">
-        <a class="modal-perfil-cerrar" 
-            id="btnCerrarPerfilModal" 
-            href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
-            <i class="fa fa-times"></i>
-        </a>
+            <div class="modal-perfil-contenedor">
+                <a class="modal-perfil-cerrar" 
+                    id="btnCerrarPerfilModal" 
+                    href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}">
+                    <i class="fa fa-times"></i>
+                </a>
 
-        <div class="perfil-miembro-moderno">
-            <form method="post" action="">
-                {% csrf_token %}
-
-                <div class="modal-perfil-header">
-                    <div class="header-foto-contenedor">
-                        {% if tipo_miembro == 'usuario' and miembro_seleccionado.imagen_perfil %}
-                            <img src="{{ miembro_seleccionado.imagen_perfil.url }}" alt="foto de perfil" class="header-foto">
-                        {% elif tipo_miembro == 'aprendiz' %}
-                            <img src="{% static 'img/Student.png' %}" alt="foto de perfil aprendiz" class="header-foto">
-                        {% else %}
-                            <img src="{% static 'img/cam.png' %}" alt="foto de perfil" class="header-foto">
-                        {% endif %}
-                    </div>
-
-                    <div class="header-info">
-                        <h2>{{ miembro_seleccionado.nombres }} {{ miembro_seleccionado.apellidos }}</h2>
-                        <p>{{ miembro_seleccionado.correo_personal }}</p>
-                        <div class="status-badge">
-                            <span class="status-dot {% if miembro_seleccionado.estado == 'Activo' %}activo{% else %}inactivo{% endif %}"></span>
-                            {{ miembro_seleccionado.estado|default:"Activo" }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-tabs">
-                    <div class="tab-item active" onclick="switchModalTab(0)">
-                        <img src="{% static 'img/User.png' %}" alt="Personal" class="tab-icon">
-                        <span>Información Personal</span>
-                    </div>
-                    {% if tipo_miembro == 'usuario' %}
-                    <div class="tab-item" onclick="switchModalTab(1)">
-                        <img src="{% static 'img/briefcase.png' %}" alt="Profesional" class="tab-icon">
-                        <span>Información Profesional</span>
-                    </div>
-                    {% endif %}
-                    {% if tipo_miembro == 'aprendiz' %}
-                    <div class="tab-item" onclick="switchModalTab(1)">
-                        <img src="{% static 'img/student.png' %}" alt="Académica" class="tab-icon">
-                        <span>Información Académica</span>
-                    </div>
-                    {% endif %}
-                    <div class="tab-item" onclick="switchModalTab(2)">
-                        <img src="{% static 'img/microscopio.png' %}" alt="Semilleros" class="tab-icon">
-                        <span>Semilleros y Proyectos</span>
-                    </div>
-                </div>
-                <div class="modal-perfil-body">
-                    <div class="tab-content-modal active">
-                        <div class="stats-grid-modal">
-                            <div class="stat-card-modal">
-                                <div class="stat-number">{{ miembro_seleccionado.semilleros.count|default:"0" }}</div>
-                                <div class="stat-label">Semilleros</div>
-                            </div>
-                            <div class="stat-card-modal">
-                                <div class="stat-number">{{ miembro_seleccionado.proyectos.count|default:"0" }}</div>
-                                <div class="stat-label">Proyectos</div>
-                            </div>
-                            <div class="stat-card-modal">
-                                <div class="stat-number">
-                                    {% if miembro_seleccionado.fecha_nacimiento %}
-                                        {{ miembro_seleccionado.fecha_nacimiento|timesince|slice:":2" }} años
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </div>
-                                <div class="stat-label">Edad</div>
-                            </div>
-                        </div>
-
-                        <div class="perfil-form-grid">
-                            <div class="perfil-form-group">
-                                <label for="perfilNombres">Nombres</label>
-                                <input type="text" id="perfilNombres" name="nombres"
-                                    value="{{ miembro_seleccionado.nombres }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilApellidos">Apellidos</label>
-                                <input type="text" id="perfilApellidos" name="apellidos"
-                                    value="{{ miembro_seleccionado.apellidos }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilCedula">Cédula</label>
-                                <input type="text" id="perfilCedula" name="cedula"
-                                    value="{{ miembro_seleccionado.cedula }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilCorreoPersonal">Correo Personal</label>
-                                <input type="email" id="perfilCorreoPersonal" name="correo_personal"
-                                    value="{{ miembro_seleccionado.correo_personal|default_if_none:'' }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilCelular">Celular</label>
-                                <input type="tel" id="perfilCelular" name="celular"
-                                    value="{{ miembro_seleccionado.celular|default_if_none:'' }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilFechaNacimiento">Fecha de Nacimiento</label>
-                                <input type="text" id="perfilFechaNacimiento" name="fecha_nacimiento"
-                                    value="{{ miembro_seleccionado.fecha_nacimiento|default_if_none:'' }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group full-width-modal">
-                                <label for="perfilEstadoSelect">Estado</label>
-                                <select name="estado" id="perfilEstadoSelect" class="perfil-form-select">
-                                    <option value="Activo" {% if miembro_seleccionado.estado == "Activo" %}selected{% endif %}>Activo</option>
-                                    <option value="Inactivo" {% if miembro_seleccionado.estado == "Inactivo" %}selected{% endif %}>Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    {% if tipo_miembro == 'usuario' %}
-                    <div class="tab-content-modal">
-                        <div class="perfil-form-grid">
-                            <div class="perfil-form-group">
-                                <label for="perfilCorreoSena">Correo Sena</label>
-                                <input type="email" id="perfilCorreoSena" name="correo_sena"
-                                    value="{{ miembro_seleccionado.correo_sena }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilVinculacion">Vinculación laboral</label>
-                                <input type="text" id="perfilVinculacion" name="vinculacion"
-                                    value="{{ miembro_seleccionado.vinculacion|default_if_none:'' }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilDependencia">Dependencia/Área</label>
-                                <input type="text" id="perfilDependencia" name="dependencia"
-                                    value="{{ miembro_seleccionado.dependencia|default_if_none:'' }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilRol">Rol</label>
-                                <input type="text" id="perfilRol" name="rol"
-                                    value="{{ miembro_seleccionado.rol }}" class="perfil-form-input" readonly>
-                            </div>
-                        </div>
-
-                        <div class="section-divider-modal"></div>
-
-                        <div class="info-card-modal">
-                            <h3 class="section-title-modal">
-                                <img src="{% static 'img/briefcase.png' %}" alt="Resumen">
-                                Resumen Profesional
-                            </h3>
-                            <div class="info-row-modal">
-                                <span class="info-label-modal">Estado</span>
-                                <span class="info-value-modal">✓ {{ miembro_seleccionado.estado|default:"Activo" }}</span>
-                            </div>
-                            <div class="info-row-modal">
-                                <span class="info-label-modal">Semilleros Asignados</span>
-                                <span class="info-value-modal">{{ miembro_seleccionado.semilleros.count|default:"0" }}</span>
-                            </div>
-                            <div class="info-row-modal">
-                                <span class="info-label-modal">Proyectos Activos</span>
-                                <span class="info-value-modal">{{ miembro_seleccionado.proyectos.count|default:"0" }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if tipo_miembro == 'aprendiz' %}
-                    <div class="tab-content-modal">
-                        <div class="perfil-form-grid">
-                            <div class="perfil-form-group">
-                                <label for="perfilCorreoSenaAprendiz">Correo SENA</label>
-                                <input type="email" id="perfilCorreoSenaAprendiz" name="correo_sena"
-                                    value="{{ miembro_seleccionado.correo_sena }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilFicha">Ficha</label>
-                                <input type="text" id="perfilFicha" name="ficha"
-                                    value="{{ miembro_seleccionado.ficha }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group full-width-modal">
-                                <label for="perfilPrograma">Programa</label>
-                                <input type="text" id="perfilPrograma" name="programa"
-                                    value="{{ miembro_seleccionado.programa }}" class="perfil-form-input" readonly>
-                            </div>
-                        </div>
-
-                        <div class="section-divider-modal"></div>
-
-                        <h3 class="section-title-modal">
-                            <img src="{% static 'img/banco.png' %}" alt="Bancaria" style="width: 24px; height: 24px;">
-                            Información Bancaria
-                        </h3>
-                        <div class="perfil-form-grid">
-                            <div class="perfil-form-group">
-                                <label for="perfilMedioBancario">Medio Bancario</label>
-                                <input type="text" id="perfilMedioBancario" name="medio_bancario"
-                                    value="{{ miembro_seleccionado.medio_bancario }}" class="perfil-form-input" readonly>
-                            </div>
-                            <div class="perfil-form-group">
-                                <label for="perfilCuenta">Número de Cuenta</label>
-                                <div class="input-con-icono-modal">
-                                    <input type="text" id="perfilCuenta" name="numero_cuenta"
-                                        value="{{ miembro_seleccionado.numero_cuenta_visible }}" class="perfil-form-input" readonly>
-                                    {% if perms.GC2.chance_aprendiz %}
-                                    <a href="{% url 'solicitar_codigo_verificacion_form' miembro_seleccionado.cedula %}" 
-                                        class="icono-interno-modal">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                
-                    <div class="tab-content-modal">
-                        <h3 class="section-title-modal">
-                            <img src="{% static 'img/microscopio.png' %}" alt="Semilleros" style="width: 24px; height: 24px;">
-                            Semilleros
-                        </h3>
-                        <div class="chips-container-modal">
-                            {% for semillero in miembro_seleccionado.semilleros %}
-                                <a href="{% url 'resumen' semillero.id_sem %}" class="chip-modal">
-                                    <span class="chip-icon-modal">🌱</span>
-                                    {{ semillero.sigla }}
-                                </a>
-                            {% empty %}
-                                <p class="perfil-sin-datos-modal">No está asociado a ningún semillero.</p>
-                            {% endfor %}
-                        </div>
-
-                        <div class="section-divider-modal"></div>
-
-                        <h3 class="section-title-modal">
-                            <img src="{% static 'img/project.png' %}" alt="Proyectos" style="width: 24px; height: 24px;">
-                            Proyectos
-                        </h3>
-                        <div class="chips-container-modal">
-                            {% for sp in miembro_seleccionado.proyectos %}
-                                <a href="{% url 'detalle-proyecto' sp.id_sem.id_sem sp.cod_pro.cod_pro %}" class="chip-modal">
-                                    <span class="chip-icon-modal">📊</span>
-                                    {{ sp.cod_pro.nom_pro }}
-                                </a>
-                            {% empty %}
-                                <p class="perfil-sin-datos-modal">No está asociado a ningún proyecto.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
-                {% if perms.GC2.change_usuario %}
-                    <div class="modal-perfil-footer">
-                        <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
-                            class="btn-modal btn-secondary-modal">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn-modal btn-primary-modal">
-                            <span>💾</span>
-                            Guardar Cambios
-                        </button>
-                    </div>
-                {% endif %}
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalLinkAprendiz" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fa-solid fa-share-nodes"></i> 
-                    Enlace de Registro
-                </h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-
-                <p class="mb-2">Comparte este enlace para que el aprendiz realice su registro:</p>
-
-                <div class="input-group">
-                    <input type="text" id="linkRegistroApre" 
-                           class="form-control" readonly
-                           value="https://{{ request.get_host }}{% url 'registro_aprendiz' %}">
-
-                    <button class="btn btn-success" type="button"
-                            onclick="navigator.clipboard.writeText(document.getElementById('linkRegistroApre').value)">
-                        <i class="fa fa-copy"></i>
-                    </button>
-                </div>
-
-                <p class="text-muted text-center mt-2">Haz clic en el icono para copiar el enlace</p>
-
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div id="modalVerificacionCodigo" class="modal-verificacion-overlay" 
-     {% if mostrar_modal_codigo %}style="display: flex;"{% endif %}>
-    <div class="modal-verificacion-contenedor">
-        <a href="javascript:void(0)" 
-            class="modal-verificacion-cerrar"
-            onclick="event.preventDefault(); {% if aprendiz_verificacion %}cancelarVerificacion('{{ aprendiz_verificacion.cedula_apre }}'){% else %}cancelarVerificacion(){% endif %}">
-            <i class="fa fa-times"></i>
-        </a>
-        
-        <div class="modal-verificacion-contenido">
-            <div class="modal-verificacion-icono">
-                <i class="fa fa-lock"></i>
-            </div>
-            
-            <h3 class="modal-verificacion-titulo">Verificación de Seguridad</h3>
-            
-            {% if request.session.intentos_restantes %}
-            <div class="intentos-restantes">
-                <i class="fa fa-exclamation-triangle"></i>
-                <span>Intentos restantes: <strong>{{ request.session.intentos_restantes }}</strong></span>
-            </div>
-            {% endif %}
-            
-            <p class="modal-verificacion-texto">
-                Ingresa el código de 6 dígitos enviado a tu correo electrónico
-            </p>
-            
-            <form method="post" action="" id="formVerificacion">
-                {% csrf_token %}
-                {% if aprendiz_verificacion %}
-                <input type="hidden" name="miembro_id" value="{{ aprendiz_verificacion.cedula_apre }}">
-                {% endif %}
-                <input type="hidden" name="vista" value="{{ vista }}">
-                <input type="hidden" name="estado" value="{{ estado_filtro }}">
-                <input type="hidden" name="rol" value="{{ rol_filtro }}">
-                <input type="hidden" name="busqueda" value="{{ busqueda }}">
-                
-                <div class="codigo-inputs">
-                    <input type="text" name="codigo" maxlength="6" 
-                           class="codigo-input-completo" 
-                           placeholder="000000"
-                           pattern="[0-9]{6}"
-                           required
-                           autofocus />
-                </div>
-                
-                <button type="submit" class="btn-verificar-codigo">
-                    <i class="fa fa-check-circle"></i>
-                    Verificar Código
-                </button>
-            </form>
-            
-            {% if request.session.intentos_restantes %}
-            <div class="reenviar-codigo-container">
-                <button type="button" class="btn-reenviar-codigo" id="btnReenviarCodigo" onclick="reenviarCodigo('{{ aprendiz_verificacion.cedula_apre }}')">
-                    <i class="fa fa-refresh"></i>
-                    Reenviar Código
-                </button>
-                <span class="cooldown-texto" id="cooldownTexto" style="display: none;">
-                    Espera <span id="cooldownSegundos">30</span> segundos
-                </span>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-{% for miembro in miembros %}
-    <div class="modal fade" id="confirmarCambioRolModal{{ miembro.id }}" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar cambio de rol</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    ¿Deseas cambiar el rol de 
-                    <strong>{{ miembro.nombres }} {{ miembro.apellidos }}</strong>
-                    a <strong>Coordinador</strong>?
-                </div>
-
-                <div class="modal-footer">
-
-                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <form method="post" action="{% url 'cambiar_rol' %}">
+                <div class="perfil-miembro-moderno">
+                    <form method="post" action="">
                         {% csrf_token %}
-                        <input type="hidden" name="cedula" value="{{ miembro.id }}">
-                        <input type="hidden" name="rol" value="Coordinador semillero">
 
-                        <button type="submit" class="btn-cambiar">
-                            Cambiar
+                        <div class="modal-perfil-header">
+                            <div class="header-foto-contenedor">
+                                {% if tipo_miembro == 'usuario' and miembro_seleccionado.imagen_perfil %}
+                                    <img src="{{ miembro_seleccionado.imagen_perfil.url }}" alt="foto de perfil" class="header-foto">
+                                {% elif tipo_miembro == 'aprendiz' %}
+                                    <img src="{% static 'img/Student.png' %}" alt="foto de perfil aprendiz" class="header-foto">
+                                {% else %}
+                                    <img src="{% static 'img/cam.png' %}" alt="foto de perfil" class="header-foto">
+                                {% endif %}
+                            </div>
+
+                            <div class="header-info">
+                                <h2>{{ miembro_seleccionado.nombres }} {{ miembro_seleccionado.apellidos }}</h2>
+                                <p>{{ miembro_seleccionado.correo_personal }}</p>
+                                <div class="status-badge">
+                                    <span class="status-dot {% if miembro_seleccionado.estado == 'Activo' %}activo{% else %}inactivo{% endif %}"></span>
+                                    {{ miembro_seleccionado.estado|default:"Activo" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-tabs">
+                            <div class="tab-item active" onclick="switchModalTab(0)">
+                                <img src="{% static 'img/User.png' %}" alt="Personal" class="tab-icon">
+                                <span>Información Personal</span>
+                            </div>
+                            {% if tipo_miembro == 'usuario' %}
+                            <div class="tab-item" onclick="switchModalTab(1)">
+                                <img src="{% static 'img/briefcase.png' %}" alt="Profesional" class="tab-icon">
+                                <span>Información Profesional</span>
+                            </div>
+                            {% endif %}
+                            {% if tipo_miembro == 'aprendiz' %}
+                            <div class="tab-item" onclick="switchModalTab(1)">
+                                <img src="{% static 'img/student.png' %}" alt="Académica" class="tab-icon">
+                                <span>Información Académica</span>
+                            </div>
+                            {% endif %}
+                            <div class="tab-item" onclick="switchModalTab(2)">
+                                <img src="{% static 'img/microscopio.png' %}" alt="Semilleros" class="tab-icon">
+                                <span>Semilleros y Proyectos</span>
+                            </div>
+                        </div>
+
+                        <div class="modal-perfil-body">
+                            <div class="tab-content-modal active">
+                                <div class="stats-grid-modal">
+                                    <div class="stat-card-modal">
+                                        <div class="stat-number">{{ miembro_seleccionado.semilleros.count|default:"0" }}</div>
+                                        <div class="stat-label">Semilleros</div>
+                                    </div>
+                                    <div class="stat-card-modal">
+                                        <div class="stat-number">{{ miembro_seleccionado.proyectos.count|default:"0" }}</div>
+                                        <div class="stat-label">Proyectos</div>
+                                    </div>
+                                    <div class="stat-card-modal">
+                                        <div class="stat-number">
+                                            {% if miembro_seleccionado.fecha_nacimiento %}
+                                                {{ miembro_seleccionado.fecha_nacimiento|timesince|slice:":2" }} años
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </div>
+                                        <div class="stat-label">Edad</div>
+                                    </div>
+                                </div>
+
+                                <div class="perfil-form-grid">
+                                    <div class="perfil-form-group">
+                                        <label for="perfilNombres">Nombres</label>
+                                        <input type="text" id="perfilNombres" name="nombres"
+                                            value="{{ miembro_seleccionado.nombres }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilApellidos">Apellidos</label>
+                                        <input type="text" id="perfilApellidos" name="apellidos"
+                                            value="{{ miembro_seleccionado.apellidos }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilCedula">Cédula</label>
+                                        <input type="text" id="perfilCedula" name="cedula"
+                                            value="{{ miembro_seleccionado.cedula }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilCorreoPersonal">Correo Personal</label>
+                                        <input type="email" id="perfilCorreoPersonal" name="correo_personal"
+                                            value="{{ miembro_seleccionado.correo_personal|default_if_none:'' }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilCelular">Celular</label>
+                                        <input type="tel" id="perfilCelular" name="celular"
+                                            value="{{ miembro_seleccionado.celular|default_if_none:'' }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilFechaNacimiento">Fecha de Nacimiento</label>
+                                        <input type="text" id="perfilFechaNacimiento" name="fecha_nacimiento"
+                                            value="{{ miembro_seleccionado.fecha_nacimiento|default_if_none:'' }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group full-width-modal">
+                                        <label for="perfilEstadoSelect">Estado</label>
+                                        <select name="estado" id="perfilEstadoSelect" class="perfil-form-select">
+                                            <option value="Activo" {% if miembro_seleccionado.estado == "Activo" %}selected{% endif %}>Activo</option>
+                                            <option value="Inactivo" {% if miembro_seleccionado.estado == "Inactivo" %}selected{% endif %}>Inactivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if tipo_miembro == 'usuario' %}
+                            <div class="tab-content-modal">
+                                <div class="perfil-form-grid">
+                                    <div class="perfil-form-group">
+                                        <label for="perfilCorreoSena">Correo Sena</label>
+                                        <input type="email" id="perfilCorreoSena" name="correo_sena"
+                                            value="{{ miembro_seleccionado.correo_sena }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilVinculacion">Vinculación laboral</label>
+                                        <input type="text" id="perfilVinculacion" name="vinculacion"
+                                            value="{{ miembro_seleccionado.vinculacion|default_if_none:'' }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilDependencia">Dependencia/Área</label>
+                                        <input type="text" id="perfilDependencia" name="dependencia"
+                                            value="{{ miembro_seleccionado.dependencia|default_if_none:'' }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilRol">Rol</label>
+                                        <input type="text" id="perfilRol" name="rol"
+                                            value="{{ miembro_seleccionado.rol }}" class="perfil-form-input" readonly>
+                                    </div>
+                                </div>
+                                <div class="section-divider-modal"></div>
+                                <div class="info-card-modal">
+                                    <h3 class="section-title-modal">
+                                        <img src="{% static 'img/briefcase.png' %}" alt="Resumen">
+                                        Resumen Profesional
+                                    </h3>
+                                    <div class="info-row-modal">
+                                        <span class="info-label-modal">Estado</span>
+                                        <span class="info-value-modal">✓ {{ miembro_seleccionado.estado|default:"Activo" }}</span>
+                                    </div>
+                                    <div class="info-row-modal">
+                                        <span class="info-label-modal">Semilleros Asignados</span>
+                                        <span class="info-value-modal">{{ miembro_seleccionado.semilleros.count|default:"0" }}</span>
+                                    </div>
+                                    <div class="info-row-modal">
+                                        <span class="info-label-modal">Proyectos Activos</span>
+                                        <span class="info-value-modal">{{ miembro_seleccionado.proyectos.count|default:"0" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if tipo_miembro == 'aprendiz' %}
+                            <div class="tab-content-modal">
+                                <div class="perfil-form-grid">
+                                    <div class="perfil-form-group">
+                                        <label for="perfilCorreoSenaAprendiz">Correo SENA</label>
+                                        <input type="email" id="perfilCorreoSenaAprendiz" name="correo_sena"
+                                            value="{{ miembro_seleccionado.correo_sena }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilFicha">Ficha</label>
+                                        <input type="text" id="perfilFicha" name="ficha"
+                                            value="{{ miembro_seleccionado.ficha }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group full-width-modal">
+                                        <label for="perfilPrograma">Programa</label>
+                                        <input type="text" id="perfilPrograma" name="programa"
+                                            value="{{ miembro_seleccionado.programa }}" class="perfil-form-input" readonly>
+                                    </div>
+                                </div>
+                                <div class="section-divider-modal"></div>
+                                <h3 class="section-title-modal">
+                                    <img src="{% static 'img/banco.png' %}" alt="Bancaria" style="width: 24px; height: 24px;">
+                                    Información Bancaria
+                                </h3>
+                                <div class="perfil-form-grid">
+                                    <div class="perfil-form-group">
+                                        <label for="perfilMedioBancario">Medio Bancario</label>
+                                        <input type="text" id="perfilMedioBancario" name="medio_bancario"
+                                            value="{{ miembro_seleccionado.medio_bancario }}" class="perfil-form-input" readonly>
+                                    </div>
+                                    <div class="perfil-form-group">
+                                        <label for="perfilCuenta">Número de Cuenta</label>
+                                        <div class="input-con-icono-modal">
+                                            <input type="text" id="perfilCuenta" name="numero_cuenta"
+                                                value="{{ miembro_seleccionado.numero_cuenta_visible }}" class="perfil-form-input" readonly>
+                                            {% if perms.GC2.chance_aprendiz %}
+                                            <a href="{% url 'solicitar_codigo_verificacion_form' miembro_seleccionado.cedula %}" 
+                                                class="icono-interno-modal">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="tab-content-modal">
+                                <h3 class="section-title-modal">
+                                    <img src="{% static 'img/microscopio.png' %}" alt="Semilleros" style="width: 24px; height: 24px;">
+                                    Semilleros
+                                </h3>
+                                <div class="chips-container-modal">
+                                    {% for semillero in miembro_seleccionado.semilleros %}
+                                        <a href="{% url 'resumen' semillero.id_sem %}" class="chip-modal">
+                                            <span class="chip-icon-modal">🌱</span>
+                                            {{ semillero.sigla }}
+                                        </a>
+                                    {% empty %}
+                                        <p class="perfil-sin-datos-modal">No está asociado a ningún semillero.</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="section-divider-modal"></div>
+                                <h3 class="section-title-modal">
+                                    <img src="{% static 'img/project.png' %}" alt="Proyectos" style="width: 24px; height: 24px;">
+                                    Proyectos
+                                </h3>
+                                <div class="chips-container-modal">
+                                    {% for sp in miembro_seleccionado.proyectos %}
+                                        <a href="{% url 'detalle-proyecto' sp.id_sem.id_sem sp.cod_pro.cod_pro %}" class="chip-modal">
+                                            <span class="chip-icon-modal">📊</span>
+                                            {{ sp.cod_pro.nom_pro }}
+                                        </a>
+                                    {% empty %}
+                                        <p class="perfil-sin-datos-modal">No está asociado a ningún proyecto.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if perms.GC2.change_usuario %}
+                            <div class="modal-perfil-footer">
+                                <a href="?vista={{ vista }}&estado={{ estado_filtro }}&rol={{ rol_filtro }}&busqueda={{ busqueda }}" 
+                                    class="btn-modal btn-secondary-modal">
+                                    Cancelar
+                                </a>
+                                <button type="submit" class="btn-modal btn-primary-modal">
+                                    <span>💾</span>
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════ -->
+        <!--     MODAL LINK APRENDIZ       -->
+        <!-- ══════════════════════════════ -->
+        <div class="modal fade" id="modalLinkAprendiz" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fa-solid fa-share-nodes"></i> 
+                            Enlace de Registro
+                        </h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-2">Comparte este enlace para que el aprendiz realice su registro:</p>
+                        <div class="input-group">
+                            <input type="text" id="linkRegistroApre" 
+                                   class="form-control" readonly
+                                   value="https://{{ request.get_host }}{% url 'registro_aprendiz' %}">
+                            <button class="btn btn-success" type="button"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('linkRegistroApre').value)">
+                                <i class="fa fa-copy"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted text-center mt-2">Haz clic en el icono para copiar el enlace</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════ -->
+        <!--   MODAL VERIFICACION CODIGO   -->
+        <!-- ══════════════════════════════ -->
+        <div id="modalVerificacionCodigo" class="modal-verificacion-overlay" 
+             {% if mostrar_modal_codigo %}style="display: flex;"{% endif %}>
+            <div class="modal-verificacion-contenedor">
+                <a href="javascript:void(0)" 
+                    class="modal-verificacion-cerrar"
+                    onclick="event.preventDefault(); {% if aprendiz_verificacion %}cancelarVerificacion('{{ aprendiz_verificacion.cedula_apre }}'){% else %}cancelarVerificacion(){% endif %}">
+                    <i class="fa fa-times"></i>
+                </a>
+                <div class="modal-verificacion-contenido">
+                    <div class="modal-verificacion-icono">
+                        <i class="fa fa-lock"></i>
+                    </div>
+                    <h3 class="modal-verificacion-titulo">Verificación de Seguridad</h3>
+                    {% if request.session.intentos_restantes %}
+                    <div class="intentos-restantes">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <span>Intentos restantes: <strong>{{ request.session.intentos_restantes }}</strong></span>
+                    </div>
+                    {% endif %}
+                    <p class="modal-verificacion-texto">
+                        Ingresa el código de 6 dígitos enviado a tu correo electrónico
+                    </p>
+                    <form method="post" action="" id="formVerificacion">
+                        {% csrf_token %}
+                        {% if aprendiz_verificacion %}
+                        <input type="hidden" name="miembro_id" value="{{ aprendiz_verificacion.cedula_apre }}">
+                        {% endif %}
+                        <input type="hidden" name="vista" value="{{ vista }}">
+                        <input type="hidden" name="estado" value="{{ estado_filtro }}">
+                        <input type="hidden" name="rol" value="{{ rol_filtro }}">
+                        <input type="hidden" name="busqueda" value="{{ busqueda }}">
+                        <div class="codigo-inputs">
+                            <input type="text" name="codigo" maxlength="6" 
+                                   class="codigo-input-completo" 
+                                   placeholder="000000"
+                                   pattern="[0-9]{6}"
+                                   required
+                                   autofocus />
+                        </div>
+                        <button type="submit" class="btn-verificar-codigo">
+                            <i class="fa fa-check-circle"></i>
+                            Verificar Código
                         </button>
                     </form>
-
+                    {% if request.session.intentos_restantes %}
+                    <div class="reenviar-codigo-container">
+                        <button type="button" class="btn-reenviar-codigo" id="btnReenviarCodigo" onclick="reenviarCodigo('{{ aprendiz_verificacion.cedula_apre }}')">
+                            <i class="fa fa-refresh"></i>
+                            Reenviar Código
+                        </button>
+                        <span class="cooldown-texto" id="cooldownTexto" style="display: none;">
+                            Espera <span id="cooldownSegundos">30</span> segundos
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
-
             </div>
         </div>
-    </div>
-{% endfor %}
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- MODALES CAMBIO ROL - VISTA TARJETA        -->
+        <!-- ══════════════════════════════════════════ -->
+        {% for miembro in miembros %}
+        <div class="modal fade" id="confirmarCambioRolModal{{ miembro.id }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar cambio de rol</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Deseas cambiar el rol de 
+                        <strong>{{ miembro.nombres }} {{ miembro.apellidos }}</strong>
+                        a <strong>Coordinador</strong>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <form method="post" action="{% url 'cambiar_rol' %}" onsubmit="setTimeout(() => location.reload(), 300)">
+                            {% csrf_token %}
+                            <input type="hidden" name="cedula" value="{{ miembro.id }}">
+                            <input type="hidden" name="rol" value="Coordinador semillero">
+                            <button type="submit" class="btn-cambiar">Cambiar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- MODALES CAMBIO ROL - VISTA LISTA          -->
+        <!-- ══════════════════════════════════════════ -->
+        {% for miembro in miembros %}
+        <div class="modal fade" id="confirmarCambioRolModalLista{{ miembro.id }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar cambio de rol</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Deseas cambiar el rol de 
+                        <strong>{{ miembro.nombres }} {{ miembro.apellidos }}</strong>
+                        a <strong>Coordinador</strong>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <form method="post" action="{% url 'cambiar_rol' %}" onsubmit="setTimeout(() => location.reload(), 300)">
+                            {% csrf_token %}
+                            <input type="hidden" name="cedula" value="{{ miembro.id }}">
+                            <input type="hidden" name="rol" value="Coordinador semillero">
+                            <button type="submit" class="btn-cambiar">Cambiar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div><!-- /contenedor-principal -->
 
 <script>
     function cancelarVerificacion(aprendizId) {
@@ -689,7 +721,6 @@
         const cooldownTexto = document.getElementById('cooldownTexto');
         const cooldownSegundos = document.getElementById('cooldownSegundos');
         
-        // Deshabilitar botón
         btn.disabled = true;
         btn.style.display = 'none';
         cooldownTexto.style.display = 'inline-block';
@@ -700,7 +731,6 @@
         const intervalo = setInterval(() => {
             segundos--;
             cooldownSegundos.textContent = segundos;
-            
             if (segundos <= 0) {
                 clearInterval(intervalo);
                 btn.disabled = false;
@@ -714,7 +744,6 @@
 
     {% if miembro_seleccionado and tipo_miembro == 'aprendiz' %}
         {% if request.session.numeros_revelados %}
-                
         const numerosRevelados = {{ request.session.numeros_revelados|safe }};
         const infoNumero = numerosRevelados['{{ miembro_seleccionado.cedula }}'];
 
@@ -723,7 +752,6 @@
             const ahora = Date.now() / 1000;
             const tiempoTranscurrido = ahora - timestampRevelado;
             const tiempoRestante = Math.max(0, 30 - tiempoTranscurrido);
-
             const inputCuenta = document.getElementById("perfilCuenta");
 
             if (tiempoRestante <= 0) {
@@ -753,45 +781,19 @@
                 const estilos = document.createElement('style');
                 estilos.textContent = `
                     #temporizador-global {
-                        position: fixed;
-                        top: 20px;
-                        left: 20px;
-                        z-index: 10000;
-                        background: rgba(255, 255, 255, 0.98);
-                        padding: 15px 20px;
-                        border-radius: 12px;
-                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-                        border: 2px solid #3498db;
-                        animation: slideIn 0.3s ease-out;
+                        position: fixed; top: 20px; left: 20px; z-index: 10000;
+                        background: rgba(255,255,255,0.98); padding: 15px 20px;
+                        border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                        border: 2px solid #3498db; animation: slideIn 0.3s ease-out;
                     }
-                    @keyframes slideIn {
-                        from { transform: translateX(-100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                    @keyframes fadeOut {
-                        from { opacity: 1; transform: translateX(0); }
-                        to { opacity: 0; transform: translateX(-100%); }
-                    }
-                    .temporizador-contenido {
-                        display: flex;
-                        align-items: center;
-                        gap: 15px;
-                    }
-                    .temporizador-circulo { position: relative; width: 60px; height: 60px; }
-                    .temporizador-svg { transform: rotate(-90deg); }
-                    .temporizador-fondo {
-                        fill: none; stroke: #e0e0e0; stroke-width: 4;
-                    }
-                    .temporizador-progreso {
-                        fill: none; stroke: #3498db; stroke-width: 4;
-                        stroke-linecap: round; stroke-dasharray: 163.36;
-                        transition: stroke-dashoffset 1s linear;
-                    }
-                    .temporizador-numero {
-                        position: absolute; top: 50%; left: 50%;
-                        transform: translate(-50%, -50%);
-                        font-size: 20px; font-weight: bold; color: #3498db;
-                    }
+                    @keyframes slideIn { from{transform:translateX(-100%);opacity:0} to{transform:translateX(0);opacity:1} }
+                    @keyframes fadeOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(-100%)} }
+                    .temporizador-contenido { display:flex; align-items:center; gap:15px; }
+                    .temporizador-circulo { position:relative; width:60px; height:60px; }
+                    .temporizador-svg { transform:rotate(-90deg); }
+                    .temporizador-fondo { fill:none; stroke:#e0e0e0; stroke-width:4; }
+                    .temporizador-progreso { fill:none; stroke:#3498db; stroke-width:4; stroke-linecap:round; stroke-dasharray:163.36; transition:stroke-dashoffset 1s linear; }
+                    .temporizador-numero { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:20px; font-weight:bold; color:#3498db; }
                 `;
                 document.head.appendChild(estilos);
 
@@ -801,22 +803,17 @@
                 const intervalo = setInterval(() => {
                     const ahora2 = Date.now() / 1000;
                     const restante = Math.max(0, 30 - (ahora2 - timestampRevelado));
-
                     document.getElementById("segundos-restantes").textContent = Math.ceil(restante);
                     barra.style.strokeDashoffset = circunferencia * (1 - restante / 30);
-
                     if (restante <= 10) {
                         barra.style.stroke = '#e74c3c';
                         document.querySelector(".temporizador-numero").style.color = '#e74c3c';
                     }
-
                     if (restante <= 0) {
                         clearInterval(intervalo);
-
                         const numeroCompleto = "{{ miembro_seleccionado.numero_cuenta_visible }}";
                         const ultimos4 = numeroCompleto.slice(-4);
                         inputCuenta.value = "************" + ultimos4;
-
                         temporizadorDiv.style.animation = "fadeOut 0.4s forwards";
                         setTimeout(() => temporizadorDiv.remove(), 400);
                     }
@@ -831,7 +828,6 @@
 function switchModalTab(index) {
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content-modal').forEach(content => content.classList.remove('active'));
-    
     document.querySelectorAll('.tab-item')[index].classList.add('active');
     document.querySelectorAll('.tab-content-modal')[index].classList.add('active');
 }
