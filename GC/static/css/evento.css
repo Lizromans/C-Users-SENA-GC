@@ -870,148 +870,163 @@
     }
 }
 
+/* ================================ */
+/*     MODAL CANCELAR EVENTO        */
+/* ================================ */
+
 .modal-overlay-cancelar {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    padding: clamp(40px, 10vh, 60px);
-    background-color: rgba(94, 93, 93, 0.267);
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
     z-index: 9999;
+    overflow-y: auto;
 }
 
 .modal-overlay-cancelar.activo {
-    display: flex !important;
-    justify-content: center;
-    align-items: center;
+    display: flex;
     animation: modalFadeIn 0.3s ease;
 }
 
 .modal-dialog-cancelar {
     position: relative;
-    width: clamp(280px, 32%, 480px);
+    width: clamp(300px, 90vw, 480px);
     margin: auto;
+    align-self: center;
     background: white;
-    border-radius: clamp(12px, 2vw, 20px);
+    border-radius: 20px;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     animation: modalSlideIn 0.4s ease;
 }
 
-.modal-cerrar-evento {
+/* ── Botón cerrar X ── */
+.modal-dialog-cancelar .modal-cerrar-evento {
     position: absolute;
-    width: clamp(35px, 5vw, 45px);
-    height: clamp(35px, 5vw, 45px);
+    top: clamp(12px, 2vw, 18px);
+    right: clamp(12px, 2vw, 18px);
+    width: clamp(32px, 4vw, 42px);
+    height: clamp(32px, 4vw, 42px);
     display: flex;
+    align-items: center;
     justify-content: center;
-    cursor: pointer;
-    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-size: clamp(1rem, 2vw, 1.3rem);
     color: #666;
     background: rgba(255, 255, 255, 0.9);
     border: 2px solid #e0e0e0;
     border-radius: 50%;
+    cursor: pointer;
     transition: all 0.3s ease;
     z-index: 10;
+    text-decoration: none;
 }
 
-.modal-cerrar-evento:hover {
+.modal-dialog-cancelar .modal-cerrar-evento:hover {
     background: #f44336;
-    color: #fff;
+    color: white;
     border-color: #f44336;
     transform: rotate(90deg);
-    justify-content: center;
 }
 
+/* ── Header ── */
 .modal-header-cancelar {
     display: flex;
     align-items: center;
-    padding: 50px 50px 20px;
+    justify-content: center;
+    padding: clamp(20px, 3vw, 35px) clamp(20px, 4vw, 40px) clamp(15px, 2vw, 20px);
     background-color: transparent;
     border-bottom: 2px solid #39A900;
 }
 
 .modal-header-cancelar h5 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
     font-weight: 800;
     color: #333;
+    text-align: center;
 }
 
+/* ── Body ── */
 .modal-body-cancelar {
-    padding: clamp(9px, 2vw, 35px);
+    padding: clamp(20px, 3vw, 35px) clamp(20px, 4vw, 40px);
 }
 
 .mensaje-cancelar {
     text-align: center;
     font-size: clamp(0.9rem, 1.4vw, 1rem);
     color: #333;
+    line-height: 1.6;
     white-space: normal;
     overflow-wrap: break-word;
 }
 
+/* ── Footer ── */
 .modal-footer-cancelar {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    margin-top: 25px;
-    border-top: 1px solid #ddd;
-}
-
-.btn-evento {
-    display: flex;
-    align-items: center;
-    gap: clamp(6px, 1vw, 10px);
-    padding: clamp(10px, 2vh, 15px) clamp(20px, 4vw, 35px);
-    font-size: clamp(0.9rem, 1.6vw, 1.05rem);
-    font-weight: 700;
-    border-radius: clamp(8px, 1.5vw, 12px);
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-    transition: all 0.3s ease;
+    gap: clamp(8px, 1.5vw, 16px);
+    padding: clamp(12px, 2vw, 20px) clamp(20px, 4vw, 40px);
+    border-top: 1px solid #e0e0e0;
 }
 
 .btn-cancelarCerrar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 28px);
+    font-size: clamp(0.85rem, 1.3vw, 1rem);
+    font-weight: 600;
     background-color: transparent;
     color: var(--color-text-secondary);
     border: 2px solid #e0e0e0;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
 }
 
 .btn-cancelarCerrar:hover {
     background-color: #f5f5f5;
-    color: var(--color-text-secondary);
-    border: 2px solid #e0e0e0;
+    border-color: #aaa;
     transform: translateY(-2px);
 }
 
 .btn-cancelarEvento {
-    background: #ce0d07;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 28px);
+    font-size: clamp(0.85rem, 1.3vw, 1rem);
+    font-weight: 700;
+    background: #dc3545;
     color: #fff;
+    border: none;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-cancelarEvento:hover {
-    background-color: rgb(206, 13, 7);
+    background-color: #b02a37;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(206, 13, 7, 0.3);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.35);
 }
 
+/* ── Animaciones ── */
 @keyframes modalFadeIn {
     from { opacity: 0; }
-    to { opacity: 1; }
+    to   { opacity: 1; }
 }
 
 @keyframes modalSlideIn {
     from {
-        transform: translateY(-50px);
         opacity: 0;
+        transform: translateY(-30px);
     }
     to {
-        transform: translateY(0);
         opacity: 1;
+        transform: translateY(0);
     }
 }

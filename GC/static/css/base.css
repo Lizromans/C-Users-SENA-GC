@@ -1077,11 +1077,16 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     z-index: 2000 !important;
     animation: modalFadeIn 0.4s ease;
-    margin-top: 40%;
+    margin-top: 0;
+    width: 100%;
 }
 
-#cambiarContraseñaModal .modal-dialog-centered .modal-content { 
-    margin-top: 0; 
+#cambiarContraseñaModal .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - 2rem);
+    margin: 1rem auto;
+    max-width: min(500px, 94vw);
 }
 
 #cambiarContraseñaModal .modal-header { 
@@ -1506,6 +1511,27 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     object-fit: 
     contain; 
     opacity: 0.55; 
+}
+
+/* Ocultar el ícono nativo de ver contraseña en todos los navegadores */
+
+/* Edge / IE */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+/* Chrome / Safari / Opera */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-strong-password-auto-fill-button {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Chrome (el ojito específico) */
+input::-webkit-textfield-decoration-container {
+    display: none;
 }
 
 /* RESPONSIVE BREAKPOINTS*/

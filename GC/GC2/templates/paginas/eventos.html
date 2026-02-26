@@ -116,7 +116,7 @@
         <div class="eventos-section">
             <div class="eventos-header">
                 <h3>Lista de Eventos</h3>
-                <button type="button" class="btn agregar" data-bs-toggle="modal" data-bs-target="#modalCrearEvento">
+                <button type="button" class="btn agregar" onclick="abrirModalEvento('modalCrearEvento')">
                     <i class="fas fa-plus"></i> Crear Evento
                 </button>
             </div>
@@ -131,16 +131,12 @@
                         <div class="evento-estado">
                             {% if evento.estado_eve|lower == 'próximo' %}
                                 <span class="estado-badge proximo">Próximo</span>
-
                             {% elif evento.estado_eve|lower == 'en curso' %}
                                 <span class="estado-badge en-curso">En Curso</span>
-
                             {% elif evento.estado_eve|lower == 'finalizado' %}
                                 <span class="estado-badge finalizado">Finalizado</span>
-
                             {% elif evento.estado_eve|lower == 'cancelado' %}
                                 <span class="estado-badge cancelado">Cancelado</span>
-
                             {% else %}
                                 <span class="estado-badge programado">Programado</span>
                             {% endif %}
@@ -199,17 +195,16 @@
                         {% if evento.estado_eve != 'Cancelado' and evento.estado_eve != 'Finalizado' %}
                             {% if usuario.cedula == evento.cedula.cedula %}
                                 <div class="botones">
-                                    <button type="button" class="btn-editar" data-tooltip="Editar" 
-                                            data-bs-toggle="modal" data-bs-target="#modalEditarEvento{{ evento.cod_eve }}">
+                                    <button type="button" class="btn-editar" data-tooltip="Editar"
+                                            onclick="abrirModalEvento('modalEditarEvento{{ evento.cod_eve }}')">
                                         <i class="fa fa-edit"></i>
                                     </button>
-
-                                    <button type="button" class="btn-cancelar" data-tooltip="Cancelar" 
-                                            data-bs-toggle="modal" data-bs-target="#modalCancelarEvento{{ evento.cod_eve }}">
+                                    <button type="button" class="btn-cancelar" data-tooltip="Cancelar"
+                                            onclick="abrirModalCancelar('modalCancelarEvento{{ evento.cod_eve }}')">
                                         <i class="fa fa-ban"></i>
                                     </button>
                                 </div>
-                            {% endif %}   
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% empty %}
@@ -219,9 +214,11 @@
         </div>
     </div>
 
+<!--       MODAL CREAR EVENTO      -->
 <div class="modal-overlay-evento" id="modalCrearEvento">
     <div class="modal-dialog-evento">
-        <a href="{% url 'eventos' %}" class="modal-cerrar-evento">&times;</a>
+        <a href="javascript:void(0)" class="modal-cerrar-evento"
+           onclick="cerrarModalEvento('modalCrearEvento')">&times;</a>
 
         <div class="modal-header-evento">
             <h5 class="modal-title">Crear Nuevo Evento</h5>
@@ -230,30 +227,25 @@
         <div class="modal-body-evento">
             <form method="POST" action="{% url 'crear_evento' %}">
                 {% csrf_token %}
-
                 <div class="row-evento">
                     <div class="col-evento">
-                        <label for="nom_eve" class="form-label">Nombre del Evento</label>
+                        <label for="nom_eve">Nombre del Evento</label>
                         <input type="text" id="nom_eve" name="nom_eve" maxlength="250" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="fecha_eve" class="form-label">Fecha del Evento</label>
+                        <label for="fecha_eve">Fecha del Evento</label>
                         <input type="date" id="fecha_eve" name="fecha_eve" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="hora_inicio" class="form-label">Hora de Inicio</label>
+                        <label for="hora_inicio">Hora de Inicio</label>
                         <input type="time" id="hora_inicio" name="hora_inicio" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="hora_fin" class="form-label">Hora de Fin</label>
+                        <label for="hora_fin">Hora de Fin</label>
                         <input type="time" id="hora_fin" name="hora_fin" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="modalidad_eve" class="form-label">Modalidad</label>
+                        <label for="modalidadSelect">Modalidad</label>
                         <select name="modalidad_eve" id="modalidadSelect">
                             <option value="">Seleccione…</option>
                             <option value="Virtual">Virtual</option>
@@ -261,26 +253,22 @@
                         </select>
                     </div>
                     <div class="col-evento" id="campoLink" style="display:none;">
-                        <label for="link" class="form-label">Link del evento</label>
+                        <label for="link">Link del evento</label>
                         <input type="text" id="link" name="link" maxlength="250">
                     </div>
-
                     <div class="col-evento" id="campoDireccion" style="display:none;">
-                        <label for="direccion_eve" class="form-label">Dirección</label>
+                        <label for="direccion_eve">Dirección</label>
                         <input type="text" id="direccion_eve" name="direccion_eve" maxlength="250">
                     </div>
-
-
                     <div class="col-evento col-evento-full">
-                        <label for="desc_eve" class="form-label">Descripción</label>
+                        <label for="desc_eve">Descripción</label>
                         <textarea id="desc_eve" name="desc_eve" rows="3" maxlength="250"></textarea>
                     </div>
-
                     <input type="hidden" name="estado_eve" value="Programado">
                 </div>
-
                 <div class="modal-footer-evento">
-                    <a href="{% url 'eventos' %}" class="btn-evento btn-evento-secondary">Cancelar</a>
+                    <a href="javascript:void(0)" class="btn-evento btn-evento-secondary"
+                       onclick="cerrarModalEvento('modalCrearEvento')">Cancelar</a>
                     <button type="submit" class="btn-evento btn-evento-primary">Guardar Evento</button>
                 </div>
             </form>
@@ -288,10 +276,12 @@
     </div>
 </div>
 
+<!--      MODALES EDITAR EVENTO    -->
 {% for evento in eventos %}
 <div class="modal-overlay-evento" id="modalEditarEvento{{ evento.cod_eve }}">
     <div class="modal-dialog-evento">
-        <a href="{% url 'eventos' %}" class="modal-cerrar-evento">&times;</a>
+        <a href="javascript:void(0)" class="modal-cerrar-evento"
+           onclick="cerrarModalEvento('modalEditarEvento{{ evento.cod_eve }}')">&times;</a>
 
         <div class="modal-header-evento">
             <h5 class="modal-title">Editar Evento</h5>
@@ -300,68 +290,55 @@
         <div class="modal-body-evento">
             <form method="POST" action="{% url 'editar_evento' evento.cod_eve %}">
                 {% csrf_token %}
-
                 <div class="row-evento">
                     <div class="col-evento">
-                        <label for="nom_eve{{ evento.cod_eve }}" class="form-label">Nombre del Evento</label>
-                        <input type="text" id="nom_eve{{ evento.cod_eve }}" name="nom_eve" maxlength="250" 
-                               value="{{ evento.nom_eve }}" required>
+                        <label for="nom_eve{{ evento.cod_eve }}">Nombre del Evento</label>
+                        <input type="text" id="nom_eve{{ evento.cod_eve }}" name="nom_eve"
+                               maxlength="250" value="{{ evento.nom_eve }}" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="fecha_eve{{ evento.cod_eve }}" class="form-label">Fecha del Evento</label>
+                        <label for="fecha_eve{{ evento.cod_eve }}">Fecha del Evento</label>
                         <input type="date" id="fecha_eve{{ evento.cod_eve }}" name="fecha_eve"
                                value="{{ evento.fecha_eve|date:'Y-m-d' }}" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="hora_inicio{{ evento.cod_eve }}" class="form-label">Hora de Inicio</label>
+                        <label for="hora_inicio{{ evento.cod_eve }}">Hora de Inicio</label>
                         <input type="time" id="hora_inicio{{ evento.cod_eve }}" name="hora_inicio"
                                value="{{ evento.hora_inicio|time:'H:i' }}" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="hora_fin{{ evento.cod_eve }}" class="form-label">Hora de Fin</label>
+                        <label for="hora_fin{{ evento.cod_eve }}">Hora de Fin</label>
                         <input type="time" id="hora_fin{{ evento.cod_eve }}" name="hora_fin"
                                value="{{ evento.hora_fin|time:'H:i' }}" required>
                     </div>
-
                     <div class="col-evento">
-                        <label for="modalidad_eve{{ evento.cod_eve }}" class="form-label">Modalidad</label>
+                        <label for="modalidad_eve{{ evento.cod_eve }}">Modalidad</label>
                         <select id="modalidad_eve{{ evento.cod_eve }}" name="modalidad_eve" required>
                             <option value="" disabled>Seleccione una opción</option>
-                            <option value="Presencial" {% if evento.modalidad_eve == "Presencial" %}selected{% endif %}>
-                                Presencial
-                            </option>
-                            <option value="Virtual" {% if evento.modalidad_eve == "Virtual" %}selected{% endif %}>
-                                Virtual
-                            </option>
+                            <option value="Presencial" {% if evento.modalidad_eve == "Presencial" %}selected{% endif %}>Presencial</option>
+                            <option value="Virtual" {% if evento.modalidad_eve == "Virtual" %}selected{% endif %}>Virtual</option>
                         </select>
                     </div>
-
                     <div class="col-evento" id="campoLink{{ evento.cod_eve }}" style="display:none;">
-                        <label for="link{{ evento.cod_eve }}" class="form-label">Link (solo Virtual)</label>
-                        <input type="text" id="link{{ evento.cod_eve }}" name="link" maxlength="250"
-                            value="{{ evento.link }}">
+                        <label for="link{{ evento.cod_eve }}">Link (solo Virtual)</label>
+                        <input type="text" id="link{{ evento.cod_eve }}" name="link"
+                               maxlength="250" value="{{ evento.link }}">
                     </div>
-
                     <div class="col-evento" id="campoDireccion{{ evento.cod_eve }}" style="display:none;">
-                        <label for="direccion_eve{{ evento.cod_eve }}" class="form-label">Dirección</label>
-                        <input type="text" id="direccion_eve{{ evento.cod_eve }}" name="direccion_eve" maxlength="250"
-                            value="{{ evento.direccion_eve }}">
+                        <label for="direccion_eve{{ evento.cod_eve }}">Dirección</label>
+                        <input type="text" id="direccion_eve{{ evento.cod_eve }}" name="direccion_eve"
+                               maxlength="250" value="{{ evento.direccion_eve }}">
                     </div>
-
-
                     <div class="col-evento col-evento-full">
-                        <label for="desc_eve{{ evento.cod_eve }}" class="form-label">Descripción</label>
-                        <textarea id="desc_eve{{ evento.cod_eve }}" name="desc_eve" rows="3" maxlength="250">{{ evento.desc_eve }}</textarea>
+                        <label for="desc_eve{{ evento.cod_eve }}">Descripción</label>
+                        <textarea id="desc_eve{{ evento.cod_eve }}" name="desc_eve"
+                                  rows="3" maxlength="250">{{ evento.desc_eve }}</textarea>
                     </div>
-
                     <input type="hidden" name="estado_eve" value="{{ evento.estado_eve }}">
                 </div>
-
                 <div class="modal-footer-evento">
-                    <a href="{% url 'eventos' %}" class="btn-evento btn-evento-secondary">Cancelar</a>
+                    <a href="javascript:void(0)" class="btn-evento btn-evento-secondary"
+                       onclick="cerrarModalEvento('modalEditarEvento{{ evento.cod_eve }}')">Cancelar</a>
                     <button type="submit" class="btn-evento btn-evento-primary">Actualizar Evento</button>
                 </div>
             </form>
@@ -370,13 +347,15 @@
 </div>
 {% endfor %}
 
+<!--     MODALES CANCELAR EVENTO   -->
 {% for evento in eventos %}
 <div class="modal-overlay-cancelar" id="modalCancelarEvento{{ evento.cod_eve }}">
     <div class="modal-dialog-cancelar">
-        <a href="{% url 'eventos' %}" class="modal-cerrar-evento">&times;</a>
+        <a href="javascript:void(0)" class="modal-cerrar-evento"
+           onclick="cerrarModalCancelar('modalCancelarEvento{{ evento.cod_eve }}')">&times;</a>
 
         <div class="modal-header-cancelar">
-            <h5 class="modal-title">Cancelar Evento</h5>
+            <h5>Cancelar Evento</h5>
         </div>
 
         <div class="modal-body-cancelar">
@@ -387,10 +366,10 @@
         </div>
 
         <div class="modal-footer-cancelar">
-            <button class="btn-evento btn-cancelarCerrar" onclick="window.location.href='{% url 'eventos' %}'">
+            <button class="btn-evento btn-cancelarCerrar"
+                    onclick="cerrarModalCancelar('modalCancelarEvento{{ evento.cod_eve }}')">
                 Volver
             </button>
-
             <form action="{% url 'cancelar_evento' %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="cod_eve" value="{{ evento.cod_eve }}">
@@ -402,48 +381,70 @@
     </div>
 </div>
 {% endfor %}
+
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/mensaje.js' %}"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+/* ── Modales Evento (crear / editar) ── */
+function abrirModalEvento(id) {
+    document.getElementById(id).classList.add('activo');
+    document.body.style.overflow = 'hidden';
+}
 
-  document.querySelectorAll('select[name="modalidad_eve"]').forEach(select => {
+function cerrarModalEvento(id) {
+    document.getElementById(id).classList.remove('activo');
+    document.body.style.overflow = '';
+}
 
-    const container = select.closest('.modal-dialog-evento') || select.closest('form') || document;
+/* ── Modal Cancelar Evento ── */
+function abrirModalCancelar(id) {
+    document.getElementById(id).classList.add('activo');
+    document.body.style.overflow = 'hidden';
+}
 
-    const campoLink = container.querySelector('[id^="campoLink"]') || container.querySelector('#campoLink');
-    const campoDireccion = container.querySelector('[id^="campoDireccion"]') || container.querySelector('#campoDireccion');
+function cerrarModalCancelar(id) {
+    document.getElementById(id).classList.remove('activo');
+    document.body.style.overflow = '';
+}
 
-    if (!campoLink && !campoDireccion) return;
-
-    function actualizarCampos() {
-      const val = (select.value || "").trim();
-
-      if (val === "Virtual") {
-        if (campoLink) campoLink.style.display = "flex";
-        if (campoDireccion) campoDireccion.style.display = "none";
-      } else if (val === "Presencial") {
-        if (campoLink) campoLink.style.display = "none";
-        if (campoDireccion) campoDireccion.style.display = "flex";
-      } else {
-        if (campoLink) campoLink.style.display = "none";
-        if (campoDireccion) campoDireccion.style.display = "none";
-      }
-    }
-    actualizarCampos();
-
-    select.addEventListener('change', actualizarCampos);
-
-    const mo = new MutationObserver((mutations, obs) => {
-      if (!container.contains(select)) return;
-      actualizarCampos();
+/* ── Cerrar al hacer click fuera ── */
+document.querySelectorAll('.modal-overlay-evento, .modal-overlay-cancelar').forEach(overlay => {
+    overlay.addEventListener('click', function (e) {
+        if (e.target === this) {
+            this.classList.remove('activo');
+            document.body.style.overflow = '';
+        }
     });
-    mo.observe(container, { childList: true, subtree: true });
-  });
+});
 
+/* ── Modalidad (mostrar link o dirección) ── */
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('select[name="modalidad_eve"]').forEach(select => {
+        const container = select.closest('.modal-dialog-evento') || select.closest('form') || document;
+        const campoLink       = container.querySelector('[id^="campoLink"]')      || container.querySelector('#campoLink');
+        const campoDireccion  = container.querySelector('[id^="campoDireccion"]') || container.querySelector('#campoDireccion');
+
+        if (!campoLink && !campoDireccion) return;
+
+        function actualizarCampos() {
+            const val = (select.value || "").trim();
+            if (val === "Virtual") {
+                if (campoLink)      campoLink.style.display      = "flex";
+                if (campoDireccion) campoDireccion.style.display = "none";
+            } else if (val === "Presencial") {
+                if (campoLink)      campoLink.style.display      = "none";
+                if (campoDireccion) campoDireccion.style.display = "flex";
+            } else {
+                if (campoLink)      campoLink.style.display      = "none";
+                if (campoDireccion) campoDireccion.style.display = "none";
+            }
+        }
+
+        actualizarCampos();
+        select.addEventListener('change', actualizarCampos);
+    });
 });
 </script>
-
-
 
 {% endblock %}

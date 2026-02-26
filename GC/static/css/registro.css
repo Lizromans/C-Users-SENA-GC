@@ -1017,6 +1017,27 @@ body {
     }
 }
 
+/* Ocultar el ícono nativo de ver contraseña en todos los navegadores */
+
+/* Edge / IE */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+/* Chrome / Safari / Opera */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-strong-password-auto-fill-button {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Chrome (el ojito específico) */
+input::-webkit-textfield-decoration-container {
+    display: none;
+}
+
 /* 13. MEDIA QUERIES RESPONSIVE */
 @media (min-width: 1024px) {
     .container {
