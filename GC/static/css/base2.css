@@ -1450,25 +1450,15 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     width: 100%;
 }
 
-#cambiarContraseñaModal .modal-header {
-    background-color: rgba(57, 169, 0, 0.05);
-    border-bottom: 1px solid rgba(57, 169, 0, 0.2);
-    border-top-left-radius: 18px;
-    border-top-right-radius: 18px;
-    position: relative;
-    justify-content: center;
-    height: 7vh;
-}
-
-#cambiarContraseñaModal .modal-title {
+#cambiarContraseñaModal .modal-header .modal-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     color: var(--color-text-active);
     font-weight: 700;
     font-size: 1.2rem;
     text-align: center;
     width: 100%;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 #cambiarContraseñaModal .btn-close {
@@ -1867,102 +1857,100 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 }
 
 /* ── FAB ── */
-.option-card {
-    position: fixed;
-    bottom: clamp(16px, 4vw, 32px);
-    right: clamp(24px, 5vw, 44px);
-    z-index: 1000;
+.option-card { 
+    position: fixed; 
+    bottom: 28px; 
+    right: 34px; 
+    z-index: 1000; 
 }
 
-.fab {
-    position: relative;
-    width: clamp(48px, 7vw, 60px);
-    height: clamp(48px, 7vw, 60px);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    overflow: visible;
-    box-shadow: 0 clamp(8px, 2vw, 14px) clamp(16px, 3vw, 26px) rgba(102, 126, 234, 0.45);
-    transition: all 0.3s ease;
-    animation: float 3s ease-in-out infinite;
+.fab-backup { 
+    position: relative; 
+    width: 54px; height: 
+    54px; 
+    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    box-shadow: 0 10px 24px rgba(102,126,234,0.45); 
+    transition: all 0.3s ease; 
+    animation: floatFab 3s ease-in-out infinite; 
+    overflow: visible; 
 }
 
-.fab:hover {
-    box-shadow: 0 clamp(12px, 3vw, 18px) clamp(24px, 4vw, 32px) rgba(102, 126, 234, 0.6);
+.fab-backup:hover { 
+    box-shadow: 0 14px 30px rgba(102,126,234,0.55); 
 }
 
-.fab i { 
+.fab-backup i { 
     font-size: 22px; 
     color: #fff; 
     pointer-events: none;
     font-size: 20px;
-    transform: translateX(16px) translateY(16px);
+
 }
 
 .pulse-ring {
-    position: absolute;
-    inset: 0;
-    border: clamp(2px, 0.4vw, 3px) solid #667eea;
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-    opacity: 0;
+    position: absolute; 
+    inset: 0; 
+    border: 2.5px solid #667eea; 
+    border-radius: 50%; 
+    animation: pulseFab 2s ease-in-out infinite; 
+    opacity: 0; 
 }
 
-.fab-tooltip {
-    position: absolute;
-    right: clamp(60px, 9vw, 80px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: #4d4c4ca6;
-    color: #fff;
-    padding: clamp(6px, 1vw, 10px) clamp(10px, 2vw, 14px);
-    border-radius: clamp(6px, 1vw, 8px);
-    white-space: nowrap;
-    font-size: clamp(10px, 2.5vw, 15px);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    font-family: 'Work Sans', sans-serif;
-    transition: all 0.25s ease;
+.fab-tooltip { 
+    position: absolute; 
+    right: 64px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    background: rgba(50,50,50,0.88); 
+    color: #fff; 
+    padding: 7px 12px; 
+    border-radius: 8px; 
+    white-space: nowrap; 
+    font-size: 0.82rem; 
+    opacity: 0; 
+    visibility: hidden; 
+    pointer-events: none; 
+    transition: all 0.22s ease; 
 }
 
-.fab-tooltip::before {
-    content: '';
-    position: absolute;
-    left: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    border: clamp(5px, 1vw, 7px) solid transparent;
-    border-left-color: #4d4c4ca6;
+.fab-tooltip::after {
+    content: ''; 
+    position: absolute; 
+    left: 100%; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    border: 6px solid transparent; 
+    border-left-color: rgba(50,50,50,0.88); 
 }
 
-.fab:hover .fab-tooltip {
-    opacity: 1;
-    visibility: visible;
-    right: clamp(68px, 10vw, 90px);
+.fab-backup:hover .fab-tooltip { 
+    opacity: 1; 
+    visibility: visible; 
+    right: 70px; 
 }
 
-@keyframes pulse {
-    0% { 
-        transform: scale(1); 
-        opacity: 0.7; 
-    }
-    100% { 
-        transform: scale(1.5); 
-        opacity: 0; 
-    }
+@keyframes pulseFab { 
+    0%{
+        transform:scale(1);
+        opacity:.7
+    } 
+    100%{
+        transform:scale(1.6);
+        opacity:0
+    } 
 }
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0); 
-    }
-    50% { 
-        transform: translateY(clamp(-6px, -1vw, -12px)); 
-    }
+@keyframes floatFab { 
+    0%,100%{
+        transform:translateY(0)
+    } 
+    50%{
+        transform:translateY(-8px)
+    } 
 }
 
 .foto-placeholder {
@@ -2112,11 +2100,6 @@ input::-webkit-textfield-decoration-container {
 
     .card-body h6 { 
         font-size: clamp(10px, 1.6vw, 16px); 
-    }
-
-    .fab i {
-        font-size: 20px;
-        transform: translateX(15px) translateY(16px);
     }
 
 }
@@ -2399,18 +2382,6 @@ input::-webkit-textfield-decoration-container {
         right: 16px; 
     }
 
-    .fab {
-        width: 50px;
-        height: 50px;
-        animation: none;
-        transform: translateY(-4px);
-    }
-
-    .fab i {
-        font-size: 20px;
-        transform: translateX(12px) translateY(13px);
-    }
-
     .fab-tooltip { display: none; }
 
     .menu { 
@@ -2476,16 +2447,6 @@ input::-webkit-textfield-decoration-container {
     .main-content { 
         padding: 8px; 
         padding-bottom: 72px; 
-    }
-
-    .fab { 
-        width: 44px; 
-        height: 44px; 
-    }
-
-    .fab i { 
-        font-size: 18px; 
-        transform: translateX(12px) translateY(11px); 
     }
 
     .option-card     { 
@@ -2599,15 +2560,6 @@ input::-webkit-textfield-decoration-container {
 
     .main-content   { 
         padding: 32px; 
-    }
-
-    .fab { 
-        width: 60px; 
-        height: 60px; 
-    }
-
-    .fab i { 
-        font-size: 24px; 
     }
 
     #backupModal .modal-dialog { 

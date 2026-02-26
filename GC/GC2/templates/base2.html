@@ -442,7 +442,7 @@
 </div>
 
 <div class="option-card">         
-    <div class="fab">
+    <div class="fab-backup">
         <i class="fas fa-cloud-arrow-down"></i>
         <div class="pulse-ring"></div>
         <div class="fab-tooltip">💾 Respaldar Datos</div>
@@ -465,7 +465,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-document.querySelector('.fab').addEventListener('click', function() {
+document.querySelector('.fab-backup').addEventListener('click', function() {
     const modal = new bootstrap.Modal(document.getElementById('backupModal'));
     modal.show();
     cargarEstadisticasBackup();

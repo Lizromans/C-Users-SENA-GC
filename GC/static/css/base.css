@@ -1406,7 +1406,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     z-index: 1000; 
 }
 
-.fab { 
+.fab-backup { 
     position: relative; 
     width: 54px; height: 
     54px; 
@@ -1422,16 +1422,16 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     overflow: visible; 
 }
 
-.fab:hover { 
+.fab-backup:hover { 
     box-shadow: 0 14px 30px rgba(102,126,234,0.55); 
 }
 
-.fab i { 
+.fab-backup i { 
     font-size: 22px; 
     color: #fff; 
     pointer-events: none;
     font-size: 20px;
-    transform: translateX(14px) translateY(14px);
+
 }
 
 .pulse-ring {
@@ -1470,7 +1470,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     border-left-color: rgba(50,50,50,0.88); 
 }
 
-.fab:hover .fab-tooltip { 
+.fab-backup:hover .fab-tooltip { 
     opacity: 1; 
     visibility: visible; 
     right: 70px; 
@@ -1827,17 +1827,6 @@ input::-webkit-textfield-decoration-container {
         right: 16px; 
     }
 
-    .fab { 
-        width: 50px; 
-        height: 50px;
-        transform: translateY(-4px);
-    }
-
-    .fab i {
-        font-size: 20px;
-        transform: translateX(12px) translateY(11px);
-    }
-
     .fab-tooltip { 
         display: none; 
     }
@@ -1877,15 +1866,6 @@ input::-webkit-textfield-decoration-container {
         padding: 10px; 
     }
 
-    .fab {
-        width: 46px; 
-        height: 46px; 
-    }
-
-    .fab i { 
-        font-size: 18px;
-        transform: translateX(12px) translateY(11px);
-    }
 }
 
 /* LARGE DESKTOP ≥ 1600px */

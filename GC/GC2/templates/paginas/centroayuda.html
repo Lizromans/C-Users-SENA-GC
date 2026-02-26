@@ -46,32 +46,27 @@
                         <img class="icon" src="{% static 'img/Books.png' %}" alt="Icono Documentos y Guías">
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">Manuales y Documentación Técnica</h5>
-                        <p>En esta sección encontrarás los manuales y la documentación técnica necesarios para comprender y utilizar la plataforma de forma efectiva.</p>           
+                        <h5 class="card-title">Manuales y Documentación</h5>
+                        <p>En esta sección encontrarás manuales y documentación técnica para usar la plataforma de manera efectiva.</p>           
                     </div>
                 </div>
                 <div class="scrollable-list">
                     <ul class="lista">
-                        {% for documento in documentos %}
+                        {% if manual %}
                         <li>
                             <div class="icon-cont">
                                 <img src="{% static 'img/Documents1.png' %}" alt="Icono" class="icono">
                             </div>
                             <div class="texto-lista">
-                                <span class="titulo">{{ documento.titulo }}</span>
-                                <span class="subtitulo">{{ documento.tipo_archivo }}</span>
+                                <span class="titulo">{{ manual.nom_doc }}</span>
+                                <span class="subtitulo">{{ manual.tipo }}</span>
                             </div>
                             <div class="acciones">
-                                <a href="{{ documento.archivo.url }}" target="_blank" class="fas1 fa-eye" title="Ver"></a>
-                                <a href="{{ documento.archivo.url }}" download class="fa fa-download1" aria-hidden="true" title="Descargar"></a>
+                                <a href="{{ manual.archivo.url }}" target="_blank" class="fas1 fa-eye" title="Ver"></a>
+                                <a href="{{ manual.archivo.url }}" download class="fa fa-download1" aria-hidden="true" title="Descargar"></a>
                             </div>
                         </li>
-                        {% empty %}
-                        <div class="empty-message">
-                            <i class="fa fa-folder-open"></i>
-                            <p>No hay documentos disponibles en este momento</p>
-                        </div>
-                        {% endfor %}
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -88,9 +83,9 @@
                 </div>
                 <div class="scrollable-list">
                     <ul class="lista" id="lista-videos">
-                         <li class="item-video" data-youtube-id="REEMPLAZAR_ID_13">
+                        <li class="item-video" data-youtube-id="B14qVFMaBzg">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">Introducción</span>
@@ -101,9 +96,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_1">
+                        <li class="item-video" data-youtube-id="gR79MA62nJA">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">1. Acceso a la plataforma y Registro de usuario</span>
@@ -114,9 +109,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_2">
+                        <li class="item-video" data-youtube-id="OKHIwPsL9XE">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">2. Inicio de sesión y Redirección al perfil</span>
@@ -127,9 +122,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_3">
+                        <li class="item-video" data-youtube-id="ydFrFf7RQaE">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">3. Homepage y Panel de Notificaciones</span>
@@ -140,9 +135,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_4">
+                        <li class="item-video" data-youtube-id="e-pqOmXLcV0">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">4. Gestión de Semilleros</span>
@@ -153,9 +148,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_5">
+                        <li class="item-video" data-youtube-id="iOmT5_MOFR0">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">5. Miembros del Semillero</span>
@@ -166,9 +161,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_6">
+                        <li class="item-video" data-youtube-id="HG8ua3e3BJE">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">6. Proyectos del Semillero</span>
@@ -179,9 +174,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_7">
+                        <li class="item-video" data-youtube-id="8oVOlqguQqQ">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">7. Recursos del Semillero</span>
@@ -192,9 +187,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_8">
+                        <li class="item-video" data-youtube-id="5ye9HxhCgUE">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">8. Gestión de Proyectos</span>
@@ -205,9 +200,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_9">
+                        <li class="item-video" data-youtube-id="f3qZf_RGxY4">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">9. Gestión de Miembros</span>
@@ -218,9 +213,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_10">
+                        <li class="item-video" data-youtube-id="ovgNJgO9OSQ">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">10. Gestión de Eventos</span>
@@ -231,9 +226,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_11">
+                        <li class="item-video" data-youtube-id="Q5C09YGd_xA">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">11. Gestión de Reportes</span>
@@ -244,9 +239,9 @@
                             </div>
                         </li>
 
-                        <li class="item-video" data-youtube-id="REEMPLAZAR_ID_12">
+                        <li class="item-video" data-youtube-id="3ZPOFNfzUYk">
                             <div class="icon-cont">
-                                <img src="{% static 'img/cinema.png' %}" alt="Icono" class="icono">
+                                <i alt="Icono" class="fab fa-youtube"></i>
                             </div>
                             <div class="texto-lista">
                                 <span class="titulo">12. Actualización de Contraseña</span>
@@ -269,27 +264,33 @@
                             <h6 class="modal-title text-white" id="modalVideoLabel" style="font-size:0.95rem;"></h6>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>
-                        <div class="modal-body p-0" style="position:relative;">
-                            <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
-                                <iframe
-                                    id="youtube-iframe"
-                                    src=""
-                                    title="Video tutorial"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    allowfullscreen
-                                    style="position:absolute; top:0; left:0; width:100%; height:100%;">
-                                </iframe>
+                        <!-- ── MODAL BODY: contenedor relativo con aspect ratio 16:9 ── -->
+                        <div class="modal-body p-0" style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; min-height:400px;">
+
+                            <!-- Contenedor del player de YouTube -->
+                            <div id="player-container" style="position:absolute; top:0; left:0; width:100%; height:100%;">
+                                <div id="youtube-player"></div>
                             </div>
-                            <!-- Fallback si el video no permite embedding -->
-                            <div id="video-fallback" style="display:none; position:absolute; inset:0; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; text-align:center;">
-                                <i class="fab fa-youtube" style="font-size:3rem; color:#ff0000;"></i>
-                                <p style="color:#fff; margin:0; font-size:0.95rem;">Este video no permite reproducción embebida.<br>Puedes verlo directamente en YouTube.</p>
+
+                            <!-- Fallback cuando el video no permite embedding -->
+                            <div id="video-fallback" style="display:none; position:absolute; inset:0; background:#111; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; text-align:center;">
+                                <div style="background:#fff; border-radius:50%; width:80px; height:80px; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fab fa-youtube" style="font-size:3rem; color:#ff0000; background:none !important; padding:0 !important; box-shadow:none !important; border-radius:0 !important;"></i>
+                                </div>
+
+                                <p style="color:#fff; margin:0; font-size:0.95rem;">
+                                    Este video no permite reproducción embebida.<br>
+                                    Puedes verlo directamente en YouTube.
+                                </p>
+
+                                <!-- Botón completo clickeable con ícono alineado al texto -->
                                 <a id="btn-abrir-youtube" href="#" target="_blank" rel="noopener noreferrer"
-                                    style="background:#ff0000; color:#fff; padding:10px 22px; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:8px;">
-                                    <i class="fab fa-youtube"></i> Ver en YouTube
+                                    style="background:#ff0000; color:#fff; padding:10px 22px; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.9rem; display:inline-flex; align-items:center; justify-content:center; gap:8px; line-height:1;">
+                                    <i class="fab fa-youtube" style="font-size:1rem; color:#ffffff; background:none !important; padding:0 !important; box-shadow:none !important; border-radius:0 !important; vertical-align:middle;"></i>
+                                    <span style="vertical-align:middle;">Ver en YouTube</span>
                                 </a>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -302,7 +303,7 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">Preguntas y Soluciones</h5>
-                        <p>En esta sección encontrarás el formulario de soporte técnico para reportar problemas críticos relacionados con el funcionamiento de la plataforma, que no puedan resolverse con ninguno de los recursos compartidos en esta sección</p>           
+                        <p>En esta sección encontrarás el formulario de soporte técnico para reportar problemas críticos de la plataforma que no puedan resolverse con los recursos disponibles.</p>           
                     </div>
                 </div>
                 <div class="scrollable-list" data-bs-toggle="modal" data-bs-target="#modalformulario">
@@ -325,6 +326,7 @@
         </div>
     </div>
 
+    <!-- ── MODAL FORMULARIO DE SOPORTE ── -->
     <div class="modal fade" id="modalformulario" tabindex="-1" aria-labelledby="modalLabel9" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -361,7 +363,7 @@
                             <select class="form-select" id="urgencia" name="urgencia">
                                 <option value="" selected disabled>Seleccione una opción</option>
                                 <option value="critico">Crítico</option>
-                                <option value="media" >Importante</option>
+                                <option value="media">Importante</option>
                                 <option value="alta">Generales</option>
                             </select>
                         </div>
@@ -380,12 +382,22 @@
             </div>
         </div>
     </div>
+
     <script src="{% static 'js/mensaje.js' %}"></script>
 
-    <script>
-        // ── Reproductor YouTube en modal ──
-        var currentYoutubeId = '';
+    <!-- ── YouTube IFrame Player API ── -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 
+    <script>
+        var ytPlayer          = null;
+        var currentYoutubeId  = '';
+
+        // Requerida por la API; se llama automáticamente cuando la librería carga.
+        function onYouTubeIframeAPIReady() {
+            // No hace falta inicializar nada aquí; el player se crea al abrir el modal.
+        }
+
+        // ── Asignar click a cada ítem de video ──
         document.querySelectorAll('#lista-videos .item-video').forEach(function(item) {
             item.style.cursor = 'pointer';
             item.addEventListener('click', function() {
@@ -398,50 +410,78 @@
                 }
 
                 currentYoutubeId = youtubeId;
-
                 document.getElementById('modalVideoLabel').textContent = titulo;
 
-                // Ocultar fallback, mostrar iframe
-                var iframe   = document.getElementById('youtube-iframe');
-                var fallback = document.getElementById('video-fallback');
-                fallback.style.display = 'none';
-                iframe.style.display   = 'block';
+                // Resetear estado visual
+                document.getElementById('video-fallback').style.display  = 'none';
+                document.getElementById('player-container').style.display = 'block';
 
-                // Usar dominio nocookie (más permisivo con embedding)
-                iframe.src = 'https://www.youtube-nocookie.com/embed/' + youtubeId + '?autoplay=1&rel=0';
-
-                // Detectar error de embedding tras 3 segundos
-                iframe.onload = null;
-                setTimeout(function() {
-                    try {
-                        // Si el iframe cargó una página de error de YT, mostramos fallback
-                        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                        if (iframeDoc && iframeDoc.title && iframeDoc.title.toLowerCase().includes('error')) {
-                            mostrarFallback(youtubeId);
-                        }
-                    } catch(e) {
-                        // Cross-origin: significa que cargó bien (YouTube bloqueó el acceso JS = buena señal)
-                    }
-                }, 3000);
-
+                // Mostrar modal
                 var modal = new bootstrap.Modal(document.getElementById('modalVideo'));
                 modal.show();
+
+                // Destruir player anterior si existe
+                if (ytPlayer) {
+                    ytPlayer.destroy();
+                    ytPlayer = null;
+                }
+
+                // Recrear el div destino (la API lo reemplaza por un <iframe>)
+                document.getElementById('player-container').innerHTML =
+                    '<div id="youtube-player"></div>';
+
+                // Crear nuevo player
+                ytPlayer = new YT.Player('youtube-player', {
+                    videoId: youtubeId,
+                    width:   '100%',
+                    height:  '100%',
+                    playerVars: {
+                        autoplay:       1,
+                        rel:            0,
+                        modestbranding: 1
+                    },
+                    events: {
+                        onReady: function(e) {
+                            // Asegurar que el iframe ocupe todo el contenedor
+                            var iframe = e.target.getIframe();
+                            iframe.style.position = 'absolute';
+                            iframe.style.top      = '0';
+                            iframe.style.left     = '0';
+                            iframe.style.width    = '100%';
+                            iframe.style.height   = '100%';
+                        },
+                        onError: function(e) {
+                            // Códigos 101 y 150: el propietario no permite embedding
+                            if (e.data === 101 || e.data === 150) {
+                                mostrarFallback(youtubeId);
+                            }
+                        }
+                    }
+                });
             });
         });
 
+        // ── Mostrar fallback cuando el embedding está bloqueado ──
         function mostrarFallback(youtubeId) {
-            document.getElementById('youtube-iframe').style.display = 'none';
+            document.getElementById('player-container').style.display = 'none';
             var fallback = document.getElementById('video-fallback');
             fallback.style.display = 'flex';
             document.getElementById('btn-abrir-youtube').href =
                 'https://www.youtube.com/watch?v=' + youtubeId;
         }
 
-        // Detener video al cerrar modal
+        // ── Detener y limpiar al cerrar el modal ──
         document.getElementById('modalVideo').addEventListener('hidden.bs.modal', function() {
-            document.getElementById('youtube-iframe').src = '';
-            document.getElementById('youtube-iframe').style.display = 'block';
-            document.getElementById('video-fallback').style.display = 'none';
+            if (ytPlayer) {
+                ytPlayer.destroy();
+                ytPlayer = null;
+            }
+            // Restaurar contenedor vacío para la próxima apertura
+            document.getElementById('player-container').innerHTML =
+                '<div id="youtube-player"></div>';
+            document.getElementById('player-container').style.display = 'block';
+            document.getElementById('video-fallback').style.display   = 'none';
         });
     </script>
+
 {% endblock %}

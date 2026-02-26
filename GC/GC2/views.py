@@ -3696,8 +3696,11 @@ def centroayuda(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect('iniciarsesion')
     
+    manual = Documento.objects.filter(nom_doc='Manual De Usuario').first()
+    
     contexto = {
-        'usuario': usuario
+        'usuario': usuario,
+        'manual': manual
     }
     return render(request, 'paginas/centroayuda.html', contexto)
 

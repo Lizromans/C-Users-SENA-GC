@@ -623,7 +623,8 @@
     display: flex;
     background-color: transparent !important;
     align-items: center;
-    gap: clamp(12px, 2vw, 18px);
+    justify-content: center;
+    gap: clamp(10px, 1.5vw, 16px);
     margin-bottom: clamp(25px, 3vh, 35px);
     padding-bottom: clamp(15px, 2vh, 20px);
     border-bottom: 3px solid #9747FF;
@@ -649,7 +650,7 @@
 
 .modal-titulo {
     font-weight: 800;
-    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-size: clamp(1rem, 2vw, 1.4rem);
     color: #333;
     margin: 0;
 }
