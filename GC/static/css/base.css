@@ -742,6 +742,7 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
     font-size: 1.1rem; 
 }
 
+/* ── Clases legacy ── */
 .notification-icon-type.success { 
     background: linear-gradient(135deg,#e8f5e9,#c8e6c9); 
     color:#388e3c; 
@@ -760,6 +761,148 @@ html.sidebar-collapsed .sidebar .logout-btn .nav-icon {
 .notification-icon-type.info    { 
     background: linear-gradient(135deg,#e3f2fd,#bbdefb); 
     color:#1976d2; 
+}
+
+/* ════════════════════════════════════════════════════
+   Color único por tipo de notificación
+   ════════════════════════════════════════════════════ */
+
+/* 📁 Archivo nuevo / subido — Violeta */
+.notification-icon-type.notif-archivo {
+    background: linear-gradient(135deg, #ede9fe, #c4b5fd);
+    color: #6d28d9;
+}
+
+/* 📁 Archivo eliminado — Rosa */
+.notification-icon-type.notif-archivo-del {
+    background: linear-gradient(135deg, #fce7f3, #f9a8d4);
+    color: #be185d;
+}
+
+/* 🔄 Cambio de estado de proyecto — Naranja quemado */
+.notification-icon-type.notif-estado-proy {
+    background: linear-gradient(135deg, #ffedd5, #fed7aa);
+    color: #c2410c;
+}
+
+/* 📊 Proyecto nuevo / general — Azul */
+.notification-icon-type.notif-proyecto {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1d4ed8;
+}
+
+/* 👥 Miembro asignado / agregado — Verde azulado */
+.notification-icon-type.notif-miembro {
+    background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+    color: #0f766e;
+}
+
+/* 👥 Miembro eliminado / removido — Rojo */
+.notification-icon-type.notif-miembro-del {
+    background: linear-gradient(135deg, #fee2e2, #fca5a5);
+    color: #b91c1c;
+}
+
+/* 📅 Evento próximo — Amarillo */
+.notification-icon-type.notif-evento-prox {
+    background: linear-gradient(135deg, #fef9c3, #fde047);
+    color: #a16207;
+}
+
+/* 📅 Evento nuevo / general — Naranja */
+.notification-icon-type.notif-evento {
+    background: linear-gradient(135deg, #fff7ed, #fed7aa);
+    color: #c2410c;
+}
+
+/* 📅 Evento cancelado — Rojo oscuro */
+.notification-icon-type.notif-evento-del {
+    background: linear-gradient(135deg, #fee2e2, #fca5a5);
+    color: #991b1b;
+}
+
+/* 📋 Entregable enviado / general — Morado */
+.notification-icon-type.notif-entregable {
+    background: linear-gradient(135deg, #fdf4ff, #e9d5ff);
+    color: #7e22ce;
+}
+
+/* 📋 Entregable vencido — Rosa oscuro */
+.notification-icon-type.notif-entregable-ven {
+    background: linear-gradient(135deg, #fff1f2, #fecdd3);
+    color: #be123c;
+}
+
+/* 🌱 Semillero — Verde */
+.notification-icon-type.notif-semillero {
+    background: linear-gradient(135deg, #f0fdf4, #bbf7d0);
+    color: #15803d;
+}
+
+/* ✅ Usuario activo — Verde oscuro */
+.notification-icon-type.notif-user-on {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    color: #388e3c;
+}
+
+/* ❌ Usuario inactivo — Naranja quemado */
+.notification-icon-type.notif-user-off {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    color: #e65100;
+}
+
+/* 👤 Usuario / perfil general — Azul claro */
+.notification-icon-type.notif-usuario {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: #1565c0;
+}
+
+/* 🔐 Privacidad / contraseña — Lavanda */
+.notification-icon-type.notif-privacidad {
+    background: linear-gradient(135deg, #f3e8ff, #d8b4fe);
+    color: #7c3aed;
+}
+
+/* ⚠️ Error — Rojo */
+.notification-icon-type.notif-error {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    color: #c62828;
+}
+
+/* ⚠️ Alerta / advertencia — Amarillo oscuro */
+.notification-icon-type.notif-alerta {
+    background: linear-gradient(135deg, #fffde7, #fff9c4);
+    color: #f57f17;
+}
+
+/* 🎓 Aprendiz — Azul índigo */
+.notification-icon-type.notif-aprendiz {
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    color: #4338ca;
+}
+
+/* 👑 Líder / Rol — Dorado */
+.notification-icon-type.notif-lider {
+    background: linear-gradient(135deg, #fefce8, #fef08a);
+    color: #b45309;
+}
+
+/* 💬 Mensaje / comentario — Cian */
+.notification-icon-type.notif-mensaje {
+    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    color: #00838f;
+}
+
+/* ⚙️ Sistema / mantenimiento — Gris azulado */
+.notification-icon-type.notif-sistema {
+    background: linear-gradient(135deg, #eceff1, #cfd8dc);
+    color: #455a64;
+}
+
+/* 🔔 Default (fallback) — Gris neutro */
+.notification-icon-type.notif-default {
+    background: linear-gradient(135deg, #f1f3f5, #e2e8f0);
+    color: #64748b;
 }
 
 .notification-title { 
@@ -1649,7 +1792,7 @@ input::-webkit-textfield-decoration-container {
         pointer-events: auto !important; 
     }
 
-    .sidebar .nav-icon, .sidebar .config-btn .nav-icon, .sidebar .logout-btn .nav-icon { 
+    .sidebar .nav-icon { 
         margin-right: 12px !important;
     }
 

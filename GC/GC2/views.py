@@ -91,42 +91,56 @@ def descifrar_numero(numero_cifrado):
     except:
         return "****"  
 
+def _get_usuario_from_session(request):
+    """
+    Retorna (usuario, error_response) — si hay error, usuario es None.
+    Centraliza la lógica de validación de sesión.
+    """
+    cedula = request.session.get('cedula')
+    if not cedula:
+        return None, JsonResponse({
+            'success': False,
+            'error': 'No hay sesión activa',
+            'notificaciones': [],
+            'count': 0
+        }, status=401)
+
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+        return usuario, None
+    except Usuario.DoesNotExist:
+        return None, JsonResponse({
+            'success': False,
+            'error': 'Usuario no encontrado',
+            'notificaciones': [],
+            'count': 0
+        }, status=404)
+
 @require_http_methods(["GET"])
 def api_notificaciones(request):
+    """
+    Devuelve las notificaciones del usuario en sesión.
+    Usada por el dropdown (muestra las primeras 5, pero carga 50).
+    """
     try:
-        if not request.session.get('cedula'):
-            return JsonResponse({
-                'success': False,
-                'error': 'No hay sesión activa',
-                'notificaciones': [],
-                'count': 0
-            }, status=401)
-    
-        cedula = request.session.get('cedula')
-        
-        try:
-            usuario = Usuario.objects.get(cedula=cedula)
-        except Usuario.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'error': 'Usuario no encontrado',
-                'notificaciones': [],
-                'count': 0
-            }, status=404)
-        
-        resultado = obtener_notificaciones_usuario(usuario, limite=18)
-        
+        usuario, error = _get_usuario_from_session(request)
+        if error:
+            return error
+
+        # ✅ FIX #1: limite aumentado de 18 a 50
+        resultado = obtener_notificaciones_usuario(usuario, limite=50)
+
         return JsonResponse({
             'success': True,
+            # ✅ FIX #2: clave unificada 'notificaciones' (el JS usa esta)
             'notificaciones': resultado['notificaciones'],
             'count': resultado['total'],
             'resumen': resultado['resumen']
         })
-        
+
     except Exception as e:
         import traceback
         traceback.print_exc()
-        
         return JsonResponse({
             'success': False,
             'error': str(e),
@@ -136,58 +150,63 @@ def api_notificaciones(request):
 
 @require_http_methods(["GET"])
 def api_todas_notificaciones(request):
+    """
+    Devuelve TODAS las notificaciones (sin límite reducido).
+    Usada por el drawer lateral.
+    """
     try:
-        if not request.session.get('cedula'):
+        usuario, error = _get_usuario_from_session(request)
+        if error:
+            # ✅ FIX: respetar el formato de error consistente
             return JsonResponse({
                 'success': False,
-                'error': 'No hay sesión activa',
-                'notifications': []
-            }, status=401)
-        
-        cedula = request.session.get('cedula')
-        
-        try:
-            usuario = Usuario.objects.get(cedula=cedula)
-        except Usuario.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'error': 'Usuario no encontrado',
-                'notifications': []
-            }, status=404)
-        
-        resultado = obtener_notificaciones_usuario(usuario, limite=50)
-        
+                'error': error.content.decode(),
+                # ✅ FIX #2: clave 'notifications' → 'notificaciones' (unificado)
+                'notificaciones': []
+            }, status=error.status_code)
+
+        resultado = obtener_notificaciones_usuario(usuario, limite=100)
+
         return JsonResponse({
             'success': True,
+            # ✅ FIX #2: antes era 'notifications', ahora 'notificaciones'
+            # El JS en notifications_frontend.js ya lee 'notifications' en loadAllNotifications()
+            # Mantenemos ambas claves por compatibilidad con código existente
             'notifications': resultado['notificaciones'],
+            'notificaciones': resultado['notificaciones'],
             'count': resultado['total'],
             'resumen': resultado['resumen']
         })
-        
+
     except Exception as e:
         import traceback
         traceback.print_exc()
-        
         return JsonResponse({
             'success': False,
             'error': str(e),
-            'notifications': []
+            'notifications': [],
+            'notificaciones': []
         }, status=500)
 
 @require_http_methods(["POST"])
 def api_marcar_leidas(request):
+    """
+    Marca todas las notificaciones como leídas.
+    Actualmente la lógica es stateless (no hay modelo NotificacionLeida),
+    pero la vista responde correctamente y puede extenderse.
+    """
     try:
-        if not request.session.get('cedula'):
-            return JsonResponse({
-                'success': False,
-                'error': 'No hay sesión activa'
-            }, status=401)
-        
+        usuario, error = _get_usuario_from_session(request)
+        if error:
+            return error
+
+        # ✅ FIX #3: devolver el resumen actualizado (count = 0 sin leer)
         return JsonResponse({
             'success': True,
-            'message': 'Notificaciones marcadas como leídas'
+            'message': 'Notificaciones marcadas como leídas',
+            'count': 0
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -196,23 +215,28 @@ def api_marcar_leidas(request):
 
 @require_http_methods(["POST"])
 def api_limpiar_todas(request):
+    """
+    Limpia/descarta todas las notificaciones del usuario.
+    La lógica de ocultamiento es client-side (localStorage con TTL 24h).
+    Esta vista confirma la acción al servidor.
+    """
     try:
-        if not request.session.get('cedula'):
-            return JsonResponse({
-                'success': False,
-                'error': 'No hay sesión activa'
-            }, status=401)
-        
+        usuario, error = _get_usuario_from_session(request)
+        if error:
+            return error
+
+        # ✅ FIX #3: respuesta consistente con count = 0
         return JsonResponse({
             'success': True,
-            'message': 'Notificaciones eliminadas'
+            'message': 'Notificaciones descartadas',
+            'count': 0
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
             'error': str(e)
-        }, status=500)  
+        }, status=500)
 
 
 # VISTAS DE LOGIN Y REGISTRO
