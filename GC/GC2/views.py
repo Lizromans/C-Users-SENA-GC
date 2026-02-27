@@ -93,8 +93,8 @@ def descifrar_numero(numero_cifrado):
 
 def _get_usuario_from_session(request):
     """
-    Retorna (usuario, error_response) — si hay error, usuario es None.
-    Centraliza la lógica de validación de sesión.
+    Retorna (usuario, error_response).
+    Si hay error, usuario es None y error_response es un JsonResponse listo.
     """
     cedula = request.session.get('cedula')
     if not cedula:
@@ -127,12 +127,10 @@ def api_notificaciones(request):
         if error:
             return error
 
-        # ✅ FIX #1: limite aumentado de 18 a 50
         resultado = obtener_notificaciones_usuario(usuario, limite=50)
 
         return JsonResponse({
             'success': True,
-            # ✅ FIX #2: clave unificada 'notificaciones' (el JS usa esta)
             'notificaciones': resultado['notificaciones'],
             'count': resultado['total'],
             'resumen': resultado['resumen']
@@ -148,31 +146,24 @@ def api_notificaciones(request):
             'count': 0
         }, status=500)
 
+
 @require_http_methods(["GET"])
 def api_todas_notificaciones(request):
     """
-    Devuelve TODAS las notificaciones (sin límite reducido).
+    Devuelve TODAS las notificaciones sin límite reducido.
     Usada por el drawer lateral.
     """
     try:
         usuario, error = _get_usuario_from_session(request)
         if error:
-            # ✅ FIX: respetar el formato de error consistente
-            return JsonResponse({
-                'success': False,
-                'error': error.content.decode(),
-                # ✅ FIX #2: clave 'notifications' → 'notificaciones' (unificado)
-                'notificaciones': []
-            }, status=error.status_code)
+            # ✅ FIX: reenviar directamente el JsonResponse de error
+            # (antes hacía error.content.decode() que devolvía string en vez de objeto)
+            return error
 
         resultado = obtener_notificaciones_usuario(usuario, limite=100)
 
         return JsonResponse({
             'success': True,
-            # ✅ FIX #2: antes era 'notifications', ahora 'notificaciones'
-            # El JS en notifications_frontend.js ya lee 'notifications' en loadAllNotifications()
-            # Mantenemos ambas claves por compatibilidad con código existente
-            'notifications': resultado['notificaciones'],
             'notificaciones': resultado['notificaciones'],
             'count': resultado['total'],
             'resumen': resultado['resumen']
@@ -184,23 +175,22 @@ def api_todas_notificaciones(request):
         return JsonResponse({
             'success': False,
             'error': str(e),
-            'notifications': [],
-            'notificaciones': []
+            'notificaciones': [],
+            'count': 0
         }, status=500)
+
 
 @require_http_methods(["POST"])
 def api_marcar_leidas(request):
     """
-    Marca todas las notificaciones como leídas.
-    Actualmente la lógica es stateless (no hay modelo NotificacionLeida),
-    pero la vista responde correctamente y puede extenderse.
+    Confirma al servidor que el usuario marcó todas como leídas.
+    La lógica real es client-side (localStorage).
     """
     try:
         usuario, error = _get_usuario_from_session(request)
         if error:
             return error
 
-        # ✅ FIX #3: devolver el resumen actualizado (count = 0 sin leer)
         return JsonResponse({
             'success': True,
             'message': 'Notificaciones marcadas como leídas',
@@ -213,22 +203,21 @@ def api_marcar_leidas(request):
             'error': str(e)
         }, status=500)
 
+
 @require_http_methods(["POST"])
 def api_limpiar_todas(request):
     """
-    Limpia/descarta todas las notificaciones del usuario.
-    La lógica de ocultamiento es client-side (localStorage con TTL 24h).
-    Esta vista confirma la acción al servidor.
+    Confirma al servidor que el usuario limpió todas las notificaciones.
+    El dismiss real con TTL de 24h lo maneja el JS en localStorage.
     """
     try:
         usuario, error = _get_usuario_from_session(request)
         if error:
             return error
 
-        # ✅ FIX #3: respuesta consistente con count = 0
         return JsonResponse({
             'success': True,
-            'message': 'Notificaciones descartadas',
+            'message': 'Notificaciones descartadas por 24 horas',
             'count': 0
         })
 
@@ -237,7 +226,6 @@ def api_limpiar_todas(request):
             'success': False,
             'error': str(e)
         }, status=500)
-
 
 # VISTAS DE LOGIN Y REGISTRO
 def registro(request):

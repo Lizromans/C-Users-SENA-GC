@@ -272,7 +272,7 @@ class Semillero(models.Model):
     desc_sem = models.TextField()
     objetivo = models.TextField()
     estado = models.CharField(max_length=250)
-    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
+    fecha_creacion = models.DateField(auto_now_add=True, null=True)
     progreso_sem = models.IntegerField(default=0)
 
     proyectos = models.ManyToManyField(
