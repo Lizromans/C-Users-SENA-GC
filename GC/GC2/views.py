@@ -1239,12 +1239,13 @@ def resu_miembros(request, id_sem):
     ).values_list('cedula', flat=True)
 
     usuarios = Usuario.objects.filter(cedula__in=cedulas_en_semillero)
-    usuarios_disponibles = Usuario.objects.exclude(cedula__in=cedulas_en_semillero)
+
+    todos_en_algun_semillero = SemilleroUsuario.objects.values_list('cedula', flat=True)
+    usuarios_disponibles = Usuario.objects.exclude(cedula__in=todos_en_algun_semillero)
 
     aprendices = Aprendiz.objects.filter(id_sem=semillero)
     
-    # ✅ NUEVO: aprendices que aún no pertenecen a este semillero
-    aprendices_disponibles = Aprendiz.objects.exclude(id_sem=semillero)
+    aprendices_disponibles = Aprendiz.objects.filter(id_sem__isnull=True)
 
     buscar = request.GET.get('buscar', '').strip()
     if buscar:
@@ -5612,7 +5613,28 @@ def generar_reporte_dinamico(request):
         return redirect("reportes")
 
     formato = request.POST.get("formato", "excel")
-    
+    categorias = request.POST.getlist("categoria")
+
+    campos_vacios = []
+    nombres = {
+        "semilleros": "Semilleros",
+        "proyectos": "Proyectos",
+        "miembros": "Miembros",
+        "entregables": "Entregables",
+    }
+    for cat in categorias:
+        campos = request.POST.getlist(f"campo_{cat}")
+        if not campos:
+            campos_vacios.append(nombres.get(cat, cat))
+
+    if campos_vacios:
+        categorias_str = ", ".join(campos_vacios)
+        messages.error(
+            request,
+            f"Debes seleccionar al menos un campo en: {categorias_str}"
+        )
+        return redirect("reportes")
+
     if formato == "pdf":
         return generar_reporte_pdf(request)
     else:
